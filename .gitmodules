@@ -1,0 +1,3 @@
+[submodule "CMake/CMakePCHCompiler"]
+	path = CMake/CMakePCHCompiler
+	url = https://github.com/nanoant/CMakePCHCompiler.git

@@ -1,0 +1,61 @@
+#include <Wt/Auth/AuthService>
+#include <Wt/Auth/AuthWidget>
+#include <Wt/Auth/HashFunction>
+#include <Wt/Auth/Identity>
+#include <Wt/Auth/PasswordService>
+#include <Wt/Auth/PasswordStrengthValidator>
+#include <Wt/Auth/PasswordVerifier>
+
+#include <Wt/Dbo/backend/Postgres>
+#include <Wt/Dbo/Dbo>
+#include <Wt/Dbo/FixedSqlConnectionPool>
+#include <Wt/Dbo/SqlConnectionPool>
+#include <Wt/Dbo/Impl>
+#include <Wt/Dbo/Transaction>
+#include <Wt/Dbo/Types>
+#include <Wt/Dbo/WtSqlTraits>
+
+#include <Wt/Http/Response>
+
+#include <Wt/WAnchor>
+#include <Wt/WApplication>
+#include <Wt/WBootstrapTheme>
+#include <Wt/WBreak>
+#include <Wt/WComboBox>
+#include <Wt/WCompositeWidget>
+#include <Wt/WContainerWidget>
+#include <Wt/WDateTime>
+#include <Wt/WEnvironment>
+#include <Wt/WEvent>
+#include <Wt/WImage>
+#include <Wt/WLineEdit>
+#include <Wt/WLocalDateTime>
+#include <Wt/WLocale>
+#include <Wt/WLogger>
+#include <Wt/WMenuItem>
+#include <Wt/WMessageBox>
+#include <Wt/WPushButton>
+#include <Wt/WServer>
+#include <Wt/WScrollArea>
+#include <Wt/WString>
+#include <Wt/WSuggestionPopup>
+#include <Wt/WTable>
+#include <Wt/WTemplate>
+#include <Wt/WText>
+
+#include <boost/filesystem.hpp>
+#include <boost/lexical_cast.hpp>
+
+#include <algorithm>
+#include <cctype>
+#include <cstdlib>
+#include <fstream>
+#include <functional>
+#include <iostream>
+#include <locale>
+#include <regex>
+#include <stdexcept>
+#include <sstream>
+#include <streambuf>
+#include <string>
+#include <vector>

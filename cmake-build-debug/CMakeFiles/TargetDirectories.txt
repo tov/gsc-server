@@ -1,0 +1,4 @@
+/Users/tov/projects/gsc/cmake-build-debug/CMakeFiles/edit_cache.dir
+/Users/tov/projects/gsc/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+/Users/tov/projects/gsc/cmake-build-debug/CMakeFiles/gsc.pch.dir
+/Users/tov/projects/gsc/cmake-build-debug/CMakeFiles/gsc.dir

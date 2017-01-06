@@ -1,0 +1,381 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6"/>
+	<Project>
+		<Option title="gsc"/>
+		<Option makefile_is_custom="1"/>
+		<Option compiler="gcc"/>
+		<Option virtualFolders="CMake Files\;CMake Files\CMake\;CMake Files\CMake\CMakePCHCompiler\;CMake Files\CMake\CMakePCHCompiler\Platform\;"/>
+		<Build>
+			<Target title="all">
+				<Option working_dir="/Users/tov/projects/gsc/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/Users/tov/projects/gsc/cmake-build-debug/Makefile&quot;  VERBOSE=1 all"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/Users/tov/projects/gsc/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/Users/tov/projects/gsc/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/Users/tov/projects/gsc/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="edit_cache">
+				<Option working_dir="/Users/tov/projects/gsc/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/Users/tov/projects/gsc/cmake-build-debug/Makefile&quot;  VERBOSE=1 edit_cache"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/Users/tov/projects/gsc/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/Users/tov/projects/gsc/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/Users/tov/projects/gsc/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="rebuild_cache">
+				<Option working_dir="/Users/tov/projects/gsc/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/Users/tov/projects/gsc/cmake-build-debug/Makefile&quot;  VERBOSE=1 rebuild_cache"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/Users/tov/projects/gsc/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/Users/tov/projects/gsc/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/Users/tov/projects/gsc/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="gsc.pch">
+				<Option output="/Users/tov/projects/gsc/cmake-build-debug/CMakeFiles/gsc.pch.dir/gsc.pch.objlib" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/Users/tov/projects/gsc/cmake-build-debug"/>
+				<Option object_output="./"/>
+				<Option type="2"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/../include/c++/v1"/>
+					<Add directory="/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/../lib/clang/8.0.0/include"/>
+					<Add directory="/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include"/>
+					<Add directory="/System/Library/Frameworks"/>
+					<Add directory="/Library/Frameworks"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/Users/tov/projects/gsc/cmake-build-debug/Makefile&quot;  VERBOSE=1 gsc.pch"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/Users/tov/projects/gsc/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/Users/tov/projects/gsc/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/Users/tov/projects/gsc/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="gsc.pch/fast">
+				<Option output="/Users/tov/projects/gsc/cmake-build-debug/CMakeFiles/gsc.pch.dir/gsc.pch.objlib" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/Users/tov/projects/gsc/cmake-build-debug"/>
+				<Option object_output="./"/>
+				<Option type="2"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/../include/c++/v1"/>
+					<Add directory="/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/../lib/clang/8.0.0/include"/>
+					<Add directory="/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include"/>
+					<Add directory="/System/Library/Frameworks"/>
+					<Add directory="/Library/Frameworks"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/Users/tov/projects/gsc/cmake-build-debug/Makefile&quot;  VERBOSE=1 gsc.pch/fast"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/Users/tov/projects/gsc/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/Users/tov/projects/gsc/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/Users/tov/projects/gsc/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="gsc">
+				<Option output="/Users/tov/projects/gsc/cmake-build-debug/gsc" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/Users/tov/projects/gsc/cmake-build-debug"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/../include/c++/v1"/>
+					<Add directory="/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/../lib/clang/8.0.0/include"/>
+					<Add directory="/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include"/>
+					<Add directory="/System/Library/Frameworks"/>
+					<Add directory="/Library/Frameworks"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/Users/tov/projects/gsc/cmake-build-debug/Makefile&quot;  VERBOSE=1 gsc"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/Users/tov/projects/gsc/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/Users/tov/projects/gsc/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/Users/tov/projects/gsc/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="gsc/fast">
+				<Option output="/Users/tov/projects/gsc/cmake-build-debug/gsc" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/Users/tov/projects/gsc/cmake-build-debug"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/../include/c++/v1"/>
+					<Add directory="/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/../lib/clang/8.0.0/include"/>
+					<Add directory="/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include"/>
+					<Add directory="/System/Library/Frameworks"/>
+					<Add directory="/Library/Frameworks"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/Users/tov/projects/gsc/cmake-build-debug/Makefile&quot;  VERBOSE=1 gsc/fast"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/Users/tov/projects/gsc/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/Users/tov/projects/gsc/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/Users/tov/projects/gsc/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+		</Build>
+		<Unit filename="/Users/tov/projects/gsc/src/Application_controller.C">
+			<Option target="gsc"/>
+		</Unit>
+		<Unit filename="/Users/tov/projects/gsc/src/Application_controller.h">
+			<Option target="gsc"/>
+		</Unit>
+		<Unit filename="/Users/tov/projects/gsc/src/Navigate.h">
+			<Option target="gsc"/>
+		</Unit>
+		<Unit filename="/Users/tov/projects/gsc/src/gsc.C">
+			<Option target="gsc"/>
+		</Unit>
+		<Unit filename="/Users/tov/projects/gsc/src/model/Assignment.C">
+			<Option target="gsc"/>
+		</Unit>
+		<Unit filename="/Users/tov/projects/gsc/src/model/Assignment.h">
+			<Option target="gsc"/>
+		</Unit>
+		<Unit filename="/Users/tov/projects/gsc/src/model/Eval_item.C">
+			<Option target="gsc"/>
+		</Unit>
+		<Unit filename="/Users/tov/projects/gsc/src/model/Eval_item.h">
+			<Option target="gsc"/>
+		</Unit>
+		<Unit filename="/Users/tov/projects/gsc/src/model/File_data.C">
+			<Option target="gsc"/>
+		</Unit>
+		<Unit filename="/Users/tov/projects/gsc/src/model/File_data.h">
+			<Option target="gsc"/>
+		</Unit>
+		<Unit filename="/Users/tov/projects/gsc/src/model/File_meta.C">
+			<Option target="gsc"/>
+		</Unit>
+		<Unit filename="/Users/tov/projects/gsc/src/model/File_meta.h">
+			<Option target="gsc"/>
+		</Unit>
+		<Unit filename="/Users/tov/projects/gsc/src/model/Grader_eval.C">
+			<Option target="gsc"/>
+		</Unit>
+		<Unit filename="/Users/tov/projects/gsc/src/model/Grader_eval.h">
+			<Option target="gsc"/>
+		</Unit>
+		<Unit filename="/Users/tov/projects/gsc/src/model/Partner_request.C">
+			<Option target="gsc"/>
+		</Unit>
+		<Unit filename="/Users/tov/projects/gsc/src/model/Partner_request.h">
+			<Option target="gsc"/>
+		</Unit>
+		<Unit filename="/Users/tov/projects/gsc/src/model/Self_eval.C">
+			<Option target="gsc"/>
+		</Unit>
+		<Unit filename="/Users/tov/projects/gsc/src/model/Self_eval.h">
+			<Option target="gsc"/>
+		</Unit>
+		<Unit filename="/Users/tov/projects/gsc/src/model/Session.C">
+			<Option target="gsc"/>
+		</Unit>
+		<Unit filename="/Users/tov/projects/gsc/src/model/Session.h">
+			<Option target="gsc"/>
+		</Unit>
+		<Unit filename="/Users/tov/projects/gsc/src/model/Submission.C">
+			<Option target="gsc"/>
+		</Unit>
+		<Unit filename="/Users/tov/projects/gsc/src/model/Submission.h">
+			<Option target="gsc"/>
+		</Unit>
+		<Unit filename="/Users/tov/projects/gsc/src/model/auth/Auth_token.C">
+			<Option target="gsc"/>
+		</Unit>
+		<Unit filename="/Users/tov/projects/gsc/src/model/auth/Auth_token.h">
+			<Option target="gsc"/>
+		</Unit>
+		<Unit filename="/Users/tov/projects/gsc/src/model/auth/User.C">
+			<Option target="gsc"/>
+		</Unit>
+		<Unit filename="/Users/tov/projects/gsc/src/model/auth/User.h">
+			<Option target="gsc"/>
+		</Unit>
+		<Unit filename="/Users/tov/projects/gsc/src/model/auth/User_database.C">
+			<Option target="gsc"/>
+		</Unit>
+		<Unit filename="/Users/tov/projects/gsc/src/model/auth/User_database.h">
+			<Option target="gsc"/>
+		</Unit>
+		<Unit filename="/Users/tov/projects/gsc/src/model/game/Dictionary.C">
+			<Option target="gsc"/>
+		</Unit>
+		<Unit filename="/Users/tov/projects/gsc/src/model/game/Dictionary.h">
+			<Option target="gsc"/>
+		</Unit>
+		<Unit filename="/Users/tov/projects/gsc/src/model/game/User_stats.C">
+			<Option target="gsc"/>
+		</Unit>
+		<Unit filename="/Users/tov/projects/gsc/src/model/game/User_stats.h">
+			<Option target="gsc"/>
+		</Unit>
+		<Unit filename="/Users/tov/projects/gsc/src/model/specializations.h">
+			<Option target="gsc"/>
+		</Unit>
+		<Unit filename="/Users/tov/projects/gsc/src/prefix.h">
+			<Option target="gsc.pch"/>
+		</Unit>
+		<Unit filename="/Users/tov/projects/gsc/src/view/Accelerator_button.C">
+			<Option target="gsc"/>
+		</Unit>
+		<Unit filename="/Users/tov/projects/gsc/src/view/Accelerator_button.h">
+			<Option target="gsc"/>
+		</Unit>
+		<Unit filename="/Users/tov/projects/gsc/src/view/Accelerator_text.C">
+			<Option target="gsc"/>
+		</Unit>
+		<Unit filename="/Users/tov/projects/gsc/src/view/Accelerator_text.h">
+			<Option target="gsc"/>
+		</Unit>
+		<Unit filename="/Users/tov/projects/gsc/src/view/Admin_view.C">
+			<Option target="gsc"/>
+		</Unit>
+		<Unit filename="/Users/tov/projects/gsc/src/view/Admin_view.h">
+			<Option target="gsc"/>
+		</Unit>
+		<Unit filename="/Users/tov/projects/gsc/src/view/Assignments_view.C">
+			<Option target="gsc"/>
+		</Unit>
+		<Unit filename="/Users/tov/projects/gsc/src/view/Assignments_view.h">
+			<Option target="gsc"/>
+		</Unit>
+		<Unit filename="/Users/tov/projects/gsc/src/view/Confirmation_dialog.C">
+			<Option target="gsc"/>
+		</Unit>
+		<Unit filename="/Users/tov/projects/gsc/src/view/Confirmation_dialog.h">
+			<Option target="gsc"/>
+		</Unit>
+		<Unit filename="/Users/tov/projects/gsc/src/view/Date_time_edit.C">
+			<Option target="gsc"/>
+		</Unit>
+		<Unit filename="/Users/tov/projects/gsc/src/view/Date_time_edit.h">
+			<Option target="gsc"/>
+		</Unit>
+		<Unit filename="/Users/tov/projects/gsc/src/view/Edit_assignment_view.C">
+			<Option target="gsc"/>
+		</Unit>
+		<Unit filename="/Users/tov/projects/gsc/src/view/Edit_assignment_view.h">
+			<Option target="gsc"/>
+		</Unit>
+		<Unit filename="/Users/tov/projects/gsc/src/view/Error_view.C">
+			<Option target="gsc"/>
+		</Unit>
+		<Unit filename="/Users/tov/projects/gsc/src/view/Error_view.h">
+			<Option target="gsc"/>
+		</Unit>
+		<Unit filename="/Users/tov/projects/gsc/src/view/Evaluation_view.C">
+			<Option target="gsc"/>
+		</Unit>
+		<Unit filename="/Users/tov/projects/gsc/src/view/Evaluation_view.h">
+			<Option target="gsc"/>
+		</Unit>
+		<Unit filename="/Users/tov/projects/gsc/src/view/File_list_widget.C">
+			<Option target="gsc"/>
+		</Unit>
+		<Unit filename="/Users/tov/projects/gsc/src/view/File_list_widget.h">
+			<Option target="gsc"/>
+		</Unit>
+		<Unit filename="/Users/tov/projects/gsc/src/view/File_manager_view.C">
+			<Option target="gsc"/>
+		</Unit>
+		<Unit filename="/Users/tov/projects/gsc/src/view/File_manager_view.h">
+			<Option target="gsc"/>
+		</Unit>
+		<Unit filename="/Users/tov/projects/gsc/src/view/File_viewer_widget.C">
+			<Option target="gsc"/>
+		</Unit>
+		<Unit filename="/Users/tov/projects/gsc/src/view/File_viewer_widget.h">
+			<Option target="gsc"/>
+		</Unit>
+		<Unit filename="/Users/tov/projects/gsc/src/view/Main_view.C">
+			<Option target="gsc"/>
+		</Unit>
+		<Unit filename="/Users/tov/projects/gsc/src/view/Main_view.h">
+			<Option target="gsc"/>
+		</Unit>
+		<Unit filename="/Users/tov/projects/gsc/src/view/Submission_owner_widget.C">
+			<Option target="gsc"/>
+		</Unit>
+		<Unit filename="/Users/tov/projects/gsc/src/view/Submission_owner_widget.h">
+			<Option target="gsc"/>
+		</Unit>
+		<Unit filename="/Users/tov/projects/gsc/src/view/Submissions_view.C">
+			<Option target="gsc"/>
+		</Unit>
+		<Unit filename="/Users/tov/projects/gsc/src/view/Submissions_view.h">
+			<Option target="gsc"/>
+		</Unit>
+		<Unit filename="/Users/tov/projects/gsc/src/view/User_suggester.C">
+			<Option target="gsc"/>
+		</Unit>
+		<Unit filename="/Users/tov/projects/gsc/src/view/User_suggester.h">
+			<Option target="gsc"/>
+		</Unit>
+		<Unit filename="/Users/tov/projects/gsc/src/view/game/HangmanWidget.C">
+			<Option target="gsc"/>
+		</Unit>
+		<Unit filename="/Users/tov/projects/gsc/src/view/game/HangmanWidget.h">
+			<Option target="gsc"/>
+		</Unit>
+		<Unit filename="/Users/tov/projects/gsc/src/view/game/HighScoresWidget.C">
+			<Option target="gsc"/>
+		</Unit>
+		<Unit filename="/Users/tov/projects/gsc/src/view/game/HighScoresWidget.h">
+			<Option target="gsc"/>
+		</Unit>
+		<Unit filename="/Users/tov/projects/gsc/src/view/game/ImagesWidget.C">
+			<Option target="gsc"/>
+		</Unit>
+		<Unit filename="/Users/tov/projects/gsc/src/view/game/ImagesWidget.h">
+			<Option target="gsc"/>
+		</Unit>
+		<Unit filename="/Users/tov/projects/gsc/src/view/game/LettersWidget.C">
+			<Option target="gsc"/>
+		</Unit>
+		<Unit filename="/Users/tov/projects/gsc/src/view/game/LettersWidget.h">
+			<Option target="gsc"/>
+		</Unit>
+		<Unit filename="/Users/tov/projects/gsc/src/view/game/WordWidget.C">
+			<Option target="gsc"/>
+		</Unit>
+		<Unit filename="/Users/tov/projects/gsc/src/view/game/WordWidget.h">
+			<Option target="gsc"/>
+		</Unit>
+		<Unit filename="/Users/tov/projects/gsc/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\"/>
+		</Unit>
+		<Unit filename="/Users/tov/projects/gsc/CMake/CMakePCHCompiler/CMakeDetermineCXXPCHCompiler.cmake">
+			<Option virtualFolder="CMake Files\CMake\CMakePCHCompiler\"/>
+		</Unit>
+		<Unit filename="/Users/tov/projects/gsc/CMake/CMakePCHCompiler/CMakePCHCompiler.cmake">
+			<Option virtualFolder="CMake Files\CMake\CMakePCHCompiler\"/>
+		</Unit>
+		<Unit filename="/Users/tov/projects/gsc/CMake/CMakePCHCompiler/CMakeCXXPCHCompiler.cmake.in">
+			<Option virtualFolder="CMake Files\CMake\CMakePCHCompiler\"/>
+		</Unit>
+		<Unit filename="/Users/tov/projects/gsc/CMake/CMakePCHCompiler/CMakeCXXPCHInformation.cmake">
+			<Option virtualFolder="CMake Files\CMake\CMakePCHCompiler\"/>
+		</Unit>
+		<Unit filename="/Users/tov/projects/gsc/CMake/CMakePCHCompiler/CMakePCHCompiler.cmake">
+			<Option virtualFolder="CMake Files\CMake\CMakePCHCompiler\"/>
+		</Unit>
+		<Unit filename="/Users/tov/projects/gsc/CMake/CMakePCHCompiler/CMakeTestCXXPCHCompiler.cmake">
+			<Option virtualFolder="CMake Files\CMake\CMakePCHCompiler\"/>
+		</Unit>
+		<Unit filename="/Users/tov/projects/gsc/CMake/CMakePCHCompiler/Platform/Darwin-AppleClang-CXXPCH.cmake">
+			<Option virtualFolder="CMake Files\CMake\CMakePCHCompiler\Platform\"/>
+		</Unit>
+		<Unit filename="/Users/tov/projects/gsc/CMake/CMakePCHCompiler/Platform/Darwin-Clang-CXXPCH.cmake">
+			<Option virtualFolder="CMake Files\CMake\CMakePCHCompiler\Platform\"/>
+		</Unit>
+	</Project>
+</CodeBlocks_project_file>

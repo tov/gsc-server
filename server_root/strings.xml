@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<messages>
+  <message id="Wt.Auth.login-form-info">
+  </message>
+
+  <message id="highscore.info">
+    <p>
+      For each game won, you gain 20 points, minus one point for each
+      wrong letter guess. <br />
+
+      For each game lost, you lose 10 points.
+    </p>
+  </message>
+
+  <message id="hangman.readyToPlay">
+    <h2>Ready to play?</h2>
+  </message>
+
+  <message id="hangman.dutchWords">
+    Dutch words ({1} words)
+  </message>
+
+  <message id="hangman.englishWords">
+    English words ({1} words)
+  </message>
+
+  <message id="hangman.newGame">New game</message>
+
+  <message id="hangman.guessTheWord">
+    <h2>Guess the word, {1}!</h2>
+  </message>
+
+  <message id="hangman.youHang">
+    You lose. <br />The correct answer was: {1}
+  </message>
+
+  <message id="hangman.youWin">
+    You win!
+  </message>
+</messages>
