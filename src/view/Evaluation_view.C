@@ -151,6 +151,7 @@ void Evaluation_view::Edit_widget::retract_()
     model_.self_eval.remove();
     transaction.commit();
 
+    model_.self_eval = dbo::ptr<Self_eval>();
     main_.go_to((unsigned int) model_.eval_item->sequence());
 }
 
