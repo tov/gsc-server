@@ -11,6 +11,7 @@
 #include <Wt/WApplication>
 #include <Wt/WBreak>
 #include <Wt/WButtonGroup>
+#include <Wt/WCompositeWidget>
 #include <Wt/WHBoxLayout>
 #include <Wt/WPushButton>
 #include <Wt/WRadioButton>
@@ -155,6 +156,89 @@ void Evaluation_view::Edit_widget::retract_()
     main_.go_to((unsigned int) model_.eval_item->sequence());
 }
 
+class Abstract_explanation_holder : public Wt::WCompositeWidget
+{
+public:
+    Abstract_explanation_holder(Wt::WContainerWidget* parent = nullptr);
+
+    virtual std::string explanation() const = 0;
+    virtual void set_explanation(const std::string&) = 0;
+
+    virtual ~Abstract_explanation_holder() { }
+};
+
+Abstract_explanation_holder::Abstract_explanation_holder(
+        Wt::WContainerWidget* parent) : WCompositeWidget(parent)
+{ }
+
+class Editable_explanation_holder : public Abstract_explanation_holder
+{
+public:
+    Editable_explanation_holder(Wt::WContainerWidget* parent = nullptr);
+
+    std::string explanation() const override;
+    void set_explanation(const std::string&) override;
+
+private:
+    Wt::WTextArea* explanation_;
+};
+
+Editable_explanation_holder::Editable_explanation_holder(
+        Wt::WContainerWidget* parent) : Abstract_explanation_holder(parent)
+{
+    auto container = new Wt::WContainerWidget();
+
+    new Wt::WText(
+            "<p>Explain, including line references (e.g. L14):</p>",
+            container);
+
+    explanation_ = new Wt::WTextArea(container);
+    explanation_->setStyleClass("explanation");
+    explanation_->setInline(false);
+
+    setImplementation(container);
+}
+
+std::string Editable_explanation_holder::explanation() const
+{
+    return explanation_->text().toUTF8();
+}
+
+void Editable_explanation_holder::set_explanation(const std::string& text)
+{
+    explanation_->setText(Wt::WString::fromUTF8(text));
+}
+
+class Viewable_explanation_holder : public Abstract_explanation_holder
+{
+public:
+    Viewable_explanation_holder(Wt::WContainerWidget* parent = nullptr);
+
+    std::string explanation() const override;
+    void set_explanation(const std::string&) override;
+
+private:
+    Wt::WText* explanation_;
+};
+
+Viewable_explanation_holder::Viewable_explanation_holder(
+        Wt::WContainerWidget* parent) : Abstract_explanation_holder(parent)
+{
+    auto container = new Wt::WContainerWidget();
+    explanation_ = new Wt::WText(container);
+    setImplementation(container);
+}
+
+std::string Viewable_explanation_holder::explanation() const
+{
+    return explanation_->text().toUTF8();
+}
+
+void Viewable_explanation_holder::set_explanation(const std::string& text)
+{
+    explanation_->setText(Wt::WString::fromUTF8(text));
+}
+
 class Evaluation_view::Response_edit_widget : public Edit_widget
 {
 public:
@@ -169,7 +253,7 @@ protected:
     // Allow derived classes to populate this:
     Wt::WContainerWidget* score_holder_;
     // Allow derived classes to hide this:
-    Wt::WContainerWidget* explanation_holder_;
+    Abstract_explanation_holder* explanation_holder_;
 
 private:
     Wt::WTextArea* explanation_;
@@ -186,30 +270,32 @@ Evaluation_view::Response_edit_widget::Response_edit_widget(
     score_holder_ = new Wt::WContainerWidget(response_);
     score_holder_->setStyleClass("score");
 
-    explanation_holder_ = new Wt::WContainerWidget(response_);
+    switch (mode_) {
+        case Mode::self_eval:
+            explanation_holder_ = new Editable_explanation_holder(response_);
+            break;
 
-    new Wt::WText("<p>Explain, including line references (e.g. L14):</p>",
-                  explanation_holder_);
-
-    explanation_ = new Wt::WTextArea(explanation_holder_);
-    explanation_->setStyleClass("explanation");
-    explanation_->setInline(false);
+        case Mode::self_review:
+        case Mode::grader_eval:
+            explanation_holder_ = new Viewable_explanation_holder(response_);
+            break;
+    }
 }
 
 std::string Evaluation_view::Response_edit_widget::explanation() const
 {
-    return explanation_->text().toUTF8();
+    return explanation_holder_->explanation();
 }
 
 void
 Evaluation_view::Response_edit_widget::set_explanation(const std::string& text)
 {
-    explanation_->setText(Wt::WString::fromUTF8(text));
+    explanation_holder_->set_explanation(text);
 }
 
 void Evaluation_view::Response_edit_widget::reset()
 {
-    explanation_->setText("");
+    explanation_holder_->set_explanation("");
 }
 
 class Evaluation_view::Boolean_edit_widget : public Response_edit_widget
@@ -246,6 +332,11 @@ Evaluation_view::Boolean_edit_widget::Boolean_edit_widget(
     explanation_holder_->hide();
     no_yes_->checkedChanged().connect(this,
                                       &Boolean_edit_widget::toggle_explanation_);
+
+    if (mode_ != Mode::self_eval) {
+        no_->disable();
+        yes_->disable();
+    }
 
     load_();
 }
@@ -314,6 +405,10 @@ Evaluation_view::Scale_edit_widget::Scale_edit_widget(
     number_ = new Wt::WText(score_holder_);
 
     slider_->valueChanged().connect(this, &Scale_edit_widget::update_number_);
+
+    if (mode_ != Mode::self_eval) {
+        slider_->disable();
+    }
 
     load_();
 }
