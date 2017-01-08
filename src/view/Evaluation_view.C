@@ -8,6 +8,7 @@
 #include "../model/Session.h"
 #include "../model/Submission.h"
 
+#include <Wt/WApplication>
 #include <Wt/WBreak>
 #include <Wt/WButtonGroup>
 #include <Wt/WHBoxLayout>
@@ -29,17 +30,24 @@ struct Evaluation_view::Row_model
 class Evaluation_view::Edit_widget : public Wt::WContainerWidget
 {
 public:
-    Edit_widget(Row_model&,
+    enum class Mode {
+        self_eval,
+        self_review,
+        grader_eval,
+    };
+
+    Edit_widget(Row_model&, Mode,
                 Evaluation_view&,
                 Session&,
                 Wt::WContainerWidget* parent = nullptr);
 
     static std::unique_ptr<Edit_widget>
-    create(Row_model&, Evaluation_view&, Session&,
+    create(Row_model&, Mode, Evaluation_view&, Session&,
            Wt::WContainerWidget* parent = nullptr);
 
 protected:
     Row_model& model_;
+    Mode mode_;
     Session& session_;
     Evaluation_view& main_;
 
@@ -57,11 +65,13 @@ protected:
 
 Evaluation_view::Edit_widget::Edit_widget(
         Row_model& model,
+        Mode mode,
         Evaluation_view& main,
         Session& session,
         Wt::WContainerWidget* parent)
         : WContainerWidget(parent),
           model_(model),
+          mode_(mode),
           main_(main),
           session_(session)
 {
@@ -83,8 +93,17 @@ Evaluation_view::Edit_widget::Edit_widget(
     buttons->setStyleClass("buttons");
 
     if (main_.can_eval_()) {
-        auto save = new Wt::WPushButton("Save", buttons);
-        save->clicked().connect(this, &Edit_widget::save_);
+        switch (mode_) {
+            case Mode::self_eval: {
+                auto save = new Wt::WPushButton("Save", buttons);
+                save->clicked().connect(this, &Edit_widget::save_);
+                break;
+            }
+
+            case Mode::self_review:
+            case Mode::grader_eval:
+                break;
+        }
     }
 }
 
@@ -110,12 +129,18 @@ void Evaluation_view::Edit_widget::save_()
     auto self_eval = model_.self_eval.modify();
     self_eval->set_score(score());
     self_eval->set_explanation(explanation());
+
+    int next = model_.self_eval->eval_item()->sequence() + 1;
+    if (0 < next && next < main_.model_.size())
+        main_.go_to((unsigned int) next);
+    else
+        main_.go_default();
 }
 
 class Evaluation_view::Response_edit_widget : public Edit_widget
 {
 public:
-    Response_edit_widget(Row_model&, Evaluation_view&, Session&,
+    Response_edit_widget(Row_model&, Mode, Evaluation_view&, Session&,
                          WContainerWidget* parent = nullptr);
 
 protected:
@@ -134,10 +159,11 @@ private:
 
 Evaluation_view::Response_edit_widget::Response_edit_widget(
         Row_model& model,
+        Mode mode,
         Evaluation_view& main,
         Session& session,
         Wt::WContainerWidget* parent)
-        : Edit_widget(model, main, session, parent)
+        : Edit_widget(model, mode, main, session, parent)
 {
     score_holder_ = new Wt::WContainerWidget(response_);
     score_holder_->setStyleClass("score");
@@ -171,7 +197,7 @@ void Evaluation_view::Response_edit_widget::reset()
 class Evaluation_view::Boolean_edit_widget : public Response_edit_widget
 {
 public:
-    Boolean_edit_widget(Row_model&, Evaluation_view&, Session&,
+    Boolean_edit_widget(Row_model&, Mode, Evaluation_view&, Session&,
                         WContainerWidget* parent = nullptr);
 
 protected:
@@ -189,10 +215,11 @@ private:
 
 Evaluation_view::Boolean_edit_widget::Boolean_edit_widget(
         Row_model& model,
+        Mode mode,
         Evaluation_view& main,
         Session& session,
         Wt::WContainerWidget* parent)
-        : Response_edit_widget(model, main, session, parent)
+        : Response_edit_widget(model, mode, main, session, parent)
 {
     no_yes_ = new Wt::WButtonGroup(score_holder_);
     no_yes_->addButton(no_ = new Wt::WRadioButton("No", score_holder_));
@@ -234,7 +261,7 @@ class Evaluation_view::Scale_edit_widget
         : public Evaluation_view::Response_edit_widget
 {
 public:
-    Scale_edit_widget(Row_model&, Evaluation_view&, Session&,
+    Scale_edit_widget(Row_model&, Mode, Evaluation_view&, Session&,
                       WContainerWidget* parent = nullptr);
 
 protected:
@@ -251,10 +278,11 @@ private:
 
 Evaluation_view::Scale_edit_widget::Scale_edit_widget(
         Row_model& model,
+        Mode mode,
         Evaluation_view& main,
         Session& session,
         Wt::WContainerWidget* parent)
-        : Response_edit_widget(model, main, session, parent)
+        : Response_edit_widget(model, mode, main, session, parent)
 {
     slider_ = new Wt::WSlider(score_holder_);
     slider_->resize(200, 50);
@@ -298,7 +326,7 @@ class Evaluation_view::Informational_edit_widget
         : public Evaluation_view::Edit_widget
 {
 public:
-    Informational_edit_widget(Row_model&, Evaluation_view&, Session&,
+    Informational_edit_widget(Row_model&, Mode, Evaluation_view&, Session&,
                               WContainerWidget* parent = nullptr);
 
 protected:
@@ -311,10 +339,11 @@ protected:
 
 Evaluation_view::Informational_edit_widget::Informational_edit_widget(
         Row_model& model,
+        Mode mode,
         Evaluation_view& main,
         Session& session,
         Wt::WContainerWidget* parent)
-        : Edit_widget(model, main, session, parent)
+        : Edit_widget(model, mode, main, session, parent)
 {
     load_();
 }
@@ -347,19 +376,20 @@ void Evaluation_view::Informational_edit_widget::reset()
 
 std::unique_ptr<Evaluation_view::Edit_widget>
 Evaluation_view::Edit_widget::create(Row_model& model,
+                                     Mode mode,
                                      Evaluation_view& main,
                                      Session& session,
                                      Wt::WContainerWidget* parent)
 {
     switch (model.eval_item->type()) {
         case Eval_item::Type::Boolean:
-            return std::make_unique<Boolean_edit_widget>(model, main,
+            return std::make_unique<Boolean_edit_widget>(model, mode, main,
                                                          session, parent);
         case Eval_item::Type::Scale:
-            return std::make_unique<Scale_edit_widget>(model, main,
+            return std::make_unique<Scale_edit_widget>(model, mode, main,
                                                        session, parent);
         case Eval_item::Type::Informational:
-            return std::make_unique<Informational_edit_widget>(model, main,
+            return std::make_unique<Informational_edit_widget>(model, mode, main,
                                                                session, parent);
     }
 }
@@ -381,16 +411,9 @@ Evaluation_view::Evaluation_view(const dbo::ptr<Submission>& submission,
     auto viewer_ = new File_viewer_widget(submission_, session_);
     hbox->addWidget(viewer_);
 
-    auto right_column = new Wt::WContainerWidget;
-    hbox->addWidget(right_column, 1);
-    right_column->setStyleClass("right-column");
-
-    for (auto& row : model_)
-        if (row.eval_item)
-            rows_.push_back(Edit_widget::create(row, *this,
-                                                session_, right_column));
-
-    new File_list_widget(submission_, session_, right_column);
+    right_column_ = new Wt::WContainerWidget;
+    hbox->addWidget(right_column_, 1);
+    right_column_->setStyleClass("right-column");
 }
 
 void Evaluation_view::load_()
@@ -413,14 +436,31 @@ void Evaluation_view::load_()
     }
 }
 
-void Evaluation_view::go_to(int)
+void Evaluation_view::go_to(unsigned int index)
 {
+    std::ostringstream path;
+    path << "/hw/" << submission_->assignment()->number()
+         << "/eval/" << index;
+    Wt::WApplication::instance()->setInternalPath(path.str());
 
+    rows_.clear();
+    rows_.push_back(Edit_widget::create(model_.at(index),
+                                        Edit_widget::Mode::self_eval,
+                                        *this, session_, right_column_));
 }
 
 void Evaluation_view::go_default()
 {
+    std::ostringstream path;
+    path << "/hw/" << submission_->assignment()->number() << "/eval";
+    Wt::WApplication::instance()->setInternalPath(path.str());
 
+    rows_.clear();
+    for (auto& row : model_)
+        if (row.eval_item)
+            rows_.push_back(Edit_widget::create(row,
+                                                Edit_widget::Mode::self_review,
+                                                *this, session_, right_column_));
 }
 
 bool Evaluation_view::can_eval_()

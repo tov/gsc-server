@@ -233,6 +233,10 @@ void Application_controller::handle_internal_path(
             auto assignment = find_assignment({sm[1].first, sm[1].second});
             int m = std::atoi(std::string(sm[2].first, sm[2].second).data());
 
+            if (m < 1 || m > assignment->eval_items().size()) {
+                permission_denied("Question number out of range.");
+            }
+
             switch (current_user->role()) {
                 case User::Role::Student: {
                     auto submission = Submission::find_by_assignment_and_user(
@@ -249,7 +253,7 @@ void Application_controller::handle_internal_path(
                     }
 
                     auto view = new Evaluation_view(submission, session_);
-                    view->go_to(m);
+                    view->go_to((unsigned) m);
 
                     main_->set_title(assignment->name() + " self evaluation");
                     main_->set_widget(view);

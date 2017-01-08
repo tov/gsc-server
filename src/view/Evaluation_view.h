@@ -20,7 +20,7 @@ public:
                     Session&,
                     Wt::WContainerWidget* parent = nullptr);
 
-    void go_to(int);
+    void go_to(unsigned int);
     void go_default();
 
 private:
@@ -33,6 +33,7 @@ private:
     double total_value_;
 
     File_viewer_widget* viewer_;
+    Wt::WContainerWidget* right_column_;
 
     class Edit_widget;
     class Response_edit_widget;
