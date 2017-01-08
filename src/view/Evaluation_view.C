@@ -61,6 +61,7 @@ protected:
 
     void load_();
     void save_();
+    void retract_();
 };
 
 Evaluation_view::Edit_widget::Edit_widget(
@@ -100,7 +101,12 @@ Evaluation_view::Edit_widget::Edit_widget(
                 break;
             }
 
-            case Mode::self_review:
+            case Mode::self_review: {
+                auto retract = new Wt::WPushButton("Retract", buttons);
+                retract->clicked().connect(this, &Edit_widget::retract_);
+                break;
+            }
+
             case Mode::grader_eval:
                 break;
         }
@@ -135,6 +141,17 @@ void Evaluation_view::Edit_widget::save_()
         main_.go_to((unsigned int) next);
     else
         main_.go_default();
+}
+
+void Evaluation_view::Edit_widget::retract_()
+{
+    if (!main_.can_eval_()) return;
+
+    dbo::Transaction transaction(session_);
+    model_.self_eval.remove();
+    transaction.commit();
+
+    main_.go_to((unsigned int) model_.eval_item->sequence());
 }
 
 class Evaluation_view::Response_edit_widget : public Edit_widget
@@ -451,6 +468,13 @@ void Evaluation_view::go_to(unsigned int index)
 
 void Evaluation_view::go_default()
 {
+    for (auto& row : model_) {
+        if (row.eval_item && !row.self_eval) {
+            go_to((unsigned int) row.eval_item->sequence());
+            return;
+        }
+    }
+
     std::ostringstream path;
     path << "/hw/" << submission_->assignment()->number() << "/eval";
     Wt::WApplication::instance()->setInternalPath(path.str());
