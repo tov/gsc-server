@@ -150,9 +150,11 @@ void Evaluation_view::Edit_widget::retract_()
 
     dbo::Transaction transaction(session_);
     model_.self_eval.remove();
+    model_.grader_eval.remove();
     transaction.commit();
 
     model_.self_eval = dbo::ptr<Self_eval>();
+    model_.grader_eval = dbo::ptr<Grader_eval>();
     main_.go_to((unsigned int) model_.eval_item->sequence());
 }
 
