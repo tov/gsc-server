@@ -16,6 +16,89 @@
 
 #include <iomanip>
 
+class Abstract_explanation_holder : public Wt::WCompositeWidget
+{
+public:
+    Abstract_explanation_holder(Wt::WContainerWidget* parent = nullptr);
+
+    virtual std::string explanation() const = 0;
+    virtual void set_explanation(const std::string&) = 0;
+
+    virtual ~Abstract_explanation_holder() { }
+};
+
+Abstract_explanation_holder::Abstract_explanation_holder(
+        Wt::WContainerWidget* parent) : WCompositeWidget(parent)
+{ }
+
+class Editable_explanation_holder : public Abstract_explanation_holder
+{
+public:
+    Editable_explanation_holder(Wt::WContainerWidget* parent = nullptr);
+
+    std::string explanation() const override;
+    void set_explanation(const std::string&) override;
+
+private:
+    Wt::WTextArea* explanation_;
+};
+
+Editable_explanation_holder::Editable_explanation_holder(
+        Wt::WContainerWidget* parent) : Abstract_explanation_holder(parent)
+{
+    auto container = new Wt::WContainerWidget();
+
+    new Wt::WText(
+            "<p>Explain, including line references (e.g. L14):</p>",
+            container);
+
+    explanation_ = new Wt::WTextArea(container);
+    explanation_->setStyleClass("explanation");
+    explanation_->setInline(false);
+
+    setImplementation(container);
+}
+
+std::string Editable_explanation_holder::explanation() const
+{
+    return explanation_->text().toUTF8();
+}
+
+void Editable_explanation_holder::set_explanation(const std::string& text)
+{
+    explanation_->setText(Wt::WString::fromUTF8(text));
+}
+
+class Viewable_explanation_holder : public Abstract_explanation_holder
+{
+public:
+    Viewable_explanation_holder(Wt::WContainerWidget* parent = nullptr);
+
+    std::string explanation() const override;
+    void set_explanation(const std::string&) override;
+
+private:
+    Wt::WText* explanation_;
+};
+
+Viewable_explanation_holder::Viewable_explanation_holder(
+        Wt::WContainerWidget* parent) : Abstract_explanation_holder(parent)
+{
+    auto container = new Wt::WContainerWidget();
+    explanation_ = new Wt::WText(container);
+    setImplementation(container);
+}
+
+std::string Viewable_explanation_holder::explanation() const
+{
+    return explanation_->text().toUTF8();
+}
+
+void Viewable_explanation_holder::set_explanation(const std::string& text)
+{
+    explanation_->setText(Wt::WString::fromUTF8(text));
+}
+
 Eval_widget::Eval_widget(
         Row_model& model,
         bool is_singular,
@@ -110,89 +193,6 @@ User::Role Eval_widget::role() const
     return main_.role_;
 }
 
-class Abstract_explanation_holder : public Wt::WCompositeWidget
-{
-public:
-    Abstract_explanation_holder(Wt::WContainerWidget* parent = nullptr);
-
-    virtual std::string explanation() const = 0;
-    virtual void set_explanation(const std::string&) = 0;
-
-    virtual ~Abstract_explanation_holder() { }
-};
-
-Abstract_explanation_holder::Abstract_explanation_holder(
-        Wt::WContainerWidget* parent) : WCompositeWidget(parent)
-{ }
-
-class Editable_explanation_holder : public Abstract_explanation_holder
-{
-public:
-    Editable_explanation_holder(Wt::WContainerWidget* parent = nullptr);
-
-    std::string explanation() const override;
-    void set_explanation(const std::string&) override;
-
-private:
-    Wt::WTextArea* explanation_;
-};
-
-Editable_explanation_holder::Editable_explanation_holder(
-        Wt::WContainerWidget* parent) : Abstract_explanation_holder(parent)
-{
-    auto container = new Wt::WContainerWidget();
-
-    new Wt::WText(
-            "<p>Explain, including line references (e.g. L14):</p>",
-            container);
-
-    explanation_ = new Wt::WTextArea(container);
-    explanation_->setStyleClass("explanation");
-    explanation_->setInline(false);
-
-    setImplementation(container);
-}
-
-std::string Editable_explanation_holder::explanation() const
-{
-    return explanation_->text().toUTF8();
-}
-
-void Editable_explanation_holder::set_explanation(const std::string& text)
-{
-    explanation_->setText(Wt::WString::fromUTF8(text));
-}
-
-class Viewable_explanation_holder : public Abstract_explanation_holder
-{
-public:
-    Viewable_explanation_holder(Wt::WContainerWidget* parent = nullptr);
-
-    std::string explanation() const override;
-    void set_explanation(const std::string&) override;
-
-private:
-    Wt::WText* explanation_;
-};
-
-Viewable_explanation_holder::Viewable_explanation_holder(
-        Wt::WContainerWidget* parent) : Abstract_explanation_holder(parent)
-{
-    auto container = new Wt::WContainerWidget();
-    explanation_ = new Wt::WText(container);
-    setImplementation(container);
-}
-
-std::string Viewable_explanation_holder::explanation() const
-{
-    return explanation_->text().toUTF8();
-}
-
-void Viewable_explanation_holder::set_explanation(const std::string& text)
-{
-    explanation_->setText(Wt::WString::fromUTF8(text));
-}
-
 class Response_eval_widget : public Eval_widget
 {
 public:
@@ -224,15 +224,10 @@ Response_eval_widget::Response_eval_widget(
     score_holder_ = new Wt::WContainerWidget(response_);
     score_holder_->setStyleClass("score");
 
-    switch (role()) {
-        case User::Role::Student:
-            explanation_holder_ = new Editable_explanation_holder(response_);
-            break;
-
-        case User::Role::Admin:
-        case User::Role::Grader:
-            explanation_holder_ = new Viewable_explanation_holder(response_);
-            break;
+    if (can_eval() && is_singular_) {
+        explanation_holder_ = new Editable_explanation_holder(response_);
+    } else {
+        explanation_holder_ = new Viewable_explanation_holder(response_);
     }
 }
 
