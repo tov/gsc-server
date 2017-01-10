@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../model/auth/User.h"
+
 #include <Wt/WContainerWidget>
 #include <Wt/Dbo/ptr>
 
@@ -26,6 +28,7 @@ public:
 private:
     Wt::Dbo::ptr<Submission> submission_;
     Session& session_;
+    User::Role role_;
 
     struct Row_model;
 

@@ -33,8 +33,9 @@ class Evaluation_view::Edit_widget : public Wt::WContainerWidget
 public:
     enum class Mode {
         self_eval,
-        self_review,
+        self_view,
         grader_eval,
+        admin_view,
     };
 
     Edit_widget(Row_model&, Mode,
@@ -102,13 +103,16 @@ Evaluation_view::Edit_widget::Edit_widget(
                 break;
             }
 
-            case Mode::self_review: {
+            case Mode::self_view: {
                 auto retract = new Wt::WPushButton("Retract", buttons);
                 retract->clicked().connect(this, &Edit_widget::retract_);
                 break;
             }
 
             case Mode::grader_eval:
+                break;
+
+            case Mode::admin_view:
                 break;
         }
     }
@@ -277,8 +281,9 @@ Evaluation_view::Response_edit_widget::Response_edit_widget(
             explanation_holder_ = new Editable_explanation_holder(response_);
             break;
 
-        case Mode::self_review:
+        case Mode::self_view:
         case Mode::grader_eval:
+        case Mode::admin_view:
             explanation_holder_ = new Viewable_explanation_holder(response_);
             break;
     }
@@ -514,7 +519,8 @@ Evaluation_view::Evaluation_view(const dbo::ptr<Submission>& submission,
                                  Wt::WContainerWidget* parent)
         : WContainerWidget(parent),
           submission_(submission),
-          session_(session)
+          session_(session),
+          role_(session.user()->role())
 {
     load_();
 
@@ -554,34 +560,62 @@ void Evaluation_view::load_()
 void Evaluation_view::go_to(unsigned int index)
 {
     std::ostringstream path;
+    if (role_ != User::Role::Student) path << "/~" << submission_->user1()->name();
     path << "/hw/" << submission_->assignment()->number()
          << "/eval/" << index;
     Wt::WApplication::instance()->setInternalPath(path.str());
 
+    Edit_widget::Mode mode;
+    switch (role_) {
+        case User::Role::Student:
+            mode = Edit_widget::Mode::self_eval;
+            break;
+        case User::Role::Grader:
+            mode = Edit_widget::Mode::grader_eval;
+            break;
+        case User::Role::Admin:
+            mode = Edit_widget::Mode::admin_view;
+            break;
+    }
+
     rows_.clear();
-    rows_.push_back(Edit_widget::create(model_.at(index),
-                                        Edit_widget::Mode::self_eval,
+    rows_.push_back(Edit_widget::create(model_.at(index), mode,
                                         *this, session_, right_column_));
 }
 
 void Evaluation_view::go_default()
 {
-    for (auto& row : model_) {
-        if (row.eval_item && !row.self_eval) {
-            go_to((unsigned int) row.eval_item->sequence());
-            return;
+    if (role_ == User::Role::Student) {
+        for (auto& row : model_) {
+            if (row.eval_item && !row.self_eval) {
+                go_to((unsigned int) row.eval_item->sequence());
+                return;
+            }
         }
     }
 
     std::ostringstream path;
+    if (role_ != User::Role::Student) path << "/~" << submission_->user1()->name();
     path << "/hw/" << submission_->assignment()->number() << "/eval";
     Wt::WApplication::instance()->setInternalPath(path.str());
+
+    Edit_widget::Mode mode;
+    switch (role_) {
+        case User::Role::Student:
+            mode = Edit_widget::Mode::self_view;
+            break;
+        case User::Role::Grader:
+            mode = Edit_widget::Mode::grader_eval;
+            break;
+        case User::Role::Admin:
+            mode = Edit_widget::Mode::admin_view;
+            break;
+    }
 
     rows_.clear();
     for (auto& row : model_)
         if (row.eval_item)
-            rows_.push_back(Edit_widget::create(row,
-                                                Edit_widget::Mode::self_review,
+            rows_.push_back(Edit_widget::create(row, mode,
                                                 *this, session_, right_column_));
 }
 
