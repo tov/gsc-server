@@ -62,21 +62,8 @@ void Evaluation_view::go_to(unsigned int index)
          << "/eval/" << index;
     Wt::WApplication::instance()->setInternalPath(path.str());
 
-    Eval_widget::Mode mode;
-    switch (role_) {
-        case User::Role::Student:
-            mode = Eval_widget::Mode::self_eval;
-            break;
-        case User::Role::Grader:
-            mode = Eval_widget::Mode::grader_eval;
-            break;
-        case User::Role::Admin:
-            mode = Eval_widget::Mode::admin_view;
-            break;
-    }
-
     rows_.clear();
-    rows_.push_back(Eval_widget::create(model_.at(index), mode,
+    rows_.push_back(Eval_widget::create(model_.at(index), true,
                                         *this, session_, right_column_));
 }
 
@@ -96,23 +83,10 @@ void Evaluation_view::go_default()
     path << "/hw/" << submission_->assignment()->number() << "/eval";
     Wt::WApplication::instance()->setInternalPath(path.str());
 
-    Eval_widget::Mode mode;
-    switch (role_) {
-        case User::Role::Student:
-            mode = Eval_widget::Mode::self_view;
-            break;
-        case User::Role::Grader:
-            mode = Eval_widget::Mode::grader_eval;
-            break;
-        case User::Role::Admin:
-            mode = Eval_widget::Mode::admin_view;
-            break;
-    }
-
     rows_.clear();
     for (auto& row : model_)
         if (row.eval_item)
-            rows_.push_back(Eval_widget::create(row, mode,
+            rows_.push_back(Eval_widget::create(row, false,
                                                 *this, session_, right_column_));
 }
 

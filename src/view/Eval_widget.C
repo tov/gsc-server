@@ -18,13 +18,13 @@
 
 Eval_widget::Eval_widget(
         Row_model& model,
-        Mode mode,
+        bool is_singular,
         Evaluation_view& main,
         Session& session,
         Wt::WContainerWidget* parent)
         : WContainerWidget(parent),
           model_(model),
-          mode_(mode),
+          is_singular_(is_singular),
           main_(main),
           session_(session)
 {
@@ -46,24 +46,12 @@ Eval_widget::Eval_widget(
     buttons->setStyleClass("buttons");
 
     if (main_.can_eval_()) {
-        switch (mode_) {
-            case Mode::self_eval: {
-                auto save = new Wt::WPushButton("Save", buttons);
-                save->clicked().connect(this, &Eval_widget::save_);
-                break;
-            }
-
-            case Mode::self_view: {
-                auto retract = new Wt::WPushButton("Retract", buttons);
-                retract->clicked().connect(this, &Eval_widget::retract_);
-                break;
-            }
-
-            case Mode::grader_eval:
-                break;
-
-            case Mode::admin_view:
-                break;
+        if (is_singular_) {
+            auto save = new Wt::WPushButton("Save", buttons);
+            save->clicked().connect(this, &Eval_widget::save_);
+        } else {
+            auto retract = new Wt::WPushButton("Retract", buttons);
+            retract->clicked().connect(this, &Eval_widget::retract_);
         }
     }
 }
@@ -198,7 +186,7 @@ void Viewable_explanation_holder::set_explanation(const std::string& text)
 class Response_eval_widget : public Eval_widget
 {
 public:
-    Response_eval_widget(Row_model&, Mode, Evaluation_view&, Session&,
+    Response_eval_widget(Row_model&, bool, Evaluation_view&, Session&,
                          WContainerWidget* parent = nullptr);
 
 protected:
@@ -217,23 +205,22 @@ private:
 
 Response_eval_widget::Response_eval_widget(
         Row_model& model,
-        Mode mode,
+        bool is_singular,
         Evaluation_view& main,
         Session& session,
         Wt::WContainerWidget* parent)
-        : Eval_widget(model, mode, main, session, parent)
+        : Eval_widget(model, is_singular, main, session, parent)
 {
     score_holder_ = new Wt::WContainerWidget(response_);
     score_holder_->setStyleClass("score");
 
-    switch (mode_) {
-        case Mode::self_eval:
+    switch (main_.role_) {
+        case User::Role::Student:
             explanation_holder_ = new Editable_explanation_holder(response_);
             break;
 
-        case Mode::self_view:
-        case Mode::grader_eval:
-        case Mode::admin_view:
+        case User::Role::Admin:
+        case User::Role::Grader:
             explanation_holder_ = new Viewable_explanation_holder(response_);
             break;
     }
@@ -258,7 +245,7 @@ void Response_eval_widget::reset()
 class Boolean_eval_widget : public Response_eval_widget
 {
 public:
-    Boolean_eval_widget(Row_model&, Mode, Evaluation_view&, Session&,
+    Boolean_eval_widget(Row_model&, bool, Evaluation_view&, Session&,
                         WContainerWidget* parent = nullptr);
 
 protected:
@@ -276,11 +263,11 @@ private:
 
 Boolean_eval_widget::Boolean_eval_widget(
         Row_model& model,
-        Mode mode,
+        bool is_singular,
         Evaluation_view& main,
         Session& session,
         Wt::WContainerWidget* parent)
-        : Response_eval_widget(model, mode, main, session, parent)
+        : Response_eval_widget(model, is_singular, main, session, parent)
 {
     no_yes_ = new Wt::WButtonGroup(score_holder_);
     no_yes_->addButton(no_ = new Wt::WRadioButton("No", score_holder_));
@@ -290,7 +277,7 @@ Boolean_eval_widget::Boolean_eval_widget(
     no_yes_->checkedChanged().connect(this,
                                       &Boolean_eval_widget::toggle_explanation_);
 
-    if (mode_ != Mode::self_eval) {
+    if (!main.can_eval_() && !is_singular_) {
         no_->disable();
         yes_->disable();
     }
@@ -327,7 +314,7 @@ class Scale_eval_widget
         : public Response_eval_widget
 {
 public:
-    Scale_eval_widget(Row_model&, Mode, Evaluation_view&, Session&,
+    Scale_eval_widget(Row_model&, bool, Evaluation_view&, Session&,
                       WContainerWidget* parent = nullptr);
 
 protected:
@@ -344,11 +331,11 @@ private:
 
 Scale_eval_widget::Scale_eval_widget(
         Row_model& model,
-        Mode mode,
+        bool is_singular,
         Evaluation_view& main,
         Session& session,
         Wt::WContainerWidget* parent)
-        : Response_eval_widget(model, mode, main, session, parent)
+        : Response_eval_widget(model, is_singular, main, session, parent)
 {
     slider_ = new Wt::WSlider(score_holder_);
     slider_->resize(200, 50);
@@ -363,7 +350,7 @@ Scale_eval_widget::Scale_eval_widget(
 
     slider_->valueChanged().connect(this, &Scale_eval_widget::update_number_);
 
-    if (mode_ != Mode::self_eval) {
+    if (!main.can_eval_() && !is_singular_) {
         slider_->disable();
     }
 
@@ -395,7 +382,7 @@ void Scale_eval_widget::update_number_()
 class Informational_eval_widget : public Eval_widget
 {
 public:
-    Informational_eval_widget(Row_model&, Mode, Evaluation_view&, Session&,
+    Informational_eval_widget(Row_model&, bool, Evaluation_view&, Session&,
                               WContainerWidget* parent = nullptr);
 
 protected:
@@ -408,11 +395,11 @@ protected:
 
 Informational_eval_widget::Informational_eval_widget(
         Row_model& model,
-        Mode mode,
+        bool is_singular,
         Evaluation_view& main,
         Session& session,
         Wt::WContainerWidget* parent)
-        : Eval_widget(model, mode, main, session, parent)
+        : Eval_widget(model, is_singular, main, session, parent)
 {
     load_();
 }
@@ -444,18 +431,20 @@ void Informational_eval_widget::reset()
 }
 
 std::unique_ptr<Eval_widget>
-Eval_widget::create(Row_model& model, Mode mode, Evaluation_view& main,
+Eval_widget::create(Row_model& model, bool is_singular, Evaluation_view& main,
                     Session& session, Wt::WContainerWidget* parent)
 {
     switch (model.eval_item->type()) {
         case Eval_item::Type::Boolean:
-            return std::make_unique<Boolean_eval_widget>(model, mode, main,
-                                                         session, parent);
+            return std::make_unique<Boolean_eval_widget>(model, is_singular,
+                                                         main, session, parent);
         case Eval_item::Type::Scale:
-            return std::make_unique<Scale_eval_widget>(model, mode, main,
+            return std::make_unique<Scale_eval_widget>(model, is_singular, main,
                                                        session, parent);
         case Eval_item::Type::Informational:
-            return std::make_unique<Informational_eval_widget>(model, mode, main,
+            return std::make_unique<Informational_eval_widget>(model,
+                                                               is_singular,
+                                                               main,
                                                                session, parent);
     }
 }

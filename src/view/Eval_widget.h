@@ -9,27 +9,20 @@ class Session;
 class Eval_widget : public Wt::WContainerWidget
 {
 public:
-    enum class Mode {
-        self_eval,
-        self_view,
-        grader_eval,
-        admin_view,
-    };
-
     using Row_model = Evaluation_view_row_model;
 
-    Eval_widget(Row_model&, Mode,
+    Eval_widget(Row_model&, bool is_singular,
                 Evaluation_view&,
                 Session&,
                 Wt::WContainerWidget* parent = nullptr);
 
     static std::unique_ptr<Eval_widget>
-    create(Row_model&, Mode, Evaluation_view&, Session&,
+    create(Row_model&, bool is_singular, Evaluation_view&, Session&,
            Wt::WContainerWidget* parent = nullptr);
 
 protected:
     Row_model& model_;
-    Mode mode_;
+    bool is_singular_;
     Session& session_;
     Evaluation_view& main_;
 
