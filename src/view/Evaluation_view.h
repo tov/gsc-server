@@ -54,7 +54,4 @@ private:
     void load_();
 
     friend class Eval_widget;
-    friend class Response_eval_widget;
-    friend class Boolean_eval_widget;
-    friend class Scale_eval_widget;
 };

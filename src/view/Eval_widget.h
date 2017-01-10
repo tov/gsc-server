@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../model/auth/User.h"
+
 #include <Wt/WContainerWidget>
 
 class Evaluation_view;
@@ -27,6 +29,9 @@ protected:
     Evaluation_view& main_;
 
     Wt::WContainerWidget* response_;
+
+    bool can_eval() const;
+    User::Role role() const;
 
     virtual double score() const = 0;
     virtual void set_score(double) = 0;

@@ -45,7 +45,7 @@ Eval_widget::Eval_widget(
     auto buttons = new Wt::WContainerWidget(this);
     buttons->setStyleClass("buttons");
 
-    if (main_.can_eval_()) {
+    if (can_eval()) {
         if (is_singular_) {
             auto save = new Wt::WPushButton("Save", buttons);
             save->clicked().connect(this, &Eval_widget::save_);
@@ -66,7 +66,7 @@ void Eval_widget::load_()
 
 void Eval_widget::save_()
 {
-    if (!main_.can_eval_()) return;
+    if (!can_eval()) return;
 
     dbo::Transaction transaction(session_);
 
@@ -88,7 +88,7 @@ void Eval_widget::save_()
 
 void Eval_widget::retract_()
 {
-    if (!main_.can_eval_()) return;
+    if (!can_eval()) return;
 
     dbo::Transaction transaction(session_);
     model_.self_eval.remove();
@@ -98,6 +98,16 @@ void Eval_widget::retract_()
     model_.self_eval = dbo::ptr<Self_eval>();
     model_.grader_eval = dbo::ptr<Grader_eval>();
     main_.go_to((unsigned int) model_.eval_item->sequence());
+}
+
+bool Eval_widget::can_eval() const
+{
+    return main_.can_eval_();
+}
+
+User::Role Eval_widget::role() const
+{
+    return main_.role_;
 }
 
 class Abstract_explanation_holder : public Wt::WCompositeWidget
@@ -214,7 +224,7 @@ Response_eval_widget::Response_eval_widget(
     score_holder_ = new Wt::WContainerWidget(response_);
     score_holder_->setStyleClass("score");
 
-    switch (main_.role_) {
+    switch (role()) {
         case User::Role::Student:
             explanation_holder_ = new Editable_explanation_holder(response_);
             break;
@@ -277,7 +287,7 @@ Boolean_eval_widget::Boolean_eval_widget(
     no_yes_->checkedChanged().connect(this,
                                       &Boolean_eval_widget::toggle_explanation_);
 
-    if (!main.can_eval_() && !is_singular_) {
+    if (!can_eval() && !is_singular_) {
         no_->disable();
         yes_->disable();
     }
@@ -350,7 +360,7 @@ Scale_eval_widget::Scale_eval_widget(
 
     slider_->valueChanged().connect(this, &Scale_eval_widget::update_number_);
 
-    if (!main.can_eval_() && !is_singular_) {
+    if (!can_eval() && !is_singular_) {
         slider_->disable();
     }
 
@@ -448,4 +458,5 @@ Eval_widget::create(Row_model& model, bool is_singular, Evaluation_view& main,
                                                                session, parent);
     }
 }
+
 
