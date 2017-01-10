@@ -82,7 +82,7 @@ void Evaluation_view::go_to(unsigned int index)
 
 void Evaluation_view::go_default()
 {
-    if (role_ == User::Role::Student) {
+    if (role_ == User::Role::Student && can_eval_()) {
         for (auto& row : model_) {
             if (row.eval_item && !row.self_eval) {
                 go_to((unsigned int) row.eval_item->sequence());
