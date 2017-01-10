@@ -13,6 +13,8 @@ public:
     User_suggester(Session&,
                    User::Role role,
                    Wt::WContainerWidget* parent = nullptr);
+    User_suggester(Session&,
+                   Wt::WContainerWidget* parent = nullptr);
 
 private:
     static const Wt::WSuggestionPopup::Options options;

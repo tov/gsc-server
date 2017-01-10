@@ -73,7 +73,6 @@ void Submission_chooser::update()
         bool focus = false;
 
         submissions_ = user->submissions();
-        transaction.commit();
 
         for (const auto& submission : submissions_) {
             auto number = submission->assignment()->number();
@@ -147,6 +146,77 @@ void Student_chooser::setFocus(bool b)
     editor_->setFocus(b);
 }
 
+class Role_chooser : public Wt::WContainerWidget
+{
+public:
+    Role_chooser(Session& session,
+                 Wt::WContainerWidget* parent = nullptr);
+
+    using This = Role_chooser;
+
+    virtual void setFocus(bool) override;
+
+private:
+    void update();
+    void go();
+
+    Session& session_;
+    Wt::WLineEdit* editor_;
+    Wt::WComboBox* combo_;
+};
+
+Role_chooser::Role_chooser(Session& session,
+                           Wt::WContainerWidget* parent)
+        : WContainerWidget(parent),
+          session_(session)
+{
+    editor_ = new Wt::WLineEdit(this);
+    editor_->setEmptyText("username");
+    editor_->changed().connect(this, &This::update);
+    editor_->keyWentDown().connect(this, &This::update);
+    editor_->enterPressed().connect(this, &This::go);
+
+    auto popup = new User_suggester(session, this);
+    popup->forEdit(editor_);
+
+    combo_  = new Wt::WComboBox(this);
+    combo_->enterPressed().connect(this, &This::go);
+    combo_->changed().connect(this, &This::go);
+}
+
+void Role_chooser::update()
+{
+    combo_->clear();
+
+    Wt::Dbo::Transaction transaction(session_);
+    auto user = User::find_by_name(session_, editor_->text().toUTF8());
+    transaction.commit();
+
+    if (user) {
+        // This order of items must match the order in the User::Role enum:
+        combo_->addItem("Student");
+        combo_->addItem("Grader");
+        combo_->addItem("Admin");
+        combo_->setCurrentIndex((int) user->role());
+    }
+}
+
+void Role_chooser::go()
+{
+    // magic number must match number of User::Role enum values:
+    if (combo_->currentIndex() < 3) {
+        Wt::Dbo::Transaction transaction(session_);
+        auto user = User::find_by_name(session_, editor_->text().toUTF8());
+        user.modify()->set_role((User::Role) combo_->currentIndex());
+        transaction.commit();
+    }
+}
+
+void Role_chooser::setFocus(bool b)
+{
+    editor_->setFocus(b);
+}
+
 Admin_view::Admin_view(Session& session, Wt::WContainerWidget* parent)
         : WContainerWidget(parent), session_(session)
 {
@@ -161,11 +231,14 @@ Admin_view::Admin_view(Session& session, Wt::WContainerWidget* parent)
     auto js = new Accelerator_text("Jump to &student:", table->elementAt(1, 0));
     js->set_target(new Student_chooser(session_, table->elementAt(1, 1)));
 
+    auto cr = new Accelerator_text("Change &role:", table->elementAt(2, 0));
+    cr->set_target(new Role_chooser(session_, table->elementAt(2, 1)));
+
     auto hw = new Accelerator_button("Edit &assignments",
-                                     table->elementAt(2, 1));
+                                     table->elementAt(3, 1));
     hw->clicked().connect(Navigate("/hw"));
 
     auto play_game = new Accelerator_button("&Play game",
-                                            table->elementAt(3, 1));
+                                            table->elementAt(4, 1));
     play_game->clicked().connect(Navigate("/game"));
 }

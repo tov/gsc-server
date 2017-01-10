@@ -23,3 +23,15 @@ User_suggester::User_suggester(Session& session,
     for (const auto& user : users)
         addSuggestion(user->name());
 }
+
+User_suggester::User_suggester(Session& session,
+                               Wt::WContainerWidget* parent)
+        : WSuggestionPopup(options, parent)
+{
+    Wt::Dbo::Transaction transaction(session);
+
+    Users users = session.find<User>()
+                         .orderBy("name");
+    for (const auto& user : users)
+        addSuggestion(user->name());
+}
