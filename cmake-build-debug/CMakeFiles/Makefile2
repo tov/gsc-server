@@ -66,7 +66,7 @@ CMAKE_BINARY_DIR = /Users/tov/projects/gsc/cmake-build-debug
 CMakeFiles/gsc.pch.dir/all:
 	$(MAKE) -f CMakeFiles/gsc.pch.dir/build.make CMakeFiles/gsc.pch.dir/depend
 	$(MAKE) -f CMakeFiles/gsc.pch.dir/build.make CMakeFiles/gsc.pch.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/Users/tov/projects/gsc/cmake-build-debug/CMakeFiles --progress-num=39 "Built target gsc.pch"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/Users/tov/projects/gsc/cmake-build-debug/CMakeFiles --progress-num=40 "Built target gsc.pch"
 .PHONY : CMakeFiles/gsc.pch.dir/all
 
 # Include target in all.
@@ -103,7 +103,7 @@ clean: CMakeFiles/gsc.pch.dir/clean
 CMakeFiles/gsc.dir/all: CMakeFiles/gsc.pch.dir/all
 	$(MAKE) -f CMakeFiles/gsc.dir/build.make CMakeFiles/gsc.dir/depend
 	$(MAKE) -f CMakeFiles/gsc.dir/build.make CMakeFiles/gsc.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/Users/tov/projects/gsc/cmake-build-debug/CMakeFiles --progress-num=1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38 "Built target gsc"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/Users/tov/projects/gsc/cmake-build-debug/CMakeFiles --progress-num=1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39 "Built target gsc"
 .PHONY : CMakeFiles/gsc.dir/all
 
 # Include target in all.
@@ -113,7 +113,7 @@ all: CMakeFiles/gsc.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/gsc.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /Users/tov/projects/gsc/cmake-build-debug/CMakeFiles 39
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/tov/projects/gsc/cmake-build-debug/CMakeFiles 40
 	$(MAKE) -f CMakeFiles/Makefile2 CMakeFiles/gsc.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /Users/tov/projects/gsc/cmake-build-debug/CMakeFiles 0
 .PHONY : CMakeFiles/gsc.dir/rule

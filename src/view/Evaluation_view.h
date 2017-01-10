@@ -13,7 +13,15 @@ class Eval_item;
 class Self_eval;
 class Grader_eval;
 
+class Eval_widget;
 class File_viewer_widget;
+
+struct Evaluation_view_row_model
+{
+    dbo::ptr<Eval_item> eval_item;
+    dbo::ptr<Self_eval> self_eval;
+    dbo::ptr<Grader_eval> grader_eval;
+};
 
 class Evaluation_view : public Wt::WContainerWidget
 {
@@ -30,7 +38,7 @@ private:
     Session& session_;
     User::Role role_;
 
-    struct Row_model;
+    using Row_model = Evaluation_view_row_model;
 
     std::vector<Row_model> model_;
     double total_value_;
@@ -38,16 +46,12 @@ private:
     File_viewer_widget* viewer_;
     Wt::WContainerWidget* right_column_;
 
-    class Edit_widget;
-    class Response_edit_widget;
-    class Boolean_edit_widget;
-    class Scale_edit_widget;
-    class Informational_edit_widget;
-
-    std::vector<std::unique_ptr<Edit_widget>> rows_;
+    std::vector<std::unique_ptr<Eval_widget>> rows_;
 
     // Is the current user allowed to change the self evaluation right now?
     bool can_eval_();
 
     void load_();
+
+    friend class Eval_widget;
 };

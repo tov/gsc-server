@@ -34,6 +34,7 @@ set(SOURCE_FILES
         src/view/File_viewer_widget.C
         src/view/Main_view.C
         src/view/User_suggester.C
+        src/view/Eval_widget.C
         src/view/Evaluation_view.C
         src/view/Submission_owner_widget.C
         src/view/Submissions_view.C

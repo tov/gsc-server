@@ -1,5 +1,5 @@
 #include "Evaluation_view.h"
-#include "File_list_widget.h"
+#include "Eval_widget.h"
 #include "File_viewer_widget.h"
 #include "../model/Assignment.h"
 #include "../model/Eval_item.h"
@@ -9,510 +9,7 @@
 #include "../model/Submission.h"
 
 #include <Wt/WApplication>
-#include <Wt/WBreak>
-#include <Wt/WButtonGroup>
-#include <Wt/WCompositeWidget>
 #include <Wt/WHBoxLayout>
-#include <Wt/WPushButton>
-#include <Wt/WRadioButton>
-#include <Wt/WSlider>
-#include <Wt/WText>
-#include <Wt/WTextArea>
-
-#include <iomanip>
-
-struct Evaluation_view::Row_model
-{
-    dbo::ptr<Eval_item> eval_item;
-    dbo::ptr<Self_eval> self_eval;
-    dbo::ptr<Grader_eval> grader_eval;
-};
-
-class Evaluation_view::Edit_widget : public Wt::WContainerWidget
-{
-public:
-    enum class Mode {
-        self_eval,
-        self_view,
-        grader_eval,
-        admin_view,
-    };
-
-    Edit_widget(Row_model&, Mode,
-                Evaluation_view&,
-                Session&,
-                Wt::WContainerWidget* parent = nullptr);
-
-    static std::unique_ptr<Edit_widget>
-    create(Row_model&, Mode, Evaluation_view&, Session&,
-           Wt::WContainerWidget* parent = nullptr);
-
-protected:
-    Row_model& model_;
-    Mode mode_;
-    Session& session_;
-    Evaluation_view& main_;
-
-    Wt::WContainerWidget* response_;
-
-    virtual double score() const = 0;
-    virtual void set_score(double) = 0;
-    virtual std::string explanation() const = 0;
-    virtual void set_explanation(const std::string&) = 0;
-    virtual void reset() = 0;
-
-    void load_();
-    void save_();
-    void retract_();
-};
-
-Evaluation_view::Edit_widget::Edit_widget(
-        Row_model& model,
-        Mode mode,
-        Evaluation_view& main,
-        Session& session,
-        Wt::WContainerWidget* parent)
-        : WContainerWidget(parent),
-          model_(model),
-          mode_(mode),
-          main_(main),
-          session_(session)
-{
-    setStyleClass("edit-widget");
-
-    auto pct = 100 * model.eval_item->relative_value() / main_.total_value_;
-    std::ostringstream title;
-    title << "<h4>Question " << model.eval_item->sequence();
-    title << " <small>(" << std::setprecision(2) << pct << "%)</small>";
-    title << "</h4>";
-    new Wt::WText(title.str(), this);
-
-    auto prompt = new Wt::WText(model_.eval_item->prompt(), this);
-    prompt->setInline(false);
-
-    response_ = new Wt::WContainerWidget(this);
-
-    auto buttons = new Wt::WContainerWidget(this);
-    buttons->setStyleClass("buttons");
-
-    if (main_.can_eval_()) {
-        switch (mode_) {
-            case Mode::self_eval: {
-                auto save = new Wt::WPushButton("Save", buttons);
-                save->clicked().connect(this, &Edit_widget::save_);
-                break;
-            }
-
-            case Mode::self_view: {
-                auto retract = new Wt::WPushButton("Retract", buttons);
-                retract->clicked().connect(this, &Edit_widget::retract_);
-                break;
-            }
-
-            case Mode::grader_eval:
-                break;
-
-            case Mode::admin_view:
-                break;
-        }
-    }
-}
-
-void Evaluation_view::Edit_widget::load_()
-{
-    if (model_.self_eval) {
-        set_score(model_.self_eval->score());
-        set_explanation(model_.self_eval->explanation());
-    } else reset();
-}
-
-void Evaluation_view::Edit_widget::save_()
-{
-    if (!main_.can_eval_()) return;
-
-    dbo::Transaction transaction(session_);
-
-    if (!model_.self_eval)
-        model_.self_eval
-                = session_.add(new Self_eval(model_.eval_item,
-                                             main_.submission_));
-
-    auto self_eval = model_.self_eval.modify();
-    self_eval->set_score(score());
-    self_eval->set_explanation(explanation());
-
-    int next = model_.self_eval->eval_item()->sequence() + 1;
-    if (0 < next && next < main_.model_.size())
-        main_.go_to((unsigned int) next);
-    else
-        main_.go_default();
-}
-
-void Evaluation_view::Edit_widget::retract_()
-{
-    if (!main_.can_eval_()) return;
-
-    dbo::Transaction transaction(session_);
-    model_.self_eval.remove();
-    model_.grader_eval.remove();
-    transaction.commit();
-
-    model_.self_eval = dbo::ptr<Self_eval>();
-    model_.grader_eval = dbo::ptr<Grader_eval>();
-    main_.go_to((unsigned int) model_.eval_item->sequence());
-}
-
-class Abstract_explanation_holder : public Wt::WCompositeWidget
-{
-public:
-    Abstract_explanation_holder(Wt::WContainerWidget* parent = nullptr);
-
-    virtual std::string explanation() const = 0;
-    virtual void set_explanation(const std::string&) = 0;
-
-    virtual ~Abstract_explanation_holder() { }
-};
-
-Abstract_explanation_holder::Abstract_explanation_holder(
-        Wt::WContainerWidget* parent) : WCompositeWidget(parent)
-{ }
-
-class Editable_explanation_holder : public Abstract_explanation_holder
-{
-public:
-    Editable_explanation_holder(Wt::WContainerWidget* parent = nullptr);
-
-    std::string explanation() const override;
-    void set_explanation(const std::string&) override;
-
-private:
-    Wt::WTextArea* explanation_;
-};
-
-Editable_explanation_holder::Editable_explanation_holder(
-        Wt::WContainerWidget* parent) : Abstract_explanation_holder(parent)
-{
-    auto container = new Wt::WContainerWidget();
-
-    new Wt::WText(
-            "<p>Explain, including line references (e.g. L14):</p>",
-            container);
-
-    explanation_ = new Wt::WTextArea(container);
-    explanation_->setStyleClass("explanation");
-    explanation_->setInline(false);
-
-    setImplementation(container);
-}
-
-std::string Editable_explanation_holder::explanation() const
-{
-    return explanation_->text().toUTF8();
-}
-
-void Editable_explanation_holder::set_explanation(const std::string& text)
-{
-    explanation_->setText(Wt::WString::fromUTF8(text));
-}
-
-class Viewable_explanation_holder : public Abstract_explanation_holder
-{
-public:
-    Viewable_explanation_holder(Wt::WContainerWidget* parent = nullptr);
-
-    std::string explanation() const override;
-    void set_explanation(const std::string&) override;
-
-private:
-    Wt::WText* explanation_;
-};
-
-Viewable_explanation_holder::Viewable_explanation_holder(
-        Wt::WContainerWidget* parent) : Abstract_explanation_holder(parent)
-{
-    auto container = new Wt::WContainerWidget();
-    explanation_ = new Wt::WText(container);
-    setImplementation(container);
-}
-
-std::string Viewable_explanation_holder::explanation() const
-{
-    return explanation_->text().toUTF8();
-}
-
-void Viewable_explanation_holder::set_explanation(const std::string& text)
-{
-    explanation_->setText(Wt::WString::fromUTF8(text));
-}
-
-class Evaluation_view::Response_edit_widget : public Edit_widget
-{
-public:
-    Response_edit_widget(Row_model&, Mode, Evaluation_view&, Session&,
-                         WContainerWidget* parent = nullptr);
-
-protected:
-    virtual std::string explanation() const override;
-    virtual void set_explanation(const std::string& string) override;
-    virtual void reset() override;
-
-    // Allow derived classes to populate this:
-    Wt::WContainerWidget* score_holder_;
-    // Allow derived classes to hide this:
-    Abstract_explanation_holder* explanation_holder_;
-
-private:
-    Wt::WTextArea* explanation_;
-};
-
-Evaluation_view::Response_edit_widget::Response_edit_widget(
-        Row_model& model,
-        Mode mode,
-        Evaluation_view& main,
-        Session& session,
-        Wt::WContainerWidget* parent)
-        : Edit_widget(model, mode, main, session, parent)
-{
-    score_holder_ = new Wt::WContainerWidget(response_);
-    score_holder_->setStyleClass("score");
-
-    switch (mode_) {
-        case Mode::self_eval:
-            explanation_holder_ = new Editable_explanation_holder(response_);
-            break;
-
-        case Mode::self_view:
-        case Mode::grader_eval:
-        case Mode::admin_view:
-            explanation_holder_ = new Viewable_explanation_holder(response_);
-            break;
-    }
-}
-
-std::string Evaluation_view::Response_edit_widget::explanation() const
-{
-    return explanation_holder_->explanation();
-}
-
-void
-Evaluation_view::Response_edit_widget::set_explanation(const std::string& text)
-{
-    explanation_holder_->set_explanation(text);
-}
-
-void Evaluation_view::Response_edit_widget::reset()
-{
-    explanation_holder_->set_explanation("");
-}
-
-class Evaluation_view::Boolean_edit_widget : public Response_edit_widget
-{
-public:
-    Boolean_edit_widget(Row_model&, Mode, Evaluation_view&, Session&,
-                        WContainerWidget* parent = nullptr);
-
-protected:
-    virtual double score() const override;
-    virtual void set_score(double d) override;
-    virtual void reset() override;
-
-private:
-    Wt::WButtonGroup* no_yes_;
-    Wt::WRadioButton* no_;
-    Wt::WRadioButton* yes_;
-
-    void toggle_explanation_();
-};
-
-Evaluation_view::Boolean_edit_widget::Boolean_edit_widget(
-        Row_model& model,
-        Mode mode,
-        Evaluation_view& main,
-        Session& session,
-        Wt::WContainerWidget* parent)
-        : Response_edit_widget(model, mode, main, session, parent)
-{
-    no_yes_ = new Wt::WButtonGroup(score_holder_);
-    no_yes_->addButton(no_ = new Wt::WRadioButton("No", score_holder_));
-    no_yes_->addButton(yes_ = new Wt::WRadioButton("Yes", score_holder_));
-
-    explanation_holder_->hide();
-    no_yes_->checkedChanged().connect(this,
-                                      &Boolean_edit_widget::toggle_explanation_);
-
-    if (mode_ != Mode::self_eval) {
-        no_->disable();
-        yes_->disable();
-    }
-
-    load_();
-}
-
-double Evaluation_view::Boolean_edit_widget::score() const
-{
-    return no_yes_->checkedButton() == yes_ ? 1.0 : 0.0;
-}
-
-void Evaluation_view::Boolean_edit_widget::set_score(double d)
-{
-    no_yes_->setCheckedButton(d > 0 ? yes_ : no_);
-    toggle_explanation_();
-}
-
-void Evaluation_view::Boolean_edit_widget::reset()
-{
-    Response_edit_widget::reset();
-    no_yes_->setCheckedButton(nullptr);
-}
-
-void Evaluation_view::Boolean_edit_widget::toggle_explanation_()
-{
-    if (no_yes_->checkedButton() == yes_)
-        explanation_holder_->show();
-    else
-        explanation_holder_->hide();
-}
-
-class Evaluation_view::Scale_edit_widget
-        : public Evaluation_view::Response_edit_widget
-{
-public:
-    Scale_edit_widget(Row_model&, Mode, Evaluation_view&, Session&,
-                      WContainerWidget* parent = nullptr);
-
-protected:
-    virtual double score() const override;
-    virtual void set_score(double d) override;
-    virtual void reset() override;
-
-private:
-    Wt::WSlider* slider_;
-    Wt::WText* number_;
-
-    void update_number_();
-};
-
-Evaluation_view::Scale_edit_widget::Scale_edit_widget(
-        Row_model& model,
-        Mode mode,
-        Evaluation_view& main,
-        Session& session,
-        Wt::WContainerWidget* parent)
-        : Response_edit_widget(model, mode, main, session, parent)
-{
-    slider_ = new Wt::WSlider(score_holder_);
-    slider_->resize(200, 50);
-    slider_->setTickPosition(Wt::WSlider::TicksAbove);
-    slider_->setTickInterval(20);
-    slider_->setMinimum(0);
-    slider_->setMaximum(100);
-
-    new Wt::WBreak(score_holder_);
-
-    number_ = new Wt::WText(score_holder_);
-
-    slider_->valueChanged().connect(this, &Scale_edit_widget::update_number_);
-
-    if (mode_ != Mode::self_eval) {
-        slider_->disable();
-    }
-
-    load_();
-}
-
-double Evaluation_view::Scale_edit_widget::score() const
-{
-    return slider_->value() / 100.0;
-}
-
-void Evaluation_view::Scale_edit_widget::set_score(double d)
-{
-    slider_->setValue(int(100 * d));
-    update_number_();
-}
-
-void Evaluation_view::Scale_edit_widget::reset()
-{
-    Response_edit_widget::reset();
-    slider_->setValue(50);
-}
-
-void Evaluation_view::Scale_edit_widget::update_number_()
-{
-    number_->setText(slider_->valueText() + "%");
-}
-
-class Evaluation_view::Informational_edit_widget
-        : public Evaluation_view::Edit_widget
-{
-public:
-    Informational_edit_widget(Row_model&, Mode, Evaluation_view&, Session&,
-                              WContainerWidget* parent = nullptr);
-
-protected:
-    virtual double score() const override;
-    virtual void set_score(double d) override;
-    virtual std::string explanation() const override;
-    virtual void set_explanation(const std::string& string) override;
-    virtual void reset() override;
-};
-
-Evaluation_view::Informational_edit_widget::Informational_edit_widget(
-        Row_model& model,
-        Mode mode,
-        Evaluation_view& main,
-        Session& session,
-        Wt::WContainerWidget* parent)
-        : Edit_widget(model, mode, main, session, parent)
-{
-    load_();
-}
-
-double Evaluation_view::Informational_edit_widget::score() const
-{
-    return 1;
-}
-
-void Evaluation_view::Informational_edit_widget::set_score(double)
-{
-    // no-op
-}
-
-std::string Evaluation_view::Informational_edit_widget::explanation() const
-{
-    return "";
-}
-
-void
-Evaluation_view::Informational_edit_widget::set_explanation(const std::string&)
-{
-    // no-op
-}
-
-void Evaluation_view::Informational_edit_widget::reset()
-{
-    // no-op
-}
-
-std::unique_ptr<Evaluation_view::Edit_widget>
-Evaluation_view::Edit_widget::create(Row_model& model,
-                                     Mode mode,
-                                     Evaluation_view& main,
-                                     Session& session,
-                                     Wt::WContainerWidget* parent)
-{
-    switch (model.eval_item->type()) {
-        case Eval_item::Type::Boolean:
-            return std::make_unique<Boolean_edit_widget>(model, mode, main,
-                                                         session, parent);
-        case Eval_item::Type::Scale:
-            return std::make_unique<Scale_edit_widget>(model, mode, main,
-                                                       session, parent);
-        case Eval_item::Type::Informational:
-            return std::make_unique<Informational_edit_widget>(model, mode, main,
-                                                               session, parent);
-    }
-}
 
 Evaluation_view::Evaluation_view(const dbo::ptr<Submission>& submission,
                                  Session& session,
@@ -565,21 +62,21 @@ void Evaluation_view::go_to(unsigned int index)
          << "/eval/" << index;
     Wt::WApplication::instance()->setInternalPath(path.str());
 
-    Edit_widget::Mode mode;
+    Eval_widget::Mode mode;
     switch (role_) {
         case User::Role::Student:
-            mode = Edit_widget::Mode::self_eval;
+            mode = Eval_widget::Mode::self_eval;
             break;
         case User::Role::Grader:
-            mode = Edit_widget::Mode::grader_eval;
+            mode = Eval_widget::Mode::grader_eval;
             break;
         case User::Role::Admin:
-            mode = Edit_widget::Mode::admin_view;
+            mode = Eval_widget::Mode::admin_view;
             break;
     }
 
     rows_.clear();
-    rows_.push_back(Edit_widget::create(model_.at(index), mode,
+    rows_.push_back(Eval_widget::create(model_.at(index), mode,
                                         *this, session_, right_column_));
 }
 
@@ -599,23 +96,23 @@ void Evaluation_view::go_default()
     path << "/hw/" << submission_->assignment()->number() << "/eval";
     Wt::WApplication::instance()->setInternalPath(path.str());
 
-    Edit_widget::Mode mode;
+    Eval_widget::Mode mode;
     switch (role_) {
         case User::Role::Student:
-            mode = Edit_widget::Mode::self_view;
+            mode = Eval_widget::Mode::self_view;
             break;
         case User::Role::Grader:
-            mode = Edit_widget::Mode::grader_eval;
+            mode = Eval_widget::Mode::grader_eval;
             break;
         case User::Role::Admin:
-            mode = Edit_widget::Mode::admin_view;
+            mode = Eval_widget::Mode::admin_view;
             break;
     }
 
     rows_.clear();
     for (auto& row : model_)
         if (row.eval_item)
-            rows_.push_back(Edit_widget::create(row, mode,
+            rows_.push_back(Eval_widget::create(row, mode,
                                                 *this, session_, right_column_));
 }
 

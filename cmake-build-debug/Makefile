@@ -793,6 +793,33 @@ src/view/Error_view.C.s:
 	$(MAKE) -f CMakeFiles/gsc.dir/build.make CMakeFiles/gsc.dir/src/view/Error_view.C.s
 .PHONY : src/view/Error_view.C.s
 
+src/view/Eval_widget.o: src/view/Eval_widget.C.o
+
+.PHONY : src/view/Eval_widget.o
+
+# target to build an object file
+src/view/Eval_widget.C.o:
+	$(MAKE) -f CMakeFiles/gsc.dir/build.make CMakeFiles/gsc.dir/src/view/Eval_widget.C.o
+.PHONY : src/view/Eval_widget.C.o
+
+src/view/Eval_widget.i: src/view/Eval_widget.C.i
+
+.PHONY : src/view/Eval_widget.i
+
+# target to preprocess a source file
+src/view/Eval_widget.C.i:
+	$(MAKE) -f CMakeFiles/gsc.dir/build.make CMakeFiles/gsc.dir/src/view/Eval_widget.C.i
+.PHONY : src/view/Eval_widget.C.i
+
+src/view/Eval_widget.s: src/view/Eval_widget.C.s
+
+.PHONY : src/view/Eval_widget.s
+
+# target to generate assembly for a file
+src/view/Eval_widget.C.s:
+	$(MAKE) -f CMakeFiles/gsc.dir/build.make CMakeFiles/gsc.dir/src/view/Eval_widget.C.s
+.PHONY : src/view/Eval_widget.C.s
+
 src/view/Evaluation_view.o: src/view/Evaluation_view.C.o
 
 .PHONY : src/view/Evaluation_view.o
@@ -1227,6 +1254,9 @@ help:
 	@echo "... src/view/Error_view.o"
 	@echo "... src/view/Error_view.i"
 	@echo "... src/view/Error_view.s"
+	@echo "... src/view/Eval_widget.o"
+	@echo "... src/view/Eval_widget.i"
+	@echo "... src/view/Eval_widget.s"
 	@echo "... src/view/Evaluation_view.o"
 	@echo "... src/view/Evaluation_view.i"
 	@echo "... src/view/Evaluation_view.s"

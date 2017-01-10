@@ -272,6 +272,12 @@
 		<Unit filename="/Users/tov/projects/gsc/src/view/Error_view.h">
 			<Option target="gsc"/>
 		</Unit>
+		<Unit filename="/Users/tov/projects/gsc/src/view/Eval_widget.C">
+			<Option target="gsc"/>
+		</Unit>
+		<Unit filename="/Users/tov/projects/gsc/src/view/Eval_widget.h">
+			<Option target="gsc"/>
+		</Unit>
 		<Unit filename="/Users/tov/projects/gsc/src/view/Evaluation_view.C">
 			<Option target="gsc"/>
 		</Unit>
@@ -353,22 +359,10 @@
 		<Unit filename="/Users/tov/projects/gsc/CMakeLists.txt">
 			<Option virtualFolder="CMake Files\"/>
 		</Unit>
-		<Unit filename="/Users/tov/projects/gsc/CMake/CMakePCHCompiler/CMakeDetermineCXXPCHCompiler.cmake">
-			<Option virtualFolder="CMake Files\CMake\CMakePCHCompiler\"/>
-		</Unit>
-		<Unit filename="/Users/tov/projects/gsc/CMake/CMakePCHCompiler/CMakePCHCompiler.cmake">
-			<Option virtualFolder="CMake Files\CMake\CMakePCHCompiler\"/>
-		</Unit>
-		<Unit filename="/Users/tov/projects/gsc/CMake/CMakePCHCompiler/CMakeCXXPCHCompiler.cmake.in">
-			<Option virtualFolder="CMake Files\CMake\CMakePCHCompiler\"/>
-		</Unit>
 		<Unit filename="/Users/tov/projects/gsc/CMake/CMakePCHCompiler/CMakeCXXPCHInformation.cmake">
 			<Option virtualFolder="CMake Files\CMake\CMakePCHCompiler\"/>
 		</Unit>
 		<Unit filename="/Users/tov/projects/gsc/CMake/CMakePCHCompiler/CMakePCHCompiler.cmake">
-			<Option virtualFolder="CMake Files\CMake\CMakePCHCompiler\"/>
-		</Unit>
-		<Unit filename="/Users/tov/projects/gsc/CMake/CMakePCHCompiler/CMakeTestCXXPCHCompiler.cmake">
 			<Option virtualFolder="CMake Files\CMake\CMakePCHCompiler\"/>
 		</Unit>
 		<Unit filename="/Users/tov/projects/gsc/CMake/CMakePCHCompiler/Platform/Darwin-AppleClang-CXXPCH.cmake">

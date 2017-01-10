@@ -28,6 +28,7 @@ file(REMOVE_RECURSE
   "CMakeFiles/gsc.dir/src/view/File_viewer_widget.C.o"
   "CMakeFiles/gsc.dir/src/view/Main_view.C.o"
   "CMakeFiles/gsc.dir/src/view/User_suggester.C.o"
+  "CMakeFiles/gsc.dir/src/view/Eval_widget.C.o"
   "CMakeFiles/gsc.dir/src/view/Evaluation_view.C.o"
   "CMakeFiles/gsc.dir/src/view/Submission_owner_widget.C.o"
   "CMakeFiles/gsc.dir/src/view/Submissions_view.C.o"

@@ -753,9 +753,33 @@ CMakeFiles/gsc.dir/src/view/User_suggester.C.o.provides: CMakeFiles/gsc.dir/src/
 CMakeFiles/gsc.dir/src/view/User_suggester.C.o.provides.build: CMakeFiles/gsc.dir/src/view/User_suggester.C.o
 
 
+CMakeFiles/gsc.dir/src/view/Eval_widget.C.o: CMakeFiles/gsc.dir/flags.make
+CMakeFiles/gsc.dir/src/view/Eval_widget.C.o: ../src/view/Eval_widget.C
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/Users/tov/projects/gsc/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_30) "Building CXX object CMakeFiles/gsc.dir/src/view/Eval_widget.C.o"
+	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/gsc.dir/src/view/Eval_widget.C.o -c /Users/tov/projects/gsc/src/view/Eval_widget.C
+
+CMakeFiles/gsc.dir/src/view/Eval_widget.C.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/gsc.dir/src/view/Eval_widget.C.i"
+	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/tov/projects/gsc/src/view/Eval_widget.C > CMakeFiles/gsc.dir/src/view/Eval_widget.C.i
+
+CMakeFiles/gsc.dir/src/view/Eval_widget.C.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/gsc.dir/src/view/Eval_widget.C.s"
+	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/tov/projects/gsc/src/view/Eval_widget.C -o CMakeFiles/gsc.dir/src/view/Eval_widget.C.s
+
+CMakeFiles/gsc.dir/src/view/Eval_widget.C.o.requires:
+
+.PHONY : CMakeFiles/gsc.dir/src/view/Eval_widget.C.o.requires
+
+CMakeFiles/gsc.dir/src/view/Eval_widget.C.o.provides: CMakeFiles/gsc.dir/src/view/Eval_widget.C.o.requires
+	$(MAKE) -f CMakeFiles/gsc.dir/build.make CMakeFiles/gsc.dir/src/view/Eval_widget.C.o.provides.build
+.PHONY : CMakeFiles/gsc.dir/src/view/Eval_widget.C.o.provides
+
+CMakeFiles/gsc.dir/src/view/Eval_widget.C.o.provides.build: CMakeFiles/gsc.dir/src/view/Eval_widget.C.o
+
+
 CMakeFiles/gsc.dir/src/view/Evaluation_view.C.o: CMakeFiles/gsc.dir/flags.make
 CMakeFiles/gsc.dir/src/view/Evaluation_view.C.o: ../src/view/Evaluation_view.C
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/Users/tov/projects/gsc/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_30) "Building CXX object CMakeFiles/gsc.dir/src/view/Evaluation_view.C.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/Users/tov/projects/gsc/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_31) "Building CXX object CMakeFiles/gsc.dir/src/view/Evaluation_view.C.o"
 	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/gsc.dir/src/view/Evaluation_view.C.o -c /Users/tov/projects/gsc/src/view/Evaluation_view.C
 
 CMakeFiles/gsc.dir/src/view/Evaluation_view.C.i: cmake_force
@@ -779,7 +803,7 @@ CMakeFiles/gsc.dir/src/view/Evaluation_view.C.o.provides.build: CMakeFiles/gsc.d
 
 CMakeFiles/gsc.dir/src/view/Submission_owner_widget.C.o: CMakeFiles/gsc.dir/flags.make
 CMakeFiles/gsc.dir/src/view/Submission_owner_widget.C.o: ../src/view/Submission_owner_widget.C
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/Users/tov/projects/gsc/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_31) "Building CXX object CMakeFiles/gsc.dir/src/view/Submission_owner_widget.C.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/Users/tov/projects/gsc/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_32) "Building CXX object CMakeFiles/gsc.dir/src/view/Submission_owner_widget.C.o"
 	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/gsc.dir/src/view/Submission_owner_widget.C.o -c /Users/tov/projects/gsc/src/view/Submission_owner_widget.C
 
 CMakeFiles/gsc.dir/src/view/Submission_owner_widget.C.i: cmake_force
@@ -803,7 +827,7 @@ CMakeFiles/gsc.dir/src/view/Submission_owner_widget.C.o.provides.build: CMakeFil
 
 CMakeFiles/gsc.dir/src/view/Submissions_view.C.o: CMakeFiles/gsc.dir/flags.make
 CMakeFiles/gsc.dir/src/view/Submissions_view.C.o: ../src/view/Submissions_view.C
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/Users/tov/projects/gsc/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_32) "Building CXX object CMakeFiles/gsc.dir/src/view/Submissions_view.C.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/Users/tov/projects/gsc/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_33) "Building CXX object CMakeFiles/gsc.dir/src/view/Submissions_view.C.o"
 	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/gsc.dir/src/view/Submissions_view.C.o -c /Users/tov/projects/gsc/src/view/Submissions_view.C
 
 CMakeFiles/gsc.dir/src/view/Submissions_view.C.i: cmake_force
@@ -827,7 +851,7 @@ CMakeFiles/gsc.dir/src/view/Submissions_view.C.o.provides.build: CMakeFiles/gsc.
 
 CMakeFiles/gsc.dir/src/view/game/HangmanWidget.C.o: CMakeFiles/gsc.dir/flags.make
 CMakeFiles/gsc.dir/src/view/game/HangmanWidget.C.o: ../src/view/game/HangmanWidget.C
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/Users/tov/projects/gsc/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_33) "Building CXX object CMakeFiles/gsc.dir/src/view/game/HangmanWidget.C.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/Users/tov/projects/gsc/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_34) "Building CXX object CMakeFiles/gsc.dir/src/view/game/HangmanWidget.C.o"
 	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/gsc.dir/src/view/game/HangmanWidget.C.o -c /Users/tov/projects/gsc/src/view/game/HangmanWidget.C
 
 CMakeFiles/gsc.dir/src/view/game/HangmanWidget.C.i: cmake_force
@@ -851,7 +875,7 @@ CMakeFiles/gsc.dir/src/view/game/HangmanWidget.C.o.provides.build: CMakeFiles/gs
 
 CMakeFiles/gsc.dir/src/view/game/HighScoresWidget.C.o: CMakeFiles/gsc.dir/flags.make
 CMakeFiles/gsc.dir/src/view/game/HighScoresWidget.C.o: ../src/view/game/HighScoresWidget.C
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/Users/tov/projects/gsc/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_34) "Building CXX object CMakeFiles/gsc.dir/src/view/game/HighScoresWidget.C.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/Users/tov/projects/gsc/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_35) "Building CXX object CMakeFiles/gsc.dir/src/view/game/HighScoresWidget.C.o"
 	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/gsc.dir/src/view/game/HighScoresWidget.C.o -c /Users/tov/projects/gsc/src/view/game/HighScoresWidget.C
 
 CMakeFiles/gsc.dir/src/view/game/HighScoresWidget.C.i: cmake_force
@@ -875,7 +899,7 @@ CMakeFiles/gsc.dir/src/view/game/HighScoresWidget.C.o.provides.build: CMakeFiles
 
 CMakeFiles/gsc.dir/src/view/game/ImagesWidget.C.o: CMakeFiles/gsc.dir/flags.make
 CMakeFiles/gsc.dir/src/view/game/ImagesWidget.C.o: ../src/view/game/ImagesWidget.C
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/Users/tov/projects/gsc/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_35) "Building CXX object CMakeFiles/gsc.dir/src/view/game/ImagesWidget.C.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/Users/tov/projects/gsc/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_36) "Building CXX object CMakeFiles/gsc.dir/src/view/game/ImagesWidget.C.o"
 	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/gsc.dir/src/view/game/ImagesWidget.C.o -c /Users/tov/projects/gsc/src/view/game/ImagesWidget.C
 
 CMakeFiles/gsc.dir/src/view/game/ImagesWidget.C.i: cmake_force
@@ -899,7 +923,7 @@ CMakeFiles/gsc.dir/src/view/game/ImagesWidget.C.o.provides.build: CMakeFiles/gsc
 
 CMakeFiles/gsc.dir/src/view/game/LettersWidget.C.o: CMakeFiles/gsc.dir/flags.make
 CMakeFiles/gsc.dir/src/view/game/LettersWidget.C.o: ../src/view/game/LettersWidget.C
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/Users/tov/projects/gsc/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_36) "Building CXX object CMakeFiles/gsc.dir/src/view/game/LettersWidget.C.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/Users/tov/projects/gsc/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_37) "Building CXX object CMakeFiles/gsc.dir/src/view/game/LettersWidget.C.o"
 	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/gsc.dir/src/view/game/LettersWidget.C.o -c /Users/tov/projects/gsc/src/view/game/LettersWidget.C
 
 CMakeFiles/gsc.dir/src/view/game/LettersWidget.C.i: cmake_force
@@ -923,7 +947,7 @@ CMakeFiles/gsc.dir/src/view/game/LettersWidget.C.o.provides.build: CMakeFiles/gs
 
 CMakeFiles/gsc.dir/src/view/game/WordWidget.C.o: CMakeFiles/gsc.dir/flags.make
 CMakeFiles/gsc.dir/src/view/game/WordWidget.C.o: ../src/view/game/WordWidget.C
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/Users/tov/projects/gsc/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_37) "Building CXX object CMakeFiles/gsc.dir/src/view/game/WordWidget.C.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/Users/tov/projects/gsc/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_38) "Building CXX object CMakeFiles/gsc.dir/src/view/game/WordWidget.C.o"
 	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/gsc.dir/src/view/game/WordWidget.C.o -c /Users/tov/projects/gsc/src/view/game/WordWidget.C
 
 CMakeFiles/gsc.dir/src/view/game/WordWidget.C.i: cmake_force
@@ -976,6 +1000,7 @@ gsc_OBJECTS = \
 "CMakeFiles/gsc.dir/src/view/File_viewer_widget.C.o" \
 "CMakeFiles/gsc.dir/src/view/Main_view.C.o" \
 "CMakeFiles/gsc.dir/src/view/User_suggester.C.o" \
+"CMakeFiles/gsc.dir/src/view/Eval_widget.C.o" \
 "CMakeFiles/gsc.dir/src/view/Evaluation_view.C.o" \
 "CMakeFiles/gsc.dir/src/view/Submission_owner_widget.C.o" \
 "CMakeFiles/gsc.dir/src/view/Submissions_view.C.o" \
@@ -1017,6 +1042,7 @@ gsc: CMakeFiles/gsc.dir/src/view/File_manager_view.C.o
 gsc: CMakeFiles/gsc.dir/src/view/File_viewer_widget.C.o
 gsc: CMakeFiles/gsc.dir/src/view/Main_view.C.o
 gsc: CMakeFiles/gsc.dir/src/view/User_suggester.C.o
+gsc: CMakeFiles/gsc.dir/src/view/Eval_widget.C.o
 gsc: CMakeFiles/gsc.dir/src/view/Evaluation_view.C.o
 gsc: CMakeFiles/gsc.dir/src/view/Submission_owner_widget.C.o
 gsc: CMakeFiles/gsc.dir/src/view/Submissions_view.C.o
@@ -1029,7 +1055,7 @@ gsc: CMakeFiles/gsc.dir/build.make
 gsc: /usr/local/lib/libboost_system-mt.dylib
 gsc: /usr/local/lib/libboost_filesystem-mt.dylib
 gsc: CMakeFiles/gsc.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/Users/tov/projects/gsc/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_38) "Linking CXX executable gsc"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/Users/tov/projects/gsc/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_39) "Linking CXX executable gsc"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/gsc.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.
@@ -1066,6 +1092,7 @@ CMakeFiles/gsc.dir/requires: CMakeFiles/gsc.dir/src/view/File_manager_view.C.o.r
 CMakeFiles/gsc.dir/requires: CMakeFiles/gsc.dir/src/view/File_viewer_widget.C.o.requires
 CMakeFiles/gsc.dir/requires: CMakeFiles/gsc.dir/src/view/Main_view.C.o.requires
 CMakeFiles/gsc.dir/requires: CMakeFiles/gsc.dir/src/view/User_suggester.C.o.requires
+CMakeFiles/gsc.dir/requires: CMakeFiles/gsc.dir/src/view/Eval_widget.C.o.requires
 CMakeFiles/gsc.dir/requires: CMakeFiles/gsc.dir/src/view/Evaluation_view.C.o.requires
 CMakeFiles/gsc.dir/requires: CMakeFiles/gsc.dir/src/view/Submission_owner_widget.C.o.requires
 CMakeFiles/gsc.dir/requires: CMakeFiles/gsc.dir/src/view/Submissions_view.C.o.requires

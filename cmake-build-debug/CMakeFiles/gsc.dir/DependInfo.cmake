@@ -28,6 +28,7 @@ set(CMAKE_DEPENDS_CHECK_CXX
   "/Users/tov/projects/gsc/src/view/Date_time_edit.C" "/Users/tov/projects/gsc/cmake-build-debug/CMakeFiles/gsc.dir/src/view/Date_time_edit.C.o"
   "/Users/tov/projects/gsc/src/view/Edit_assignment_view.C" "/Users/tov/projects/gsc/cmake-build-debug/CMakeFiles/gsc.dir/src/view/Edit_assignment_view.C.o"
   "/Users/tov/projects/gsc/src/view/Error_view.C" "/Users/tov/projects/gsc/cmake-build-debug/CMakeFiles/gsc.dir/src/view/Error_view.C.o"
+  "/Users/tov/projects/gsc/src/view/Eval_widget.C" "/Users/tov/projects/gsc/cmake-build-debug/CMakeFiles/gsc.dir/src/view/Eval_widget.C.o"
   "/Users/tov/projects/gsc/src/view/Evaluation_view.C" "/Users/tov/projects/gsc/cmake-build-debug/CMakeFiles/gsc.dir/src/view/Evaluation_view.C.o"
   "/Users/tov/projects/gsc/src/view/File_list_widget.C" "/Users/tov/projects/gsc/cmake-build-debug/CMakeFiles/gsc.dir/src/view/File_list_widget.C.o"
   "/Users/tov/projects/gsc/src/view/File_manager_view.C" "/Users/tov/projects/gsc/cmake-build-debug/CMakeFiles/gsc.dir/src/view/File_manager_view.C.o"
