@@ -4,6 +4,7 @@
 
 #include <Wt/WContainerWidget>
 
+class Abstract_widget_factory;
 class Evaluation_view;
 class Evaluation_view_row_model;
 class Session;
@@ -27,6 +28,8 @@ protected:
     bool is_singular_;
     Session& session_;
     Evaluation_view& main_;
+
+    std::unique_ptr<Abstract_widget_factory> awf_;
 
     Wt::WContainerWidget* response_;
 

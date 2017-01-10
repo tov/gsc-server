@@ -1,5 +1,6 @@
 #include "Eval_widget.h"
 #include "Evaluation_view.h"
+#include "Widget_factory.h"
 #include "../model/Eval_item.h"
 #include "../model/Grader_eval.h"
 #include "../model/Self_eval.h"
@@ -7,7 +8,7 @@
 
 #include <Wt/WBreak>
 #include <Wt/WButtonGroup>
-#include <Wt/WCompositeWidget>
+#include <Wt/WContainerWidget>
 #include <Wt/WPushButton>
 #include <Wt/WRadioButton>
 #include <Wt/WSlider>
@@ -15,89 +16,6 @@
 #include <Wt/WTextArea>
 
 #include <iomanip>
-
-class Abstract_explanation_holder : public Wt::WCompositeWidget
-{
-public:
-    Abstract_explanation_holder(Wt::WContainerWidget* parent = nullptr);
-
-    virtual std::string explanation() const = 0;
-    virtual void set_explanation(const std::string&) = 0;
-
-    virtual ~Abstract_explanation_holder() { }
-};
-
-Abstract_explanation_holder::Abstract_explanation_holder(
-        Wt::WContainerWidget* parent) : WCompositeWidget(parent)
-{ }
-
-class Editable_explanation_holder : public Abstract_explanation_holder
-{
-public:
-    Editable_explanation_holder(Wt::WContainerWidget* parent = nullptr);
-
-    std::string explanation() const override;
-    void set_explanation(const std::string&) override;
-
-private:
-    Wt::WTextArea* explanation_;
-};
-
-Editable_explanation_holder::Editable_explanation_holder(
-        Wt::WContainerWidget* parent) : Abstract_explanation_holder(parent)
-{
-    auto container = new Wt::WContainerWidget();
-
-    new Wt::WText(
-            "<p>Explain, including line references (e.g. L14):</p>",
-            container);
-
-    explanation_ = new Wt::WTextArea(container);
-    explanation_->setStyleClass("explanation");
-    explanation_->setInline(false);
-
-    setImplementation(container);
-}
-
-std::string Editable_explanation_holder::explanation() const
-{
-    return explanation_->text().toUTF8();
-}
-
-void Editable_explanation_holder::set_explanation(const std::string& text)
-{
-    explanation_->setText(Wt::WString::fromUTF8(text));
-}
-
-class Viewable_explanation_holder : public Abstract_explanation_holder
-{
-public:
-    Viewable_explanation_holder(Wt::WContainerWidget* parent = nullptr);
-
-    std::string explanation() const override;
-    void set_explanation(const std::string&) override;
-
-private:
-    Wt::WText* explanation_;
-};
-
-Viewable_explanation_holder::Viewable_explanation_holder(
-        Wt::WContainerWidget* parent) : Abstract_explanation_holder(parent)
-{
-    auto container = new Wt::WContainerWidget();
-    explanation_ = new Wt::WText(container);
-    setImplementation(container);
-}
-
-std::string Viewable_explanation_holder::explanation() const
-{
-    return explanation_->text().toUTF8();
-}
-
-void Viewable_explanation_holder::set_explanation(const std::string& text)
-{
-    explanation_->setText(Wt::WString::fromUTF8(text));
-}
 
 Eval_widget::Eval_widget(
         Row_model& model,
@@ -112,6 +30,11 @@ Eval_widget::Eval_widget(
           session_(session)
 {
     setStyleClass("edit-widget");
+
+    if (can_eval() && is_singular_)
+        awf_ = make_editable_widget_factory();
+    else
+        awf_ = make_viewable_widget_factory();
 
     auto pct = 100 * model.eval_item->relative_value() / main_.total_value_;
     std::ostringstream title;
@@ -223,12 +146,7 @@ Response_eval_widget::Response_eval_widget(
 {
     score_holder_ = new Wt::WContainerWidget(response_);
     score_holder_->setStyleClass("score");
-
-    if (can_eval() && is_singular_) {
-        explanation_holder_ = new Editable_explanation_holder(response_);
-    } else {
-        explanation_holder_ = new Viewable_explanation_holder(response_);
-    }
+    explanation_holder_ = awf_->explanation_holder(response_);
 }
 
 std::string Response_eval_widget::explanation() const

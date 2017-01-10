@@ -1036,6 +1036,33 @@ src/view/User_suggester.C.s:
 	$(MAKE) -f CMakeFiles/gsc.dir/build.make CMakeFiles/gsc.dir/src/view/User_suggester.C.s
 .PHONY : src/view/User_suggester.C.s
 
+src/view/Widget_factory.o: src/view/Widget_factory.C.o
+
+.PHONY : src/view/Widget_factory.o
+
+# target to build an object file
+src/view/Widget_factory.C.o:
+	$(MAKE) -f CMakeFiles/gsc.dir/build.make CMakeFiles/gsc.dir/src/view/Widget_factory.C.o
+.PHONY : src/view/Widget_factory.C.o
+
+src/view/Widget_factory.i: src/view/Widget_factory.C.i
+
+.PHONY : src/view/Widget_factory.i
+
+# target to preprocess a source file
+src/view/Widget_factory.C.i:
+	$(MAKE) -f CMakeFiles/gsc.dir/build.make CMakeFiles/gsc.dir/src/view/Widget_factory.C.i
+.PHONY : src/view/Widget_factory.C.i
+
+src/view/Widget_factory.s: src/view/Widget_factory.C.s
+
+.PHONY : src/view/Widget_factory.s
+
+# target to generate assembly for a file
+src/view/Widget_factory.C.s:
+	$(MAKE) -f CMakeFiles/gsc.dir/build.make CMakeFiles/gsc.dir/src/view/Widget_factory.C.s
+.PHONY : src/view/Widget_factory.C.s
+
 src/view/game/HangmanWidget.o: src/view/game/HangmanWidget.C.o
 
 .PHONY : src/view/game/HangmanWidget.o
@@ -1281,6 +1308,9 @@ help:
 	@echo "... src/view/User_suggester.o"
 	@echo "... src/view/User_suggester.i"
 	@echo "... src/view/User_suggester.s"
+	@echo "... src/view/Widget_factory.o"
+	@echo "... src/view/Widget_factory.i"
+	@echo "... src/view/Widget_factory.s"
 	@echo "... src/view/game/HangmanWidget.o"
 	@echo "... src/view/game/HangmanWidget.i"
 	@echo "... src/view/game/HangmanWidget.s"

@@ -326,6 +326,12 @@
 		<Unit filename="/Users/tov/projects/gsc/src/view/User_suggester.h">
 			<Option target="gsc"/>
 		</Unit>
+		<Unit filename="/Users/tov/projects/gsc/src/view/Widget_factory.C">
+			<Option target="gsc"/>
+		</Unit>
+		<Unit filename="/Users/tov/projects/gsc/src/view/Widget_factory.h">
+			<Option target="gsc"/>
+		</Unit>
 		<Unit filename="/Users/tov/projects/gsc/src/view/game/HangmanWidget.C">
 			<Option target="gsc"/>
 		</Unit>

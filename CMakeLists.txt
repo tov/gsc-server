@@ -38,6 +38,7 @@ set(SOURCE_FILES
         src/view/Evaluation_view.C
         src/view/Submission_owner_widget.C
         src/view/Submissions_view.C
+        src/view/Widget_factory.C
         src/view/game/HangmanWidget.C
         src/view/game/HighScoresWidget.C
         src/view/game/ImagesWidget.C

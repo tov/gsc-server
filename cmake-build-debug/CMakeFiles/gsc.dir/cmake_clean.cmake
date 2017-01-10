@@ -32,6 +32,7 @@ file(REMOVE_RECURSE
   "CMakeFiles/gsc.dir/src/view/Evaluation_view.C.o"
   "CMakeFiles/gsc.dir/src/view/Submission_owner_widget.C.o"
   "CMakeFiles/gsc.dir/src/view/Submissions_view.C.o"
+  "CMakeFiles/gsc.dir/src/view/Widget_factory.C.o"
   "CMakeFiles/gsc.dir/src/view/game/HangmanWidget.C.o"
   "CMakeFiles/gsc.dir/src/view/game/HighScoresWidget.C.o"
   "CMakeFiles/gsc.dir/src/view/game/ImagesWidget.C.o"

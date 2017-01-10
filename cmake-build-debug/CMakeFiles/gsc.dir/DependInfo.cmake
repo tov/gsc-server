@@ -37,6 +37,7 @@ set(CMAKE_DEPENDS_CHECK_CXX
   "/Users/tov/projects/gsc/src/view/Submission_owner_widget.C" "/Users/tov/projects/gsc/cmake-build-debug/CMakeFiles/gsc.dir/src/view/Submission_owner_widget.C.o"
   "/Users/tov/projects/gsc/src/view/Submissions_view.C" "/Users/tov/projects/gsc/cmake-build-debug/CMakeFiles/gsc.dir/src/view/Submissions_view.C.o"
   "/Users/tov/projects/gsc/src/view/User_suggester.C" "/Users/tov/projects/gsc/cmake-build-debug/CMakeFiles/gsc.dir/src/view/User_suggester.C.o"
+  "/Users/tov/projects/gsc/src/view/Widget_factory.C" "/Users/tov/projects/gsc/cmake-build-debug/CMakeFiles/gsc.dir/src/view/Widget_factory.C.o"
   "/Users/tov/projects/gsc/src/view/game/HangmanWidget.C" "/Users/tov/projects/gsc/cmake-build-debug/CMakeFiles/gsc.dir/src/view/game/HangmanWidget.C.o"
   "/Users/tov/projects/gsc/src/view/game/HighScoresWidget.C" "/Users/tov/projects/gsc/cmake-build-debug/CMakeFiles/gsc.dir/src/view/game/HighScoresWidget.C.o"
   "/Users/tov/projects/gsc/src/view/game/ImagesWidget.C" "/Users/tov/projects/gsc/cmake-build-debug/CMakeFiles/gsc.dir/src/view/game/ImagesWidget.C.o"

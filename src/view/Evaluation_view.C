@@ -1,5 +1,6 @@
 #include "Evaluation_view.h"
 #include "Eval_widget.h"
+#include "Widget_factory.h"
 #include "File_viewer_widget.h"
 #include "../model/Assignment.h"
 #include "../model/Eval_item.h"
