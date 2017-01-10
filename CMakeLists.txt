@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.6)
+cmake_minimum_required(VERSION 3.5)
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/CMake/CMakePCHCompiler)
 project(gsc CXX CXXPCH)
 
@@ -50,13 +50,16 @@ include_directories(${Boost_INCLUDE_DIRS})
 link_directories(${Boost_LIBRARY_DIRS})
 
 set(LIBRARIES
-    wt wthttp wtdbo wtdbopostgres # wtdbosqlite3
+    wt wtdbo wtdbopostgres # wtdbosqlite3
     ${Boost_LIBRARIES})
-
-set(CMAKE_CXX_FLAGS_DEBUG "-O0 -std=gnu++14 ${CMAKE_CXX_FLAGS_DEBUG}")
 
 add_executable(gsc ${SOURCE_FILES})
 set_property(TARGET gsc PROPERTY CXX_STANDARD 14)
 set_property(TARGET gsc PROPERTY CXX_STANDARD_REQUIRED On)
 target_precompiled_header(gsc src/prefix.h)
-target_link_libraries(gsc ${LIBRARIES})
+target_link_libraries(gsc wthttp ${LIBRARIES})
+
+add_executable(gsc-fcgi ${SOURCE_FILES})
+set_property(TARGET gsc-fcgi PROPERTY CXX_STANDARD 14)
+set_property(TARGET gsc-fcgi PROPERTY CXX_STANDARD_REQUIRED On)
+target_link_libraries(gsc-fcgi wtfcgi ${LIBRARIES})
