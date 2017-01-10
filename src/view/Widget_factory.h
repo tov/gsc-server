@@ -34,6 +34,23 @@ public:
 
     virtual bool value() const = 0;
     virtual void set_value(bool) = 0;
+    virtual void clear() = 0;
+
+    Wt::Signal<>& changed() { return changed_; }
+
+private:
+    Wt::Signal<> changed_;
+};
+
+class Abstract_unit_scale : public Abstract_widget_base
+{
+public:
+    Abstract_unit_scale(Wt::WContainerWidget* parent = nullptr)
+            : Abstract_widget_base(parent) { }
+
+    virtual double value() const = 0;
+    virtual void set_value(double) = 0;
+    virtual void clear() = 0;
 
     Wt::Signal<>& changed() { return changed_; }
 
@@ -48,6 +65,9 @@ struct Abstract_widget_factory
 
     virtual Abstract_boolean_option*
     boolean_option(Wt::WContainerWidget* parent = nullptr) const = 0;
+
+    virtual Abstract_unit_scale*
+    unit_scale(Wt::WContainerWidget* parent = nullptr) const = 0;
 
     virtual bool is_editable() const = 0;
 

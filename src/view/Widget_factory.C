@@ -3,6 +3,7 @@
 #include <Wt/WButtonGroup>
 #include <Wt/WContainerWidget>
 #include <Wt/WRadioButton>
+#include <Wt/WSlider>
 #include <Wt/WText>
 #include <Wt/WTextArea>
 
@@ -88,6 +89,7 @@ public:
 
     bool value() const override;
     void set_value(bool) override;
+    void clear() override;
 
 private:
     Wt::WButtonGroup* no_yes_;
@@ -115,6 +117,11 @@ void Editable_boolean_option::set_value(bool value)
     no_yes_->setCheckedButton(value ? yes_ : no_);
 }
 
+void Editable_boolean_option::clear()
+{
+    no_yes_->setCheckedButton(nullptr);
+}
+
 class Viewable_boolean_option : public Abstract_boolean_option
 {
 public:
@@ -122,6 +129,7 @@ public:
 
     bool value() const override;
     void set_value(bool) override;
+    void clear() override;
 
 private:
     Wt::WText* text_;
@@ -143,6 +151,103 @@ void Viewable_boolean_option::set_value(bool value)
     text_->setText(value ? "Yes" : "No");
 }
 
+void Viewable_boolean_option::clear()
+{
+    text_->setText("[not set]");
+}
+
+class Editable_unit_scale : public Abstract_unit_scale
+{
+public:
+    Editable_unit_scale(Wt::WContainerWidget* parent = nullptr);
+
+    double value() const override;
+    void set_value(double) override;
+    void clear() override;
+
+private:
+    Wt::WSlider* slider_;
+    Wt::WText* number_;
+
+    void update_number_();
+};
+
+Editable_unit_scale::Editable_unit_scale(Wt::WContainerWidget* parent)
+        : Abstract_unit_scale(parent)
+{
+    slider_ = new Wt::WSlider(container_);
+    slider_->resize(200, 50);
+    slider_->setTickPosition(Wt::WSlider::TicksAbove);
+    slider_->setTickInterval(20);
+    slider_->setMinimum(0);
+    slider_->setMaximum(100);
+
+//    new Wt::WBreak(score_holder_);
+
+    number_ = new Wt::WText(container_);
+
+    slider_->valueChanged().connect(this, &Editable_unit_scale::update_number_);
+}
+
+double Editable_unit_scale::value() const
+{
+    return slider_->value() / 100.0;
+}
+
+void Editable_unit_scale::set_value(double d)
+{
+    slider_->setValue(int(100 * d));
+    update_number_();
+}
+
+void Editable_unit_scale::clear()
+{
+    slider_->setValue(50);
+    number_->setText("");
+}
+
+void Editable_unit_scale::update_number_()
+{
+    number_->setText(slider_->valueText() + "%");
+}
+
+class Viewable_unit_scale : public Abstract_unit_scale
+{
+public:
+    Viewable_unit_scale(Wt::WContainerWidget* parent = nullptr);
+
+    double value() const override;
+    void set_value(double) override;
+    void clear() override;
+
+private:
+    double value_;
+    Wt::WText* text_;
+};
+
+Viewable_unit_scale::Viewable_unit_scale(Wt::WContainerWidget* parent)
+        : Abstract_unit_scale(parent)
+{
+    text_ = new Wt::WText(container_);
+}
+
+double Viewable_unit_scale::value() const
+{
+    return value_;
+}
+
+void Viewable_unit_scale::set_value(double d)
+{
+    value_ = d;
+    text_->setText(boost::lexical_cast<std::string>(int(100 * d)) + "%");
+}
+
+void Viewable_unit_scale::clear()
+{
+    value_ = 0;
+    text_->setText("[not set]");
+}
+
 struct Editable_widget_factory : Abstract_widget_factory
 {
     virtual Abstract_explanation_holder*
@@ -155,6 +260,12 @@ struct Editable_widget_factory : Abstract_widget_factory
     boolean_option(Wt::WContainerWidget* parent) const override
     {
         return new Editable_boolean_option(parent);
+    }
+
+    virtual Abstract_unit_scale*
+    unit_scale(Wt::WContainerWidget* parent) const override
+    {
+        return new Editable_unit_scale(parent);
     }
 
     virtual bool is_editable() const override
@@ -175,6 +286,12 @@ struct Viewable_widget_factory : Abstract_widget_factory
     boolean_option(Wt::WContainerWidget* parent) const override
     {
         return new Viewable_boolean_option(parent);
+    }
+
+    virtual Abstract_unit_scale*
+    unit_scale(Wt::WContainerWidget* parent) const override
+    {
+        return new Viewable_unit_scale(parent);
     }
 
     virtual bool is_editable() const override

@@ -11,7 +11,6 @@
 #include <Wt/WContainerWidget>
 #include <Wt/WPushButton>
 #include <Wt/WRadioButton>
-#include <Wt/WSlider>
 #include <Wt/WText>
 #include <Wt/WTextArea>
 
@@ -177,10 +176,7 @@ protected:
     virtual void reset() override;
 
 private:
-    Wt::WButtonGroup* no_yes_;
-    Wt::WRadioButton* no_;
-    Wt::WRadioButton* yes_;
-
+    Abstract_boolean_option* boolean_option_;
     void toggle_explanation_();
 };
 
@@ -192,42 +188,34 @@ Boolean_eval_widget::Boolean_eval_widget(
         Wt::WContainerWidget* parent)
         : Response_eval_widget(model, is_singular, main, session, parent)
 {
-    no_yes_ = new Wt::WButtonGroup(score_holder_);
-    no_yes_->addButton(no_ = new Wt::WRadioButton("No", score_holder_));
-    no_yes_->addButton(yes_ = new Wt::WRadioButton("Yes", score_holder_));
-
+    boolean_option_ = awf_->boolean_option(score_holder_);
     explanation_holder_->hide();
-    no_yes_->checkedChanged().connect(this,
+    boolean_option_->changed().connect(this,
                                       &Boolean_eval_widget::toggle_explanation_);
-
-    if (!can_eval() && !is_singular_) {
-        no_->disable();
-        yes_->disable();
-    }
 
     load_();
 }
 
 double Boolean_eval_widget::score() const
 {
-    return no_yes_->checkedButton() == yes_ ? 1.0 : 0.0;
+    return boolean_option_->value() ? 1.0 : 0.0;
 }
 
 void Boolean_eval_widget::set_score(double d)
 {
-    no_yes_->setCheckedButton(d > 0 ? yes_ : no_);
+    boolean_option_->set_value(d > 0);
     toggle_explanation_();
 }
 
 void Boolean_eval_widget::reset()
 {
     Response_eval_widget::reset();
-    no_yes_->setCheckedButton(nullptr);
+    boolean_option_->clear();
 }
 
 void Boolean_eval_widget::toggle_explanation_()
 {
-    if (no_yes_->checkedButton() == yes_)
+    if (boolean_option_->value())
         explanation_holder_->show();
     else
         explanation_holder_->hide();
@@ -246,10 +234,7 @@ protected:
     virtual void reset() override;
 
 private:
-    Wt::WSlider* slider_;
-    Wt::WText* number_;
-
-    void update_number_();
+    Abstract_unit_scale* unit_scale_;
 };
 
 Scale_eval_widget::Scale_eval_widget(
@@ -260,46 +245,24 @@ Scale_eval_widget::Scale_eval_widget(
         Wt::WContainerWidget* parent)
         : Response_eval_widget(model, is_singular, main, session, parent)
 {
-    slider_ = new Wt::WSlider(score_holder_);
-    slider_->resize(200, 50);
-    slider_->setTickPosition(Wt::WSlider::TicksAbove);
-    slider_->setTickInterval(20);
-    slider_->setMinimum(0);
-    slider_->setMaximum(100);
-
-    new Wt::WBreak(score_holder_);
-
-    number_ = new Wt::WText(score_holder_);
-
-    slider_->valueChanged().connect(this, &Scale_eval_widget::update_number_);
-
-    if (!can_eval() && !is_singular_) {
-        slider_->disable();
-    }
-
+    unit_scale_ = awf_->unit_scale(score_holder_);
     load_();
 }
 
 double Scale_eval_widget::score() const
 {
-    return slider_->value() / 100.0;
+    return unit_scale_->value();
 }
 
 void Scale_eval_widget::set_score(double d)
 {
-    slider_->setValue(int(100 * d));
-    update_number_();
+    unit_scale_->set_value(d);
 }
 
 void Scale_eval_widget::reset()
 {
     Response_eval_widget::reset();
-    slider_->setValue(50);
-}
-
-void Scale_eval_widget::update_number_()
-{
-    number_->setText(slider_->valueText() + "%");
+    unit_scale_->clear();
 }
 
 class Informational_eval_widget : public Eval_widget
