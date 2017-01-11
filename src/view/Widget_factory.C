@@ -251,19 +251,19 @@ void Viewable_unit_scale::clear()
 struct Editable_widget_factory : Abstract_widget_factory
 {
     virtual Abstract_explanation_holder*
-    explanation_holder(Wt::WContainerWidget* parent) const override
+    make_explanation_holder(Wt::WContainerWidget* parent) const override
     {
         return new Editable_explanation_holder(parent);
     }
 
     virtual Abstract_boolean_option*
-    boolean_option(Wt::WContainerWidget* parent) const override
+    make_boolean_option(Wt::WContainerWidget* parent) const override
     {
         return new Editable_boolean_option(parent);
     }
 
     virtual Abstract_unit_scale*
-    unit_scale(Wt::WContainerWidget* parent) const override
+    make_unit_scale(Wt::WContainerWidget* parent) const override
     {
         return new Editable_unit_scale(parent);
     }
@@ -277,19 +277,19 @@ struct Editable_widget_factory : Abstract_widget_factory
 struct Viewable_widget_factory : Abstract_widget_factory
 {
     virtual Abstract_explanation_holder*
-    explanation_holder(Wt::WContainerWidget* parent) const override
+    make_explanation_holder(Wt::WContainerWidget* parent) const override
     {
         return new Viewable_explanation_holder(parent);
     }
 
     virtual Abstract_boolean_option*
-    boolean_option(Wt::WContainerWidget* parent) const override
+    make_boolean_option(Wt::WContainerWidget* parent) const override
     {
         return new Viewable_boolean_option(parent);
     }
 
     virtual Abstract_unit_scale*
-    unit_scale(Wt::WContainerWidget* parent) const override
+    make_unit_scale(Wt::WContainerWidget* parent) const override
     {
         return new Viewable_unit_scale(parent);
     }

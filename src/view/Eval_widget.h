@@ -29,11 +29,16 @@ protected:
     Session& session_;
     Evaluation_view& main_;
 
-    std::unique_ptr<Abstract_widget_factory> awf_;
+    std::unique_ptr<Abstract_widget_factory> self_factory_;
+    std::unique_ptr<Abstract_widget_factory> grader_factory_;
 
-    Wt::WContainerWidget* response_;
+    Wt::WContainerWidget* self_area_;
+    Wt::WContainerWidget* self_buttons_;
+    Wt::WContainerWidget* grader_area_;
+    Wt::WContainerWidget* grader_buttons_;
 
     bool can_eval() const;
+    bool can_grade() const;
     User::Role role() const;
 
     virtual double score() const = 0;
@@ -45,5 +50,11 @@ protected:
     void load_();
     void save_();
     void retract_();
+
+    void defocus_action_();
+    void save_next_action_();
+    void save_action_();
+    void retract_action_();
+    void focus_action_();
 };
 

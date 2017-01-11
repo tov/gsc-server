@@ -61,13 +61,13 @@ private:
 struct Abstract_widget_factory
 {
     virtual Abstract_explanation_holder*
-    explanation_holder(Wt::WContainerWidget* parent = nullptr) const = 0;
+    make_explanation_holder(Wt::WContainerWidget* parent = nullptr) const = 0;
 
     virtual Abstract_boolean_option*
-    boolean_option(Wt::WContainerWidget* parent = nullptr) const = 0;
+    make_boolean_option(Wt::WContainerWidget* parent = nullptr) const = 0;
 
     virtual Abstract_unit_scale*
-    unit_scale(Wt::WContainerWidget* parent = nullptr) const = 0;
+    make_unit_scale(Wt::WContainerWidget* parent = nullptr) const = 0;
 
     virtual bool is_editable() const = 0;
 

@@ -31,9 +31,14 @@ Eval_widget::Eval_widget(
     setStyleClass("edit-widget");
 
     if (can_eval() && is_singular_)
-        awf_ = make_editable_widget_factory();
+        self_factory_ = make_editable_widget_factory();
     else
-        awf_ = make_viewable_widget_factory();
+        self_factory_ = make_viewable_widget_factory();
+
+    if (can_grade() && is_singular_)
+        grader_factory_ = make_editable_widget_factory();
+    else
+        grader_factory_ = make_viewable_widget_factory();
 
     auto pct = 100 * model.eval_item->relative_value() / main_.total_value_;
     std::ostringstream title;
@@ -45,20 +50,20 @@ Eval_widget::Eval_widget(
     auto prompt = new Wt::WText(model_.eval_item->prompt(), this);
     prompt->setInline(false);
 
-    response_ = new Wt::WContainerWidget(this);
+    self_area_ = new Wt::WContainerWidget(this);
 
-    auto buttons = new Wt::WContainerWidget(this);
-    buttons->setStyleClass("buttons");
+    self_buttons_ = new Wt::WContainerWidget(this);
+    self_buttons_->setStyleClass("buttons");
 
-    if (can_eval()) {
-        if (is_singular_) {
-            auto save = new Wt::WPushButton("Save", buttons);
-            save->clicked().connect(this, &Eval_widget::save_);
-        } else {
-            auto retract = new Wt::WPushButton("Retract", buttons);
-            retract->clicked().connect(this, &Eval_widget::retract_);
-        }
+    if (model_.grader_eval || grader_factory_->is_editable()) {
+        new Wt::WText("<h5>Grader evaluation</h5>", this);
+        grader_area_ = new Wt::WContainerWidget(this);
+    } else {
+        grader_area_ = nullptr;
     }
+
+    grader_buttons_ = new Wt::WContainerWidget(this);
+    grader_buttons_->setStyleClass("buttons");
 }
 
 void Eval_widget::load_()
@@ -83,12 +88,6 @@ void Eval_widget::save_()
     auto self_eval = model_.self_eval.modify();
     self_eval->set_score(score());
     self_eval->set_explanation(explanation());
-
-    int next = model_.self_eval->eval_item()->sequence() + 1;
-    if (0 < next && next < main_.model_.size())
-        main_.go_to((unsigned int) next);
-    else
-        main_.go_default();
 }
 
 void Eval_widget::retract_()
@@ -102,12 +101,49 @@ void Eval_widget::retract_()
 
     model_.self_eval = dbo::ptr<Self_eval>();
     model_.grader_eval = dbo::ptr<Grader_eval>();
+}
+
+void Eval_widget::defocus_action_()
+{
+    main_.go_default();
+}
+
+void Eval_widget::save_next_action_()
+{
+    save_();
+
+    int next = model_.self_eval->eval_item()->sequence() + 1;
+    if (0 < next && next < main_.model_.size())
+        main_.go_to((unsigned int) next);
+    else
+        main_.go_default();
+}
+
+void Eval_widget::save_action_()
+{
+    save_();
+    main_.go_default();
+}
+
+void Eval_widget::retract_action_()
+{
+    retract_();
+    focus_action_();
+}
+
+void Eval_widget::focus_action_()
+{
     main_.go_to((unsigned int) model_.eval_item->sequence());
 }
 
 bool Eval_widget::can_eval() const
 {
     return main_.can_eval_();
+}
+
+bool Eval_widget::can_grade() const
+{
+    return session_.user()->can_grade();
 }
 
 User::Role Eval_widget::role() const
@@ -130,9 +166,6 @@ protected:
     Wt::WContainerWidget* score_holder_;
     // Allow derived classes to hide this:
     Abstract_explanation_holder* explanation_holder_;
-
-private:
-    Wt::WTextArea* explanation_;
 };
 
 Response_eval_widget::Response_eval_widget(
@@ -143,9 +176,23 @@ Response_eval_widget::Response_eval_widget(
         Wt::WContainerWidget* parent)
         : Eval_widget(model, is_singular, main, session, parent)
 {
-    score_holder_ = new Wt::WContainerWidget(response_);
+    score_holder_ = new Wt::WContainerWidget(self_area_);
     score_holder_->setStyleClass("score");
-    explanation_holder_ = awf_->explanation_holder(response_);
+    explanation_holder_ = self_factory_->make_explanation_holder(self_area_);
+
+    if (self_factory_->is_editable()) {
+        auto save = new Wt::WPushButton("Save", self_buttons_);
+        save->clicked().connect(this, &Response_eval_widget::save_next_action_);
+    } else if (can_eval()) {
+        auto edit = new Wt::WPushButton("Edit", self_buttons_);
+        edit->clicked().connect(this, &Response_eval_widget::focus_action_);
+    } else if (is_singular_) {
+        auto back = new Wt::WPushButton("Back", self_buttons_);
+        back->clicked().connect(this, &Response_eval_widget::defocus_action_);
+    } else {
+        auto edit = new Wt::WPushButton("View", self_buttons_);
+        edit->clicked().connect(this, &Response_eval_widget::focus_action_);
+    }
 }
 
 std::string Response_eval_widget::explanation() const
@@ -188,7 +235,7 @@ Boolean_eval_widget::Boolean_eval_widget(
         Wt::WContainerWidget* parent)
         : Response_eval_widget(model, is_singular, main, session, parent)
 {
-    boolean_option_ = awf_->boolean_option(score_holder_);
+    boolean_option_ = self_factory_->make_boolean_option(score_holder_);
     explanation_holder_->hide();
     boolean_option_->changed().connect(this,
                                       &Boolean_eval_widget::toggle_explanation_);
@@ -245,7 +292,7 @@ Scale_eval_widget::Scale_eval_widget(
         Wt::WContainerWidget* parent)
         : Response_eval_widget(model, is_singular, main, session, parent)
 {
-    unit_scale_ = awf_->unit_scale(score_holder_);
+    unit_scale_ = self_factory_->make_unit_scale(score_holder_);
     load_();
 }
 
@@ -288,6 +335,22 @@ Informational_eval_widget::Informational_eval_widget(
         : Eval_widget(model, is_singular, main, session, parent)
 {
     load_();
+
+    if (self_factory_->is_editable()) {
+        auto save = new Wt::WPushButton("Okay", self_buttons_);
+        save->clicked().connect(this,
+                                &Informational_eval_widget::save_next_action_);
+    } else if (can_eval()) {
+        auto edit = new Wt::WPushButton("Edit", self_buttons_);
+        edit->clicked().connect(this,
+                                &Informational_eval_widget::focus_action_);
+    } else if (is_singular_) {
+        auto back = new Wt::WPushButton("Back", self_buttons_);
+        back->clicked().connect(this, &Informational_eval_widget::defocus_action_);
+    } else {
+        auto edit = new Wt::WPushButton("View", self_buttons_);
+        edit->clicked().connect(this, &Informational_eval_widget::focus_action_);
+    }
 }
 
 double Informational_eval_widget::score() const
