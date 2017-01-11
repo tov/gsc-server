@@ -45,6 +45,8 @@ set(SOURCE_FILES
         src/view/game/LettersWidget.C
         src/view/game/WordWidget.C)
 
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -std=gnu++14")
+
 find_package(Boost REQUIRED COMPONENTS system filesystem)
 include_directories(${Boost_INCLUDE_DIRS})
 link_directories(${Boost_LIBRARY_DIRS})
@@ -57,7 +59,7 @@ add_executable(gsc ${SOURCE_FILES})
 set_property(TARGET gsc PROPERTY CXX_STANDARD 14)
 set_property(TARGET gsc PROPERTY CXX_STANDARD_REQUIRED On)
 target_precompiled_header(gsc src/prefix.h)
-target_link_libraries(gsc wthttp ${LIBRARIES})
+target_link_libraries(gsc ${LIBRARIES} wthttp)
 
 add_executable(gsc-fcgi ${SOURCE_FILES})
 set_property(TARGET gsc-fcgi PROPERTY CXX_STANDARD 14)
