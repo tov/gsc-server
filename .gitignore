@@ -5,7 +5,7 @@ build.*/
 *.iml
 
 # Wt resources
-resources/
+resources
 
 # Databases
 server_root/var/
