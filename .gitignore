@@ -9,3 +9,4 @@ resources/
 
 # Databases
 server_root/var/
+server_root/gsc-fcgi
