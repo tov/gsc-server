@@ -1,0 +1,2 @@
+There needs to be a symlink from html/resources to the resources
+directory in the Wt source tree.
