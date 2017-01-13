@@ -82,12 +82,12 @@ public:
     template<class Action>
     void persist(Action& a)
     {
-        dbo::field(a, name_, "name");
+        dbo::field(a, name_, "name", 16);
         dbo::field(a, role_, "role");
 
-        dbo::field(a, password_, "password");
-        dbo::field(a, password_method_, "password_method");
-        dbo::field(a, password_salt_, "password_salt");
+        dbo::field(a, password_, "password", 60);
+        dbo::field(a, password_method_, "password_method", 6);
+        dbo::field(a, password_salt_, "password_salt", 16);
         dbo::field(a, failed_login_attempts_, "failed_login_attempts");
         dbo::field(a, last_login_attempt_, "last_login_attempt");
         dbo::hasMany(a, auth_tokens_, dbo::ManyToOne, "user");
