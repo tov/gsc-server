@@ -80,41 +80,41 @@ Session::Session(dbo::SqlConnectionPool& pool)
             my_password_service.updatePassword(root_user, root_password);
         users_.find(root_user).modify()->set_role(User::Role::Admin);
 
-        Auth::User jtov = users_.registerNew();
-        jtov.addIdentity(Auth::Identity::LoginName, "jtov");
-        my_password_service.updatePassword(jtov, "");
-        users_.find(jtov).modify()->set_role(User::Role::Admin);
-
-        auto now = Wt::WDateTime::currentDateTime();
-
-        auto asst1 = add(new Assignment(1, "Homework 1", 10,
-                                        now.addDays(-10), now.addDays(-3),
-                                        now.addDays(-1)));
-        auto asst2 = add(new Assignment(2, "Homework 2", 10,
-                                        now.addDays(-3),
-                                        now.addDays(4),
-                                        now.addDays(6)));
-        auto asst3 = add(new Assignment(3, "Homework 3", 10,
-                                        now.addDays(-8), now.addDays(-1),
-                                        now.addDays(1)));
-        auto asst4 = add(new Assignment(4, "Homework 4", 10,
-                                        now.addDays(4), now.addDays(11),
-                                        now.addDays(13)));
-
-        for (auto name : std::vector<std::string>{"student", "s1", "s2", "s3"}) {
-            Auth::User student = users_.registerNew();
-            student.addIdentity(Auth::Identity::LoginName, name);
-            my_password_service.updatePassword(student, "");
-
-            for (auto asst : {asst1, asst2, asst3, asst4}) {
-                auto submission =
-                        add(new Submission(users_.find(student), asst));
-                File_meta::upload("file.h", "#pragma once\n", submission);
-                File_meta::upload("file.C",
-                                  "#include \"file.h\"\n\nnamespace meh {\n\n}\n",
-                                  submission);
-            }
-        }
+//        Auth::User jtov = users_.registerNew();
+//        jtov.addIdentity(Auth::Identity::LoginName, "jtov");
+//        my_password_service.updatePassword(jtov, "");
+//        users_.find(jtov).modify()->set_role(User::Role::Admin);
+//
+//        auto now = Wt::WDateTime::currentDateTime();
+//
+//        auto asst1 = add(new Assignment(1, "Homework 1", 10,
+//                                        now.addDays(-10), now.addDays(-3),
+//                                        now.addDays(-1)));
+//        auto asst2 = add(new Assignment(2, "Homework 2", 10,
+//                                        now.addDays(-3),
+//                                        now.addDays(4),
+//                                        now.addDays(6)));
+//        auto asst3 = add(new Assignment(3, "Homework 3", 10,
+//                                        now.addDays(-8), now.addDays(-1),
+//                                        now.addDays(1)));
+//        auto asst4 = add(new Assignment(4, "Homework 4", 10,
+//                                        now.addDays(4), now.addDays(11),
+//                                        now.addDays(13)));
+//
+//        for (auto name : std::vector<std::string>{"student", "s1", "s2", "s3"}) {
+//            Auth::User student = users_.registerNew();
+//            student.addIdentity(Auth::Identity::LoginName, name);
+//            my_password_service.updatePassword(student, "");
+//
+//            for (auto asst : {asst1, asst2, asst3, asst4}) {
+//                auto submission =
+//                        add(new Submission(users_.find(student), asst));
+//                File_meta::upload("file.h", "#pragma once\n", submission);
+//                File_meta::upload("file.C",
+//                                  "#include \"file.h\"\n\nnamespace meh {\n\n}\n",
+//                                  submission);
+//            }
+//        }
 
         Wt::log("info") << "Database created";
     } catch (const std::exception& e) {
