@@ -79,6 +79,7 @@ protected:
 
     virtual void set_files_action(const char[]);
     virtual void set_eval_action(const char[]);
+    virtual void set_action_style_class(const char[]);
 
 private:
     Wt::WText* status_;
@@ -126,6 +127,11 @@ void Submissions_view_row::set_eval_action(const char* title)
     action_url_ = model_.submission->eval_url(session_.user());
 }
 
+void Submissions_view_row::set_action_style_class(const char* style)
+{
+    action_->setStyleClass(style);
+}
+
 void Submissions_view_row::update()
 {
     auto const now = Wt::WDateTime::currentDateTime();
@@ -152,14 +158,14 @@ void Submissions_view_row::update()
                 row_->setStyleClass("open");
                 status += "Due in ";
                 status += time_to(model_.submission->effective_due_date());
-                action_->setStyleClass("btn-success");
+                set_action_style_class("btn-success");
             } else {
                 row_->setStyleClass("open");
                 status += "Submitted ";
                 status += boost::lexical_cast<std::string>(model_.file_count);
                 status += " file";
                 if (model_.file_count > 1) status += "s";
-                action_->setStyleClass("btn");
+                set_action_style_class("btn");
             }
             break;
 
@@ -171,7 +177,7 @@ void Submissions_view_row::update()
                     status += "Self-eval due in ";
                     status += time_to(model_.submission->effective_eval_date());
                     set_eval_action("Start");
-                    action_->setStyleClass("btn-success");
+                    set_action_style_class("btn-success");
                     break;
                 }
 
@@ -180,7 +186,7 @@ void Submissions_view_row::update()
                     status += "Self-eval due in ";
                     status += time_to(model_.submission->effective_eval_date());
                     set_eval_action("Continue");
-                    action_->setStyleClass("btn-success");
+                    set_action_style_class("btn-success");
                     break;
                 }
 
@@ -188,7 +194,7 @@ void Submissions_view_row::update()
                     row_->setStyleClass("self-eval complete");
                     status += "Self-eval complete";
                     set_eval_action("Edit");
-                    action_->setStyleClass("btn");
+                    set_action_style_class("btn");
                     break;
                 }
             }
@@ -200,7 +206,7 @@ void Submissions_view_row::update()
             status += model_.submission->effective_eval_date().timeTo(now, 2);
             status += " ago";
             set_eval_action("View");
-            action_->setStyleClass("btn-link");
+            set_action_style_class("btn-link");
             break;
         }
     }
@@ -252,8 +258,9 @@ public:
     virtual void update() override;
 
 protected:
-    virtual void set_files_action(const char* string) override;
-    virtual void set_eval_action(const char* string) override;
+    virtual void set_files_action(const char*) override;
+    virtual void set_eval_action(const char*) override;
+    virtual void set_action_style_class(const char*) override;
 
     Date_time_edit* due_date_;
     Date_time_edit* eval_date_;
@@ -345,6 +352,11 @@ void Admin_submissions_view_row::set_files_action(const char*)
 void Admin_submissions_view_row::set_eval_action(const char*)
 {
     Submissions_view_row::set_eval_action("Eval");
+}
+
+void Admin_submissions_view_row::set_action_style_class(const char*)
+{
+    Submissions_view_row::set_action_style_class("btn");
 }
 
 std::unique_ptr<Submissions_view_row>
