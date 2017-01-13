@@ -58,8 +58,8 @@ Partner_request::find_by_requestor(Session& session,
                                    const Wt::Dbo::ptr<Assignment>& assignment)
 {
     return session.find<Partner_request>()
-                  .where("assignment_number = ?").bind(assignment.id())
-                  .where("requestor_id = ?").bind(requestor.id());
+                  .where("requestor_id = ?").bind(requestor.id())
+                  .where("assignment_number = ?").bind(assignment.id());
 }
 
 Wt::Dbo::collection<Wt::Dbo::ptr<Partner_request>>
@@ -68,7 +68,7 @@ Partner_request::find_by_requestee(Session& session,
                                    const Wt::Dbo::ptr<Assignment>& assignment)
 {
     return session.find<Partner_request>()
-                  .where("assignment_number = ?").bind(assignment.id())
-                  .where("requestee_id = ?").bind(requestee.id());
+                  .where("requestee_id = ?").bind(requestee.id())
+                  .where("assignment_number = ?").bind(assignment.id());
 }
 

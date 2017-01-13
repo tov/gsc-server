@@ -112,10 +112,10 @@ Submission::find_by_assignment_and_user(dbo::Session& session,
 {
     dbo::ptr<Submission> result =
             session.find<Submission>()
-                   .where("assignment_number = ?")
-                   .bind(assignment->number())
                    .where("user1_id = ? OR user2_id = ?")
-                   .bind(user.id()).bind(user.id());
+                   .bind(user.id()).bind(user.id())
+                   .where("assignment_number = ?")
+                   .bind(assignment->number());
     if (!result)
         result = session.add(new Submission(user, assignment));
 
