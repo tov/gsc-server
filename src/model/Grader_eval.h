@@ -28,13 +28,11 @@ public:
         ready,
     };
 
-    Status get_status() const {
-        return static_cast<Status>(status_);
-    }
+    Status get_status() const { return static_cast<Status>(status_); }
+    void set_status(Status status) { status_ = static_cast<int>(status); }
 
-    void set_status(Status status) {
-        status_ = static_cast<int>(status);
-    }
+    static dbo::ptr<Grader_eval> find_by_permalink(dbo::Session&,
+                                                   const std::string&);
 
 private:
     dbo::ptr<Self_eval> self_eval_;
@@ -46,7 +44,7 @@ private:
     std::string         permalink_;
 
 public:
-    constexpr int permalink_size = 16;
+    static const int permalink_size = 16;
 
     template<typename Action>
     void persist(Action& a)

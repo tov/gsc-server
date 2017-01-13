@@ -73,6 +73,9 @@ Session::Session(dbo::SqlConnectionPool& pool)
     try {
         createTables();
 
+        create_index("users", "name");
+        create_index("grader_evals", "permalink");
+
         Auth::User root_user = users_.registerNew();
         root_user.addIdentity(Auth::Identity::LoginName, "root");
         auto root_password = std::getenv("ADMIN_PASSWORD");
@@ -209,5 +212,16 @@ Session::createConnectionPool(const std::string& db)
     connection->setProperty("show-queries", "true");
 
     return new dbo::FixedSqlConnectionPool(connection.release(), 10);
+}
+
+void Session::create_index(const char* table, const char* field, bool unique)
+{
+    std::ostringstream query;
+    query << "CREATE ";
+    if (unique) query << "UNIQUE ";
+    query << "INDEX ix_" << table << '_' << field;
+    query << " ON " << table << " (" << field << ')';
+
+    execute(query.str());
 }
 

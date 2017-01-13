@@ -44,5 +44,6 @@ private:
 
     mutable Wt::Dbo::ptr<User> user_;
 
+    void create_index(const char* table, const char* field, bool unique = true);
 };
 

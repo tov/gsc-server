@@ -18,3 +18,12 @@ Grader_eval::Grader_eval(const dbo::ptr<Self_eval>& self_eval,
           permalink_(create_permalink(permalink_size))
 {
 }
+
+dbo::ptr <Grader_eval>
+Grader_eval::find_by_permalink(dbo::Session& dbo,
+                               const std::string& permalink)
+{
+    return dbo.find<Grader_eval>()
+              .where("permalink = ?")
+              .bind(permalink);
+}
