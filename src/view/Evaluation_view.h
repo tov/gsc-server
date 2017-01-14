@@ -40,13 +40,5 @@ private:
 
     void load_();
 
-    void format_score_(const Eval_item::Type& type, double score,
-                       std::ostringstream& fmt) const;
-
-    void add_item_heading_(const Submission::Item& row,
-                           WContainerWidget* item_widget) const;
-    void add_scores_(const Submission::Item& row,
-                     WContainerWidget* item_widget) const;
-
     friend class Eval_widget;
 };

@@ -2,6 +2,7 @@
 #include "Eval_widget.h"
 #include "Widget_factory.h"
 #include "File_viewer_widget.h"
+#include "../model/auth/User.h"
 #include "../model/Assignment.h"
 #include "../model/Eval_item.h"
 #include "../model/Grader_eval.h"
@@ -14,6 +15,26 @@
 #include <Wt/WText>
 
 #include <iomanip>
+
+class Evaluation_list_view_item : public Wt::WContainerWidget
+{
+public:
+    Evaluation_list_view_item(const Submission::Item&,
+                              const dbo::ptr<Submission>&,
+                              User::Role,
+                              Wt::WContainerWidget* parent = nullptr);
+
+private:
+    const Submission::Item& model_;
+    dbo::ptr<Submission> submission_;
+    User::Role role_;
+
+    void format_score_(const Eval_item::Type& type, double score,
+                       std::ostringstream& fmt) const;
+
+    void add_item_heading_();
+    void add_scores_();
+};
 
 Evaluation_view::Evaluation_view(const dbo::ptr<Submission>& submission,
                                  Session& session,
@@ -73,14 +94,30 @@ void Evaluation_view::go_default()
     for (auto& row : submission_->items()) {
         if (!row.eval_item) continue;
 
-        auto item_widget =  new Wt::WContainerWidget(right_column_);
-        add_item_heading_(row, item_widget);
-        add_scores_(row, item_widget);
+        new Evaluation_list_view_item(row, submission_, role_, right_column_);
     }
 }
 
-void Evaluation_view::add_scores_(const Submission::Item& row,
-                                  Wt::WContainerWidget* item_widget) const
+bool Evaluation_view::can_eval_()
+{
+    return submission_->can_eval(session_.user());
+}
+
+Evaluation_list_view_item::Evaluation_list_view_item(
+        const Submission::Item& model,
+        const dbo::ptr<Submission>& submission,
+        User::Role role,
+        Wt::WContainerWidget* parent)
+        : WContainerWidget(parent)
+        , model_(model)
+        , submission_(submission)
+        , role_(role)
+{
+    add_item_heading_();
+    add_scores_();
+}
+
+void Evaluation_list_view_item::add_scores_()
 {
     std::ostringstream fmt;
 
@@ -100,42 +137,42 @@ void Evaluation_view::add_scores_(const Submission::Item& row,
         }
 
     fmt << "</td><td>";
-    if (!row.self_eval)
+    if (!model_.self_eval)
             fmt << "<em>[not set]</em>";
         else
-            format_score_(row.eval_item->type(), row.self_eval->score(), fmt);
+            format_score_(model_.eval_item->type(), model_.self_eval->score(), fmt);
 
     fmt << "</td></tr>";
 
     if (submission_->is_graded() ||
-        (role_ == User::Role::Admin && row.grader_eval))
+        (role_ == User::Role::Admin && model_.grader_eval))
     {
         fmt << "<tr><td>";
-        fmt << row.grader_eval->grader();
+        fmt << model_.grader_eval->grader();
         fmt << "</td><td>";
-        format_score_(Eval_item::Type::Scale, row.grader_eval->score(), fmt);
+        format_score_(Eval_item::Type::Scale, model_.grader_eval->score(), fmt);
         fmt << "</td></tr>";
     }
 
     fmt << "</table>";
 
-    new Wt::WText(fmt.str(), item_widget);
+    new Wt::WText(fmt.str(), this);
 }
 
-void Evaluation_view::add_item_heading_(const Submission::Item& row,
-                                        Wt::WContainerWidget* item_widget) const
+void Evaluation_list_view_item::add_item_heading_()
 {
-    auto pct = 100 * row.eval_item->relative_value()
+    auto pct = 100 * model_.eval_item->relative_value()
                / submission_->point_value();
 
-    std::__1::ostringstream fmt;
-    fmt << "<h4>Question " << row.eval_item->sequence() << " <small>(";
-    fmt << std::__1::setprecision(2) << pct << "%)</small></h4>";
-    new Wt::WText(fmt.str(), item_widget);
+    std::ostringstream fmt;
+    fmt << "<h4>Question " << model_.eval_item->sequence() << " <small>(";
+    fmt << std::setprecision(2) << pct << "%)</small></h4>";
+    new Wt::WText(fmt.str(), this);
 }
 
-void Evaluation_view::format_score_(const Eval_item::Type& type, double score,
-                                    std::ostringstream& fmt) const
+void Evaluation_list_view_item::format_score_(
+        const Eval_item::Type& type, double score,
+        std::ostringstream& fmt) const
 {
     switch (type) {
         case Eval_item::Type::Boolean:
@@ -153,7 +190,3 @@ void Evaluation_view::format_score_(const Eval_item::Type& type, double score,
     }
 }
 
-bool Evaluation_view::can_eval_()
-{
-    return submission_->can_eval(session_.user());
-}
