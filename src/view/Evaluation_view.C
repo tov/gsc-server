@@ -193,19 +193,13 @@ void Evaluation_list_view_item::format_score_(
         const Eval_item::Type& type, double score,
         std::ostringstream& fmt) const
 {
-    switch (type) {
-        case Eval_item::Type::Boolean:
-            if (score == 1.0)
-                fmt << "Yes";
-            else
-                fmt << "No";
-            break;
-        case Eval_item::Type::Scale:
-            fmt << std::setprecision(2) << 100 * score << '%';
-            break;
-        case Eval_item::Type::Informational:
-            fmt << "Yes";
-            break;
+    if ((score != 0 && score != 1) || type == Eval_item::Type::Scale) {
+        fmt << std::setprecision(2) << 100 * score << '%';
+    } else if (type == Eval_item::Type::Boolean) {
+        if (score == 1.0) fmt << "Yes";
+        else fmt << "No";
+    } else {
+        fmt << "Okay";
     }
 }
 
