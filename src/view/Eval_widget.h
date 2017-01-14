@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Base_eval_item_widget.h"
+
 #include "../model/auth/User.h"
 #include "../model/Submission.h"
 
@@ -9,25 +11,19 @@ class Abstract_widget_factory;
 class Evaluation_view;
 class Session;
 
-class Eval_widget : public Wt::WContainerWidget
+class Eval_widget : public Base_eval_item_widget
 {
 public:
-    Eval_widget(const Submission::Item&, bool is_singular,
+    Eval_widget(const Submission::Item&,
                 Evaluation_view&,
                 Session&,
                 Wt::WContainerWidget* parent = nullptr);
 
-    static std::unique_ptr<Eval_widget>
-    create(const Submission::Item&, bool is_singular,
-           Evaluation_view&, Session&,
-           Wt::WContainerWidget* parent = nullptr);
+    static Eval_widget*
+    create(const Submission::Item&, Evaluation_view&, Session&,
+              WContainerWidget* parent);
 
 protected:
-    const Submission::Item& model_;
-    bool is_singular_;
-    Session& session_;
-    Evaluation_view& main_;
-
     std::unique_ptr<Abstract_widget_factory> self_factory_;
     std::unique_ptr<Abstract_widget_factory> grader_factory_;
 
@@ -49,12 +45,10 @@ protected:
 
     void load_();
     void save_();
-    void retract_();
 
     void defocus_action_();
     void save_next_action_();
     void save_action_();
-    void retract_action_();
     void focus_action_();
 };
 

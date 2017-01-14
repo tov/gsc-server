@@ -27,6 +27,7 @@ set(SOURCE_FILES
         src/view/Accelerator_text.C
         src/view/Assignments_view.C
         src/view/Admin_view.C
+        src/view/Base_eval_item_widget.C
         src/view/Confirmation_dialog.C
         src/view/Date_time_edit.C
         src/view/Edit_assignment_view.C

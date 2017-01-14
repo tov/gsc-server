@@ -25,13 +25,10 @@ public:
     // For evaluation_list_view_item
     const dbo::ptr<Submission>& submission() const { return submission_; }
 
-private:
-    User::Role role_;
-    std::vector<std::unique_ptr<Wt::WWidget>> rows_;
-
     // Is the current user allowed to change the self evaluation right now?
-    bool can_eval_();
+    bool can_eval();
 
+private:
     void load_();
 
     friend class Eval_widget;

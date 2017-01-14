@@ -18,38 +18,25 @@
 
 Eval_widget::Eval_widget(
         const Submission::Item& model,
-        bool is_singular,
         Evaluation_view& main,
         Session& session,
         Wt::WContainerWidget* parent)
-        : WContainerWidget(parent),
-          model_(model),
-          is_singular_(is_singular),
-          main_(main),
-          session_(session)
+        : Base_eval_item_widget(model, main, session, parent)
 {
     setStyleClass("edit-widget");
 
-    if (can_eval() && is_singular_)
+    if (can_eval())
         self_factory_ = make_editable_widget_factory();
     else
         self_factory_ = make_viewable_widget_factory();
 
-    if (can_grade() && is_singular_)
+    if (can_grade())
         grader_factory_ = make_editable_widget_factory();
     else
         grader_factory_ = make_viewable_widget_factory();
 
-    auto pct = 100 * model.eval_item->relative_value()
-               / main_.submission_->point_value();
-    std::ostringstream title;
-    title << "<h4>Question " << model.eval_item->sequence();
-    title << " <small>(" << std::setprecision(2) << pct << "%)</small>";
-    title << "</h4>";
-    new Wt::WText(title.str(), this);
-
-    auto prompt = new Wt::WText(model_.eval_item->prompt(), this);
-    prompt->setInline(false);
+    add_item_heading_();
+    add_question_();
 
     self_area_ = new Wt::WContainerWidget(this);
 
@@ -87,14 +74,6 @@ void Eval_widget::save_()
     self_eval->set_explanation(explanation());
 }
 
-void Eval_widget::retract_()
-{
-    if (!can_eval()) return;
-
-    dbo::Transaction transaction(session_);
-    Submission::retract_self_eval(model_.self_eval);
-}
-
 void Eval_widget::defocus_action_()
 {
     main_.go_default();
@@ -117,12 +96,6 @@ void Eval_widget::save_action_()
     main_.go_default();
 }
 
-void Eval_widget::retract_action_()
-{
-    retract_();
-    main_.go_default();
-}
-
 void Eval_widget::focus_action_()
 {
     main_.go_to((unsigned int) model_.eval_item->sequence());
@@ -130,7 +103,7 @@ void Eval_widget::focus_action_()
 
 bool Eval_widget::can_eval() const
 {
-    return main_.can_eval_();
+    return main_.can_eval();
 }
 
 bool Eval_widget::can_grade() const
@@ -145,13 +118,13 @@ bool Eval_widget::can_admin() const
 
 User::Role Eval_widget::role() const
 {
-    return main_.role_;
+    return session_.user()->role();
 }
 
 class Response_eval_widget : public Eval_widget
 {
 public:
-    Response_eval_widget(const Submission::Item&, bool, Evaluation_view&, Session&,
+    Response_eval_widget(const Submission::Item&, Evaluation_view&, Session&,
                          WContainerWidget* parent = nullptr);
 
 protected:
@@ -167,11 +140,10 @@ protected:
 
 Response_eval_widget::Response_eval_widget(
         const Submission::Item& model,
-        bool is_singular,
         Evaluation_view& main,
         Session& session,
         Wt::WContainerWidget* parent)
-        : Eval_widget(model, is_singular, main, session, parent)
+        : Eval_widget(model, main, session, parent)
 {
     score_holder_ = new Wt::WContainerWidget(self_area_);
     score_holder_->setStyleClass("score");
@@ -189,12 +161,9 @@ Response_eval_widget::Response_eval_widget(
             retract->clicked().connect(this,
                                        &Response_eval_widget::retract_action_);
         }
-    } else if (is_singular_) {
+    } else {
         auto back = new Wt::WPushButton("Back", self_buttons_);
         back->clicked().connect(this, &Response_eval_widget::defocus_action_);
-    } else {
-        auto view = new Wt::WPushButton("View", self_buttons_);
-        view->clicked().connect(this, &Response_eval_widget::focus_action_);
     }
 }
 
@@ -217,7 +186,7 @@ void Response_eval_widget::reset()
 class Boolean_eval_widget : public Response_eval_widget
 {
 public:
-    Boolean_eval_widget(const Submission::Item&, bool, Evaluation_view&, Session&,
+    Boolean_eval_widget(const Submission::Item&, Evaluation_view&, Session&,
                         WContainerWidget* parent = nullptr);
 
 protected:
@@ -232,11 +201,10 @@ private:
 
 Boolean_eval_widget::Boolean_eval_widget(
         const Submission::Item& model,
-        bool is_singular,
         Evaluation_view& main,
         Session& session,
         Wt::WContainerWidget* parent)
-        : Response_eval_widget(model, is_singular, main, session, parent)
+        : Response_eval_widget(model, main, session, parent)
 {
     boolean_option_ = self_factory_->make_boolean_option(score_holder_);
     explanation_holder_->hide();
@@ -275,7 +243,7 @@ class Scale_eval_widget
         : public Response_eval_widget
 {
 public:
-    Scale_eval_widget(const Submission::Item&, bool, Evaluation_view&, Session&,
+    Scale_eval_widget(const Submission::Item&, Evaluation_view&, Session&,
                       WContainerWidget* parent = nullptr);
 
 protected:
@@ -289,11 +257,10 @@ private:
 
 Scale_eval_widget::Scale_eval_widget(
         const Submission::Item& model,
-        bool is_singular,
         Evaluation_view& main,
         Session& session,
         Wt::WContainerWidget* parent)
-        : Response_eval_widget(model, is_singular, main, session, parent)
+        : Response_eval_widget(model, main, session, parent)
 {
     unit_scale_ = self_factory_->make_unit_scale(score_holder_);
     load_();
@@ -318,7 +285,7 @@ void Scale_eval_widget::reset()
 class Informational_eval_widget : public Eval_widget
 {
 public:
-    Informational_eval_widget(const Submission::Item&, bool, Evaluation_view&, Session&,
+    Informational_eval_widget(const Submission::Item&, Evaluation_view&, Session&,
                               WContainerWidget* parent = nullptr);
 
 protected:
@@ -331,11 +298,10 @@ protected:
 
 Informational_eval_widget::Informational_eval_widget(
         const Submission::Item& model,
-        bool is_singular,
         Evaluation_view& main,
         Session& session,
         Wt::WContainerWidget* parent)
-        : Eval_widget(model, is_singular, main, session, parent)
+        : Eval_widget(model, main, session, parent)
 {
     load_();
 
@@ -347,12 +313,10 @@ Informational_eval_widget::Informational_eval_widget(
         auto edit = new Wt::WPushButton("Review", self_buttons_);
         edit->clicked().connect(this,
                                 &Informational_eval_widget::focus_action_);
-    } else if (is_singular_) {
-        auto back = new Wt::WPushButton("Back", self_buttons_);
-        back->clicked().connect(this, &Informational_eval_widget::defocus_action_);
     } else {
-        auto edit = new Wt::WPushButton("View", self_buttons_);
-        edit->clicked().connect(this, &Informational_eval_widget::focus_action_);
+        auto back = new Wt::WPushButton("Back", self_buttons_);
+        back->clicked()
+            .connect(this, &Informational_eval_widget::defocus_action_);
     }
 }
 
@@ -382,23 +346,17 @@ void Informational_eval_widget::reset()
     // no-op
 }
 
-std::unique_ptr<Eval_widget>
-Eval_widget::create(const Submission::Item& model, bool is_singular,
-                    Evaluation_view& main, Session& session,
-                    Wt::WContainerWidget* parent)
+Eval_widget*
+Eval_widget::create(const Submission::Item& model, Evaluation_view& main, Session& session,
+                    WContainerWidget* parent)
 {
     switch (model.eval_item->type()) {
         case Eval_item::Type::Boolean:
-            return std::make_unique<Boolean_eval_widget>(model, is_singular,
-                                                         main, session, parent);
+            return new Boolean_eval_widget(model, main, session, parent);
         case Eval_item::Type::Scale:
-            return std::make_unique<Scale_eval_widget>(model, is_singular, main,
-                                                       session, parent);
+            return new Scale_eval_widget(model, main, session, parent);
         case Eval_item::Type::Informational:
-            return std::make_unique<Informational_eval_widget>(model,
-                                                               is_singular,
-                                                               main,
-                                                               session, parent);
+            return new Informational_eval_widget(model, main, session, parent);
     }
 }
 
