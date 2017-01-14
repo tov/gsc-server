@@ -11,15 +11,15 @@ class Abstract_widget_factory;
 class Evaluation_view;
 class Session;
 
-class Eval_widget : public Base_eval_item_widget
+class Eval_item_widget : public Base_eval_item_widget
 {
 public:
-    Eval_widget(const Submission::Item&,
+    Eval_item_widget(const Submission::Item&,
                 Evaluation_view&,
                 Session&,
                 Wt::WContainerWidget* parent = nullptr);
 
-    static Eval_widget*
+    static Eval_item_widget*
     create(const Submission::Item&, Evaluation_view&, Session&,
               WContainerWidget* parent);
 

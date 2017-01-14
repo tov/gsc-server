@@ -10,7 +10,7 @@
 
 #include <vector>
 
-class Eval_widget;
+class Eval_item_widget;
 
 class Evaluation_view : public Abstract_file_view
 {
@@ -31,5 +31,5 @@ public:
 private:
     void load_();
 
-    friend class Eval_widget;
+    friend class Eval_item_widget;
 };

@@ -1,6 +1,6 @@
 #include "Evaluation_view.h"
 #include "Base_eval_item_widget.h"
-#include "Eval_widget.h"
+#include "Eval_item_widget.h"
 #include "Widget_factory.h"
 #include "File_viewer_widget.h"
 #include "../model/auth/User.h"
@@ -57,7 +57,7 @@ void Evaluation_view::go_to(unsigned int index)
     Wt::WApplication::instance()->setInternalPath(path.str());
 
     right_column_->clear();
-    Eval_widget::create(submission_->items().at(index), *this, session_,
+    Eval_item_widget::create(submission_->items().at(index), *this, session_,
                         right_column_);
 }
 
