@@ -46,12 +46,13 @@ Eval_item_widget::Eval_item_widget(
     if (main.submission()->is_graded() || grader_factory_->is_editable()) {
         new Wt::WText("<h5>Grader evaluation</h5>", this);
         grader_area_ = new Wt::WContainerWidget(this);
+
+        grader_buttons_ = new Wt::WContainerWidget(this);
+        grader_buttons_->setStyleClass("buttons");
     } else {
         grader_area_ = nullptr;
+        grader_buttons_ = nullptr;
     }
-
-    grader_buttons_ = new Wt::WContainerWidget(this);
-    grader_buttons_->setStyleClass("buttons");
 }
 
 void Eval_item_widget::load_()
