@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Abstract_file_view.h"
 #include "../model/auth/User.h"
 #include "../model/Submission.h"
 #include "../model/Eval_item.h"
@@ -9,13 +10,9 @@
 
 #include <vector>
 
-class Session;
-class Submission;
-
 class Eval_widget;
-class File_viewer_widget;
 
-class Evaluation_view : public Wt::WContainerWidget
+class Evaluation_view : public Abstract_file_view
 {
 public:
     Evaluation_view(const Wt::Dbo::ptr<Submission>&,
@@ -26,12 +23,7 @@ public:
     void go_default();
 
 private:
-    Wt::Dbo::ptr<Submission> submission_;
-    Session& session_;
     User::Role role_;
-
-    File_viewer_widget* viewer_;
-    Wt::WContainerWidget* right_column_;
 
     std::vector<std::unique_ptr<Wt::WWidget>> rows_;
 

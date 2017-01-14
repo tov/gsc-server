@@ -22,6 +22,7 @@ set(SOURCE_FILES
         src/model/Self_eval.C
         src/model/Session.C
         src/model/Submission.C
+        src/view/Abstract_file_view.C
         src/view/Accelerator_button.C
         src/view/Accelerator_text.C
         src/view/Assignments_view.C

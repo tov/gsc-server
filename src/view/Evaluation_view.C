@@ -39,24 +39,11 @@ private:
 Evaluation_view::Evaluation_view(const dbo::ptr<Submission>& submission,
                                  Session& session,
                                  Wt::WContainerWidget* parent)
-        : WContainerWidget(parent),
-          submission_(submission),
-          session_(session),
+        : Abstract_file_view(submission, session, parent),
           role_(session.user()->role())
 {
     load_();
-
     setStyleClass("evaluation-view");
-
-    auto hbox = new Wt::WHBoxLayout();
-    setLayout(hbox);
-
-    auto viewer_ = new File_viewer_widget(submission_, session_);
-    hbox->addWidget(viewer_);
-
-    right_column_ = new Wt::WContainerWidget;
-    hbox->addWidget(right_column_, 1);
-    right_column_->setStyleClass("right-column");
 }
 
 void Evaluation_view::load_()

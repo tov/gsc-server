@@ -146,7 +146,8 @@ void File_uploader::too_large_()
 {
     auto message_box = new Wt::WMessageBox("Upload Error",
                                            "File too large",
-                                           Wt::Critical, Wt::Ok);
+                                           Wt::Critical, Wt::Ok,
+                                           this);
     message_box->setModal(true);
     message_box->buttonClicked().connect(std::bind([=]() {
         delete message_box;
@@ -157,33 +158,22 @@ void File_uploader::too_large_()
 File_manager_view::File_manager_view(
         const Wt::Dbo::ptr<Submission>& submission,
         Session& session,
-        WContainerWidget* parent) :
+        Wt::WContainerWidget* parent) :
 
-        submission_(submission),
-        session_(session),
-        WContainerWidget(parent)
+        Abstract_file_view(submission, session, parent)
 {
-    auto hbox = new Wt::WHBoxLayout();
-    setLayout(hbox);
-
-    auto viewer = new File_viewer_widget(submission_, session_);
-    hbox->addWidget(viewer);
-
-    auto right_column = new Wt::WContainerWidget;
-    hbox->addWidget(right_column);
-
-    new Submission_owner_widget(submission_, session_, right_column);
+    new Submission_owner_widget(submission_, session_, right_column_);
 
     auto file_list = new File_list_widget(submission_, session_);
 
     if (submission_->can_submit(session_.user()))
         new File_uploader(submission_, file_list->changed(),
-                          session_, right_column);
+                          session_, right_column_);
 
-    right_column->addWidget(file_list);
+    right_column_->addWidget(file_list);
 
-    auto date_list = new Date_list(submission_, right_column);
+    auto date_list = new Date_list(submission_, right_column_);
 
-    file_list->changed().connect(viewer, &File_viewer_widget::reload);
+    file_list->changed().connect(viewer_, &File_viewer_widget::reload);
     file_list->changed().connect(date_list, &Date_list::reload);
 }

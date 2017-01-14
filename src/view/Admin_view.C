@@ -9,6 +9,7 @@
 #include "../model/auth/User.h"
 #include "../model/Assignment.h"
 #include "../model/Submission.h"
+#include "../model/Session.h"
 
 #include <Wt/WApplication>
 #include <Wt/WComboBox>
