@@ -30,6 +30,4 @@ public:
 
 private:
     void load_();
-
-    friend class Eval_item_widget;
 };

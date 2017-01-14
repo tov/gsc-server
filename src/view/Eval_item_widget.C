@@ -43,7 +43,7 @@ Eval_item_widget::Eval_item_widget(
     self_buttons_ = new Wt::WContainerWidget(this);
     self_buttons_->setStyleClass("buttons");
 
-    if (main.submission_->is_graded() || grader_factory_->is_editable()) {
+    if (main.submission()->is_graded() || grader_factory_->is_editable()) {
         new Wt::WText("<h5>Grader evaluation</h5>", this);
         grader_area_ = new Wt::WContainerWidget(this);
     } else {
@@ -69,7 +69,7 @@ void Eval_item_widget::save_()
     dbo::Transaction transaction(session_);
 
     auto self_eval = Submission::get_self_eval(model_.eval_item,
-                                               main_.submission_).modify();
+                                               main_.submission()).modify();
     self_eval->set_score(score());
     self_eval->set_explanation(explanation());
 }
@@ -84,7 +84,7 @@ void Eval_item_widget::save_next_action_()
     save_();
 
     int next = model_.self_eval->eval_item()->sequence() + 1;
-    if (0 < next && next < main_.submission_->item_count())
+    if (0 < next && next < main_.submission()->item_count())
         main_.go_to((unsigned int) next);
     else
         main_.go_default();
