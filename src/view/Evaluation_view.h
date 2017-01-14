@@ -22,9 +22,11 @@ public:
     void go_to(unsigned int);
     void go_default();
 
+    // For evaluation_list_view_item
+    const dbo::ptr<Submission>& submission() const { return submission_; }
+
 private:
     User::Role role_;
-
     std::vector<std::unique_ptr<Wt::WWidget>> rows_;
 
     // Is the current user allowed to change the self evaluation right now?

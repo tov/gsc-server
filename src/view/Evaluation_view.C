@@ -12,6 +12,7 @@
 
 #include <Wt/WApplication>
 #include <Wt/WHBoxLayout>
+#include <Wt/WPushButton>
 #include <Wt/WText>
 
 #include <iomanip>
@@ -20,27 +21,31 @@ class Evaluation_list_view_item : public Wt::WContainerWidget
 {
 public:
     Evaluation_list_view_item(const Submission::Item&,
-                              const dbo::ptr<Submission>&,
-                              User::Role,
+                              Evaluation_view*,
+                              Session&,
                               Wt::WContainerWidget* parent = nullptr);
 
 private:
     const Submission::Item& model_;
-    dbo::ptr<Submission> submission_;
-    User::Role role_;
+    Evaluation_view* const main_;
+    Session& session_;
 
-    void format_score_(const Eval_item::Type& type, double score,
-                       std::ostringstream& fmt) const;
+    void focus_action_();
+    void retract_action_();
 
     void add_item_heading_();
     void add_scores_();
+    void add_buttons_();
+
+    void format_score_(const Eval_item::Type& type, double score,
+                       std::ostringstream& fmt) const;
 };
 
 Evaluation_view::Evaluation_view(const dbo::ptr<Submission>& submission,
                                  Session& session,
                                  Wt::WContainerWidget* parent)
-        : Abstract_file_view(submission, session, parent),
-          role_(session.user()->role())
+        : Abstract_file_view(submission, session, parent)
+        , role_(session.user()->role())
 {
     load_();
     setStyleClass("evaluation-view");
@@ -81,7 +86,7 @@ void Evaluation_view::go_default()
     for (auto& row : submission_->items()) {
         if (!row.eval_item) continue;
 
-        new Evaluation_list_view_item(row, submission_, role_, right_column_);
+        new Evaluation_list_view_item(row, this, session_, right_column_);
     }
 }
 
@@ -92,26 +97,51 @@ bool Evaluation_view::can_eval_()
 
 Evaluation_list_view_item::Evaluation_list_view_item(
         const Submission::Item& model,
-        const dbo::ptr<Submission>& submission,
-        User::Role role,
+        Evaluation_view* main,
+        Session& session,
         Wt::WContainerWidget* parent)
         : WContainerWidget(parent)
         , model_(model)
-        , submission_(submission)
-        , role_(role)
+        , main_(main)
+        , session_(session)
 {
     add_item_heading_();
     add_scores_();
+    add_buttons_();
+}
+
+void Evaluation_list_view_item::add_buttons_()
+{
+    auto buttons = new Wt::WContainerWidget(this);
+    buttons->setStyleClass("buttons");
+
+    if (main_->submission()->can_eval(session_.user())) {
+        auto edit = new Wt::WPushButton("Edit", buttons);
+        edit->clicked().connect(this,
+                                &Evaluation_list_view_item::focus_action_);
+
+        if (session_.user()->can_admin()) {
+            auto retract = new Wt::WPushButton("Retract", buttons);
+            retract->clicked().connect(this,
+                                       &Evaluation_list_view_item::retract_action_);
+        }
+    } else {
+        auto view = new Wt::WPushButton("View", buttons);
+        view->clicked().connect(this,
+                                &Evaluation_list_view_item::focus_action_);
+    }
 }
 
 void Evaluation_list_view_item::add_scores_()
 {
+    auto role = session_.user()->role();
+
     std::ostringstream fmt;
 
     fmt << "<table>";
     fmt << "<tr><td>";
 
-    switch (role_) {
+    switch (role) {
             case User::Role::Student:
                 fmt << "You";
                 break;
@@ -119,7 +149,7 @@ void Evaluation_list_view_item::add_scores_()
                 fmt << "Student";
                 break;
             case User::Role::Admin:
-                fmt << submission_->owner_string();
+                fmt << main_->submission()->owner_string();
                 break;
         }
 
@@ -131,8 +161,8 @@ void Evaluation_list_view_item::add_scores_()
 
     fmt << "</td></tr>";
 
-    if (submission_->is_graded() ||
-        (role_ == User::Role::Admin && model_.grader_eval))
+    if (main_->submission()->is_graded() ||
+        (role == User::Role::Admin && model_.grader_eval))
     {
         fmt << "<tr><td>";
         fmt << model_.grader_eval->grader();
@@ -149,7 +179,7 @@ void Evaluation_list_view_item::add_scores_()
 void Evaluation_list_view_item::add_item_heading_()
 {
     auto pct = 100 * model_.eval_item->relative_value()
-               / submission_->point_value();
+               / main_->submission()->point_value();
 
     std::ostringstream fmt;
     fmt << "<h4>Question " << model_.eval_item->sequence() << " <small>(";
@@ -175,5 +205,17 @@ void Evaluation_list_view_item::format_score_(
             fmt << "Yes";
             break;
     }
+}
+
+void Evaluation_list_view_item::focus_action_()
+{
+    main_->go_to((unsigned) model_.eval_item->sequence());
+}
+
+void Evaluation_list_view_item::retract_action_()
+{
+    dbo::Transaction transaction(session_);
+
+    main_->go_to((unsigned) model_.eval_item->sequence());
 }
 
