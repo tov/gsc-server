@@ -91,11 +91,19 @@ void Submission_chooser::go()
 
         auto submission = submissions_[size_t(combo_->currentIndex())];
 
-        std::ostringstream path;
-        path << "/~" << submission->user1()->name();
-        path << "/hw/" << submission->assignment()->number();
+        switch (submission->get_status()) {
+            case Submission::status::future:
+            case Submission::status::open:
+            case Submission::status::extended:
+                Navigate::to(submission->url(session_.user()));
+                break;
 
-        Navigate::to(path.str());
+            case Submission::status::self_eval:
+            case Submission::status::extended_eval:
+            case Submission::status::closed:
+                Navigate::to(submission->eval_url(session_.user()));
+                break;
+        }
     }
 }
 
