@@ -37,6 +37,7 @@ private:
     Wt::Dbo::ptr<Submission> submission_;
     Session& session_;
     User::Role role_;
+    bool is_graded_;
 
     using Row_model = Evaluation_view_row_model;
 

@@ -18,7 +18,8 @@ Evaluation_view::Evaluation_view(const dbo::ptr<Submission>& submission,
         : WContainerWidget(parent),
           submission_(submission),
           session_(session),
-          role_(session.user()->role())
+          role_(session.user()->role()),
+          is_graded_(false),
 {
     load_();
 
@@ -48,11 +49,20 @@ void Evaluation_view::load_()
         model_[sequence].eval_item = eval_item;
     }
 
+    size_t grader_eval_count = 0;
+
     for (const auto& self_eval : submission_->self_evals()) {
         auto sequence = self_eval->eval_item()->sequence();
         model_[sequence].self_eval = self_eval;
-        model_[sequence].grader_eval = self_eval->grader_eval();
+
+        if (self_eval->grader_eval()) {
+            model_[sequence].grader_eval = self_eval->grader_eval();
+            ++grader_eval_count;
+        }
     }
+
+    is_graded_ =
+            grader_eval_count == submission_->assignment()->eval_items().size();
 }
 
 void Evaluation_view::go_to(unsigned int index)

@@ -55,7 +55,7 @@ Eval_widget::Eval_widget(
     self_buttons_ = new Wt::WContainerWidget(this);
     self_buttons_->setStyleClass("buttons");
 
-    if (model_.grader_eval || grader_factory_->is_editable()) {
+    if (main.is_graded_ || grader_factory_->is_editable()) {
         new Wt::WText("<h5>Grader evaluation</h5>", this);
         grader_area_ = new Wt::WContainerWidget(this);
     } else {
@@ -128,7 +128,7 @@ void Eval_widget::save_action_()
 void Eval_widget::retract_action_()
 {
     retract_();
-    focus_action_();
+    main_.go_default();
 }
 
 void Eval_widget::focus_action_()
@@ -144,6 +144,11 @@ bool Eval_widget::can_eval() const
 bool Eval_widget::can_grade() const
 {
     return session_.user()->can_grade();
+}
+
+bool Eval_widget::can_admin() const
+{
+    return session_.user()->can_admin();
 }
 
 User::Role Eval_widget::role() const
@@ -182,16 +187,22 @@ Response_eval_widget::Response_eval_widget(
 
     if (self_factory_->is_editable()) {
         auto save = new Wt::WPushButton("Save", self_buttons_);
-        save->clicked().connect(this, &Response_eval_widget::save_next_action_);
+        save->clicked().connect(this, &Response_eval_widget::save_action_);
     } else if (can_eval()) {
         auto edit = new Wt::WPushButton("Edit", self_buttons_);
         edit->clicked().connect(this, &Response_eval_widget::focus_action_);
+
+        if (can_admin()) {
+            auto retract = new Wt::WPushButton("Retract", self_buttons_);
+            retract->clicked().connect(this,
+                                       &Response_eval_widget::retract_action_);
+        }
     } else if (is_singular_) {
         auto back = new Wt::WPushButton("Back", self_buttons_);
         back->clicked().connect(this, &Response_eval_widget::defocus_action_);
     } else {
-        auto edit = new Wt::WPushButton("View", self_buttons_);
-        edit->clicked().connect(this, &Response_eval_widget::focus_action_);
+        auto view = new Wt::WPushButton("View", self_buttons_);
+        view->clicked().connect(this, &Response_eval_widget::focus_action_);
     }
 }
 
@@ -339,9 +350,9 @@ Informational_eval_widget::Informational_eval_widget(
     if (self_factory_->is_editable()) {
         auto save = new Wt::WPushButton("Okay", self_buttons_);
         save->clicked().connect(this,
-                                &Informational_eval_widget::save_next_action_);
+                                &Informational_eval_widget::save_action_);
     } else if (can_eval()) {
-        auto edit = new Wt::WPushButton("Edit", self_buttons_);
+        auto edit = new Wt::WPushButton("Review", self_buttons_);
         edit->clicked().connect(this,
                                 &Informational_eval_widget::focus_action_);
     } else if (is_singular_) {

@@ -39,6 +39,7 @@ protected:
 
     bool can_eval() const;
     bool can_grade() const;
+    bool can_admin() const;
     User::Role role() const;
 
     virtual double score() const = 0;
