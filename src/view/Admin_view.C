@@ -91,16 +91,16 @@ void Submission_chooser::go()
 
         auto submission = submissions_[size_t(combo_->currentIndex())];
 
-        switch (submission->get_status()) {
-            case Submission::status::future:
-            case Submission::status::open:
-            case Submission::status::extended:
+        switch (submission->status()) {
+            case Submission::Status::future:
+            case Submission::Status::open:
+            case Submission::Status::extended:
                 Navigate::to(submission->url(session_.user()));
                 break;
 
-            case Submission::status::self_eval:
-            case Submission::status::extended_eval:
-            case Submission::status::closed:
+            case Submission::Status::self_eval:
+            case Submission::Status::extended_eval:
+            case Submission::Status::closed:
                 Navigate::to(submission->eval_url(session_.user()));
                 break;
         }

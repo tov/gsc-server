@@ -11,7 +11,9 @@
 namespace dbo = Wt::Dbo;
 
 class Assignment;
+class Eval_item;
 class File_meta;
+class Grader_eval;
 class Self_eval;
 class User;
 
@@ -22,7 +24,7 @@ using Source_file_vec = std::vector<dbo::ptr<File_meta>>;
 class Submission
 {
 public:
-    enum class status
+    enum class Status
     {
         future,
         open,
@@ -32,7 +34,16 @@ public:
         closed,
     };
 
-    enum class eval_status { empty, started, complete };
+    struct Item
+    {
+        dbo::ptr<Eval_item> eval_item;
+        dbo::ptr<Self_eval> self_eval;
+        dbo::ptr<Grader_eval> grader_eval;
+    };
+
+    using Items = std::vector<Item>;
+
+    enum class Eval_status { empty, started, complete };
 
     Submission() {};
     Submission(const dbo::ptr<User>&, const dbo::ptr<Assignment>&);
@@ -46,6 +57,15 @@ public:
     const dbo::ptr<Assignment>& assignment() const { return assignment_; }
     const dbo::ptr<User>& user1() const { return user1_; }
     const dbo::ptr<User>& user2() const { return user2_; }
+
+    size_t item_count() const;
+    const Items& items() const;
+    double point_value() const;
+    bool is_evaluated() const;
+    bool is_graded() const;
+
+    void reload_cache() const;
+
     const Self_evals& self_evals() const { return self_evals_; }
 
     bool extended() const;
@@ -57,8 +77,8 @@ public:
     void set_due_date(const Wt::WDateTime& date) { due_date_ = date; }
     void set_eval_date(const Wt::WDateTime& date) { eval_date_ = date; }
 
-    status get_status() const;
-    eval_status get_eval_status() const;
+    Status status() const;
+    Eval_status eval_status() const;
 
     bool can_view(const dbo::ptr<User>&) const;
     bool can_submit(const dbo::ptr<User>&) const;
@@ -83,6 +103,14 @@ private:
     Wt::WDateTime        due_date_;
     Wt::WDateTime        eval_date_;
     Wt::WDateTime        last_modified_;
+
+    // caching
+    mutable bool is_loaded_ = false;
+    mutable size_t item_count_;
+    mutable Items items_;
+    mutable double point_value_;
+    mutable Eval_status eval_status_;
+    mutable bool is_graded_;
 
 public:
     template<typename Action>

@@ -212,12 +212,12 @@ void Submission_owner_widget::update_admin_()
     update_grader_();
 
     dbo::Transaction transaction(session_);
-    auto status = submission_->get_status();
+    auto status = submission_->status();
     transaction.commit();
 
     if (submission_->user2() &&
-            (status == Submission::status::open ||
-             status == Submission::status::extended))
+            (status == Submission::Status::open ||
+             status == Submission::Status::extended))
     {
         new Wt::WText(" ", impl_);
         auto button = new Wt::WPushButton("x", impl_);
@@ -269,9 +269,9 @@ void Submission_owner_widget::update_student_()
         return;
     }
 
-    auto status = submission_->get_status();
-    if (!(status == Submission::status::open ||
-            status == Submission::status::extended))
+    auto status = submission_->status();
+    if (!(status == Submission::Status::open ||
+            status == Submission::Status::extended))
         return;
 
     auto assignment = submission_->assignment();

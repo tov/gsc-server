@@ -70,34 +70,38 @@ const Wt::WDateTime& Submission::effective_eval_date() const
     return std::max(eval_date_, assignment_->eval_date());
 }
 
-Submission::status Submission::get_status() const
+Submission::Status Submission::status() const
 {
     auto now = Wt::WDateTime::currentDateTime();
 
     if (now <= assignment()->open_date())
-        return status::future;
+        return Status::future;
     if (now <= assignment()->due_date())
-        return status::open;
+        return Status::open;
     else if (now <= due_date_)
-        return status::extended;
+        return Status::extended;
     else if (now <= assignment()->eval_date())
-        return status::self_eval;
+        return Status::self_eval;
     else if (now <= eval_date_)
-        return status::extended_eval;
+        return Status::extended_eval;
     else
-        return status::closed;
+        return Status::closed;
 }
 
-Submission::eval_status Submission::get_eval_status() const
+Submission::Eval_status Submission::eval_status() const
 {
+    if (is_loaded_) {
+        return eval_status_;
+    }
+
     size_t self_evals_size = self_evals().size();
 
     if (self_evals_size == assignment()->eval_items().size())
-        return eval_status::complete;
+        return Eval_status::complete;
     else if (self_evals_size > 0)
-        return eval_status::started;
+        return Eval_status::started;
     else
-        return eval_status::empty;
+        return Eval_status::empty;
 }
 
 void Submission::touch()
@@ -161,4 +165,72 @@ std::string Submission::url(const dbo::ptr<User>& current) const
 std::string Submission::eval_url(const dbo::ptr<User>& current) const
 {
     return url(current) + "/eval";
+}
+
+size_t Submission::item_count() const
+{
+    if (!is_loaded_) reload_cache();
+    return item_count_;
+}
+
+const std::vector<Submission::Item>& Submission::items() const
+{
+    if (!is_loaded_) reload_cache();
+    return items_;
+}
+
+double Submission::point_value() const
+{
+    if (!is_loaded_) reload_cache();
+    return point_value_;
+}
+
+bool Submission::is_evaluated() const
+{
+    if (!is_loaded_) reload_cache();
+    return eval_status_ == Eval_status::complete;
+}
+
+bool Submission::is_graded() const
+{
+    if (!is_loaded_) reload_cache();
+    return is_graded_;
+}
+
+void Submission::reload_cache() const
+{
+    item_count_ = 0;
+    point_value_ = 0;
+    items_.clear();
+
+    for (const auto& eval_item : assignment()->eval_items()) {
+        ++item_count_;
+        point_value_ += eval_item->relative_value();
+        auto sequence = eval_item->sequence();
+        while (items_.size() <= sequence) items_.emplace_back();
+        items_[sequence].eval_item = eval_item;
+    }
+
+    size_t self_eval_count = 0;
+    size_t grader_eval_count = 0;
+
+    for (const auto& self_eval : self_evals()) {
+        ++self_eval_count;
+
+        auto sequence = self_eval->eval_item()->sequence();
+        items_[sequence].self_eval = self_eval;
+
+        if (self_eval->grader_eval()) {
+            ++grader_eval_count;
+            items_[sequence].grader_eval = self_eval->grader_eval();
+        }
+    }
+
+    eval_status_ = self_eval_count == item_count_ ? Eval_status::complete
+                 : self_eval_count == 0           ? Eval_status::empty
+                 /* otherwise */                  : Eval_status::started;
+
+    is_graded_ = grader_eval_count == item_count_;
+
+    is_loaded_ = true;
 }

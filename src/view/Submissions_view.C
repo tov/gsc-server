@@ -19,7 +19,7 @@
 struct Submissions_view_model_item {
     Wt::Dbo::ptr<Submission> submission;
     size_t file_count = 0;
-    Submission::eval_status eval_status;
+    Submission::Eval_status eval_status;
 };
 
 using Submissions_view_model = std::vector<Submissions_view_model_item>;
@@ -38,7 +38,7 @@ void load_model(const Wt::Dbo::ptr<User>& user, Session& session,
 
         result[index].submission  = submission;
         result[index].file_count  = submission->file_count();
-        result[index].eval_status = submission->get_eval_status();
+        result[index].eval_status = submission->eval_status();
     }
 
     for (const auto& assignment : session.find<Assignment>().resultList()) {
@@ -143,16 +143,16 @@ void Submissions_view_row::update()
     action_->show();
 
     Wt::WString status;
-    switch (model_.submission->get_status()) {
-        case Submission::status::future:
+    switch (model_.submission->status()) {
+        case Submission::Status::future:
             row_->setStyleClass("future");
             status += "Opens in ";
             status += time_to(model_.submission->assignment()->open_date());
             action_->hide();
             break;
 
-        case Submission::status::open:
-        case Submission::status::extended:
+        case Submission::Status::open:
+        case Submission::Status::extended:
             set_files_action("Submit");
             if (model_.file_count == 0) {
                 row_->setStyleClass("open");
@@ -169,10 +169,10 @@ void Submissions_view_row::update()
             }
             break;
 
-        case Submission::status::self_eval:
-        case Submission::status::extended_eval:
+        case Submission::Status::self_eval:
+        case Submission::Status::extended_eval:
             switch (model_.eval_status) {
-                case Submission::eval_status::empty: {
+                case Submission::Eval_status::empty: {
                     row_->setStyleClass("self-eval needed");
                     status += "Self-eval due in ";
                     status += time_to(model_.submission->effective_eval_date());
@@ -181,7 +181,7 @@ void Submissions_view_row::update()
                     break;
                 }
 
-                case Submission::eval_status::started: {
+                case Submission::Eval_status::started: {
                     row_->setStyleClass("self-eval started");
                     status += "Self-eval due in ";
                     status += time_to(model_.submission->effective_eval_date());
@@ -190,7 +190,7 @@ void Submissions_view_row::update()
                     break;
                 }
 
-                case Submission::eval_status::complete: {
+                case Submission::Eval_status::complete: {
                     row_->setStyleClass("self-eval complete");
                     status += "Self-eval complete";
                     set_eval_action("Edit");
@@ -200,7 +200,7 @@ void Submissions_view_row::update()
             }
             break;
 
-        case Submission::status::closed: {
+        case Submission::Status::closed: {
             row_->setStyleClass("closed");
             status += "Closed ";
             status += model_.submission->effective_eval_date().timeTo(now, 2);

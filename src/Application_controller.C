@@ -205,12 +205,12 @@ void Application_controller::handle_internal_path(
                 case User::Role::Student: {
                     auto submission = Submission::find_by_assignment_and_user(
                             session_, assignment, current_user);
-                    auto status = submission->get_status();
+                    auto status = submission->status();
                     transaction.commit();
 
-                    if (status != Submission::status::self_eval &&
-                        status != Submission::status::extended_eval &&
-                        status != Submission::status::closed)
+                    if (status != Submission::Status::self_eval &&
+                        status != Submission::Status::extended_eval &&
+                        status != Submission::Status::closed)
                     {
                         permission_denied(
                                 "Too early! Submission is still open.");
@@ -241,12 +241,12 @@ void Application_controller::handle_internal_path(
                 case User::Role::Student: {
                     auto submission = Submission::find_by_assignment_and_user(
                             session_, assignment, current_user);
-                    auto status = submission->get_status();
+                    auto status = submission->status();
                     transaction.commit();
 
-                    if (status != Submission::status::self_eval &&
-                        status != Submission::status::extended_eval &&
-                        status != Submission::status::closed)
+                    if (status != Submission::Status::self_eval &&
+                        status != Submission::Status::extended_eval &&
+                        status != Submission::Status::closed)
                     {
                         permission_denied(
                                 "Too early! Submission is still open.");
