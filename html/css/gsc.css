@@ -142,6 +142,16 @@ input.username {
     height: 8em;
 }
 
+.evaluation-view table.scores {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.evaluation-view table.scores th {
+    padding: 0 1em 0 0;
+    border: 0;
+}
+
 .code-line {
     font-family: monospace;
     white-space: pre;

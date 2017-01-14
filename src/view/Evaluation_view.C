@@ -140,8 +140,8 @@ void Evaluation_list_view_item::add_scores_()
 
     std::ostringstream fmt;
 
-    fmt << "<table>";
-    fmt << "<tr><td>";
+    fmt << "<table class='scores'>";
+    fmt << "<tr><th>";
 
     switch (role) {
             case User::Role::Student:
@@ -155,7 +155,7 @@ void Evaluation_list_view_item::add_scores_()
                 break;
         }
 
-    fmt << "</td><td>";
+    fmt << "</th><td>";
     if (!model_.self_eval)
             fmt << "<em>[not set]</em>";
         else
@@ -166,9 +166,9 @@ void Evaluation_list_view_item::add_scores_()
     if (main_->submission()->is_graded() ||
         (role == User::Role::Admin && model_.grader_eval))
     {
-        fmt << "<tr><td>";
+        fmt << "<tr><th>";
         fmt << model_.grader_eval->grader();
-        fmt << "</td><td>";
+        fmt << "</th><td>";
         format_score_(Eval_item::Type::Scale, model_.grader_eval->score(), fmt);
         fmt << "</td></tr>";
     }
