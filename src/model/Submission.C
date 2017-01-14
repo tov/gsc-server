@@ -94,7 +94,7 @@ Submission::Eval_status Submission::eval_status() const
         return eval_status_;
     }
 
-    size_t self_evals_size = self_evals().size();
+    size_t self_evals_size = self_evals_.size();
 
     if (self_evals_size == assignment()->eval_items().size())
         return Eval_status::complete;
@@ -244,7 +244,7 @@ void Submission::reload_cache() const
     size_t self_eval_count = 0;
     size_t grader_eval_count = 0;
 
-    for (const auto& self_eval : self_evals()) {
+    for (const auto& self_eval : self_evals_) {
         ++self_eval_count;
 
         auto sequence = self_eval->eval_item()->sequence();

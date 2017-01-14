@@ -34,6 +34,8 @@ public:
         closed,
     };
 
+    enum class Eval_status { empty, started, complete };
+
     struct Item
     {
         dbo::ptr<Eval_item> eval_item;
@@ -42,8 +44,6 @@ public:
     };
 
     using Items = std::vector<Item>;
-
-    enum class Eval_status { empty, started, complete };
 
     Submission() {};
     Submission(const dbo::ptr<User>&, const dbo::ptr<Assignment>&);
@@ -66,8 +66,6 @@ public:
 
     void reload_cache() const;
     void ensure_cache_loaded() const { if (!is_loaded_) reload_cache(); }
-
-    const Self_evals& self_evals() const { return self_evals_; }
 
     bool extended() const;
     bool eval_extended() const;
