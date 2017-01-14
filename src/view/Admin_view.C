@@ -95,13 +95,13 @@ void Submission_chooser::go()
             case Submission::Status::future:
             case Submission::Status::open:
             case Submission::Status::extended:
-                Navigate::to(submission->url(session_.user()));
+                Navigate::to(submission->url());
                 break;
 
             case Submission::Status::self_eval:
             case Submission::Status::extended_eval:
             case Submission::Status::closed:
-                Navigate::to(submission->eval_url(session_.user()));
+                Navigate::to(submission->eval_url());
                 break;
         }
     }

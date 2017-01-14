@@ -38,6 +38,7 @@ public:
     void set_role(Role r) { role_ = static_cast<int>(r); }
     bool can_grade() const;
     bool can_admin() const;
+    bool can_view(const dbo::ptr<User>&) const;
 
     Wt::Auth::PasswordHash password() const;
     void set_password(const Wt::Auth::PasswordHash&);
@@ -58,6 +59,8 @@ public:
 
     std::vector<dbo::ptr<Submission>> submissions() const;
     dbo::weak_ptr<User_stats> user_stats() const { return user_stats_; }
+
+    std::string hw_url() const;
 
     static dbo::ptr<User> find_by_name(dbo::Session&, const std::string&);
     static dbo::ptr<User> find_by_auth_token(dbo::Session&, const std::string&);

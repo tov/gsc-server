@@ -118,13 +118,13 @@ void Submissions_view_row::add_headings(Wt::WTableRow* row)
 void Submissions_view_row::set_files_action(const char* title)
 {
     action_->setText(title);
-    action_url_ = model_.submission->url(session_.user());
+    action_url_ = model_.submission->url();
 }
 
 void Submissions_view_row::set_eval_action(const char* title)
 {
     action_->setText(title);
-    action_url_ = model_.submission->eval_url(session_.user());
+    action_url_ = model_.submission->eval_url();
 }
 
 void Submissions_view_row::set_action_style_class(const char* style)

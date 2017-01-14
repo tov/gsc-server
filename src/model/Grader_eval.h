@@ -28,8 +28,10 @@ public:
         ready,
     };
 
-    Status get_status() const { return static_cast<Status>(status_); }
+    Status status() const { return static_cast<Status>(status_); }
     void set_status(Status status) { status_ = static_cast<int>(status); }
+    const dbo::ptr<User>& grader() const { return grader_; }
+    double score() const { return score_; }
 
     static dbo::ptr<Grader_eval> find_by_permalink(dbo::Session&,
                                                    const std::string&);

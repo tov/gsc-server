@@ -180,21 +180,28 @@ bool Submission::can_eval(const dbo::ptr<User>& user) const
                    (user == user1_ || user == user2_));
 }
 
-std::string Submission::url(const dbo::ptr<User>& current) const
+bool Submission::can_view_eval(const dbo::ptr<User>& user) const
+{
+    auto now = Wt::WDateTime::currentDateTime();
+
+    return user->can_admin() ||
+           (effective_due_date() < now &&
+            (user == user1_ || user == user2_));
+}
+
+std::string Submission::url() const
 {
     std::ostringstream result;
 
-    if (current != user1_ && current != user2_)
-        result << "/~" << user1_->name();
-
+    result << "/~" << user1_->name();
     result << "/hw/" << assignment_->number();
 
     return result.str();
 }
 
-std::string Submission::eval_url(const dbo::ptr<User>& current) const
+std::string Submission::eval_url() const
 {
-    return url(current) + "/eval";
+    return url() + "/eval";
 }
 
 size_t Submission::item_count() const
@@ -263,5 +270,16 @@ void Submission::reload_cache() const
     is_graded_ = grader_eval_count == item_count_;
 
     is_loaded_ = true;
+}
+
+std::string Submission::owner_string() const
+{
+    std::string result = user1()->name();
+    if (user2()) {
+        result += '+';
+        result += user2()->name();
+    }
+
+    return result;
 }
 

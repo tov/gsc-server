@@ -57,6 +57,7 @@ public:
     const dbo::ptr<Assignment>& assignment() const { return assignment_; }
     const dbo::ptr<User>& user1() const { return user1_; }
     const dbo::ptr<User>& user2() const { return user2_; }
+    std::string owner_string() const;
 
     size_t item_count() const;
     const Items& items() const;
@@ -82,9 +83,10 @@ public:
     bool can_view(const dbo::ptr<User>&) const;
     bool can_submit(const dbo::ptr<User>&) const;
     bool can_eval(const dbo::ptr<User>&) const;
+    bool can_view_eval(const dbo::ptr<User>&) const;
 
-    std::string url(const dbo::ptr<User>&) const;
-    std::string eval_url(const dbo::ptr<User>&) const;
+    std::string url() const;
+    std::string eval_url() const;
 
     static const dbo::ptr<Self_eval>&
     get_self_eval(const dbo::ptr<Eval_item>&,

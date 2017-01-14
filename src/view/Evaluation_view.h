@@ -2,6 +2,7 @@
 
 #include "../model/auth/User.h"
 #include "../model/Submission.h"
+#include "../model/Eval_item.h"
 
 #include <Wt/WContainerWidget>
 #include <Wt/Dbo/ptr>
@@ -32,13 +33,20 @@ private:
     File_viewer_widget* viewer_;
     Wt::WContainerWidget* right_column_;
 
-    std::vector<std::unique_ptr<Eval_widget>> rows_;
+    std::vector<std::unique_ptr<Wt::WWidget>> rows_;
 
     // Is the current user allowed to change the self evaluation right now?
     bool can_eval_();
-    const Submission::Items& items_() const;
 
     void load_();
+
+    void format_score_(const Eval_item::Type& type, double score,
+                       std::ostringstream& fmt) const;
+
+    void add_item_heading_(const Submission::Item& row,
+                           WContainerWidget* item_widget) const;
+    void add_scores_(const Submission::Item& row,
+                     WContainerWidget* item_widget) const;
 
     friend class Eval_widget;
 };

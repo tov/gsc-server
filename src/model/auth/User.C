@@ -96,3 +96,13 @@ std::vector<dbo::ptr<Submission>> User::submissions() const
     result.insert(result.end(), submissions2_.begin(), submissions2_.end());
     return result;
 }
+
+bool User::can_view(const dbo::ptr<User>& other) const
+{
+    return can_admin() || name() == other->name();
+}
+
+std::string User::hw_url() const
+{
+    return "/~" + name() + "/hw";
+}

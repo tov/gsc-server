@@ -92,18 +92,43 @@ namespace Path {
 using namespace std;
 
 static const regex hw_N("/hw/(\\d+)");
-static const regex hw_N_eval("/hw/(\\d+)/eval");
-static const regex hw_N_eval_M("/hw/(\\d+)/eval/(\\d+)");
+static const regex user("/~([^/]+)");
 static const regex user_hw("/~([^/]+)/hw");
 static const regex user_hw_N("/~([^/]+)/hw/(\\d+)");
 static const regex user_hw_N_eval("/~([^/]+)/hw/(\\d+)/eval");
 static const regex user_hw_N_eval_M("/~([^/]+)/hw/(\\d+)/eval/(\\d+)");
+static const regex trailing_slash("(.*)/");
 
 static const string hw("/hw");
 static const string root("/");
 static const string game("/game");
 static const string high_scores("/game/high_scores");
 static const string admin("/admin");
+
+}
+
+namespace Title
+{
+
+using namespace std;
+
+inline string user_hw(const dbo::ptr<User>& user)
+{
+    return "~" + user->name();
+}
+
+inline string
+user_hw_N(const dbo::ptr<Submission>& submission)
+{
+    return user_hw(submission->user1()) +
+            ": " + submission->assignment()->name();
+}
+
+inline string
+user_hw_N_eval(const dbo::ptr<Submission>& submission)
+{
+    return user_hw_N(submission) + " evaluation";
+}
 
 }
 
@@ -122,16 +147,14 @@ void Application_controller::handle_internal_path(
 
         auto current_user = session_.user();
 
+        if (false)
+        { }
+
         // /hw
-        if (internal_path == Path::hw) {
+        else if (internal_path == Path::hw) {
             transaction.commit();
             switch (current_user->role()) {
                 case User::Role::Student:
-                    main_->set_title("Homework server");
-                    main_->set_widget(
-                            new Submissions_view(current_user, session_));
-                    break;
-
                 case User::Role::Grader:
                     permission_denied("There's nothing for you here.");
                     break;
@@ -147,17 +170,77 @@ void Application_controller::handle_internal_path(
             transaction.commit();
             switch (session_.user()->role()) {
                 case User::Role::Student:
-                    setInternalPath(Path::hw, true);
+                    setInternalPath(current_user->hw_url(), true);
                     break;
 
                 case User::Role::Grader:
-                    setInternalPath(Path::admin, true);
+                    permission_denied("There's nothing for you here.");
                     break;
 
                 case User::Role::Admin:
                     setInternalPath(Path::admin, true);
                     break;
             }
+
+            // /~:user/hw
+        } else if (std::regex_match(internal_path, sm, Path::user_hw)) {
+            auto user = find_user({sm[1].first, sm[1].second});
+            transaction.commit();
+
+            if (!current_user->can_view(user))
+                permission_denied();
+
+            main_->set_title(Title::user_hw(user));
+            main_->set_widget(new Submissions_view(user, session_));
+
+        // ~:user/hw/:n
+        } else if (std::regex_match(internal_path, sm, Path::user_hw_N)) {
+            auto user = find_user({sm[1].first, sm[1].second});
+            auto assignment = find_assignment(&*sm[2].first);
+            auto submission = Submission::find_by_assignment_and_user(
+                    session_, assignment, user);
+            transaction.commit();
+
+            if (!submission->can_view(current_user))
+                permission_denied();
+
+            main_->set_title(Title::user_hw_N(submission));
+            main_->set_widget(new File_manager_view(submission, session_));
+
+            // ~:user/hw/:n/eval
+        } else if (std::regex_match(internal_path, sm, Path::user_hw_N_eval)) {
+            auto user = find_user({sm[1].first, sm[1].second});
+            auto assignment = find_assignment(&*sm[2].first);
+            auto submission = Submission::find_by_assignment_and_user(
+                    session_, assignment, user);
+            transaction.commit();
+
+            check_eval_view_privileges(current_user, submission);
+
+            auto view = new Evaluation_view(submission, session_);
+            view->go_default();
+
+            main_->set_title(Title::user_hw_N_eval(submission));
+            main_->set_widget(view);
+
+            // ~:user/hw/:n/eval/:m
+        } else if (std::regex_match(internal_path, sm,
+                                    Path::user_hw_N_eval_M))
+        {
+            auto user = find_user({sm[1].first, sm[1].second});
+            auto assignment = find_assignment(&*sm[2].first);
+            auto submission = Submission::find_by_assignment_and_user(
+                    session_, assignment, user);
+            auto m = find_eval_item(assignment, &*sm[3].first);
+            transaction.commit();
+
+            check_eval_view_privileges(current_user, submission);
+
+            auto view = new Evaluation_view(submission, session_);
+            view->go_to((unsigned) m);
+
+            main_->set_title(Title::user_hw_N_eval(submission));
+            main_->set_widget(view);
 
             // /game
         } else if (internal_path == Path::game) {
@@ -173,19 +256,9 @@ void Application_controller::handle_internal_path(
 
             // /hw/:n
         } else if (std::regex_match(internal_path, sm, Path::hw_N)) {
-            auto assignment = find_assignment({sm[1].first, sm[1].second});
+            auto assignment = find_assignment(&*sm[1].first);
             switch (current_user->role()) {
-                case User::Role::Student: {
-                    auto submission = Submission::find_by_assignment_and_user(
-                            session_, assignment, current_user);
-                    transaction.commit();
-
-                    main_->set_title(assignment->name());
-                    main_->set_widget(
-                            new File_manager_view(submission, session_));
-                    break;
-                }
-
+                case User::Role::Student:
                 case User::Role::Grader:
                     permission_denied();
                     break;
@@ -198,136 +271,6 @@ void Application_controller::handle_internal_path(
                     break;
             }
 
-            // /hw/:n/eval
-        } else if (std::regex_match(internal_path, sm, Path::hw_N_eval)) {
-            auto assignment = find_assignment({sm[1].first, sm[1].second});
-            switch (current_user->role()) {
-                case User::Role::Student: {
-                    auto submission = Submission::find_by_assignment_and_user(
-                            session_, assignment, current_user);
-                    auto status = submission->status();
-                    transaction.commit();
-
-                    if (status != Submission::Status::self_eval &&
-                        status != Submission::Status::extended_eval &&
-                        status != Submission::Status::closed)
-                    {
-                        permission_denied(
-                                "Too early! Submission is still open.");
-                    }
-
-                    auto view = new Evaluation_view(submission, session_);
-                    view->go_default();
-
-                    main_->set_title(assignment->name() + " self evaluation");
-                    main_->set_widget(view);
-                    break;
-                }
-
-                default:
-                    permission_denied("This doesn't make sense for you.");
-            }
-
-            // /hw/:n/eval/:m
-        } else if (std::regex_match(internal_path, sm, Path::hw_N_eval_M)) {
-            auto assignment = find_assignment({sm[1].first, sm[1].second});
-            int m = std::atoi(std::string(sm[2].first, sm[2].second).data());
-
-            if (m < 1 || m > assignment->eval_items().size()) {
-                permission_denied("Question number out of range.");
-            }
-
-            switch (current_user->role()) {
-                case User::Role::Student: {
-                    auto submission = Submission::find_by_assignment_and_user(
-                            session_, assignment, current_user);
-                    auto status = submission->status();
-                    transaction.commit();
-
-                    if (status != Submission::Status::self_eval &&
-                        status != Submission::Status::extended_eval &&
-                        status != Submission::Status::closed)
-                    {
-                        permission_denied(
-                                "Too early! Submission is still open.");
-                    }
-
-                    auto view = new Evaluation_view(submission, session_);
-                    view->go_to((unsigned) m);
-
-                    main_->set_title(assignment->name() + " self evaluation");
-                    main_->set_widget(view);
-                    break;
-                }
-
-                default:
-                    permission_denied("This doesn't make sense for you.");
-            }
-
-            // /~:user/hw
-        } else if (std::regex_match(internal_path, sm, Path::user_hw)) {
-            auto user = find_user({sm[1].first, sm[1].second});
-            transaction.commit();
-
-            if (!(current_user->can_admin() || user == current_user))
-                permission_denied();
-
-            main_->set_title("~" + user->name());
-            main_->set_widget(new Submissions_view(user, session_));
-
-        // ~:user/hw/:n
-        } else if (std::regex_match(internal_path, sm, Path::user_hw_N)) {
-            auto user = find_user({sm[1].first, sm[1].second});
-            auto assignment = find_assignment({sm[2].first, sm[2].second});
-            auto submission = Submission::find_by_assignment_and_user(
-                    session_, assignment, user);
-            transaction.commit();
-
-            if (!submission->can_view(current_user))
-                permission_denied();
-
-            main_->set_title(assignment->name());
-            main_->set_widget(new File_manager_view(submission, session_));
-
-            // ~:user/hw/:n/eval
-        } else if (std::regex_match(internal_path, sm, Path::user_hw_N_eval)) {
-            if (!current_user->can_admin()) permission_denied();
-
-            auto user = find_user({sm[1].first, sm[1].second});
-            auto assignment = find_assignment({sm[2].first, sm[2].second});
-            auto submission = Submission::find_by_assignment_and_user(
-                    session_, assignment, user);
-            transaction.commit();
-
-            auto view = new Evaluation_view(submission, session_);
-            view->go_default();
-
-            main_->set_title(assignment->name() + " self evaluation");
-            main_->set_widget(view);
-
-            // ~:user/hw/:n/eval/:m
-        } else if (std::regex_match(internal_path, sm,
-                                    Path::user_hw_N_eval_M))
-        {
-            if (!current_user->can_admin()) permission_denied();
-
-            auto user = find_user({sm[1].first, sm[1].second});
-            auto assignment = find_assignment({sm[2].first, sm[2].second});
-            auto submission = Submission::find_by_assignment_and_user(
-                    session_, assignment, user);
-
-            auto m = std::atoi(std::string(sm[3].first, sm[3].second).data());
-            if (m < 1 || m > assignment->eval_items().size()) {
-                permission_denied("Question number out of range.");
-            }
-            transaction.commit();
-
-            auto view = new Evaluation_view(submission, session_);
-            view->go_to((unsigned) m);
-
-            main_->set_title(assignment->name() + " self evaluation");
-            main_->set_widget(view);
-
             // /admin
         } else if (internal_path == Path::admin) {
             transaction.commit();
@@ -339,6 +282,15 @@ void Application_controller::handle_internal_path(
                 main_->set_widget(
                         new Error_view("You aren't allowed to access that."));
             }
+
+            // /~:user
+        } else if (std::regex_match(internal_path, sm, Path::user)) {
+            setInternalPath(internal_path + "/hw", true);
+
+            // .*/
+        } else if (std::regex_match(internal_path, sm, Path::trailing_slash)) {
+            setInternalPath({sm[1].first, sm[1].second}, true);
+
         } else {
             not_found("No such page.");
         }
@@ -357,11 +309,33 @@ Application_controller::find_user(const std::string& user_name)
 }
 
 Wt::Dbo::ptr<Assignment>
-Application_controller::find_assignment(const std::string& number_s)
+Application_controller::find_assignment(const char* number_s)
 {
-    int number = std::atoi(number_s.data());
+    int number = std::atoi(number_s);
     auto assignment = Assignment::find_by_number(session_, number);
-    if (!assignment) not_found("No such assignment: hw" + number_s);
+    if (!assignment) not_found("No such assignment");
     return assignment;
 }
 
+int
+Application_controller::find_eval_item(const dbo::ptr <Assignment>& assignment,
+                                       const char* number_s) {
+    int m = std::atoi(number_s);
+
+    if (m < 1 || m > assignment->eval_items().size())
+        permission_denied("Question number out of range.");
+
+    return m;
+}
+
+void Application_controller::check_eval_view_privileges(
+        const Wt::Dbo::ptr<User>& current_user,
+        const Wt::Dbo::ptr<Submission>& submission) const
+{
+    if (!submission->can_view_eval(current_user)) {
+        if (!submission->can_view(current_user))
+            permission_denied();
+
+        permission_denied("Too early! Submission is still open.");
+    }
+}

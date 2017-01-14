@@ -12,6 +12,8 @@ class Main_view;
 
 class User;
 class Assignment;
+class Eval_item;
+class Submission;
 
 class Application_controller : public Wt::WApplication
 {
@@ -31,5 +33,9 @@ private:
     void on_auth_event();
 
     Wt::Dbo::ptr<User> find_user(const std::string&);
-    Wt::Dbo::ptr<Assignment> find_assignment(const std::string&);
+    Wt::Dbo::ptr<Assignment> find_assignment(const char*);
+    int find_eval_item(const dbo::ptr <Assignment>&, const char*);
+
+    void check_eval_view_privileges(const Wt::Dbo::ptr<User>& current_user,
+                                    const Wt::Dbo::ptr<Submission>& submission) const;
 };
