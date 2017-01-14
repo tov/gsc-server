@@ -65,6 +65,7 @@ public:
     bool is_graded() const;
 
     void reload_cache() const;
+    void ensure_cache_loaded() const { if (!is_loaded_) reload_cache(); }
 
     const Self_evals& self_evals() const { return self_evals_; }
 
@@ -87,6 +88,10 @@ public:
     std::string url(const dbo::ptr<User>&) const;
     std::string eval_url(const dbo::ptr<User>&) const;
 
+    static const dbo::ptr<Self_eval>&
+    get_self_eval(const dbo::ptr<Eval_item>&,
+                  const dbo::ptr<Submission>&);
+    static void retract_self_eval(const dbo::ptr<Self_eval>&);
     void touch();
 
     static dbo::ptr<Submission>

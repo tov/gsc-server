@@ -104,6 +104,36 @@ Submission::Eval_status Submission::eval_status() const
         return Eval_status::empty;
 }
 
+const dbo::ptr<Self_eval>&
+Submission::get_self_eval(const dbo::ptr<Eval_item>& eval_item,
+                          const dbo::ptr<Submission>& submission)
+{
+    submission->ensure_cache_loaded();
+    auto& result = submission->items_[eval_item->sequence()].self_eval;
+
+    if (!result) {
+        result = submission.session()->add(new Self_eval(eval_item,
+                                                         submission));
+        submission.modify()->touch();
+    }
+
+    return result;
+}
+
+void Submission::retract_self_eval(const dbo::ptr<Self_eval>& self_eval)
+{
+    auto submission = self_eval->submission();
+    submission->ensure_cache_loaded();
+
+    int sequence = self_eval->eval_item()->sequence();
+
+    submission->items_[sequence].self_eval.remove();
+    submission->items_[sequence].self_eval = {};
+    submission->items_[sequence].grader_eval.remove();
+    submission->items_[sequence].grader_eval = {};
+    submission.modify()->touch();
+}
+
 void Submission::touch()
 {
     last_modified_ = Wt::WDateTime::currentDateTime();
@@ -169,31 +199,31 @@ std::string Submission::eval_url(const dbo::ptr<User>& current) const
 
 size_t Submission::item_count() const
 {
-    if (!is_loaded_) reload_cache();
+    ensure_cache_loaded();
     return item_count_;
 }
 
 const std::vector<Submission::Item>& Submission::items() const
 {
-    if (!is_loaded_) reload_cache();
+    ensure_cache_loaded();
     return items_;
 }
 
 double Submission::point_value() const
 {
-    if (!is_loaded_) reload_cache();
+    ensure_cache_loaded();
     return point_value_;
 }
 
 bool Submission::is_evaluated() const
 {
-    if (!is_loaded_) reload_cache();
+    ensure_cache_loaded();
     return eval_status_ == Eval_status::complete;
 }
 
 bool Submission::is_graded() const
 {
-    if (!is_loaded_) reload_cache();
+    ensure_cache_loaded();
     return is_graded_;
 }
 
@@ -234,3 +264,4 @@ void Submission::reload_cache() const
 
     is_loaded_ = true;
 }
+

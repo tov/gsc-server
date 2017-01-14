@@ -17,7 +17,7 @@
 #include <iomanip>
 
 Eval_widget::Eval_widget(
-        Row_model& model,
+        const Submission::Item& model,
         bool is_singular,
         Evaluation_view& main,
         Session& session,
@@ -40,7 +40,8 @@ Eval_widget::Eval_widget(
     else
         grader_factory_ = make_viewable_widget_factory();
 
-    auto pct = 100 * model.eval_item->relative_value() / main_.total_value_;
+    auto pct = 100 * model.eval_item->relative_value()
+               / main_.submission_->point_value();
     std::ostringstream title;
     title << "<h4>Question " << model.eval_item->sequence();
     title << " <small>(" << std::setprecision(2) << pct << "%)</small>";
@@ -55,7 +56,7 @@ Eval_widget::Eval_widget(
     self_buttons_ = new Wt::WContainerWidget(this);
     self_buttons_->setStyleClass("buttons");
 
-    if (main.is_graded_ || grader_factory_->is_editable()) {
+    if (main.submission_->is_graded() || grader_factory_->is_editable()) {
         new Wt::WText("<h5>Grader evaluation</h5>", this);
         grader_area_ = new Wt::WContainerWidget(this);
     } else {
@@ -80,12 +81,8 @@ void Eval_widget::save_()
 
     dbo::Transaction transaction(session_);
 
-    if (!model_.self_eval)
-        model_.self_eval
-                = session_.add(new Self_eval(model_.eval_item,
-                                             main_.submission_));
-
-    auto self_eval = model_.self_eval.modify();
+    auto self_eval = Submission::get_self_eval(model_.eval_item,
+                                               main_.submission_).modify();
     self_eval->set_score(score());
     self_eval->set_explanation(explanation());
 }
@@ -95,12 +92,7 @@ void Eval_widget::retract_()
     if (!can_eval()) return;
 
     dbo::Transaction transaction(session_);
-    model_.self_eval.remove();
-    model_.grader_eval.remove();
-    transaction.commit();
-
-    model_.self_eval = dbo::ptr<Self_eval>();
-    model_.grader_eval = dbo::ptr<Grader_eval>();
+    Submission::retract_self_eval(model_.self_eval);
 }
 
 void Eval_widget::defocus_action_()
@@ -113,7 +105,7 @@ void Eval_widget::save_next_action_()
     save_();
 
     int next = model_.self_eval->eval_item()->sequence() + 1;
-    if (0 < next && next < main_.model_.size())
+    if (0 < next && next < main_.submission_->item_count())
         main_.go_to((unsigned int) next);
     else
         main_.go_default();
@@ -159,7 +151,7 @@ User::Role Eval_widget::role() const
 class Response_eval_widget : public Eval_widget
 {
 public:
-    Response_eval_widget(Row_model&, bool, Evaluation_view&, Session&,
+    Response_eval_widget(const Submission::Item&, bool, Evaluation_view&, Session&,
                          WContainerWidget* parent = nullptr);
 
 protected:
@@ -174,7 +166,7 @@ protected:
 };
 
 Response_eval_widget::Response_eval_widget(
-        Row_model& model,
+        const Submission::Item& model,
         bool is_singular,
         Evaluation_view& main,
         Session& session,
@@ -225,7 +217,7 @@ void Response_eval_widget::reset()
 class Boolean_eval_widget : public Response_eval_widget
 {
 public:
-    Boolean_eval_widget(Row_model&, bool, Evaluation_view&, Session&,
+    Boolean_eval_widget(const Submission::Item&, bool, Evaluation_view&, Session&,
                         WContainerWidget* parent = nullptr);
 
 protected:
@@ -239,7 +231,7 @@ private:
 };
 
 Boolean_eval_widget::Boolean_eval_widget(
-        Row_model& model,
+        const Submission::Item& model,
         bool is_singular,
         Evaluation_view& main,
         Session& session,
@@ -283,7 +275,7 @@ class Scale_eval_widget
         : public Response_eval_widget
 {
 public:
-    Scale_eval_widget(Row_model&, bool, Evaluation_view&, Session&,
+    Scale_eval_widget(const Submission::Item&, bool, Evaluation_view&, Session&,
                       WContainerWidget* parent = nullptr);
 
 protected:
@@ -296,7 +288,7 @@ private:
 };
 
 Scale_eval_widget::Scale_eval_widget(
-        Row_model& model,
+        const Submission::Item& model,
         bool is_singular,
         Evaluation_view& main,
         Session& session,
@@ -326,7 +318,7 @@ void Scale_eval_widget::reset()
 class Informational_eval_widget : public Eval_widget
 {
 public:
-    Informational_eval_widget(Row_model&, bool, Evaluation_view&, Session&,
+    Informational_eval_widget(const Submission::Item&, bool, Evaluation_view&, Session&,
                               WContainerWidget* parent = nullptr);
 
 protected:
@@ -338,7 +330,7 @@ protected:
 };
 
 Informational_eval_widget::Informational_eval_widget(
-        Row_model& model,
+        const Submission::Item& model,
         bool is_singular,
         Evaluation_view& main,
         Session& session,
@@ -391,8 +383,9 @@ void Informational_eval_widget::reset()
 }
 
 std::unique_ptr<Eval_widget>
-Eval_widget::create(Row_model& model, bool is_singular, Evaluation_view& main,
-                    Session& session, Wt::WContainerWidget* parent)
+Eval_widget::create(const Submission::Item& model, bool is_singular,
+                    Evaluation_view& main, Session& session,
+                    Wt::WContainerWidget* parent)
 {
     switch (model.eval_item->type()) {
         case Eval_item::Type::Boolean:
