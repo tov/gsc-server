@@ -19,7 +19,7 @@ Evaluation_view::Evaluation_view(const dbo::ptr<Submission>& submission,
           submission_(submission),
           session_(session),
           role_(session.user()->role()),
-          is_graded_(false),
+          is_graded_(false)
 {
     load_();
 

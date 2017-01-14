@@ -6,6 +6,9 @@
 #include <Wt/WSlider>
 #include <Wt/WText>
 #include <Wt/WTextArea>
+#include <Wt/WTextEdit>
+
+#include <iomanip>
 
 Abstract_widget_base::Abstract_widget_base(Wt::WContainerWidget* parent)
         : WCompositeWidget(parent)
@@ -209,6 +212,7 @@ void Editable_unit_scale::clear()
 void Editable_unit_scale::update_number_()
 {
     number_->setText(slider_->valueText() + "%");
+    changed().emit();
 }
 
 class Viewable_unit_scale : public Abstract_unit_scale
@@ -248,6 +252,92 @@ void Viewable_unit_scale::clear()
     text_->setText("[not set]");
 }
 
+class Editable_percent_entry : public Abstract_percent_entry
+{
+public:
+    Editable_percent_entry(Wt::WContainerWidget* parent = nullptr);
+
+    double value() const override;
+    void set_value(double) override;
+    void clear() override;
+
+private:
+    Wt::WTextEdit* edit_;
+
+    void update_();
+};
+
+Editable_percent_entry::Editable_percent_entry(Wt::WContainerWidget* parent)
+        : Abstract_percent_entry(parent)
+{
+    edit_ = new Wt::WTextEdit(container_);
+    edit_->changed().connect(this, &Editable_percent_entry::update_);
+}
+
+double Editable_percent_entry::value() const
+{
+    std::istringstream converter(edit_->text().toUTF8());
+    double result = 0.0;
+    converter >> result;
+
+    return std::min(1.0, std::max(0.0, result));
+}
+
+void Editable_percent_entry::set_value(double value)
+{
+    edit_->setText(boost::lexical_cast<std::string>(value));
+}
+
+void Editable_percent_entry::clear()
+{
+    edit_->setText("");
+}
+
+void Editable_percent_entry::update_()
+{
+    changed().emit();
+}
+
+class Viewable_percent_entry : public Abstract_percent_entry
+{
+public:
+    Viewable_percent_entry(Wt::WContainerWidget* parent = nullptr);
+
+    double value() const override;
+    void set_value(double) override;
+    void clear() override;
+
+private:
+    Wt::WText* text_;
+    double value_;
+};
+
+Viewable_percent_entry::Viewable_percent_entry(Wt::WContainerWidget* parent)
+        : Abstract_percent_entry(parent)
+{
+    text_ = new Wt::WText(container_);
+    value_ = 0.0;
+}
+
+double Viewable_percent_entry::value() const
+{
+    return value_;
+}
+
+void Viewable_percent_entry::set_value(double value) {
+    std::ostringstream fmt;
+    fmt << std::setprecision(2) << 100 * value << '%';
+    text_->setText(fmt.str());
+
+    value_ = value;
+}
+
+void Viewable_percent_entry::clear()
+{
+    text_->setText("");
+    value_ = 0.0;
+}
+
 struct Editable_widget_factory : Abstract_widget_factory
 {
     virtual Abstract_explanation_holder*
@@ -266,6 +356,12 @@ struct Editable_widget_factory : Abstract_widget_factory
     make_unit_scale(Wt::WContainerWidget* parent) const override
     {
         return new Editable_unit_scale(parent);
+    }
+
+    virtual Abstract_percent_entry*
+    make_percent_entry(Wt::WContainerWidget* parent) const override
+    {
+        return new Editable_percent_entry(parent);
     }
 
     virtual bool is_editable() const override
@@ -292,6 +388,12 @@ struct Viewable_widget_factory : Abstract_widget_factory
     make_unit_scale(Wt::WContainerWidget* parent) const override
     {
         return new Viewable_unit_scale(parent);
+    }
+
+    virtual Abstract_percent_entry*
+    make_percent_entry(Wt::WContainerWidget* parent) const override
+    {
+        return new Viewable_percent_entry(parent);
     }
 
     virtual bool is_editable() const override
