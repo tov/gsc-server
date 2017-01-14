@@ -71,6 +71,8 @@ void Evaluation_view::go_to(unsigned int index)
 
 void Evaluation_view::go_default()
 {
+    rows_.clear();
+
     if (role_ == User::Role::Student && can_eval_()) {
         for (auto& row : submission_->items()) {
             if (row.eval_item && !row.self_eval) {
@@ -215,7 +217,9 @@ void Evaluation_list_view_item::focus_action_()
 void Evaluation_list_view_item::retract_action_()
 {
     dbo::Transaction transaction(session_);
+    Submission::retract_self_eval(model_.self_eval);
+    transaction.commit();
 
-    main_->go_to((unsigned) model_.eval_item->sequence());
+    main_->go_default();
 }
 
