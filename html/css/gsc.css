@@ -150,6 +150,7 @@ input.username {
 .evaluation-view table.scores th {
     padding: 0 1em 0 0;
     border: 0;
+    text-align: left;
 }
 
 .code-line {

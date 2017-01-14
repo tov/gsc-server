@@ -13,6 +13,7 @@
 #include <Wt/WApplication>
 #include <Wt/WHBoxLayout>
 #include <Wt/WPushButton>
+#include <Wt/WTemplate>
 #include <Wt/WText>
 
 #include <iomanip>
@@ -34,11 +35,11 @@ private:
     void retract_action_();
 
     void add_item_heading_();
+    void add_question_();
     void add_scores_();
     void add_buttons_();
 
-    void format_score_(const Eval_item::Type& type, double score,
-                       std::ostringstream& fmt) const;
+    std::string format_score_(const Eval_item::Type& type, double score) const;
 };
 
 Evaluation_view::Evaluation_view(const dbo::ptr<Submission>& submission,
@@ -108,6 +109,7 @@ Evaluation_list_view_item::Evaluation_list_view_item(
         , session_(session)
 {
     add_item_heading_();
+    add_question_();
     add_scores_();
     add_buttons_();
 }
@@ -138,68 +140,94 @@ void Evaluation_list_view_item::add_scores_()
 {
     auto role = session_.user()->role();
 
-    std::ostringstream fmt;
-
-    fmt << "<table class='scores'>";
-    fmt << "<tr><th>";
+    Wt::WString self;
+    Wt::WString self_score;
+    Wt::WString grader;
+    Wt::WString grader_score;
 
     switch (role) {
-            case User::Role::Student:
-                fmt << "You";
-                break;
-            case User::Role::Grader:
-                fmt << "Student";
-                break;
-            case User::Role::Admin:
-                fmt << main_->submission()->owner_string();
-                break;
-        }
+        case User::Role::Student:
+            self = "You";
+            break;
+        case User::Role::Grader:
+            self = "Student";
+            break;
+        case User::Role::Admin:
+            self = main_->submission()->owner_string();
+    }
 
-    fmt << "</th><td>";
-    if (!model_.self_eval)
-            fmt << "<em>[not set]</em>";
-        else
-            format_score_(model_.eval_item->type(), model_.self_eval->score(), fmt);
-
-    fmt << "</td></tr>";
+    self_score = model_.self_eval
+            ? format_score_(model_.eval_item->type(),
+                            model_.self_eval->score())
+            : "<em>[not set]</em>";
 
     if (main_->submission()->is_graded() ||
         (role == User::Role::Admin && model_.grader_eval))
     {
-        fmt << "<tr><th>";
-        fmt << model_.grader_eval->grader();
-        fmt << "</th><td>";
-        format_score_(Eval_item::Type::Scale, model_.grader_eval->score(), fmt);
-        fmt << "</td></tr>";
+        grader = model_.grader_eval->grader()->name();
+        grader_score = format_score_(model_.eval_item->type(),
+                                     model_.grader_eval->score());
+    } else {
+        grader = "Grader";
+        grader_score = "<em>[not set]</em>";
     }
 
-    fmt << "</table>";
+    auto table = new Wt::WTemplate(
+            "<table class='scores'>"
+                    "<tr><th>${self}</th><td>${self-score}</td></tr>"
+                    "<tr><th>${grader}</th><td>${grader-score}</td></tr>"
+                    "</table>",
+            this
+    );
 
-    new Wt::WText(fmt.str(), this);
+    table->bindWidget("self", new Wt::WText(self));
+    table->bindWidget("self-score", new Wt::WText(self_score));
+    table->bindWidget("grader", new Wt::WText(grader));
+    table->bindWidget("grader-score", new Wt::WText(grader_score));
+}
+
+namespace {
+
+inline std::string pct_string(double ratio)
+{
+    std::ostringstream fmt;
+    fmt << std::setprecision(2) << 100 * ratio << '%';
+    return fmt.str();
+}
+
 }
 
 void Evaluation_list_view_item::add_item_heading_()
 {
-    auto pct = 100 * model_.eval_item->relative_value()
-               / main_->submission()->point_value();
+    auto h4 = new Wt::WTemplate("<h4>Question ${number} "
+                                        "<small>${value}</small></h4>",
+                                this);
 
-    std::ostringstream fmt;
-    fmt << "<h4>Question " << model_.eval_item->sequence() << " <small>(";
-    fmt << std::setprecision(2) << pct << "%)</small></h4>";
-    new Wt::WText(fmt.str(), this);
+    std::string number = boost::lexical_cast<std::string>(
+            model_.eval_item->sequence());
+    std::string value = pct_string(model_.eval_item->relative_value()
+                                   / main_->submission()->point_value());
+
+    h4->bindWidget("number", new Wt::WText(number));
+    h4->bindWidget("value", new Wt::WText(value));
 }
 
-void Evaluation_list_view_item::format_score_(
-        const Eval_item::Type& type, double score,
-        std::ostringstream& fmt) const
+void Evaluation_list_view_item::add_question_()
+{
+    auto p = new Wt::WTemplate("<p>${question}</p>", this);
+    p->bindWidget("question", new Wt::WText(model_.eval_item->prompt()));
+}
+
+std::string Evaluation_list_view_item::format_score_(
+        const Eval_item::Type& type, double score) const
 {
     if ((score != 0 && score != 1) || type == Eval_item::Type::Scale) {
-        fmt << std::setprecision(2) << 100 * score << '%';
+        return pct_string(score);
     } else if (type == Eval_item::Type::Boolean) {
-        if (score == 1.0) fmt << "Yes";
-        else fmt << "No";
+        if (score == 1.0) return "Yes";
+        else return "No";
     } else {
-        fmt << "Okay";
+        return "Okay";
     }
 }
 
