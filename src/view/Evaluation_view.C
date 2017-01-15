@@ -51,14 +51,11 @@ void Evaluation_view::load_()
 
 void Evaluation_view::go_to(unsigned int index)
 {
-    std::ostringstream path;
-    path << submission_->eval_url();
-    path << '/' << index;
-    Wt::WApplication::instance()->setInternalPath(path.str());
+    auto model = submission_->items().at(index);
+    Wt::WApplication::instance()->setInternalPath(model.self_eval->eval_url());
 
     right_column_->clear();
-    Eval_item_widget::create(submission_->items().at(index), *this, session_,
-                        right_column_);
+    Eval_item_widget::create(model, *this, session_, right_column_);
 }
 
 void Evaluation_view::go_default()

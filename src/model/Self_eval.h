@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Grader_eval.h"
+
 #include <Wt/Dbo/Types>
 #include <Wt/Dbo/WtSqlTraits>
 #include <Wt/WDateTime>
@@ -24,12 +26,18 @@ public:
     double score() const { return score_; }
     const std::string& permalink() const { return permalink_; }
 
+    std::string eval_url() const;
+    std::string grade_url() const;
+
     void set_explanation(const std::string&);
     void set_score(double);
 
     static dbo::ptr<Self_eval> find_by_permalink(dbo::Session&,
                                                  const std::string&);
     static std::string find_ungraded_permalink(dbo::Session&);
+
+    static dbo::collection<dbo::ptr<Self_eval>>
+    find_with_grade_status(Grader_eval::Status, dbo::Session&);
 
 private:
     dbo::ptr<Eval_item>        eval_item_;

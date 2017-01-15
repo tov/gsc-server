@@ -153,6 +153,14 @@ input.username {
     text-align: left;
 }
 
+.held-back {
+    padding: 1em;
+}
+
+.held-back table td {
+    padding-left: 1em;
+}
+
 .code-line {
     font-family: monospace;
     white-space: pre;

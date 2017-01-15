@@ -10,6 +10,7 @@
 #include "view/Edit_assignment_view.h"
 #include "view/Error_view.h"
 #include "view/Grading_view.h"
+#include "view/Held_back_view.h"
 #include "view/Main_view.h"
 #include "view/Evaluation_view.h"
 #include "view/Submissions_view.h"
@@ -104,6 +105,7 @@ static const regex user_hw_N_eval_M("/~([^/]+)/hw/(\\d+)/eval/(\\d+)");
 static const regex trailing_slash("(.*)/");
 
 static const string hw("/hw");
+static const string held_back("/held_back");
 static const string grade("/grade");
 static const string root("/");
 static const string game("/game");
@@ -300,14 +302,18 @@ void Application_controller::handle_internal_path(
             // /admin
         } else if (internal_path == Path::admin) {
             transaction.commit();
-            if (session_.user()->can_admin()) {
-                main_->set_title("Admin");
-                main_->set_widget(new Admin_view(session_));
-            } else {
-                main_->set_title("Permission denied");
-                main_->set_widget(
-                        new Error_view("You aren't allowed to access that."));
-            }
+            if (!current_user->can_admin()) permission_denied();
+
+            main_->set_title("Admin");
+            main_->set_widget(new Admin_view(session_));
+
+            // /held_back
+        } else if (internal_path == Path::held_back) {
+            transaction.commit();
+            if (!current_user->can_admin()) permission_denied();
+
+            main_->set_title("Held-back evaluations");
+            main_->set_widget(new Held_back_view(session_));
 
             // /~:user
         } else if (std::regex_match(internal_path, sm, Path::user)) {
