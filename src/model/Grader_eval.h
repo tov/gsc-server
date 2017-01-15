@@ -41,6 +41,8 @@ public:
     void set_score(double) override ;
 
     std::string owner_string(const dbo::ptr<User>& as_seen_by) const override;
+    const Wt::Dbo::ptr<Eval_item>& eval_item() const override;
+    const Wt::Dbo::ptr<Submission>& submission() const override;
 
     static dbo::ptr<Grader_eval>
     get_for(const dbo::ptr<Self_eval>&, Session&);

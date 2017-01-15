@@ -21,20 +21,21 @@ public:
     Self_eval(const dbo::ptr<Eval_item>&,
               const dbo::ptr<Submission>&);
 
-    const dbo::ptr<Eval_item>& eval_item() const { return eval_item_; }
-    const dbo::ptr<Submission>& submission() const { return submission_; }
-    dbo::ptr<Grader_eval> grader_eval() const { return grader_eval_.lock(); }
+    const dbo::ptr<Eval_item>& eval_item() const override { return eval_item_; }
+    const dbo::ptr<Submission>& submission() const override { return submission_; }
     const std::string& explanation() const override { return explanation_; }
     double score() const override { return score_; }
+
+    void set_explanation(const std::string&) override;
+    void set_score(double) override;
+
+    dbo::ptr<Grader_eval> grader_eval() const { return grader_eval_.lock(); }
     const std::string& permalink() const { return permalink_; }
 
     std::string eval_url() const;
     std::string grade_url() const;
 
     std::string owner_string(const dbo::ptr<User>& as_seen_by) const override;
-
-    void set_explanation(const std::string&) override;
-    void set_score(double) override;
 
     static dbo::ptr<Self_eval> find_by_permalink(dbo::Session&,
                                                  const std::string&);

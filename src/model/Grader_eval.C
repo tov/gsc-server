@@ -53,3 +53,13 @@ std::string Grader_eval::owner_string(const dbo::ptr<User>& as_seen_by) const
 
     return grader()->name();
 }
+
+const Wt::Dbo::ptr<Eval_item>& Grader_eval::eval_item() const
+{
+    return self_eval()->eval_item();
+}
+
+const Wt::Dbo::ptr<Submission>& Grader_eval::submission() const
+{
+    return self_eval()->submission();
+}
