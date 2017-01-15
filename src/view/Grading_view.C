@@ -136,6 +136,7 @@ void Abstract_grading_widget::finish_(Grader_eval::Status status, double score)
     grader_eval->set_status(status);
     grader_eval->set_score(score);
     grader_eval->set_explanation(explanation_->text().toUTF8());
+    grader_eval->set_grader(session_.user());
 
     Navigate::to("/grade");
 }

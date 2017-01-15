@@ -33,6 +33,7 @@ public:
     void set_status(Status status) { status_ = static_cast<int>(status); }
     const dbo::ptr<Self_eval>& self_eval() const { return self_eval_; }
     const dbo::ptr<User>& grader() const { return grader_; }
+    void set_grader(const dbo::ptr<User>& grader) { grader_ = grader; }
     const std::string& explanation() const { return content_; }
     void set_explanation(const std::string&);
     double score() const { return score_; }
