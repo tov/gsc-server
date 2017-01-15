@@ -1,4 +1,5 @@
 #include "Grading_view.h"
+#include "Unit_line_edit.h"
 #include "../Navigate.h"
 #include "../model/Self_eval.h"
 #include "../model/Eval_item.h"
@@ -67,7 +68,7 @@ public:
                          Session&, Wt::WContainerWidget* parent);
 
 private:
-    Wt::WLineEdit* edit_;
+    Unit_line_edit* edit_;
 
     void apply_action_();
 };
@@ -175,13 +176,9 @@ Scale_grading_widget::Scale_grading_widget(const dbo::ptr <Grader_eval>& model,
                                            Wt::WContainerWidget* parent)
         : Abstract_grading_widget(model, session, parent)
 {
-    std::ostringstream fmt;
-    fmt.setf(std::ios::fixed);
-    fmt << std::setprecision(2) << starting_value;
-
-    edit_ = new Wt::WLineEdit(fmt.str(), buttons_);
+    edit_ = new Unit_line_edit(buttons_);
+    edit_->set_value(starting_value);
     edit_->setStyleClass("scale-edit");
-    edit_->setEmptyText("[0.0, 1.0]");
 
     auto apply_button = new Wt::WPushButton("Apply", buttons_);
     apply_button->clicked().connect(this,
@@ -192,14 +189,13 @@ Scale_grading_widget::Scale_grading_widget(const dbo::ptr <Grader_eval>& model,
 
 void Scale_grading_widget::apply_action_()
 {
-    std::istringstream iss(edit_->text().toUTF8());
-    double score;
+    double score = edit_->value();
 
-    if (iss >> score && score >= 0 && score <= 1) {
-        save_(score);
-    } else {
-        edit_->setText("");
+    if (score == Unit_line_edit::INVALID) {
+        edit_->set_value(score);
         edit_->setFocus();
+    } else {
+        save_(score);
     }
 }
 

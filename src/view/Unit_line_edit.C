@@ -26,7 +26,7 @@ void Unit_line_edit::set_value(double numeric)
     std::ostringstream fmt;
     if (0 <= numeric && numeric <= 1) {
         fmt.setf(std::ios::fixed);
-        fmt << std::setprecision(3) << numeric;
+        fmt << std::setprecision(2) << numeric;
     }
     edit_->setText(fmt.str());
 }
