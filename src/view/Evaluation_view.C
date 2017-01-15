@@ -17,8 +17,6 @@
 #include <Wt/WTemplate>
 #include <Wt/WText>
 
-#include <iomanip>
-
 class List_eval_item_widget : public Base_eval_item_widget
 {
 public:
@@ -51,10 +49,14 @@ void Evaluation_view::load_()
 
 void Evaluation_view::go_to(unsigned int index)
 {
-    auto model = submission_->items().at(index);
-    Wt::WApplication::instance()->setInternalPath(model.self_eval->eval_url());
+    std::ostringstream eval_url;
+    eval_url << submission_->eval_url();
+    eval_url << '/' << index;
+    Wt::WApplication::instance()->setInternalPath(eval_url.str());
 
     right_column_->clear();
+
+    auto model = submission_->items().at(index);
     Eval_item_widget::create(model, *this, session_, right_column_);
 }
 
