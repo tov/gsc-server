@@ -18,6 +18,9 @@
 #include <Wt/WTemplate>
 #include <Wt/WText>
 
+// Abstract base class for grading self evaluations. Derived classes specialize
+// for boolean-type evaluations and scale-type evaluations (including
+// informational).
 class Abstract_grading_widget : public Wt::WCompositeWidget
 {
 public:
@@ -25,30 +28,38 @@ public:
                             Session&,
                             Wt::WContainerWidget* parent = nullptr);
 
+    // Creates an object of the correct derived class as determined by the
+    // Type of the Grader_eval.
     static Abstract_grading_widget*
     create(const dbo::ptr<Grader_eval>&,
            Session&,
            Wt::WContainerWidget* parent = nullptr);
 
-    ~Abstract_grading_widget();
+    virtual ~Abstract_grading_widget();
 
 protected:
+    // The Grader_eval we are editing.
     dbo::ptr<Grader_eval> model_;
     Session& session_;
-    Wt::WContainerWidget* buttons_;
 
+    Wt::WContainerWidget* buttons_;
     Wt::WPushButton* hold_button_;
 
+    // Adds the hold_button_ to buttons_. Derived classes should call after
+    // adding anything to buttons_ that should appear first.
     void add_hold_button();
 
+    // Saves the Grader_eval in held-back status with score 0.
     virtual void hold_action_();
-    void save_(double);
-    void finish_(Grader_eval::Status, double);
+
+    // Saves the Grader_eval with the given status and score.
+    void save_(Grader_eval::Status, double);
 
 private:
     Explanation_text_area* explanation_;
 };
 
+// For grading boolean questions.
 class Boolean_grading_widget : public Abstract_grading_widget
 {
 public:
@@ -61,6 +72,7 @@ private:
     void no_action_();
 };
 
+// For grading scale and informational questions.
 class Scale_grading_widget : public Abstract_grading_widget
 {
 public:
@@ -69,6 +81,7 @@ public:
                          Session&, Wt::WContainerWidget* parent);
 
 protected:
+    // Saves the Grader_eval in held-back status with current score.
     void hold_action_() override;
 
 private:
@@ -78,9 +91,11 @@ private:
     void disable_buttons_();
     void enable_buttons_();
 
+    // Saves the Grader_eval in ready status with current score.
     void apply_action_();
 
-    void save_with_status_(Grader_eval::Status);
+    // Saves the Grader_eval in the given status with current score.
+    void save_(Grader_eval::Status);
 };
 
 Abstract_grading_widget*
@@ -92,10 +107,12 @@ Abstract_grading_widget::create(const dbo::ptr <Grader_eval>& grader_eval,
         case Eval_item::Type::Boolean:
             return new Boolean_grading_widget(grader_eval, session, parent);
         case Eval_item::Type::Scale:
+            // The default value for scale is the user-supplied value
             return new Scale_grading_widget(grader_eval,
                                             grader_eval->self_eval()->score(),
                                             session, parent);
         case Eval_item::Type::Informational:
+            // The default value for informational is 1
             return new Scale_grading_widget(grader_eval, 1, session, parent);
     }
 }
@@ -138,15 +155,10 @@ Abstract_grading_widget::~Abstract_grading_widget()
 
 void Abstract_grading_widget::hold_action_()
 {
-    finish_(Grader_eval::Status::held_back, 0);
+    save_(Grader_eval::Status::held_back, 0);
 }
 
-void Abstract_grading_widget::save_(double score)
-{
-    finish_(Grader_eval::Status::ready, score);
-}
-
-void Abstract_grading_widget::finish_(Grader_eval::Status status, double score)
+void Abstract_grading_widget::save_(Grader_eval::Status status, double score)
 {
     dbo::Transaction transaction(session_);
     auto grader_eval = model_.modify();
@@ -174,12 +186,12 @@ Boolean_grading_widget::Boolean_grading_widget(
 
 void Boolean_grading_widget::yes_action_()
 {
-    save_(1);
+    save_(Grader_eval::Status::ready, 1);
 }
 
 void Boolean_grading_widget::no_action_()
 {
-    save_(0);
+    save_(Grader_eval::Status::ready, 0);
 }
 
 Scale_grading_widget::Scale_grading_widget(const dbo::ptr <Grader_eval>& model,
@@ -215,15 +227,15 @@ void Scale_grading_widget::enable_buttons_()
 
 void Scale_grading_widget::apply_action_()
 {
-    save_with_status_(Grader_eval::Status::ready);
+    save_(Grader_eval::Status::ready);
 }
 
 void Scale_grading_widget::hold_action_()
 {
-    save_with_status_(Grader_eval::Status::held_back);
+    save_(Grader_eval::Status::held_back);
 }
 
-void Scale_grading_widget::save_with_status_(Grader_eval::Status status)
+void Scale_grading_widget::save_(Grader_eval::Status status)
 {
     double score = edit_->value();
 
@@ -231,7 +243,7 @@ void Scale_grading_widget::save_with_status_(Grader_eval::Status status)
         edit_->set_value(score);
         edit_->setFocus();
     } else {
-        finish_(status, score);
+        save_(status, score);
     }
 }
 
