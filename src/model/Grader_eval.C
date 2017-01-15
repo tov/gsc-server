@@ -46,3 +46,10 @@ dbo::ptr<Grader_eval> Grader_eval::get_for(
         return session.add(new Grader_eval(self_eval, session.user()));
 }
 
+std::string Grader_eval::owner_string(const dbo::ptr<User>& as_seen_by) const
+{
+    if (grader() == as_seen_by && as_seen_by->role() == User::Role::Student)
+        return "Auto";
+
+    return grader()->name();
+}

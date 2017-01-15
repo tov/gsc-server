@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Abstract_evaluation.h"
 #include "Grader_eval.h"
 
 #include <Wt/Dbo/Types>
@@ -13,7 +14,7 @@ class Grader_eval;
 class Submission;
 class User;
 
-class Self_eval
+class Self_eval : public Abstract_evaluation
 {
 public:
     Self_eval() {}
@@ -23,15 +24,17 @@ public:
     const dbo::ptr<Eval_item>& eval_item() const { return eval_item_; }
     const dbo::ptr<Submission>& submission() const { return submission_; }
     dbo::ptr<Grader_eval> grader_eval() const { return grader_eval_.lock(); }
-    const std::string& explanation() const { return explanation_; }
-    double score() const { return score_; }
+    const std::string& explanation() const override { return explanation_; }
+    double score() const override { return score_; }
     const std::string& permalink() const { return permalink_; }
 
     std::string eval_url() const;
     std::string grade_url() const;
 
-    void set_explanation(const std::string&);
-    void set_score(double);
+    std::string owner_string(const dbo::ptr<User>& as_seen_by) const override;
+
+    void set_explanation(const std::string&) override;
+    void set_score(double) override;
 
     static dbo::ptr<Self_eval> find_by_permalink(dbo::Session&,
                                                  const std::string&);

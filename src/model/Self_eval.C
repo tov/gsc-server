@@ -129,4 +129,18 @@ Self_eval::find_with_grade_status(Grader_eval::Status status,
     ).bind((int) status).resultList();
 }
 
+std::string Self_eval::owner_string(const dbo::ptr<User>& as_seen_by) const
+{
+    if (as_seen_by == submission()->user1() ||
+            as_seen_by == submission()->user2())
+        return "You";
 
+    switch (as_seen_by->role()) {
+        case User::Role::Student:
+            return "Other student";
+        case User::Role::Grader:
+            return "Student";
+        case User::Role::Admin:
+            return submission()->owner_string();
+    }
+}

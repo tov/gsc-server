@@ -12,6 +12,7 @@ set(SOURCE_FILES
         src/model/auth/User_database.C
         src/model/game/Dictionary.C
         src/model/game/User_stats.C
+        src/model/Abstract_evaluation.h
         src/model/Assignment.C
         src/model/Eval_item.C
         src/model/File_data.C

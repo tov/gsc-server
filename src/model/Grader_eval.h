@@ -3,6 +3,7 @@
 #include "specializations.h"
 
 #include "auth/User.h"
+#include "Abstract_evaluation.h"
 
 #include <Wt/Dbo/WtSqlTraits>
 #include <Wt/Dbo/Types>
@@ -16,7 +17,7 @@ class User;
 class Self_eval;
 class Session;
 
-class Grader_eval
+class Grader_eval : public Abstract_evaluation
 {
 public:
     Grader_eval() {}
@@ -34,10 +35,12 @@ public:
     const dbo::ptr<Self_eval>& self_eval() const { return self_eval_; }
     const dbo::ptr<User>& grader() const { return grader_; }
     void set_grader(const dbo::ptr<User>& grader) { grader_ = grader; }
-    const std::string& explanation() const { return content_; }
-    void set_explanation(const std::string&);
-    double score() const { return score_; }
-    void set_score(double);
+    const std::string& explanation() const override { return content_; }
+    void set_explanation(const std::string&) override;
+    double score() const override { return score_; }
+    void set_score(double) override ;
+
+    std::string owner_string(const dbo::ptr<User>& as_seen_by) const override;
 
     static dbo::ptr<Grader_eval>
     get_for(const dbo::ptr<Self_eval>&, Session&);
