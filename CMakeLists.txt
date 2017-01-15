@@ -42,13 +42,11 @@ set(SOURCE_FILES
         src/view/Main_view.C
         src/view/Unit_line_edit.C
         src/view/User_suggester.C
-        src/view/Eval_item_widget.C
         src/view/Evaluation_view.C
         src/view/Explanation_text_area.C
         src/view/Response_widget.C
         src/view/Submission_owner_widget.C
         src/view/Submissions_view.C
-        src/view/Widget_factory.C
         src/view/game/HangmanWidget.C
         src/view/game/HighScoresWidget.C
         src/view/game/ImagesWidget.C
