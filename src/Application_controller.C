@@ -248,9 +248,9 @@ void Application_controller::handle_internal_path(
             auto assignment = find_assignment(&*sm[2].first);
             auto submission = Submission::find_by_assignment_and_user(
                     session_, assignment, user);
-            transaction.commit();
 
             check_eval_view_privileges(current_user, submission);
+            transaction.commit();
 
             auto view = new Evaluation_view(submission, session_);
             view->go_default();
@@ -267,9 +267,9 @@ void Application_controller::handle_internal_path(
             auto submission = Submission::find_by_assignment_and_user(
                     session_, assignment, user);
             auto m = find_eval_item(assignment, &*sm[3].first);
-            transaction.commit();
 
             check_eval_view_privileges(current_user, submission);
+            transaction.commit();
 
             auto view = new Evaluation_view(submission, session_);
             view->go_to((unsigned) m);

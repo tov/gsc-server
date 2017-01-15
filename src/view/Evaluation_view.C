@@ -40,6 +40,7 @@ public:
                             Evaluation_view&,
                             Session&,
                             Wt::WContainerWidget* parent = nullptr);
+
 };
 
 class Admin_eval_item_widget : public Single_eval_item_widget
@@ -119,6 +120,13 @@ Self_eval_item_widget::Self_eval_item_widget(
 
     save_button_->clicked().connect(this,
                                     &Self_eval_item_widget::save_action_);
+
+    if (model_.grader_eval) {
+        auto score = model_.eval_item->format_score(model_.grader_eval->score());
+        add_evaluation_("Grader evaluation <small>(old)</small>",
+                        score,
+                        model_.grader_eval->explanation());
+    }
 
     validate_();
 }

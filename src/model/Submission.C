@@ -153,7 +153,9 @@ Submission::save_self_eval(const dbo::ptr<Self_eval>& self_eval,
     if (score == 0.0 &&
             self_eval->eval_item()->type() == Eval_item::Type::Boolean) {
         auto grader_eval = Grader_eval::get_for(self_eval, session);
-        grader_eval.modify()->set_score(0.1);
+        auto grader_eval_m = grader_eval.modify();
+        grader_eval_m->set_score(0.1);
+        grader_eval_m->set_explanation("You chose no.");
         submission->items_[sequence].grader_eval = grader_eval;
     } else {
         self_eval->grader_eval().remove();

@@ -51,3 +51,20 @@ void Base_eval_item_widget::add_question_()
     p->bindWidget("question", new Wt::WText(model_.eval_item->prompt()));
 }
 
+void Base_eval_item_widget::add_evaluation_(const std::string& heading,
+                                            const std::string& score,
+                                            const std::string& explanation)
+{
+    auto p = new Wt::WTemplate(
+            "<h5>${heading}</h5>"
+            "<p class='explanation'>"
+              "<strong>${score}.</strong>"
+              "${explanation}"
+            "</p>",
+            this);
+
+    p->bindWidget("heading", new Wt::WText(heading));
+    p->bindWidget("score", new Wt::WText(score));
+    p->bindWidget("explanation", new Wt::WText(explanation));
+}
+

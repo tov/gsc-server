@@ -25,4 +25,7 @@ protected:
 
     void add_item_heading_();
     void add_question_();
+    void add_evaluation_(const std::string& heading,
+                         const std::string& score,
+                         const std::string& explanation);
 };
