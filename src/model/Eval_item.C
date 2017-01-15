@@ -44,6 +44,8 @@ std::string Eval_item::format_score(double score) const
 
 std::string Eval_item::pct_string(double ratio)
 {
+    if (ratio == 1.0) return "100%";
+
     std::ostringstream fmt;
     fmt << std::setprecision(2) << 100 * ratio << '%';
     return fmt.str();

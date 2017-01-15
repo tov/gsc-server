@@ -95,9 +95,9 @@ Abstract_grading_widget::Abstract_grading_widget(
     auto impl = new Wt::WContainerWidget;
     setImplementation(impl);
 
-    explanation_ = new Wt::WTextArea(model->explanation(), impl);
-    explanation_->setStyleClass("explanation");
-    explanation_->setInline(false);
+    auto expl_holder = new Wt::WContainerWidget(impl);
+    expl_holder->setStyleClass("grader-explanation");
+    explanation_ = new Wt::WTextArea(model->explanation(), expl_holder);
     explanation_->setFocus();
 
     buttons_ = new Wt::WContainerWidget(impl);
@@ -171,6 +171,7 @@ Scale_grading_widget::Scale_grading_widget(
         : Abstract_grading_widget(model, session, parent)
 {
     edit_ = new Wt::WLineEdit(buttons_);
+    edit_->setStyleClass("scale-edit");
     edit_->setEmptyText("[0.0, 1.0]");
 
     auto apply_button = new Wt::WPushButton("Apply", buttons_);
@@ -200,12 +201,16 @@ Grading_view::Grading_view(const Wt::Dbo::ptr<Self_eval> self_eval,
           model_(self_eval)
 {
     auto widget = new Wt::WTemplate(
+        "<div class='grading-view'>"
         "<h4>Question ${sequence} <small>${homework}</small></h4>"
         "<p>${question}</p>"
-        "<p class='answer'>${self_grade}</p>"
-        "<p class='explanation'>${self_explanation}</p>"
+        "<h5>Self evaluation</h5>"
+        "<p><strong>${self_grade}.</strong> "
+        "<span>${self_explanation}</span></p>"
+        "<h5>Your evaluation</h5>"
         "${grading_widget}"
-        "<p class='status'>Status: ${status}</p>",
+        "<p class='status'>Status: ${status}</p>"
+        "</div>",
         right_column_
     );
 

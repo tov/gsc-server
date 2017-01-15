@@ -129,8 +129,8 @@ input.username {
     padding: 0;
 }
 
-.evaluation-view .right-column {
-    padding: 0 10px;
+.right-column {
+    padding: 0 1em;
 }
 
 .evaluation-view .score {
@@ -159,6 +159,19 @@ input.username {
 
 .held-back table td {
     padding-left: 1em;
+}
+
+.grading-view .grader-explanation {
+    text-align: center;
+}
+
+.grading-view .status {
+    text-align: center;
+    font-size: smaller;
+}
+
+.grading-view .scale-edit {
+    width: 5em;
 }
 
 .code-line {
@@ -279,6 +292,7 @@ h2 {
 }
 
 .buttons button,
+.buttons input,
 .dialog-buttons button {
     margin: 0 5px;
 }
