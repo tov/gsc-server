@@ -18,8 +18,6 @@
 #include <Wt/WTemplate>
 #include <Wt/WText>
 
-#include <Wt/WLogger>
-
 class List_eval_item_widget : public Base_eval_item_widget
 {
 public:
@@ -133,16 +131,11 @@ void Self_eval_item_widget::save_action_()
 {
     if (!main_.can_eval()) return;
 
-    Wt::log("info") << "TOV: save_action_()";
-    Wt::log("info") << "TOV: eval_item.id() == " << model_.eval_item.id();
-    Wt::log("info") << "TOV: eval_item->sequence() == " << model_.eval_item->sequence();
-
     dbo::Transaction transaction(session_);
-    Submission::get_self_eval(model_.eval_item, main_.submission());
-//    auto self_eval = Submission::get_self_eval(model_.eval_item,
-//                                               main_.submission()).modify();
-//    self_eval->set_score(response_widget_->value());
-//    self_eval->set_explanation(response_widget_->explanation());
+    auto self_eval = Submission::get_self_eval(model_.eval_item,
+                                               main_.submission()).modify();
+    self_eval->set_score(response_widget_->value());
+    self_eval->set_explanation(response_widget_->explanation());
     transaction.commit();
 
     main_.go_default();
@@ -151,10 +144,6 @@ void Self_eval_item_widget::save_action_()
 void Self_eval_item_widget::validate_()
 {
     save_button_->setEnabled(response_widget_->is_ready());
-
-    Wt::log("info") << "TOV: validate_()";
-    Wt::log("info") << "TOV: eval_item.id() == " << model_.eval_item.id();
-    Wt::log("info") << "TOV: eval_item->sequence() == " << model_.eval_item->sequence();
 }
 
 Review_eval_item_widget::Review_eval_item_widget(
@@ -190,7 +179,7 @@ void Evaluation_view::go_to(unsigned int index)
 
     right_column_->clear();
 
-    auto model = submission_->items().at(index);
+    const auto& model = submission_->items().at(index);
 
     if (session_.user()->can_admin())
         new Admin_eval_item_widget(model, *this, session_, right_column_);

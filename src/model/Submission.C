@@ -10,8 +10,6 @@
 #include <Wt/WDateTime>
 #include <Wt/Dbo/Impl>
 
-#include <Wt/WLogger>
-
 #include <algorithm>
 #include <functional>
 #include <locale>
@@ -112,21 +110,15 @@ Submission::get_self_eval(const dbo::ptr<Eval_item>& eval_item,
 {
     submission->load_cache();
 
-    Wt::log("info") << "TOV: get_self_eval()";
-    Wt::log("info") << "TOV: eval_item.id() == " << eval_item.id();
-    Wt::log("info") << "TOV: eval_item->sequence() == " << eval_item->sequence();
+    auto& result = submission->items_[eval_item->sequence()].self_eval;
 
-    int sequence = eval_item->sequence();
-    Wt::log("info") << "TOV: " << sequence << " / " << submission->items_.size();
-//    auto& result = submission->items_[eval_item->sequence()].self_eval;
-//
-//    if (!result) {
-//        result = submission.session()->add(new Self_eval(eval_item,
-//                                                         submission));
-//        submission.modify()->touch();
-//    }
-//
-//    return result;
+    if (!result) {
+        result = submission.session()->add(new Self_eval(eval_item,
+                                                         submission));
+        submission.modify()->touch();
+    }
+
+    return result;
 }
 
 void Submission::retract_self_eval(const dbo::ptr<Self_eval>& self_eval)
