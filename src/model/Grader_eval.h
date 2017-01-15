@@ -32,8 +32,10 @@ public:
     void set_status(Status status) { status_ = static_cast<int>(status); }
     const dbo::ptr<Self_eval>& self_eval() const { return self_eval_; }
     const dbo::ptr<User>& grader() const { return grader_; }
-    const std::string& evaluation() const { return content_; }
+    const std::string& explanation() const { return content_; }
+    void set_explanation(const std::string&);
     double score() const { return score_; }
+    void set_score(double);
 
 private:
     dbo::ptr<Self_eval> self_eval_;
@@ -42,6 +44,8 @@ private:
     double              score_;
     Wt::WDateTime       time_stamp_;
     int                 status_;
+
+    void touch_();
 
 public:
     template<typename Action>

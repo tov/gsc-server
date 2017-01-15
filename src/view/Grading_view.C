@@ -29,23 +29,22 @@ public:
            Session&,
            Wt::WContainerWidget* parent = nullptr);
 
-    Wt::Signal<>& hold_signal() { return hold_signal_; }
-    Wt::Signal<double>& save_signal() { return save_signal_; }
-
-    virtual ~Abstract_grading_widget();
+    ~Abstract_grading_widget();
 
 protected:
     dbo::ptr<Grader_eval> model_;
     Session& session_;
-    Wt::WContainerWidget* const buttons_;
+    Wt::WContainerWidget* buttons_;
 
     void add_hold_button();
 
-private:
-    Wt::Signal<> hold_signal_;
-    Wt::Signal<double> save_signal_;
+    void save_(double);
 
-    void hold_action_();
+private:
+    Wt::WTextArea* explanation_;
+
+    void hold_back_();
+    void finish_(Grader_eval::Status, double);
 };
 
 class Boolean_grading_widget : public Abstract_grading_widget
@@ -91,18 +90,24 @@ Abstract_grading_widget::Abstract_grading_widget(
         Wt::WContainerWidget* parent)
         : WCompositeWidget(parent),
           model_(model),
-          session_(session),
-          buttons_(new Wt::WContainerWidget)
+          session_(session)
 {
+    auto impl = new Wt::WContainerWidget;
+    setImplementation(impl);
+
+    explanation_ = new Wt::WTextArea(model->explanation(), impl);
+    explanation_->setStyleClass("explanation");
+    explanation_->setInline(false);
+
+    buttons_ = new Wt::WContainerWidget(impl);
     buttons_->setStyleClass("buttons");
-    setImplementation(buttons_);
 }
 
 void Abstract_grading_widget::add_hold_button()
 {
     auto hold_button = new Wt::WPushButton("Hold", buttons_);
     hold_button->clicked().connect(this,
-                                   &Abstract_grading_widget::hold_action_);
+                                   &Abstract_grading_widget::hold_back_);
 }
 
 Abstract_grading_widget::~Abstract_grading_widget()
@@ -113,9 +118,25 @@ Abstract_grading_widget::~Abstract_grading_widget()
     }
 }
 
-void Abstract_grading_widget::hold_action_()
+void Abstract_grading_widget::hold_back_()
 {
-    hold_signal().emit();
+    finish_(Grader_eval::Status::held_back, 0);
+}
+
+void Abstract_grading_widget::save_(double score)
+{
+    finish_(Grader_eval::Status::ready, score);
+}
+
+void Abstract_grading_widget::finish_(Grader_eval::Status status, double score)
+{
+    dbo::Transaction transaction(session_);
+    auto grader_eval = model_.modify();
+    grader_eval->set_status(status);
+    grader_eval->set_score(score);
+    grader_eval->set_explanation(explanation_->text().toUTF8());
+
+    Navigate::to("/grade");
 }
 
 Boolean_grading_widget::Boolean_grading_widget(
@@ -134,12 +155,12 @@ Boolean_grading_widget::Boolean_grading_widget(
 
 void Boolean_grading_widget::yes_action_()
 {
-    save_signal().emit(1.0);
+    save_(1);
 }
 
 void Boolean_grading_widget::no_action_()
 {
-    save_signal().emit(0.0);
+    save_(0);
 }
 
 Scale_grading_widget::Scale_grading_widget(
@@ -164,7 +185,7 @@ void Scale_grading_widget::apply_action_()
     double score;
 
     if (iss >> score && score >= 0 && score <= 1) {
-        save_signal().emit(score);
+        save_(score);
     } else {
         edit_->setText("");
         edit_->setFocus();
@@ -182,7 +203,6 @@ Grading_view::Grading_view(const Wt::Dbo::ptr<Self_eval> self_eval,
         "<p>${question}</p>"
         "<p class='answer'>${self_grade}</p>"
         "<p class='explanation'>${self_explanation}</p>"
-        "${grader_explanation}"
         "${grading_widget}"
         "<p class='status'>Status: ${status}</p>",
         right_column_
@@ -200,22 +220,21 @@ Grading_view::Grading_view(const Wt::Dbo::ptr<Self_eval> self_eval,
 
     std::string sequence =
             boost::lexical_cast<std::string>(eval_item->sequence());
-    auto grader_explanation = new Wt::WTextArea(grader_eval->evaluation());
     auto grading_widget = Abstract_grading_widget::create(grader_eval,
                                                           session_);
 
-    std::ostringstream status;
+    std::string status;
     switch (grader_eval->status()) {
         case Grader_eval::Status::editing:
-            status << "unsaved";
+            status += "unsaved";
             break;
         case Grader_eval::Status::held_back:
-            status << "held";
+            status += "held";
             break;
         case Grader_eval::Status::ready:
-            status << "saved (";
-            status << Eval_item::pct_string(grader_eval->score());
-            status << ")";
+            status += "saved (";
+            status += Eval_item::pct_string(grader_eval->score());
+            status += ")";
             break;
     }
 
@@ -226,11 +245,7 @@ Grading_view::Grading_view(const Wt::Dbo::ptr<Self_eval> self_eval,
                        new Wt::WText(eval_item->format_score(self_eval->score())));
     widget->bindWidget("self_explanation",
                        new Wt::WText(self_eval->explanation()));
-    widget->bindWidget("grader_explanation", grader_explanation);
     widget->bindWidget("grading_widget", grading_widget);
-    widget->bindWidget("status", new Wt::WText(status.str()));
-
-    grader_explanation->setStyleClass("explanation");
-    grader_explanation->setInline(false);
+    widget->bindWidget("status", new Wt::WText(status));
 }
 

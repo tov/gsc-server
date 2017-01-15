@@ -16,3 +16,20 @@ Grader_eval::Grader_eval(const dbo::ptr<Self_eval>& self_eval,
 {
 }
 
+void Grader_eval::set_explanation(const std::string& explanation)
+{
+    content_ = explanation;
+    touch_();
+}
+
+void Grader_eval::set_score(double score)
+{
+    score_ = score;
+    touch_();
+}
+
+void Grader_eval::touch_()
+{
+    time_stamp_ = Wt::WDateTime::currentDateTime();
+}
+
