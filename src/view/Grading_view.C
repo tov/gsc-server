@@ -1,5 +1,6 @@
 #include "Grading_view.h"
 #include "Unit_line_edit.h"
+#include "Explanation_text_area.h"
 #include "../Navigate.h"
 #include "../model/Self_eval.h"
 #include "../model/Eval_item.h"
@@ -16,7 +17,6 @@
 #include <Wt/WSignal>
 #include <Wt/WTemplate>
 #include <Wt/WText>
-#include <Wt/WTextArea>
 
 class Abstract_grading_widget : public Wt::WCompositeWidget
 {
@@ -46,7 +46,7 @@ protected:
     void finish_(Grader_eval::Status, double);
 
 private:
-    Wt::WTextArea* explanation_;
+    Explanation_text_area* explanation_;
 };
 
 class Boolean_grading_widget : public Abstract_grading_widget
@@ -111,9 +111,8 @@ Abstract_grading_widget::Abstract_grading_widget(
     auto impl = new Wt::WContainerWidget;
     setImplementation(impl);
 
-    explanation_ = new Wt::WTextArea(model->explanation(), impl);
-    explanation_->setStyleClass("explanation");
-    explanation_->setInline(false);
+    explanation_ = new Explanation_text_area(impl);
+    explanation_->setText(model->explanation());
     explanation_->setFocus();
 
     buttons_ = new Wt::WContainerWidget(impl);
