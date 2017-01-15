@@ -37,15 +37,16 @@ protected:
     Session& session_;
     Wt::WContainerWidget* buttons_;
 
+    Wt::WPushButton* hold_button_;
+
     void add_hold_button();
 
+    virtual void hold_action_();
     void save_(double);
+    void finish_(Grader_eval::Status, double);
 
 private:
     Wt::WTextArea* explanation_;
-
-    void hold_back_();
-    void finish_(Grader_eval::Status, double);
 };
 
 class Boolean_grading_widget : public Abstract_grading_widget
@@ -67,10 +68,19 @@ public:
                          double starting_value,
                          Session&, Wt::WContainerWidget* parent);
 
+protected:
+    void hold_action_() override;
+
 private:
     Unit_line_edit* edit_;
+    Wt::WPushButton* apply_button_;
+
+    void disable_buttons_();
+    void enable_buttons_();
 
     void apply_action_();
+
+    void save_with_status_(Grader_eval::Status);
 };
 
 Abstract_grading_widget*
@@ -108,13 +118,15 @@ Abstract_grading_widget::Abstract_grading_widget(
 
     buttons_ = new Wt::WContainerWidget(impl);
     buttons_->setStyleClass("buttons");
+
+    hold_button_ = new Wt::WPushButton("Hold");
+    hold_button_->clicked().connect(this,
+                                    &Abstract_grading_widget::hold_action_);
 }
 
 void Abstract_grading_widget::add_hold_button()
 {
-    auto hold_button = new Wt::WPushButton("Hold", buttons_);
-    hold_button->clicked().connect(this,
-                                   &Abstract_grading_widget::hold_back_);
+    buttons_->addWidget(hold_button_);
 }
 
 Abstract_grading_widget::~Abstract_grading_widget()
@@ -125,7 +137,7 @@ Abstract_grading_widget::~Abstract_grading_widget()
     }
 }
 
-void Abstract_grading_widget::hold_back_()
+void Abstract_grading_widget::hold_action_()
 {
     finish_(Grader_eval::Status::held_back, 0);
 }
@@ -180,14 +192,39 @@ Scale_grading_widget::Scale_grading_widget(const dbo::ptr <Grader_eval>& model,
     edit_->set_value(starting_value);
     edit_->setStyleClass("scale-edit");
 
-    auto apply_button = new Wt::WPushButton("Apply", buttons_);
-    apply_button->clicked().connect(this,
-                                    &Scale_grading_widget::apply_action_);
+    apply_button_ = new Wt::WPushButton("Apply", buttons_);
+    apply_button_->clicked().connect(this,
+                                     &Scale_grading_widget::apply_action_);
 
     add_hold_button();
+
+    edit_->valid().connect(this, &Scale_grading_widget::enable_buttons_);
+    edit_->invalid().connect(this, &Scale_grading_widget::disable_buttons_);
+}
+
+void Scale_grading_widget::disable_buttons_()
+{
+    hold_button_->disable();
+    apply_button_->disable();
+}
+
+void Scale_grading_widget::enable_buttons_()
+{
+    hold_button_->enable();
+    apply_button_->enable();
 }
 
 void Scale_grading_widget::apply_action_()
+{
+    save_with_status_(Grader_eval::Status::ready);
+}
+
+void Scale_grading_widget::hold_action_()
+{
+    save_with_status_(Grader_eval::Status::held_back);
+}
+
+void Scale_grading_widget::save_with_status_(Grader_eval::Status status)
 {
     double score = edit_->value();
 
@@ -195,7 +232,7 @@ void Scale_grading_widget::apply_action_()
         edit_->set_value(score);
         edit_->setFocus();
     } else {
-        save_(score);
+        finish_(status, score);
     }
 }
 

@@ -17,18 +17,18 @@ public:
     void load(const Abstract_evaluation*);
     bool save(Abstract_evaluation*);
 
-    bool is_valid();
-    Wt::Signal<>& changed() { return changed_; }
+    Wt::WContainerWidget* buttons() const { return buttons_; }
 
-    Wt::WPushButton* save_button() { return save_button_; }
-    Wt::WPushButton* retract_button() { return retract_button_; }
+    Wt::Signal<>& valid() { return valid_; }
+    Wt::Signal<>& invalid() { return invalid_; }
 
 private:
     Explanation_text_area* explanation_;
     Unit_line_edit* grade_;
-    Wt::WPushButton* save_button_;
-    Wt::WPushButton* retract_button_;
 
-    Wt::Signal<> changed_;
+    Wt::WContainerWidget* buttons_;
+
+    Wt::Signal<> valid_;
+    Wt::Signal<> invalid_;
 };
 

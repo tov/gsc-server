@@ -15,9 +15,16 @@ public:
     double value() const;
     void set_value(double);
 
-    Wt::Signal<>& changed() { return changed_; }
+    Wt::Signal<>& valid() { return valid_; }
+    Wt::Signal<>& invalid() { return invalid_; }
 
 private:
     Wt::WLineEdit* edit_;
-    Wt::Signal<> changed_;
+
+    Wt::Signal<> valid_;
+    Wt::Signal<> invalid_;
+
+    double cached_value_;
+
+    void handle_change_();
 };

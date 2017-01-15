@@ -13,18 +13,21 @@ Admin_response_widget::Admin_response_widget(Wt::WContainerWidget* parent)
 
     explanation_ = new Explanation_text_area(impl);
 
-    auto buttons = new Wt::WContainerWidget(impl);
-    buttons->setStyleClass("buttons");
+    buttons_ = new Wt::WContainerWidget(impl);
+    buttons_->setStyleClass("buttons");
 
-    grade_ = new Unit_line_edit(buttons);
-    save_button_ = new Wt::WPushButton("Save", buttons);
-    retract_button_ = new Wt::WPushButton("Retract", buttons);
+    grade_ = new Unit_line_edit(buttons_);
 }
 
 void Admin_response_widget::load(const Abstract_evaluation* model)
 {
-    explanation_->setText(model->explanation());
-    grade_->set_value(model->score());
+    if (model) {
+        explanation_->setText(model->explanation());
+        grade_->set_value(model->score());
+    } else {
+        explanation_->setText("");
+        grade_->set_value(Unit_line_edit::INVALID);
+    }
 }
 
 bool Admin_response_widget::save(Abstract_evaluation* model)
@@ -37,7 +40,3 @@ bool Admin_response_widget::save(Abstract_evaluation* model)
     return true;
 }
 
-bool Admin_response_widget::is_valid()
-{
-    return grade_->value() != Unit_line_edit::INVALID;
-}
