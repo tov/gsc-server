@@ -101,9 +101,9 @@ Abstract_grading_widget::Abstract_grading_widget(
     auto impl = new Wt::WContainerWidget;
     setImplementation(impl);
 
-    auto expl_holder = new Wt::WContainerWidget(impl);
-    expl_holder->setStyleClass("grader-explanation");
-    explanation_ = new Wt::WTextArea(model->explanation(), expl_holder);
+    explanation_ = new Wt::WTextArea(model->explanation(), impl);
+    explanation_->setStyleClass("explanation");
+    explanation_->setInline(false);
     explanation_->setFocus();
 
     buttons_ = new Wt::WContainerWidget(impl);
