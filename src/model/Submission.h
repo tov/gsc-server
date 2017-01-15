@@ -65,8 +65,7 @@ public:
     bool is_evaluated() const;
     bool is_graded() const;
 
-    void reload_cache() const;
-    void ensure_cache_loaded() const { if (!is_loaded_) reload_cache(); }
+    void load_cache() const;
 
     bool extended() const;
     bool eval_extended() const;

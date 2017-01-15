@@ -50,7 +50,7 @@ Submission_chooser::Submission_chooser(Session& session,
     editor_ = new Wt::WLineEdit(this);
     editor_->setEmptyText("username");
     editor_->changed().connect(this, &This::update);
-    editor_->keyWentDown().connect(this, &This::update);
+    editor_->keyWentUp().connect(this, &This::update);
     editor_->enterPressed().connect(this, &This::go);
 
     auto popup = new User_suggester(session, User::Role::Student, this);
@@ -182,7 +182,7 @@ Role_chooser::Role_chooser(Session& session,
     editor_ = new Wt::WLineEdit(this);
     editor_->setEmptyText("username");
     editor_->changed().connect(this, &This::update);
-    editor_->keyWentDown().connect(this, &This::update);
+    editor_->keyWentUp().connect(this, &This::update);
     editor_->enterPressed().connect(this, &This::go);
 
     auto popup = new User_suggester(session, this);

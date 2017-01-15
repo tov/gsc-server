@@ -10,6 +10,8 @@
 #include <Wt/WDateTime>
 #include <Wt/Dbo/Impl>
 
+#include <Wt/WLogger>
+
 #include <algorithm>
 #include <functional>
 #include <locale>
@@ -108,16 +110,23 @@ const dbo::ptr<Self_eval>&
 Submission::get_self_eval(const dbo::ptr<Eval_item>& eval_item,
                           const dbo::ptr<Submission>& submission)
 {
-    submission->ensure_cache_loaded();
-    auto& result = submission->items_[eval_item->sequence()].self_eval;
+    submission->load_cache();
 
-    if (!result) {
-        result = submission.session()->add(new Self_eval(eval_item,
-                                                         submission));
-        submission.modify()->touch();
-    }
+    Wt::log("info") << "TOV: get_self_eval()";
+    Wt::log("info") << "TOV: eval_item.id() == " << eval_item.id();
+    Wt::log("info") << "TOV: eval_item->sequence() == " << eval_item->sequence();
 
-    return result;
+    int sequence = eval_item->sequence();
+    Wt::log("info") << "TOV: " << sequence << " / " << submission->items_.size();
+//    auto& result = submission->items_[eval_item->sequence()].self_eval;
+//
+//    if (!result) {
+//        result = submission.session()->add(new Self_eval(eval_item,
+//                                                         submission));
+//        submission.modify()->touch();
+//    }
+//
+//    return result;
 }
 
 void Submission::retract_self_eval(const dbo::ptr<Self_eval>& self_eval)
@@ -125,7 +134,7 @@ void Submission::retract_self_eval(const dbo::ptr<Self_eval>& self_eval)
     auto submission = self_eval->submission();
     auto sequence = self_eval->eval_item()->sequence();
 
-    submission->ensure_cache_loaded();
+    submission->load_cache();
 
     submission->items_[sequence].self_eval.remove();
     submission->items_[sequence].self_eval = {};
@@ -206,39 +215,40 @@ std::string Submission::eval_url() const
 
 size_t Submission::item_count() const
 {
-    ensure_cache_loaded();
+    load_cache();
     return item_count_;
 }
 
 const std::vector<Submission::Item>& Submission::items() const
 {
-    ensure_cache_loaded();
+    load_cache();
     return items_;
 }
 
 double Submission::point_value() const
 {
-    ensure_cache_loaded();
+    load_cache();
     return point_value_;
 }
 
 bool Submission::is_evaluated() const
 {
-    ensure_cache_loaded();
+    load_cache();
     return eval_status_ == Eval_status::complete;
 }
 
 bool Submission::is_graded() const
 {
-    ensure_cache_loaded();
+    load_cache();
     return is_graded_;
 }
 
-void Submission::reload_cache() const
+void Submission::load_cache() const
 {
+    if (is_loaded_) return;
+
     item_count_ = 0;
     point_value_ = 0;
-    items_.clear();
 
     for (const auto& eval_item : assignment()->eval_items()) {
         ++item_count_;
