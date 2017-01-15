@@ -11,6 +11,7 @@ namespace dbo = Wt::Dbo;
 class Eval_item;
 class Grader_eval;
 class Submission;
+class User;
 
 class Self_eval
 {
@@ -34,7 +35,8 @@ public:
 
     static dbo::ptr<Self_eval> find_by_permalink(dbo::Session&,
                                                  const std::string&);
-    static std::string find_ungraded_permalink(dbo::Session&);
+    static std::string find_ungraded_permalink(dbo::Session&,
+                                               const dbo::ptr<User>&);
 
     static dbo::collection<dbo::ptr<Self_eval>>
     find_with_grade_status(Grader_eval::Status, dbo::Session&);

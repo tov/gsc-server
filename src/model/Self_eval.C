@@ -62,12 +62,27 @@ Self_eval::find_by_permalink(dbo::Session& dbo,
               .where("permalink = ?").bind(permalink);
 }
 
-std::string Self_eval::find_ungraded_permalink(dbo::Session& dbo)
+std::string Self_eval::find_ungraded_permalink(dbo::Session& dbo,
+                                               const dbo::ptr<User>& user)
 {
     dbo.execute("DELETE FROM grader_evals"
                 " WHERE status = ?"
                 "   AND time_stamp < NOW() AT TIME ZONE 'UTC' - INTERVAL '1 hr'")
             .bind((int) Grader_eval::Status::editing);
+
+    std::string current =
+            dbo.query<std::string>(
+                    "SELECT s.permalink"
+                    "  FROM self_evals s"
+                    " INNER JOIN grader_evals g ON g.self_eval_id = s.id"
+                    " WHERE g.grader_id = ?"
+                    "   AND g.status = ?"
+                    " LIMIT 1"
+            )
+               .bind(user.id())
+               .bind((int) Grader_eval::Status::editing)
+               .resultValue();
+    if (!current.empty()) return current;
 
     return dbo.query<std::string>(
             "SELECT s.permalink"

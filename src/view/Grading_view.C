@@ -98,6 +98,7 @@ Abstract_grading_widget::Abstract_grading_widget(
     explanation_ = new Wt::WTextArea(model->explanation(), impl);
     explanation_->setStyleClass("explanation");
     explanation_->setInline(false);
+    explanation_->setFocus();
 
     buttons_ = new Wt::WContainerWidget(impl);
     buttons_->setStyleClass("buttons");

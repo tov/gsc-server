@@ -193,7 +193,8 @@ void Application_controller::handle_internal_path(
         } else if (internal_path == Path::grade) {
             if (!current_user->can_grade()) permission_denied();
 
-            auto permalink = Self_eval::find_ungraded_permalink(session_);
+            auto permalink = Self_eval::find_ungraded_permalink(session_,
+                                                                current_user);
             transaction.commit();
 
             if (permalink.empty()) {
