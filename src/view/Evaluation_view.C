@@ -1,8 +1,9 @@
 #include "Evaluation_view.h"
 #include "Base_eval_item_widget.h"
 #include "Eval_item_widget.h"
-#include "Widget_factory.h"
 #include "File_viewer_widget.h"
+#include "Response_widget.h"
+#include "Widget_factory.h"
 #include "../model/auth/User.h"
 #include "../model/Assignment.h"
 #include "../model/Eval_item.h"
@@ -32,6 +33,86 @@ private:
     void add_buttons_();
 };
 
+class Single_eval_item_widget : public Base_eval_item_widget
+{
+public:
+    Single_eval_item_widget(const Submission::Item&,
+                            Evaluation_view&,
+                            Session&,
+                            Wt::WContainerWidget* parent = nullptr);
+};
+
+class Admin_eval_item_widget : public Single_eval_item_widget
+{
+public:
+    Admin_eval_item_widget(const Submission::Item&,
+                           Evaluation_view&,
+                           Session&,
+                           Wt::WContainerWidget* parent = nullptr);
+};
+
+class Self_eval_item_widget : public Single_eval_item_widget
+{
+public:
+    Self_eval_item_widget(const Submission::Item&,
+                          Evaluation_view&,
+                          Session&,
+                          Wt::WContainerWidget* parent = nullptr);
+};
+
+class Review_eval_item_widget : public Single_eval_item_widget
+{
+public:
+    Review_eval_item_widget(const Submission::Item&,
+                            Evaluation_view&,
+                            Session&,
+                            Wt::WContainerWidget* parent = nullptr);
+};
+
+Single_eval_item_widget::Single_eval_item_widget(
+        const Submission::Item& model,
+        Evaluation_view& main,
+        Session& session,
+        Wt::WContainerWidget* parent)
+        : Base_eval_item_widget(model, main, session, parent)
+{
+    add_item_heading_();
+    add_question_();
+}
+
+Admin_eval_item_widget::Admin_eval_item_widget(
+        const Submission::Item& model,
+        Evaluation_view& main,
+        Session& session,
+        Wt::WContainerWidget* parent)
+        : Single_eval_item_widget(model, main, session, parent)
+{
+}
+
+Self_eval_item_widget::Self_eval_item_widget(
+        const Submission::Item& model,
+        Evaluation_view& main,
+        Session& session,
+        Wt::WContainerWidget* parent)
+        : Single_eval_item_widget(model, main, session, parent)
+{
+    auto response_widget = Response_widget::create(model.eval_item->type(),
+                                                   this);
+    if (model.self_eval) {
+        response_widget->set_value(model.self_eval->score());
+        response_widget->set_explanation(model.self_eval->explanation());
+    }
+}
+
+Review_eval_item_widget::Review_eval_item_widget(
+        const Submission::Item& model,
+        Evaluation_view& main,
+        Session& session,
+        Wt::WContainerWidget* parent)
+        : Single_eval_item_widget(model, main, session, parent)
+{
+}
+
 Evaluation_view::Evaluation_view(const dbo::ptr<Submission>& submission,
                                  Session& session,
                                  Wt::WContainerWidget* parent)
@@ -57,7 +138,13 @@ void Evaluation_view::go_to(unsigned int index)
     right_column_->clear();
 
     auto model = submission_->items().at(index);
-    Eval_item_widget::create(model, *this, session_, right_column_);
+
+    if (session_.user()->can_admin())
+        new Admin_eval_item_widget(model, *this, session_, right_column_);
+    else if (submission_->can_eval(session_.user()))
+        new Self_eval_item_widget(model, *this, session_, right_column_);
+    else
+        new Review_eval_item_widget(model, *this, session_, right_column_);
 }
 
 void Evaluation_view::go_default()

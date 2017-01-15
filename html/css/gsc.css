@@ -135,9 +135,11 @@ input.username {
 
 .evaluation-view .score {
     text-align: center;
+    margin: 1ex;
 }
 
-.evaluation-view .explanation {
+.evaluation-view .explanation,
+.grading-view .grader-explanation {
     width: 100%;
     height: 8em;
 }
@@ -161,10 +163,6 @@ input.username {
     padding-left: 1em;
 }
 
-.grading-view .grader-explanation {
-    text-align: center;
-}
-
 .grading-view .status {
     text-align: center;
     font-size: smaller;
@@ -174,6 +172,7 @@ input.username {
     width: 5em;
 }
 
+.evaluation-view .question,
 .grading-view .question,
 .grading-view .answer {
     margin-left: 1em;

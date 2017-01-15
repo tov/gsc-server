@@ -32,7 +32,7 @@ void Base_eval_item_widget::retract_action_()
 void Base_eval_item_widget::add_item_heading_()
 {
     auto h4 = new Wt::WTemplate("<h4>Question ${number} "
-                                        "<small>${value}</small></h4>",
+                                        "<small>(${value})</small></h4>",
                                 this);
 
     std::string number = boost::lexical_cast<std::string>(
@@ -47,7 +47,7 @@ void Base_eval_item_widget::add_item_heading_()
 
 void Base_eval_item_widget::add_question_()
 {
-    auto p = new Wt::WTemplate("<p>${question}</p>", this);
+    auto p = new Wt::WTemplate("<p class='question'>${question}</p>", this);
     p->bindWidget("question", new Wt::WText(model_.eval_item->prompt()));
 }
 
