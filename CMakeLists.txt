@@ -25,6 +25,7 @@ set(SOURCE_FILES
         src/view/Abstract_file_view.C
         src/view/Accelerator_button.C
         src/view/Accelerator_text.C
+        src/view/Admin_response_widget.C
         src/view/Assignments_view.C
         src/view/Admin_view.C
         src/view/Base_eval_item_widget.C

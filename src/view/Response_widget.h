@@ -32,4 +32,3 @@ protected:
 private:
     Wt::Signal<> changed_;
 };
-

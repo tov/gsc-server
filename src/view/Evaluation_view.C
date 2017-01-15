@@ -13,6 +13,7 @@
 #include "../model/Submission.h"
 
 #include <Wt/WApplication>
+#include <Wt/WContainerWidget>
 #include <Wt/WHBoxLayout>
 #include <Wt/WPushButton>
 #include <Wt/WTemplate>
@@ -50,6 +51,19 @@ public:
                            Evaluation_view&,
                            Session&,
                            Wt::WContainerWidget* parent = nullptr);
+
+private:
+    Wt::WTextArea* self_explanation_;
+    Wt::WLineEdit* self_grade_;
+    Wt::WPushButton* save_self_btn_;
+    Wt::WPushButton* retract_self_btn_;
+    Wt::WText* self_status_;
+
+    Wt::WTextArea* grader_explanation;
+    Wt::WLineEdit* grader_grade;
+    Wt::WPushButton* save_grader_btn_;
+    Wt::WPushButton* retract_grader_btn_;
+    Wt::WText* other_status_;
 };
 
 class Self_eval_item_widget : public Single_eval_item_widget
@@ -95,6 +109,7 @@ Admin_eval_item_widget::Admin_eval_item_widget(
         Wt::WContainerWidget* parent)
         : Single_eval_item_widget(model, main, session, parent)
 {
+
 }
 
 Self_eval_item_widget::Self_eval_item_widget(
