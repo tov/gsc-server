@@ -30,11 +30,10 @@ public:
 
     Status status() const { return static_cast<Status>(status_); }
     void set_status(Status status) { status_ = static_cast<int>(status); }
+    const dbo::ptr<Self_eval>& self_eval() const { return self_eval_; }
     const dbo::ptr<User>& grader() const { return grader_; }
+    const std::string& evaluation() const { return content_; }
     double score() const { return score_; }
-
-    static dbo::ptr<Grader_eval> find_by_permalink(dbo::Session&,
-                                                   const std::string&);
 
 private:
     dbo::ptr<Self_eval> self_eval_;
@@ -43,11 +42,8 @@ private:
     double              score_;
     Wt::WDateTime       time_stamp_;
     int                 status_;
-    std::string         permalink_;
 
 public:
-    static const int permalink_size = 16;
-
     template<typename Action>
     void persist(Action& a)
     {
@@ -57,7 +53,6 @@ public:
         dbo::field(a, score_, "score");
         dbo::field(a, time_stamp_, "time_stamp");
         dbo::field(a, status_, "status");
-        dbo::field(a, permalink_, "permalink", permalink_size);
     }
 };
 

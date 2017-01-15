@@ -35,6 +35,7 @@ set(SOURCE_FILES
         src/view/File_list_widget.C
         src/view/File_manager_view.C
         src/view/File_viewer_widget.C
+        src/view/Grading_view.C
         src/view/Main_view.C
         src/view/User_suggester.C
         src/view/Eval_item_widget.C

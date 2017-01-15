@@ -143,16 +143,14 @@ void List_eval_item_widget::add_scores_()
     }
 
     self_score = model_.self_eval
-            ? format_score_(model_.eval_item->type(),
-                            model_.self_eval->score())
+            ? model_.eval_item->format_score(model_.self_eval->score())
             : "<em>[not set]</em>";
 
     if (main_.submission()->is_graded() ||
         (role == User::Role::Admin && model_.grader_eval))
     {
         grader = model_.grader_eval->grader()->name();
-        grader_score = format_score_(model_.eval_item->type(),
-                                     model_.grader_eval->score());
+        grader_score = model_.eval_item->format_score(model_.grader_eval->score());
     } else {
         grader = "Grader";
         grader_score = "<em>[not set]</em>";

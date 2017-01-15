@@ -74,7 +74,7 @@ Session::Session(dbo::SqlConnectionPool& pool)
         createTables();
 
         create_index("users", "name", false);
-        create_index("grader_evals", "permalink");
+        create_index("self_evals", "permalink");
 
         Auth::User root_user = users_.registerNew();
         root_user.addIdentity(Auth::Identity::LoginName, "root");

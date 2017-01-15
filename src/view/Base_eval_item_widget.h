@@ -25,6 +25,4 @@ protected:
 
     void add_item_heading_();
     void add_question_();
-
-    std::string format_score_(const Eval_item::Type& type, double score) const;
 };

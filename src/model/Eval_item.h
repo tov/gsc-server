@@ -42,6 +42,10 @@ public:
     std::string relative_value_str() const;
     void set_relative_value(const std::string&);
 
+    std::string format_score(double) const;
+
+    static std::string pct_string(double);
+
 private:
     dbo::ptr<Assignment> assignment_;
     int                  sequence_ = 0;

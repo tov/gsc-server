@@ -2,11 +2,14 @@
 
 #include "model/auth/User.h"
 #include "model/Assignment.h"
+#include "model/Grader_eval.h"
+#include "model/Self_eval.h"
 #include "model/Submission.h"
 #include "view/Admin_view.h"
 #include "view/Assignments_view.h"
 #include "view/Edit_assignment_view.h"
 #include "view/Error_view.h"
+#include "view/Grading_view.h"
 #include "view/Main_view.h"
 #include "view/Evaluation_view.h"
 #include "view/Submissions_view.h"
@@ -92,6 +95,7 @@ namespace Path {
 using namespace std;
 
 static const regex hw_N("/hw/(\\d+)");
+static const regex grade_N("/grade/([[:alnum:]]+)");
 static const regex user("/~([^/]+)");
 static const regex user_hw("/~([^/]+)/hw");
 static const regex user_hw_N("/~([^/]+)/hw/(\\d+)");
@@ -100,6 +104,7 @@ static const regex user_hw_N_eval_M("/~([^/]+)/hw/(\\d+)/eval/(\\d+)");
 static const regex trailing_slash("(.*)/");
 
 static const string hw("/hw");
+static const string grade("/grade");
 static const string root("/");
 static const string game("/game");
 static const string high_scores("/game/high_scores");
@@ -182,6 +187,33 @@ void Application_controller::handle_internal_path(
                     break;
             }
 
+            // /grade
+        } else if (internal_path == Path::grade) {
+            if (!current_user->can_grade()) permission_denied();
+
+            auto permalink = Self_eval::find_ungraded_permalink(session_);
+            transaction.commit();
+
+            if (permalink.empty()) {
+                setInternalPath("/game", true);
+            } else {
+                setInternalPath("/grade/" + permalink, true);
+            }
+
+            // /grade/:permalink
+        } else if (std::regex_match(internal_path, sm, Path::grade_N)) {
+            if (!current_user->can_grade()) permission_denied();
+
+            std::string permalink{sm[1].first, sm[1].second};
+            auto self_eval = Self_eval::find_by_permalink(session_, permalink);
+            if (!self_eval) not_found("No such evaluation.");
+            transaction.commit();
+
+            auto view = new Grading_view(self_eval, session_);
+
+            main_->set_title("Grading");
+            main_->set_widget(view);
+
             // /~:user/hw
         } else if (std::regex_match(internal_path, sm, Path::user_hw)) {
             auto user = find_user({sm[1].first, sm[1].second});
@@ -256,20 +288,14 @@ void Application_controller::handle_internal_path(
 
             // /hw/:n
         } else if (std::regex_match(internal_path, sm, Path::hw_N)) {
-            auto assignment = find_assignment(&*sm[1].first);
-            switch (current_user->role()) {
-                case User::Role::Student:
-                case User::Role::Grader:
-                    permission_denied();
-                    break;
+            if (!current_user->can_admin()) permission_denied();
 
-                case User::Role::Admin:
-                    transaction.commit();
-                    main_->set_title("Edit " + assignment->name());
-                    main_->set_widget(
-                            new Edit_assignment_view(assignment, session_));
-                    break;
-            }
+            auto assignment = find_assignment(&*sm[1].first);
+            transaction.commit();
+
+            main_->set_title("Edit " + assignment->name());
+            main_->set_widget(
+                    new Edit_assignment_view(assignment, session_));
 
             // /admin
         } else if (internal_path == Path::admin) {
