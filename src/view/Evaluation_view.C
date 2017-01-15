@@ -109,7 +109,7 @@ void List_eval_item_widget::add_buttons_()
         edit->clicked().connect(this,
                                 &List_eval_item_widget::focus_action_);
 
-        if (session_.user()->can_admin()) {
+        if (session_.user()->can_admin() && model_.self_eval) {
             auto retract = new Wt::WPushButton("Retract", buttons);
             retract->clicked().connect(this,
                                        &List_eval_item_widget::retract_action_);

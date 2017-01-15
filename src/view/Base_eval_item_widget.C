@@ -20,11 +20,13 @@ void Base_eval_item_widget::retract_action_()
 {
     if (!main_.can_eval()) return;
 
-    dbo::Transaction transaction(session_);
-    Submission::retract_self_eval(model_.self_eval);
-    transaction.commit();
+    if (model_.self_eval) {
+        dbo::Transaction transaction(session_);
+        Submission::retract_self_eval(model_.self_eval);
+        transaction.commit();
 
-    main_.go_default();
+        main_.go_default();
+    }
 }
 
 void Base_eval_item_widget::add_item_heading_()

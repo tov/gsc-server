@@ -123,14 +123,14 @@ Submission::get_self_eval(const dbo::ptr<Eval_item>& eval_item,
 void Submission::retract_self_eval(const dbo::ptr<Self_eval>& self_eval)
 {
     auto submission = self_eval->submission();
-    submission->ensure_cache_loaded();
+    auto sequence = self_eval->eval_item()->sequence();
 
-    int sequence = self_eval->eval_item()->sequence();
+    submission->ensure_cache_loaded();
 
     submission->items_[sequence].self_eval.remove();
     submission->items_[sequence].self_eval = {};
-    submission->items_[sequence].grader_eval.remove();
     submission->items_[sequence].grader_eval = {};
+
     submission.modify()->touch();
 }
 
