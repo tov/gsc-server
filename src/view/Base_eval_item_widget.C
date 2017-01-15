@@ -3,6 +3,7 @@
 #include "../model/Eval_item.h"
 #include "../model/Session.h"
 
+#include <Wt/WPushButton>
 #include <Wt/WTemplate>
 #include <Wt/WText>
 
@@ -66,5 +67,32 @@ void Base_eval_item_widget::add_evaluation_(const std::string& heading,
     p->bindWidget("heading", new Wt::WText(heading));
     p->bindWidget("score", new Wt::WText(score));
     p->bindWidget("explanation", new Wt::WText(explanation));
+}
+
+void Base_eval_item_widget::add_navigation_()
+{
+    auto buttons = new Wt::WContainerWidget(this);
+    buttons->setStyleClass("buttons");
+
+    auto prev_btn = new Wt::WPushButton("Prev", buttons);
+    auto list_btn = new Wt::WPushButton("List", buttons);
+    auto next_btn = new Wt::WPushButton("Next", buttons);
+
+    auto sequence = model_.eval_item->sequence();
+
+    if (sequence > 1) {
+        prev_btn->clicked().connect(std::bind([=]() {
+            main_.go_to((unsigned) (sequence - 1));
+        }));
+    } else prev_btn->disable();
+
+    list_btn->setFocus();
+    list_btn->clicked().connect(std::bind([=]() { main_.go_default(); }));
+
+    if (sequence < main_.submission()->item_count()) {
+        next_btn->clicked().connect(std::bind([=]() {
+            main_.go_to((unsigned) (sequence + 1));
+        }));
+    } else next_btn->disable();
 }
 

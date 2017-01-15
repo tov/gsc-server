@@ -176,6 +176,8 @@ Review_eval_item_widget::Review_eval_item_widget(
                         eval_item->format_score(grader_eval->score()),
                         grader_eval->explanation());
     }
+
+    add_navigation_();
 }
 
 Evaluation_view::Evaluation_view(const dbo::ptr<Submission>& submission,
@@ -214,6 +216,8 @@ void Evaluation_view::go_to(unsigned int index)
 
 void Evaluation_view::go_default()
 {
+    dbo::Transaction transaction(session_);
+
     if (session_.user()->role() == User::Role::Student && can_eval()) {
         for (auto& row : submission_->items()) {
             if (row.eval_item && !row.self_eval) {
