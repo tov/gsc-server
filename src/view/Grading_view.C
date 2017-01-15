@@ -62,9 +62,9 @@ private:
 class Scale_grading_widget : public Abstract_grading_widget
 {
 public:
-    Scale_grading_widget(const dbo::ptr<Grader_eval>&,
-                         Session&,
-                         Wt::WContainerWidget* parent = nullptr);
+    Scale_grading_widget(const dbo::ptr <Grader_eval>&,
+                         double starting_value,
+                         Session&, Wt::WContainerWidget* parent);
 
 private:
     Wt::WLineEdit* edit_;
@@ -77,11 +77,16 @@ Abstract_grading_widget::create(const dbo::ptr <Grader_eval>& grader_eval,
                                 Session& session,
                                 Wt::WContainerWidget* parent)
 {
-    auto type = grader_eval->self_eval()->eval_item()->type();
-    if (type == Eval_item::Type::Boolean)
-        return new Boolean_grading_widget(grader_eval, session, parent);
-    else
-        return new Scale_grading_widget(grader_eval, session, parent);
+    switch (grader_eval->self_eval()->eval_item()->type()) {
+        case Eval_item::Type::Boolean:
+            return new Boolean_grading_widget(grader_eval, session, parent);
+        case Eval_item::Type::Scale:
+            return new Scale_grading_widget(grader_eval,
+                                            grader_eval->self_eval()->score(),
+                                            session, parent);
+        case Eval_item::Type::Informational:
+            return new Scale_grading_widget(grader_eval, 1, session, parent);
+    }
 }
 
 Abstract_grading_widget::Abstract_grading_widget(
@@ -165,13 +170,16 @@ void Boolean_grading_widget::no_action_()
     save_(0);
 }
 
-Scale_grading_widget::Scale_grading_widget(
-        const dbo::ptr<Grader_eval>& model,
-        Session& session,
-        Wt::WContainerWidget* parent)
+Scale_grading_widget::Scale_grading_widget(const dbo::ptr <Grader_eval>& model,
+                                           double starting_value, Session& session,
+                                           Wt::WContainerWidget* parent)
         : Abstract_grading_widget(model, session, parent)
 {
-    edit_ = new Wt::WLineEdit(buttons_);
+    std::ostringstream fmt;
+    fmt.setf(std::ios::fixed);
+    fmt << std::setprecision(2) << starting_value;
+
+    edit_ = new Wt::WLineEdit(fmt.str(), buttons_);
     edit_->setStyleClass("scale-edit");
     edit_->setEmptyText("[0.0, 1.0]");
 
