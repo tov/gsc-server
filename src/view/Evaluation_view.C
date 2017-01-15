@@ -6,7 +6,6 @@
 #include "Self_eval_item_widget.h"
 
 #include "File_viewer_widget.h"
-#include "Response_widget.h"
 
 #include "../model/auth/User.h"
 #include "../model/Assignment.h"
@@ -22,113 +21,6 @@
 #include <Wt/WPushButton>
 #include <Wt/WTemplate>
 #include <Wt/WText>
-
-class Self_eval_item_widget : public Single_eval_item_widget
-{
-public:
-    Self_eval_item_widget(const Submission::Item&,
-                          Evaluation_view&,
-                          Session&,
-                          Wt::WContainerWidget* parent = nullptr);
-
-private:
-    Response_widget* response_widget_;
-    Wt::WPushButton* save_button_;
-
-    void save_action_();
-    void validate_();
-};
-
-class Review_eval_item_widget : public Single_eval_item_widget
-{
-public:
-    Review_eval_item_widget(const Submission::Item&,
-                            Evaluation_view&,
-                            Session&,
-                            Wt::WContainerWidget* parent = nullptr);
-};
-
-Self_eval_item_widget::Self_eval_item_widget(
-        const Submission::Item& model,
-        Evaluation_view& main,
-        Session& session,
-        Wt::WContainerWidget* parent)
-        : Single_eval_item_widget(model, main, session, parent)
-{
-    response_widget_ = Response_widget::create(model.eval_item->type(),
-                                               this);
-    if (model.self_eval) {
-        response_widget_->set_value(model.self_eval->score());
-        response_widget_->set_explanation(model.self_eval->explanation());
-    }
-
-    response_widget_->changed().connect(this,
-                                        &Self_eval_item_widget::validate_);
-
-    auto buttons = new Wt::WContainerWidget(this);
-    buttons->setStyleClass("buttons");
-    save_button_ = new Wt::WPushButton("Save", buttons);
-
-    save_button_->clicked().connect(this,
-                                    &Self_eval_item_widget::save_action_);
-
-    if (model_.grader_eval) {
-        auto score = model_.eval_item->format_score(model_.grader_eval->score());
-        add_evaluation_("Grader evaluation <small>(old)</small>",
-                        score,
-                        model_.grader_eval->explanation());
-    }
-
-    validate_();
-}
-
-void Self_eval_item_widget::save_action_()
-{
-    if (!main_.can_eval()) return;
-
-    dbo::Transaction transaction(session_);
-    auto self_eval = Submission::get_self_eval(model_.eval_item,
-                                               main_.submission());
-    Submission::save_self_eval(self_eval, session_,
-                               response_widget_->value(),
-                               response_widget_->explanation());
-    transaction.commit();
-
-    main_.go_default();
-}
-
-void Self_eval_item_widget::validate_()
-{
-    save_button_->setEnabled(response_widget_->is_ready());
-}
-
-Review_eval_item_widget::Review_eval_item_widget(
-        const Submission::Item& model,
-        Evaluation_view& main,
-        Session& session,
-        Wt::WContainerWidget* parent)
-        : Single_eval_item_widget(model, main, session, parent)
-{
-    auto& eval_item = model.eval_item;
-    auto& self_eval = model.self_eval;
-    auto& grader_eval = model.grader_eval;
-
-    if (self_eval) {
-        add_evaluation_("Self evaluation",
-                        eval_item->format_score(self_eval->score()),
-                        self_eval->explanation());
-
-        if (grader_eval) {
-            add_evaluation_("Grader evaluation",
-                            eval_item->format_score(grader_eval->score()),
-                            grader_eval->explanation());
-        }
-    } else {
-        new Wt::WText("<h5>No self evaluation submitted!</h5>", this);
-    }
-
-    add_navigation_();
-}
 
 Evaluation_view::Evaluation_view(const dbo::ptr<Submission>& submission,
                                  Session& session,
