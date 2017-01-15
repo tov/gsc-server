@@ -102,7 +102,7 @@ std::string Self_eval::find_ungraded_permalink(dbo::Session& dbo,
     return dbo.query<std::string>(
             "SELECT s.permalink"
             " FROM self_evals s"
-            " INNER JOIN submissions u ON u.id = s.submission_id"
+            " INNER JOIN submissions b ON b.id = s.submission_id"
             " INNER JOIN eval_items e ON s.eval_item_id = e.id"
             " INNER JOIN assignments a ON e.assignment_number = a.number"
             " LEFT OUTER JOIN grader_evals g ON g.self_eval_id = s.id"
