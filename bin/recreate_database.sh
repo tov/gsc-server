@@ -9,6 +9,9 @@ fi
 
 ADMIN_PASSWORD="$1"
 
+# Require password up front
+sudo true
+
 # Need a debug (WtHTTP) version of gsc to create the tables and set the
 # password.
 bin/build-debug.sh
