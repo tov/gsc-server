@@ -125,6 +125,8 @@ public:
 private:
     Wt::WSlider* slider_;
     bool is_ready_ = false;
+
+    void slider_change_();
 };
 
 Scale_response_widget::Scale_response_widget(Wt::WContainerWidget* parent)
@@ -138,7 +140,8 @@ Scale_response_widget::Scale_response_widget(Wt::WContainerWidget* parent)
     slider_->setMaximum(100);
     slider_->setValue(50);
 
-    slider_->changed().connect(this, &Scale_response_widget::signal_change);
+    slider_->valueChanged().connect(this,
+                                    &Scale_response_widget::slider_change_);
 }
 
 bool Scale_response_widget::is_ready() const
@@ -155,6 +158,12 @@ void Scale_response_widget::set_value(double d)
 {
     slider_->setValue(int(100 * d));
     is_ready_ = true;
+}
+
+void Scale_response_widget::slider_change_()
+{
+    is_ready_ = true;
+    signal_change();
 }
 
 class Informational_response_widget : public Response_widget

@@ -122,7 +122,13 @@ Self_eval_item_widget::Self_eval_item_widget(
 
 void Self_eval_item_widget::save_action_()
 {
+    if (!main_.can_eval()) return;
+
     dbo::Transaction transaction(session_);
+    auto self_eval = Submission::get_self_eval(model_.eval_item,
+                                               main_.submission()).modify();
+    self_eval->set_score(response_widget_->value());
+    self_eval->set_explanation(response_widget_->explanation());
 
     main_.go_default();
 }
