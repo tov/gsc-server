@@ -294,7 +294,8 @@ void List_eval_item_widget::add_buttons_()
 
 void List_eval_item_widget::add_scores_()
 {
-    auto role = session_.user()->role();
+    auto current_user = session_.user();
+    auto role = current_user->role();
 
     Wt::WString self;
     Wt::WString self_score;
@@ -313,7 +314,7 @@ void List_eval_item_widget::add_scores_()
     }
 
     self_score = model_.self_eval
-            ? model_.eval_item->format_score(model_.self_eval->score())
+            ? model_.self_eval->score_string()
             : "<em>[not set]</em>";
 
     if (main_.submission()->is_graded() ||
@@ -321,7 +322,7 @@ void List_eval_item_widget::add_scores_()
     {
         auto grader_user = model_.grader_eval->grader();
         grader = grader_user->can_grade() ? grader_user->name() : "Auto";
-        grader_score = model_.eval_item->format_score(model_.grader_eval->score());
+        grader_score = model_.grader_eval->score_string();
     } else {
         grader = "Grader";
         grader_score = "<em>[not set]</em>";
