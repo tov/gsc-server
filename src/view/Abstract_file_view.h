@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Wt/dbo/ptr>
+#include <Wt/Dbo/ptr>
 #include <Wt/WCompositeWidget>
 #include <Wt/WContainerWidget>
 
