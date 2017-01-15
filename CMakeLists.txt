@@ -40,6 +40,7 @@ set(SOURCE_FILES
         src/view/Held_back_view.C
         src/view/Grading_view.C
         src/view/Main_view.C
+        src/view/Unit_line_edit.C
         src/view/User_suggester.C
         src/view/Eval_item_widget.C
         src/view/Evaluation_view.C
