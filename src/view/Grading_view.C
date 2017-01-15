@@ -243,7 +243,7 @@ void Scale_grading_widget::save_(Grader_eval::Status status)
         edit_->set_value(score);
         edit_->setFocus();
     } else {
-        save_(status, score);
+        Abstract_grading_widget::save_(status, score);
     }
 }
 

@@ -30,5 +30,7 @@ private:
 
     Wt::Signal<> valid_;
     Wt::Signal<> invalid_;
+
+    void handle_change_();
 };
 

@@ -17,6 +17,10 @@ Admin_response_widget::Admin_response_widget(Wt::WContainerWidget* parent)
     buttons_->setStyleClass("buttons");
 
     grade_ = new Unit_line_edit(buttons_);
+
+    explanation_->changed().connect(this, &Admin_response_widget::handle_change_);
+    grade_->valid().connect(this, &Admin_response_widget::handle_change_);
+    grade_->invalid().connect(this, &Admin_response_widget::handle_change_);
 }
 
 void Admin_response_widget::load(const Abstract_evaluation* model)
@@ -40,3 +44,10 @@ bool Admin_response_widget::save(Abstract_evaluation* model)
     return true;
 }
 
+void Admin_response_widget::handle_change_()
+{
+    if (grade_->value() == Unit_line_edit::INVALID)
+        invalid().emit();
+    else
+        valid().emit();
+}
