@@ -201,7 +201,7 @@ Scale_grading_widget::Scale_grading_widget(const dbo::ptr <Grader_eval>& model,
 {
     edit_ = new Unit_line_edit(buttons_);
     edit_->set_value(starting_value);
-    edit_->setStyleClass("scale-edit");
+    edit_->setStyleClass("unit-edit");
 
     apply_button_ = new Wt::WPushButton("Apply", buttons_);
     apply_button_->clicked().connect(this,

@@ -168,7 +168,8 @@ input.username {
     font-size: smaller;
 }
 
-.grading-view .scale-edit {
+.evaluation-view .unit-edit,
+.grading-view .unit-edit {
     width: 5em;
 }
 

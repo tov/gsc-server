@@ -1,4 +1,5 @@
 #include "Evaluation_view.h"
+#include "Admin_response_widget.h"
 #include "Base_eval_item_widget.h"
 #include "Eval_item_widget.h"
 #include "File_viewer_widget.h"
@@ -41,7 +42,6 @@ public:
                             Evaluation_view&,
                             Session&,
                             Wt::WContainerWidget* parent = nullptr);
-
 };
 
 class Admin_eval_item_widget : public Single_eval_item_widget
@@ -53,17 +53,27 @@ public:
                            Wt::WContainerWidget* parent = nullptr);
 
 private:
-    Wt::WTextArea* self_explanation_;
-    Wt::WLineEdit* self_grade_;
-    Wt::WPushButton* save_self_btn_;
-    Wt::WPushButton* retract_self_btn_;
-    Wt::WText* self_status_;
+    Admin_response_widget* self_response_;
+    Wt::WPushButton* self_save_button_;
+    Wt::WPushButton* self_retract_button_;
 
-    Wt::WTextArea* grader_explanation;
-    Wt::WLineEdit* grader_grade;
-    Wt::WPushButton* save_grader_btn_;
-    Wt::WPushButton* retract_grader_btn_;
-    Wt::WText* other_status_;
+    void self_disable_buttons_();
+    void self_enable_buttons_();
+
+    void self_save_action_();
+    void self_retract_action_();
+
+    Admin_response_widget* grader_response_;
+    Wt::WPushButton* grader_save_button_;
+    Wt::WPushButton* grader_hold_button_;
+    Wt::WPushButton* grader_retract_button_;
+
+    void grader_disable_buttons_();
+    void grader_enable_buttons_();
+
+    void grader_save_action_();
+    void grader_hold_action_();
+    void grader_retract_action_();
 };
 
 class Self_eval_item_widget : public Single_eval_item_widget
@@ -108,6 +118,62 @@ Admin_eval_item_widget::Admin_eval_item_widget(
         Session& session,
         Wt::WContainerWidget* parent)
         : Single_eval_item_widget(model, main, session, parent)
+{
+    new Wt::WText("<h5>Self evaluation</h5>", this);
+    self_response_ = new Admin_response_widget(this);
+    auto self_buttons = self_response_->buttons();
+    self_save_button_ = new Wt::WPushButton("Save", self_buttons);
+    self_retract_button_ = new Wt::WPushButton("Retract", self_buttons);
+
+    new Wt::WText("<h5>Grader evaluation</h5>", this);
+    grader_response_ = new Admin_response_widget(this);
+    auto grader_buttons = grader_response_->buttons();
+    grader_save_button_ = new Wt::WPushButton("Save", grader_buttons);
+    grader_hold_button_ = new Wt::WPushButton("Hold", grader_buttons);
+    grader_retract_button_ = new Wt::WPushButton("Retract", grader_buttons);
+}
+
+void Admin_eval_item_widget::self_disable_buttons_()
+{
+    self_save_button_->disable();
+}
+
+void Admin_eval_item_widget::self_enable_buttons_()
+{
+    self_save_button_->enable();
+}
+
+void Admin_eval_item_widget::self_save_action_()
+{
+
+}
+
+void Admin_eval_item_widget::self_retract_action_()
+{
+
+}
+
+void Admin_eval_item_widget::grader_disable_buttons_()
+{
+    grader_save_button_->disable();
+}
+
+void Admin_eval_item_widget::grader_enable_buttons_()
+{
+    grader_save_button_->enable();
+}
+
+void Admin_eval_item_widget::grader_save_action_()
+{
+
+}
+
+void Admin_eval_item_widget::grader_retract_action_()
+{
+
+}
+
+void Admin_eval_item_widget::grader_hold_action_()
 {
 
 }

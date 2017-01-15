@@ -5,6 +5,9 @@
 #include <Wt/WCompositeWidget>
 #include <Wt/WContainerWidget>
 #include <Wt/WSignal>
+#include <Wt/WWidget>
+
+#include <vector>
 
 class Unit_line_edit;
 class Explanation_text_area;

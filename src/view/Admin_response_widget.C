@@ -17,6 +17,7 @@ Admin_response_widget::Admin_response_widget(Wt::WContainerWidget* parent)
     buttons_->setStyleClass("buttons");
 
     grade_ = new Unit_line_edit(buttons_);
+    grade_->setStyleClass("unit-edit");
 
     explanation_->changed().connect(this, &Admin_response_widget::handle_change_);
     grade_->valid().connect(this, &Admin_response_widget::handle_change_);
