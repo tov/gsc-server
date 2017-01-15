@@ -250,7 +250,6 @@ void Application_controller::handle_internal_path(
                     session_, assignment, user);
 
             check_eval_view_privileges(current_user, submission);
-            transaction.commit();
 
             auto view = new Evaluation_view(submission, session_);
             view->go_default();
