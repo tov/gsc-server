@@ -19,16 +19,18 @@ Admin_response_widget::Admin_response_widget(Wt::WContainerWidget* parent)
     grade_ = new Unit_line_edit(buttons_);
     grade_->setStyleClass("unit-edit");
 
-    explanation_->changed().connect(this, &Admin_response_widget::handle_change_);
+    explanation_->keyWentUp().connect(this, &Admin_response_widget::handle_change_);
     grade_->valid().connect(this, &Admin_response_widget::handle_change_);
     grade_->invalid().connect(this, &Admin_response_widget::handle_change_);
 }
 
 void Admin_response_widget::load(const Abstract_evaluation* model)
 {
-    if (model) {
-        explanation_->setText(model->explanation());
-        grade_->set_value(model->score());
+    model_ = model;
+
+    if (model_) {
+        explanation_->setText(model_->explanation());
+        grade_->set_value(model_->score());
     } else {
         explanation_->setText("");
         grade_->set_value(Unit_line_edit::INVALID);
@@ -42,13 +44,32 @@ bool Admin_response_widget::save(Abstract_evaluation* model)
 
     model->set_explanation(explanation_->text().toUTF8());
     model->set_score(score);
+
+    model_ = model;
+
     return true;
+}
+
+bool Admin_response_widget::is_valid()
+{
+    return grade_->value() != Unit_line_edit::INVALID;
+}
+
+bool Admin_response_widget::is_saved()
+{
+    return model_ &&
+            grade_->value() == model_->score() &&
+            explanation_->text() == model_->explanation();
 }
 
 void Admin_response_widget::handle_change_()
 {
-    if (grade_->value() == Unit_line_edit::INVALID)
-        invalid().emit();
-    else
-        valid().emit();
+    changed().emit();
 }
+
+void Admin_response_widget::setFocus(bool focus)
+{
+    explanation_->setFocus(focus);
+}
+
+

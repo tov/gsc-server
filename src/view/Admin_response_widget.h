@@ -20,19 +20,24 @@ public:
     void load(const Abstract_evaluation*);
     bool save(Abstract_evaluation*);
 
+    bool is_valid();
+    bool is_saved();
+
     Wt::WContainerWidget* buttons() const { return buttons_; }
 
-    Wt::Signal<>& valid() { return valid_; }
-    Wt::Signal<>& invalid() { return invalid_; }
+    Wt::Signal<>& changed() { return changed_; }
+
+    void setFocus(bool focus) override;
 
 private:
+    const Abstract_evaluation* model_;
+
     Explanation_text_area* explanation_;
     Unit_line_edit* grade_;
 
     Wt::WContainerWidget* buttons_;
 
-    Wt::Signal<> valid_;
-    Wt::Signal<> invalid_;
+    Wt::Signal<> changed_;
 
     void handle_change_();
 };

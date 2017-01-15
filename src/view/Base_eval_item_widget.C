@@ -69,7 +69,7 @@ void Base_eval_item_widget::add_evaluation_(const std::string& heading,
     p->bindWidget("explanation", new Wt::WText(explanation));
 }
 
-void Base_eval_item_widget::add_navigation_()
+void Base_eval_item_widget::add_navigation_(bool focus)
 {
     auto buttons = new Wt::WContainerWidget(this);
     buttons->setStyleClass("buttons");
@@ -86,7 +86,7 @@ void Base_eval_item_widget::add_navigation_()
         }));
     } else prev_btn->disable();
 
-    list_btn->setFocus();
+    list_btn->setFocus(focus);
     list_btn->clicked().connect(std::bind([=]() { main_.go_default(); }));
 
     if (sequence < main_.submission()->item_count()) {

@@ -28,5 +28,5 @@ protected:
     void add_evaluation_(const std::string& heading,
                          const std::string& score,
                          const std::string& explanation);
-    void add_navigation_();
+    void add_navigation_(bool focus = true);
 };
