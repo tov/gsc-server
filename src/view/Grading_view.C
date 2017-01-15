@@ -217,12 +217,7 @@ Grading_view::Grading_view(const Wt::Dbo::ptr<Self_eval> self_eval,
     dbo::Transaction transaction(session_);
     auto eval_item = self_eval->eval_item();
     auto assignment = eval_item->assignment();
-
-    auto grader_eval = self_eval->grader_eval();
-    if (!grader_eval) {
-        grader_eval = session_.add(new Grader_eval(self_eval,
-                                                   session_.user()));
-    }
+    auto grader_eval = Grader_eval::get_for(self_eval, session_);
 
     std::string sequence =
             boost::lexical_cast<std::string>(eval_item->sequence());

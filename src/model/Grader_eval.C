@@ -1,5 +1,6 @@
 #include "Grader_eval.h"
 #include "Self_eval.h"
+#include "Session.h"
 #include "auth/User.h"
 
 #include <Wt/Dbo/Impl>
@@ -31,5 +32,17 @@ void Grader_eval::set_score(double score)
 void Grader_eval::touch_()
 {
     time_stamp_ = Wt::WDateTime::currentDateTime();
+}
+
+dbo::ptr<Grader_eval> Grader_eval::get_for(
+        const dbo::ptr<Self_eval>& self_eval,
+        Session& session)
+{
+    auto result = self_eval->grader_eval();
+
+    if (result)
+        return result;
+    else
+        return session.add(new Grader_eval(self_eval, session.user()));
 }
 

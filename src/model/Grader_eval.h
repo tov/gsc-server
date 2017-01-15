@@ -14,6 +14,7 @@ namespace dbo = Wt::Dbo;
 
 class User;
 class Self_eval;
+class Session;
 
 class Grader_eval
 {
@@ -36,6 +37,9 @@ public:
     void set_explanation(const std::string&);
     double score() const { return score_; }
     void set_score(double);
+
+    static dbo::ptr<Grader_eval>
+    get_for(const dbo::ptr<Self_eval>&, Session&);
 
 private:
     dbo::ptr<Self_eval> self_eval_;

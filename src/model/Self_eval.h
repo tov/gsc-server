@@ -68,4 +68,7 @@ public:
     }
 };
 
+void save_self_eval(const dbo::ptr<Self_eval>&, Session&,
+                    double, const std::string&);
+
 DBO_EXTERN_TEMPLATES(Self_eval);

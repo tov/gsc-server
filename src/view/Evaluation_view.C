@@ -120,10 +120,6 @@ Self_eval_item_widget::Self_eval_item_widget(
     save_button_->clicked().connect(this,
                                     &Self_eval_item_widget::save_action_);
 
-    Wt::log("info") << "TOV: Self_eval_item_widget constructor";
-    Wt::log("info") << "TOV: eval_item.id() == " << model_.eval_item.id();
-    Wt::log("info") << "TOV: eval_item->sequence() == " << model_.eval_item->sequence();
-
     validate_();
 }
 
@@ -133,9 +129,10 @@ void Self_eval_item_widget::save_action_()
 
     dbo::Transaction transaction(session_);
     auto self_eval = Submission::get_self_eval(model_.eval_item,
-                                               main_.submission()).modify();
-    self_eval->set_score(response_widget_->value());
-    self_eval->set_explanation(response_widget_->explanation());
+                                               main_.submission());
+    Submission::save_self_eval(self_eval, session_,
+                               response_widget_->value(),
+                               response_widget_->explanation());
     transaction.commit();
 
     main_.go_default();

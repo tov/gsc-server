@@ -15,6 +15,7 @@ class Eval_item;
 class File_meta;
 class Grader_eval;
 class Self_eval;
+class Session;
 class User;
 
 using Self_evals      = dbo::collection<dbo::ptr<Self_eval>>;
@@ -90,7 +91,12 @@ public:
     static const dbo::ptr<Self_eval>&
     get_self_eval(const dbo::ptr<Eval_item>&,
                   const dbo::ptr<Submission>&);
+
     static void retract_self_eval(const dbo::ptr<Self_eval>&);
+
+    static void save_self_eval(const dbo::ptr<Self_eval>&, Session&,
+                               double score, const std::string& explanation);
+
     void touch();
 
     static dbo::ptr<Submission>

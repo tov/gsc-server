@@ -54,6 +54,21 @@ void Self_eval::set_score(double score)
     touch_();
 }
 
+void save_self_eval(const dbo::ptr <Self_eval>& self_eval,
+                    Session& session,
+                    double score,
+                    const std::string& explanation)
+{
+    auto self_eval_m = self_eval.modify();
+    self_eval_m->set_score(score);
+    self_eval_m->set_explanation(explanation);
+
+    if (score == 0.0 && self_eval->eval_item()->type() == Eval_item::Type::Boolean)
+        Grader_eval::get_for(self_eval, session).modify()->set_score(0.1);
+    else
+        self_eval->grader_eval().remove();
+}
+
 dbo::ptr<Self_eval>
 Self_eval::find_by_permalink(dbo::Session& dbo,
                              const std::string& permalink)

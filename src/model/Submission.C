@@ -135,6 +135,34 @@ void Submission::retract_self_eval(const dbo::ptr<Self_eval>& self_eval)
     submission.modify()->touch();
 }
 
+void
+Submission::save_self_eval(const dbo::ptr<Self_eval>& self_eval,
+                           Session& session,
+                           double score,
+                           const std::string& explanation)
+{
+    auto self_eval_m = self_eval.modify();
+    self_eval_m->set_score(score);
+    self_eval_m->set_explanation(explanation);
+
+    auto submission = self_eval->submission();
+    auto sequence = self_eval->eval_item()->sequence();
+
+    submission->load_cache();
+
+    if (score == 0.0 &&
+            self_eval->eval_item()->type() == Eval_item::Type::Boolean) {
+        auto grader_eval = Grader_eval::get_for(self_eval, session);
+        grader_eval.modify()->set_score(0.1);
+        submission->items_[sequence].grader_eval = grader_eval;
+    } else {
+        self_eval->grader_eval().remove();
+        submission->items_[sequence].grader_eval = {};
+    }
+
+    submission.modify()->touch();
+}
+
 void Submission::touch()
 {
     last_modified_ = Wt::WDateTime::currentDateTime();
@@ -284,4 +312,5 @@ std::string Submission::owner_string() const
 
     return result;
 }
+
 
