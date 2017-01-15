@@ -4,20 +4,31 @@
 
 #include <Wt/WCompositeWidget>
 #include <Wt/WContainerWidget>
+#include <Wt/WSignal>
+
+class Unit_line_edit;
+class Explanation_text_area;
 
 class Admin_response_widget : public Wt::WCompositeWidget
 {
 public:
-    Admin_response_widget(const Abstract_evaluation*,
-                          Wt::WContainerWidget* parent = nullptr);
+    Admin_response_widget(Wt::WContainerWidget* parent = nullptr);
 
-    void save(Abstract_evaluation*);
+    void load(const Abstract_evaluation*);
+    bool save(Abstract_evaluation*);
+
+    bool is_valid();
+    Wt::Signal<>& changed() { return changed_; }
+
+    Wt::WPushButton* save_button() { return save_button_; }
+    Wt::WPushButton* retract_button() { return retract_button_; }
 
 private:
-    Wt::WTextArea* explanation_;
-    Wt::WLineEdit* grade_;
+    Explanation_text_area* explanation_;
+    Unit_line_edit* grade_;
     Wt::WPushButton* save_button_;
     Wt::WPushButton* retract_button_;
-    Wt::WText* status_;
+
+    Wt::Signal<> changed_;
 };
 

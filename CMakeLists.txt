@@ -44,6 +44,7 @@ set(SOURCE_FILES
         src/view/User_suggester.C
         src/view/Eval_item_widget.C
         src/view/Evaluation_view.C
+        src/view/Explanation_text_area.C
         src/view/Response_widget.C
         src/view/Submission_owner_widget.C
         src/view/Submissions_view.C
