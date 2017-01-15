@@ -163,7 +163,7 @@ Review_eval_item_widget::Review_eval_item_widget(
     auto& grader_eval = model.grader_eval;
 
     if (!self_eval) {
-        new Wt::WText("<h5>No self evaluation submitted!</h5>");
+        new Wt::WText("<h5>No self evaluation submitted!</h5>", this);
         return;
     }
 
