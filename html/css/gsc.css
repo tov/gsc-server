@@ -173,6 +173,7 @@ input.username {
 }
 
 .evaluation-view .question,
+.evaluation-view .answer,
 .grading-view .question,
 .grading-view .answer {
     margin-left: 1em;

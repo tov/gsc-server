@@ -158,6 +158,24 @@ Review_eval_item_widget::Review_eval_item_widget(
         Wt::WContainerWidget* parent)
         : Single_eval_item_widget(model, main, session, parent)
 {
+    auto& eval_item = model.eval_item;
+    auto& self_eval = model.self_eval;
+    auto& grader_eval = model.grader_eval;
+
+    if (!self_eval) {
+        new Wt::WText("<h5>No self evaluation submitted!</h5>");
+        return;
+    }
+
+    add_evaluation_("Self evaluation",
+                    eval_item->format_score(self_eval->score()),
+                    self_eval->explanation());
+
+    if (grader_eval) {
+        add_evaluation_("Grader evaluation",
+                        eval_item->format_score(grader_eval->score()),
+                        grader_eval->explanation());
+    }
 }
 
 Evaluation_view::Evaluation_view(const dbo::ptr<Submission>& submission,
@@ -282,7 +300,8 @@ void List_eval_item_widget::add_scores_()
     if (main_.submission()->is_graded() ||
         (role == User::Role::Admin && model_.grader_eval))
     {
-        grader = model_.grader_eval->grader()->name();
+        auto grader_user = model_.grader_eval->grader();
+        grader = grader_user->can_grade() ? grader_user->name() : "Auto";
         grader_score = model_.eval_item->format_score(model_.grader_eval->score());
     } else {
         grader = "Grader";

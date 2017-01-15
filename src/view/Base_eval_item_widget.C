@@ -57,9 +57,9 @@ void Base_eval_item_widget::add_evaluation_(const std::string& heading,
 {
     auto p = new Wt::WTemplate(
             "<h5>${heading}</h5>"
-            "<p class='explanation'>"
+            "<p class='answer'>"
               "<strong>${score}.</strong>"
-              "${explanation}"
+              " ${explanation}"
             "</p>",
             this);
 
