@@ -203,9 +203,9 @@ Grading_view::Grading_view(const Wt::Dbo::ptr<Self_eval> self_eval,
     auto widget = new Wt::WTemplate(
         "<div class='grading-view'>"
         "<h4>Question ${sequence} <small>${homework}</small></h4>"
-        "<p>${question}</p>"
+        "<p class='question'>${question}</p>"
         "<h5>Self evaluation</h5>"
-        "<p><strong>${self_grade}.</strong> "
+        "<p class='answer'><strong>${self_grade}.</strong> "
         "<span>${self_explanation}</span></p>"
         "<h5>Your evaluation</h5>"
         "${grading_widget}"
