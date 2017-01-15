@@ -58,6 +58,13 @@ public:
                           Evaluation_view&,
                           Session&,
                           Wt::WContainerWidget* parent = nullptr);
+
+private:
+    Response_widget* response_widget_;
+    Wt::WPushButton* save_button_;
+
+    void save_action_();
+    void validate_();
 };
 
 class Review_eval_item_widget : public Single_eval_item_widget
@@ -96,12 +103,33 @@ Self_eval_item_widget::Self_eval_item_widget(
         Wt::WContainerWidget* parent)
         : Single_eval_item_widget(model, main, session, parent)
 {
-    auto response_widget = Response_widget::create(model.eval_item->type(),
-                                                   this);
+    response_widget_ = Response_widget::create(model.eval_item->type(),
+                                               this);
     if (model.self_eval) {
-        response_widget->set_value(model.self_eval->score());
-        response_widget->set_explanation(model.self_eval->explanation());
+        response_widget_->set_value(model.self_eval->score());
+        response_widget_->set_explanation(model.self_eval->explanation());
     }
+
+    response_widget_->changed().connect(this,
+                                        &Self_eval_item_widget::validate_);
+
+    auto buttons = new Wt::WContainerWidget(this);
+    buttons->setStyleClass("buttons");
+    save_button_ = new Wt::WPushButton("Save", buttons);
+
+    validate_();
+}
+
+void Self_eval_item_widget::save_action_()
+{
+    dbo::Transaction transaction(session_);
+
+    main_.go_default();
+}
+
+void Self_eval_item_widget::validate_()
+{
+    save_button_->setEnabled(response_widget_->is_ready());
 }
 
 Review_eval_item_widget::Review_eval_item_widget(

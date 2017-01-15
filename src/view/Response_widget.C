@@ -21,6 +21,7 @@ public:
 
 protected:
     Wt::WContainerWidget* score_;
+    Wt::WContainerWidget* explanation_holder_;
     Wt::WTextArea* explanation_;
 };
 
@@ -31,10 +32,17 @@ Explanation_response_widget::Explanation_response_widget(
     score_ = new Wt::WContainerWidget(container_);
     score_->setStyleClass("score");
 
-    explanation_ = new Wt::WTextArea(container_);
+    explanation_holder_ = new Wt::WContainerWidget(container_);
+
+    new Wt::WText("<p>Explain (using line references like <em>L14</em>):</p>",
+                  explanation_holder_);
+
+    explanation_ = new Wt::WTextArea(explanation_holder_);
     explanation_->setStyleClass("explanation");
     explanation_->setInline(false);
     explanation_->changed().connect(
+            this, &Explanation_response_widget::signal_change);
+    explanation_->keyWentUp().connect(
             this, &Explanation_response_widget::signal_change);
 }
 
@@ -102,7 +110,7 @@ void Boolean_response_widget::set_value(double d)
 
 void Boolean_response_widget::toggle_explanation_()
 {
-    explanation_->setHidden(value() == 0.0);
+    explanation_holder_->setHidden(value() == 0.0);
 }
 
 class Scale_response_widget : public Explanation_response_widget
