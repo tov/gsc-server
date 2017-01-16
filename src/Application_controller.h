@@ -26,6 +26,9 @@ private:
     Session session_;
     Main_view* main_;
 
+    void set_title(const std::string&);
+    void set_widget(Wt::WWidget* widget);
+
     Application_controller(Wt::Dbo::SqlConnectionPool*,
                                const Wt::WEnvironment&);
 
