@@ -30,7 +30,12 @@ public:
     void setFocus(bool focus) override;
 
 private:
-    const Abstract_evaluation* model_;
+    struct {
+        std::string explanation;
+        double score;
+    } model_;
+
+    void set_model_(const Abstract_evaluation*);
 
     Explanation_text_area* explanation_;
     Unit_line_edit* grade_;
