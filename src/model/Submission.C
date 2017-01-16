@@ -5,6 +5,7 @@
 #include "File_data.h"
 #include "File_meta.h"
 #include "Grader_eval.h"
+#include "Session.h"
 #include "auth/User.h"
 
 #include <Wt/WDateTime>
@@ -165,6 +166,38 @@ Submission::save_self_eval(const dbo::ptr<Self_eval>& self_eval,
     submission.modify()->touch();
 }
 
+const dbo::ptr<Grader_eval>&
+Submission::get_grader_eval(const dbo::ptr<Self_eval>& self_eval,
+                            Session& session)
+{
+    auto submission = self_eval->submission();
+    auto sequence = self_eval->eval_item()->sequence();
+
+    submission->load_cache();
+
+    auto& result = submission->items_[sequence].grader_eval;
+
+    if (!result) {
+        result = session.add(new Grader_eval(self_eval, session.user()));
+        submission.modify()->touch();
+    }
+
+    return result;
+}
+
+void Submission::retract_grader_eval(const dbo::ptr<Grader_eval>& grader_eval)
+{
+    auto submission = grader_eval->submission();
+    auto sequence = grader_eval->eval_item()->sequence();
+
+    submission->load_cache();
+
+    submission->items_[sequence].grader_eval.remove();
+    submission->items_[sequence].grader_eval = {};
+
+    submission.modify()->touch();
+}
+
 void Submission::touch()
 {
     last_modified_ = Wt::WDateTime::currentDateTime();
@@ -314,5 +347,4 @@ std::string Submission::owner_string() const
 
     return result;
 }
-
 

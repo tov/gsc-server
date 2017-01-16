@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Single_eval_item_widget.h"
+#include "../model/Grader_eval.h"
 
 #include <Wt/WPushButton>
 
@@ -37,5 +38,7 @@ private:
     void grader_save_action_();
     void grader_hold_action_();
     void grader_retract_action_();
+
+    void grader_save_status_(Grader_eval::Status);
 };
 
