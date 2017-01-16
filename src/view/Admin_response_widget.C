@@ -5,6 +5,11 @@
 #include <Wt/WPushButton>
 
 Admin_response_widget::Admin_response_widget(Wt::WContainerWidget* parent)
+        : Admin_response_widget(nullptr, parent)
+{ }
+
+Admin_response_widget::Admin_response_widget(Abstract_evaluation* model,
+                                             Wt::WContainerWidget* parent)
         : WCompositeWidget(parent)
 {
     auto impl = new Wt::WContainerWidget;
@@ -23,6 +28,8 @@ Admin_response_widget::Admin_response_widget(Wt::WContainerWidget* parent)
     explanation_->changed().connect(this, &This::handle_change_);
     grade_->valid().connect(this, &This::handle_change_);
     grade_->invalid().connect(this, &This::handle_change_);
+
+    load(model);
 }
 
 void Admin_response_widget::load(const Abstract_evaluation* model)

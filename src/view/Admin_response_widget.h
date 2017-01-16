@@ -16,6 +16,8 @@ class Admin_response_widget : public Wt::WCompositeWidget
 {
 public:
     Admin_response_widget(Wt::WContainerWidget* parent = nullptr);
+    Admin_response_widget(Abstract_evaluation*,
+                          Wt::WContainerWidget* parent = nullptr);
 
     void load(const Abstract_evaluation*);
     bool save(Abstract_evaluation*);
