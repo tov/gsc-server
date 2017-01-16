@@ -46,7 +46,7 @@ int main(int argc, const char* argv[])
 
     if (!submission) {
         std::cerr << "Submission not found: " << hw_number << '\n';
-        std::exit(2);
+        std::exit(3);
     }
 
     for (auto file : submission->source_files()) {
