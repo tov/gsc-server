@@ -50,8 +50,10 @@ int main(int argc, const char* argv[])
     }
 
     for (auto file : submission->source_files()) {
-        std::cout << "Writing " << file->name() << "\n";
-        std::ofstream of(file->name());
-        of << file->file_data()->contents();
+        const auto& text = file->file_data()->contents();
+        std::cout << "Writing " << file->name() << "...";
+        std::ofstream of(file->name(), std::ios::binary);
+        of.write(text.data(), text.size());
+        std::cout << "done\n";
     }
 }
