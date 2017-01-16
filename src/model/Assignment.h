@@ -42,7 +42,7 @@ public:
     const Wt::WDateTime& due_date() const { return due_date_; }
     const Wt::WDateTime& eval_date() const { return eval_date_; }
     bool partner() const { return partner_; }
-    Eval_items eval_items() const { return eval_items_; }
+    Eval_items eval_items() const;
     Submissions submissions() const { return submissions_; }
 
     void set_name(const std::string& name) { name_ = name; }

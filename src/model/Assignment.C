@@ -44,3 +44,10 @@ Assignment::find_by_number(dbo::Session& dbo, int number)
               .bind(number);
 }
 
+Eval_items Assignment::eval_items() const
+{
+    return eval_items_.session()->find<Eval_item>()
+                      .where("assignment_number = ?").bind(number())
+                      .orderBy("sequence");
+}
+
