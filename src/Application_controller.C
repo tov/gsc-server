@@ -235,7 +235,6 @@ void Application_controller::handle_internal_path(
             auto assignment = find_assignment(&*sm[2].first);
             auto submission = Submission::find_by_assignment_and_user(
                     session_, assignment, user);
-            transaction.commit();
 
             if (!submission->can_view(current_user))
                 permission_denied();
