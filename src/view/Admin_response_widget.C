@@ -19,9 +19,10 @@ Admin_response_widget::Admin_response_widget(Wt::WContainerWidget* parent)
     grade_ = new Unit_line_edit(buttons_);
     grade_->setStyleClass("unit-edit");
 
-    explanation_->keyWentUp().connect(this, &Admin_response_widget::handle_change_);
-    grade_->valid().connect(this, &Admin_response_widget::handle_change_);
-    grade_->invalid().connect(this, &Admin_response_widget::handle_change_);
+    using This = Admin_response_widget;
+    explanation_->changed().connect(this, &This::handle_change_);
+    grade_->valid().connect(this, &This::handle_change_);
+    grade_->invalid().connect(this, &This::handle_change_);
 }
 
 void Admin_response_widget::load(const Abstract_evaluation* model)
