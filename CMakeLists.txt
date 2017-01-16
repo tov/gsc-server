@@ -70,12 +70,11 @@ set(LIBRARIES
     ${Boost_LIBRARIES})
 
 add_executable(gsc ${SOURCE_FILES})
-set_property(TARGET gsc PROPERTY CXX_STANDARD 14)
-set_property(TARGET gsc PROPERTY CXX_STANDARD_REQUIRED On)
 target_precompiled_header(gsc src/prefix.h)
 target_link_libraries(gsc wthttp ${LIBRARIES})
 
 add_executable(gsc-fcgi ${SOURCE_FILES})
-set_property(TARGET gsc-fcgi PROPERTY CXX_STANDARD 14)
-set_property(TARGET gsc-fcgi PROPERTY CXX_STANDARD_REQUIRED On)
 target_link_libraries(gsc-fcgi wtfcgi ${LIBRARIES})
+
+add_executable(sql src/sql.C)
+target_link_libraries(sql wtdbo wtdbopostgres)
