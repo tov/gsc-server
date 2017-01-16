@@ -2,10 +2,7 @@ cmake_minimum_required(VERSION 3.5)
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/CMake/CMakePCHCompiler)
 project(gsc CXX CXXPCH)
 
-set(SOURCE_FILES
-        src/gsc.C
-        src/Application_controller.C
-        src/Navigate.h
+set(MODEL_SOURCE_FILES
         src/model/specializations.h
         src/model/auth/Auth_token.C
         src/model/auth/User.C
@@ -22,7 +19,13 @@ set(SOURCE_FILES
         src/model/Permalink.C
         src/model/Self_eval.C
         src/model/Session.C
-        src/model/Submission.C
+        src/model/Submission.C)
+
+set(SOURCE_FILES
+        src/gsc.C
+        ${MODEL_SOURCE_FILES}
+        src/Application_controller.C
+        src/Navigate.h
         src/view/Abstract_file_view.C
         src/view/Accelerator_button.C
         src/view/Accelerator_text.C
@@ -76,5 +79,5 @@ target_link_libraries(gsc wthttp ${LIBRARIES})
 add_executable(gsc-fcgi ${SOURCE_FILES})
 target_link_libraries(gsc-fcgi wtfcgi ${LIBRARIES})
 
-add_executable(sql src/sql.C)
-target_link_libraries(sql wtdbo wtdbopostgres)
+add_executable(sql src/sql.C ${MODEL_SOURCE_FILES})
+target_link_libraries(sql wt wtdbo wtdbopostgres)

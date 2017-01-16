@@ -33,6 +33,8 @@ public:
     int find_ranking();
     void add_to_score(int s);
 
+    static void map_classes(Wt::Dbo::Session&);
+
     static void configureAuth();
     static Wt::Dbo::SqlConnectionPool* createConnectionPool(const std::string&);
     static const Wt::Auth::AuthService& auth();

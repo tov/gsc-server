@@ -57,17 +57,7 @@ Session::Session(dbo::SqlConnectionPool& pool)
 {
     setConnectionPool(pool);
 
-    mapClass<Assignment>("assignments");
-    mapClass<Auth_token>("auth_tokens");
-    mapClass<Eval_item>("eval_items");
-    mapClass<File_data>("file_data");
-    mapClass<File_meta>("file_meta");
-    mapClass<Grader_eval>("grader_evals");
-    mapClass<Partner_request>("partner_requests");
-    mapClass<Self_eval>("self_evals");
-    mapClass<Submission>("submissions");
-    mapClass<User>("users");
-    mapClass<User_stats>("user_stats");
+    map_classes(*this);
 
     dbo::Transaction transaction(*this);
     try {
@@ -223,5 +213,20 @@ void Session::create_index(const char* table, const char* field, bool unique)
     query << " ON " << table << " (" << field << ')';
 
     execute(query.str());
+}
+
+void Session::map_classes(Wt::Dbo::Session& dbo)
+{
+    dbo.mapClass<Assignment>("assignments");
+    dbo.mapClass<Auth_token>("auth_tokens");
+    dbo.mapClass<Eval_item>("eval_items");
+    dbo.mapClass<File_data>("file_data");
+    dbo.mapClass<File_meta>("file_meta");
+    dbo.mapClass<Grader_eval>("grader_evals");
+    dbo.mapClass<Partner_request>("partner_requests");
+    dbo.mapClass<Self_eval>("self_evals");
+    dbo.mapClass<Submission>("submissions");
+    dbo.mapClass<User>("users");
+    dbo.mapClass<User_stats>("user_stats");
 }
 
