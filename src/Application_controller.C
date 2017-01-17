@@ -182,7 +182,7 @@ void Application_controller::handle_internal_path(
                     break;
 
                 case User::Role::Grader:
-                    permission_denied("There's nothing for you here.");
+                    setInternalPath(Path::grade, true);
                     break;
 
                 case User::Role::Admin:
