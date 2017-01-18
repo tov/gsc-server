@@ -1,7 +1,9 @@
 #include "model/auth/User.h"
 #include "model/Assignment.h"
+#include "model/Eval_item.h"
 #include "model/File_data.h"
 #include "model/File_meta.h"
+#include "model/Grader_eval.h"
 #include "model/Session.h"
 #include "model/Submission.h"
 
@@ -19,10 +21,12 @@ class Gscdb
 public:
     Gscdb();
 
-    void list_submissions(int assignment);
-    void get_submission(const std::string& username, int assignment);
+    void list_submissions(int asst_no);
+    void get_submission(const std::string& username, int asst_no);
     void upload_file(const std::string& username, int asst_no,
                      const std::string& filename);
+    void record_grade(const std::string& username, int asst_no,
+                      double score, const std::string& comment);
 
     dbo::Session& session() { return dbo_; }
 
@@ -70,6 +74,13 @@ int main(int argc, const char* argv[])
     else if (strcmp("upload", argv[1]) == 0) {
         assert_argc(argc == 5, argv, "USERNAME HW_NUMBER FILENAME");
         app.upload_file(argv[2], atoi(argv[3]), argv[4]);
+    }
+
+    else if (strcmp("grade", argv[1]) == 0) {
+        assert_argc(argc == 5 || argc == 6, argv,
+                    "USERNAME HW_NUMBER SCORE [COMMENT]");
+        const char* comment = argc == 6 ? argv[5] : "";
+        app.record_grade(argv[2], atoi(argv[3]), atof(argv[4]), comment);
     }
 
     else {
@@ -122,6 +133,46 @@ void Gscdb::upload_file(const std::string& username, int asst_no,
                          std::istream_iterator<char>()};
     File_meta::upload(filename, contents, submission);
     std::cout << "done\n";
+}
+
+void Gscdb::record_grade(const std::string& username, int asst_no,
+                         double score, const std::string& comment)
+{
+    if (score < 0 || score > 1) {
+        std::cerr << "Score must be in the interval [0, 1]\n";
+        exit(20);
+    }
+
+    auto assignment = find_assignment(asst_no);
+    auto user = find_user(username);
+    auto submission = find_submission(user, assignment);
+
+    auto root = find_user("root");
+
+    dbo::ptr<Eval_item> eval_item;
+    for (const auto& item : submission->items())
+        if (item.eval_item &&
+                item.eval_item->type() == Eval_item::Type::Informational)
+            eval_item = item.eval_item;
+
+    if (!eval_item) {
+        std::cerr << "Couldn’t find informational item to add score to.\n";
+        exit(13);
+    }
+
+    std::cout << "Setting item " << eval_item->sequence() << " to "
+              << score << "...";
+
+    auto self_eval   = Submission::get_self_eval(eval_item, submission);
+    auto grader_eval = Submission::get_grader_eval(self_eval, root);
+
+    auto grader_eval_m = grader_eval.modify();
+    grader_eval_m->set_score(score);
+    grader_eval_m->set_explanation(comment);
+    grader_eval_m->set_status(Grader_eval::Status::ready);
+    grader_eval_m->set_grader(root);
+
+    std::cout << "done.\n";
 }
 
 dbo::ptr<User> Gscdb::find_user(const std::string& username)
