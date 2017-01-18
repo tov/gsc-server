@@ -5,8 +5,8 @@ const Wt::WSuggestionPopup::Options User_suggester::options = {
         "<b>",         // highlightBeginTag
         "</b>",        // highlightEndTag
         ',',           // listSeparator      (for multiple addresses)
-        " \\n",        // whitespace
-        "-., \"@\\n;", // wordSeparators     (within an address)
+        " ",           // whitespace
+        "-., \"@;",    // wordSeparators     (within an address)
         ""             // appendReplacedText (prepare next email address)
 };
 
