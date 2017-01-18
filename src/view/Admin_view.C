@@ -49,7 +49,6 @@ Submission_chooser::Submission_chooser(Session& session,
 {
     editor_ = new Wt::WLineEdit(this);
     editor_->setEmptyText("username");
-    editor_->changed().connect(this, &This::update);
     editor_->keyWentUp().connect(this, &This::update);
     editor_->enterPressed().connect(this, &This::go);
 
@@ -57,8 +56,8 @@ Submission_chooser::Submission_chooser(Session& session,
     popup->forEdit(editor_);
 
     combo_  = new Wt::WComboBox(this);
-    combo_->enterPressed().connect(this, &This::go);
     combo_->changed().connect(this, &This::go);
+    combo_->enterPressed().connect(this, &This::go);
 }
 
 void Submission_chooser::update()
@@ -71,33 +70,29 @@ void Submission_chooser::update()
     auto user = User::find_by_name(session_, editor_->text().toUTF8());
 
     if (user) {
-        bool focus = false;
-
         submissions_ = user->submissions();
 
         for (const auto& submission : submissions_) {
             auto number = submission->assignment()->number();
             combo_->addItem(boost::lexical_cast<std::string>(number));
-            focus = true;
         }
-
-        if (focus) combo_->setFocus();
     }
 }
 
 void Submission_chooser::go()
 {
-    if (combo_->currentIndex() < submissions_.size()) {
+    auto current_index = combo_->currentIndex();
+
+    if (current_index < submissions_.size()) {
         Wt::Dbo::Transaction transaction(session_);
 
-        auto submission = submissions_[size_t(combo_->currentIndex())];
+        auto submission = submissions_[size_t(current_index)];
 
         switch (submission->status()) {
             case Submission::Status::future:
             case Submission::Status::open:
             case Submission::Status::extended:
                 Navigate::to(submission->url());
-                break;
 
             case Submission::Status::self_eval:
             case Submission::Status::extended_eval:
@@ -181,9 +176,7 @@ Role_chooser::Role_chooser(Session& session,
 {
     editor_ = new Wt::WLineEdit(this);
     editor_->setEmptyText("username");
-    editor_->changed().connect(this, &This::update);
     editor_->keyWentUp().connect(this, &This::update);
-    editor_->enterPressed().connect(this, &This::go);
 
     auto popup = new User_suggester(session, this);
     popup->forEdit(editor_);
