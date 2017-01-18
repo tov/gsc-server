@@ -25,10 +25,11 @@ Self_eval_item_widget::Self_eval_item_widget(
 
     auto buttons = new Wt::WContainerWidget(this);
     buttons->setStyleClass("buttons");
-    auto label = model.eval_item->type() == Eval_item::Type::Informational
-                 ? "Continue" : "Save";
-    save_button_ = new Wt::WPushButton(label, buttons);
 
+    auto label = model.eval_item->type() == Eval_item::Type::Informational
+                 ? "Continue"
+                 : "Save";
+    save_button_ = new Wt::WPushButton(label, buttons);
     save_button_->clicked().connect(this,
                                     &Self_eval_item_widget::save_action_);
 
