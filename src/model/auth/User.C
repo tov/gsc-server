@@ -13,6 +13,8 @@
 #include <Wt/Dbo/Impl>
 #include <Wt/Auth/Identity>
 
+#include <algorithm>
+
 DBO_INSTANTIATE_TEMPLATES(User);
 
 User::User(const std::string& name)
@@ -94,6 +96,12 @@ std::vector<dbo::ptr<Submission>> User::submissions() const
     std::vector<dbo::ptr<Submission>> result;
     result.insert(result.end(), submissions1_.begin(), submissions1_.end());
     result.insert(result.end(), submissions2_.begin(), submissions2_.end());
+
+    std::sort(result.begin(), result.end(),
+              [&](const auto& s1, const auto& s2) {
+        return s1->assignment()->number() < s2->assignment()->number();
+    });
+
     return result;
 }
 
