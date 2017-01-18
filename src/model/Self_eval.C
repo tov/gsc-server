@@ -107,8 +107,8 @@ std::string Self_eval::find_ungraded_permalink(dbo::Session& dbo,
             " INNER JOIN assignments a ON e.assignment_number = a.number"
             " LEFT OUTER JOIN grader_evals g ON g.self_eval_id = s.id"
             " WHERE g.self_eval_id IS NULL"
-            "   AND a.eval_date < NOW()"
-            "   AND b.eval_date < NOW()"
+            "   AND a.eval_date < NOW() AT TIME ZONE 'UTC'"
+            "   AND b.eval_date < NOW() AT TIME ZONE 'UTC'"
             " ORDER BY a.number, e.sequence"
             " LIMIT 1"
     ).resultValue();
