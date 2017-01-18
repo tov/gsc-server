@@ -284,7 +284,6 @@ void Application_controller::handle_internal_path(
 
             // /game/high_scores
         } else if (internal_path == Path::high_scores) {
-            transaction.commit();
             set_title("High scores");
             set_widget(new HighScoresWidget(session_));
 
