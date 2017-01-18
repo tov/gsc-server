@@ -20,7 +20,9 @@ public:
     Gscdb();
 
     void list_submissions(int assignment);
-    void get_submission(int assignment, const std::string& username);
+    void get_submission(const std::string& username, int assignment);
+    void upload_file(const std::string& username, int asst_no,
+                     const std::string& filename);
 
     dbo::Session& session() { return dbo_; }
 
@@ -56,17 +58,22 @@ int main(int argc, const char* argv[])
     dbo::Transaction transaction(app.session());
 
     if (strcmp("get", argv[1]) == 0) {
-        assert_argc(argc == 4, argv, "HW_NUMBER USERNAME");
-        app.get_submission(std::atoi(argv[2]), argv[3]);
+        assert_argc(argc == 4, argv, "USERNAME HW_NUMBER");
+        app.get_submission(argv[2], atoi(argv[3]));
     }
 
-    if (strcmp("list", argv[1]) == 0) {
+    else if (strcmp("list", argv[1]) == 0) {
         assert_argc(argc == 3, argv, "HW_NUMBER");
-        app.list_submissions(std::atoi(argv[2]));
+        app.list_submissions(atoi(argv[2]));
+    }
+
+    else if (strcmp("upload", argv[1]) == 0) {
+        assert_argc(argc == 5, argv, "USERNAME HW_NUMBER FILENAME");
+        app.upload_file(argv[2], atoi(argv[3]), argv[4]);
     }
 
     else {
-        std::cerr << "Unknown command: " << argv[1];
+        std::cerr << "Unknown command: " << argv[1] << '\n';
         exit(3);
     }
 }
@@ -78,14 +85,14 @@ Gscdb::Gscdb()
     Session::map_classes(dbo_);
 }
 
-void Gscdb::get_submission(int asst_no, const std::string& username)
+void Gscdb::get_submission(const std::string& username, int asst_no)
 {
     auto assignment = find_assignment(asst_no);
     auto user       = find_user(username);
     auto submission = find_submission(user, assignment);
 
     for (auto file : submission->source_files()) {
-        const auto& text = file->file_data()->contents();
+        auto text = file->file_data()->contents();
         std::cout << "Writing " << file->name() << "...";
         std::ofstream of(file->name(), std::ios::binary);
         of.write(text.data(), text.size());
@@ -100,6 +107,21 @@ void Gscdb::list_submissions(int asst_no)
     for (auto submission : assignment->submissions()) {
         std::cout << submission->user1()->name() << '\n';
     }
+}
+
+void Gscdb::upload_file(const std::string& username, int asst_no,
+                        const std::string& filename)
+{
+    auto assignment = find_assignment(asst_no);
+    auto user       = find_user(username);
+    auto submission = find_submission(user, assignment);
+
+    std::cout << "Uploading " << filename << "...";
+    std::cin >> std::noskipws;
+    std::string contents{std::istream_iterator<char>(std::cin),
+                         std::istream_iterator<char>()};
+    File_meta::upload(filename, contents, submission);
+    std::cout << "done\n";
 }
 
 dbo::ptr<User> Gscdb::find_user(const std::string& username)
