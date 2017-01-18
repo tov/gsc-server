@@ -32,14 +32,15 @@ void Eval_item::set_relative_value(const std::string& s)
 
 std::string Eval_item::format_score(double score) const
 {
-    if ((score != 0 && score != 1) || type() == Type::Scale) {
-        return pct_string(score);
-    } else if (type() == Eval_item::Type::Boolean) {
-        if (score == 1.0) return "Yes";
-        else return "No";
-    } else {
-        return "Okay";
+    if (type() == Type::Boolean) {
+        if (score == 0) return "No";
+        if (score == 1) return "Yes";
     }
+
+    if (type() == Type::Informational && relative_value() == 0)
+        return "Okay";
+
+    return pct_string(score);
 }
 
 std::string Eval_item::pct_string(double ratio)
