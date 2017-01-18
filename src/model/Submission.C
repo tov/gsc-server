@@ -14,6 +14,7 @@
 #include <algorithm>
 #include <functional>
 #include <locale>
+#include <regex>
 #include <sstream>
 
 DBO_INSTANTIATE_TEMPLATES(Submission);
@@ -28,6 +29,8 @@ Submission::Submission(const dbo::ptr <User>& user,
 
 }
 
+static std::regex out_file_re(".*\\.out");
+
 Source_file_vec Submission::source_files_sorted() const
 {
     Source_file_vec result;
@@ -36,6 +39,13 @@ Source_file_vec Submission::source_files_sorted() const
         result.push_back(ptr);
 
     std::sort(result.begin(), result.end(), [](const auto& a, const auto& b) {
+        bool a_out = std::regex_match(a->name(), out_file_re);
+        bool b_out = std::regex_match(b->name(), out_file_re);
+
+        // .out files sort after all other files
+        if (a_out && !b_out) return false;
+        if (b_out && !a_out) return true;
+
         return std::lexicographical_compare(
                 a->name().begin(), a->name().end(),
                 b->name().begin(), b->name().end(),
