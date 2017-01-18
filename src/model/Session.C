@@ -64,7 +64,7 @@ Session::Session(dbo::SqlConnectionPool& pool)
         createTables();
 
         create_index("users", "name", false);
-        create_index("self_evals", "permalink");
+        create_index("self_evals", "permalink", false);
 
         Auth::User root_user = users_.registerNew();
         root_user.addIdentity(Auth::Identity::LoginName, "root");
