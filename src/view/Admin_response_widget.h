@@ -10,7 +10,7 @@
 #include <vector>
 
 class Unit_line_edit;
-class Explanation_text_area;
+class Explanation_edit_widget;
 
 class Admin_response_widget : public Wt::WCompositeWidget
 {
@@ -39,7 +39,7 @@ private:
 
     void set_model_(const Abstract_evaluation*);
 
-    Explanation_text_area* explanation_;
+    Explanation_edit_widget* explanation_;
     Unit_line_edit* grade_;
 
     Wt::WContainerWidget* buttons_;

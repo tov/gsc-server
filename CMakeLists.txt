@@ -42,6 +42,7 @@ set(SOURCE_FILES
         src/view/Date_time_edit.C
         src/view/Edit_assignment_view.C
         src/view/Error_view.C
+        src/view/Explanation_view_widget.C
         src/view/File_list_widget.C
         src/view/File_manager_view.C
         src/view/File_viewer_widget.C
@@ -51,7 +52,7 @@ set(SOURCE_FILES
         src/view/Unit_line_edit.C
         src/view/User_suggester.C
         src/view/Evaluation_view.C
-        src/view/Explanation_text_area.C
+        src/view/Explanation_edit_widget.C
         src/view/Response_widget.C
         src/view/Submission_owner_widget.C
         src/view/Submissions_view.C

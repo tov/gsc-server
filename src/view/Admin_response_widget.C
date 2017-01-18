@@ -1,6 +1,6 @@
 #include "Admin_response_widget.h"
 #include "Unit_line_edit.h"
-#include "Explanation_text_area.h"
+#include "Explanation_edit_widget.h"
 
 #include <Wt/WPushButton>
 
@@ -16,7 +16,7 @@ Admin_response_widget::Admin_response_widget(Abstract_evaluation* model,
     setImplementation(impl);
     impl->setStyleClass("admin-response-widget");
 
-    explanation_ = new Explanation_text_area(impl);
+    explanation_ = new Explanation_edit_widget(impl);
 
     buttons_ = new Wt::WContainerWidget(impl);
     buttons_->setStyleClass("buttons");

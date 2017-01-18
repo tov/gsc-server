@@ -1,6 +1,7 @@
 #include "Grading_view.h"
 #include "Unit_line_edit.h"
-#include "Explanation_text_area.h"
+#include "Explanation_edit_widget.h"
+#include "Explanation_view_widget.h"
 #include "../Navigate.h"
 #include "../model/Self_eval.h"
 #include "../model/Eval_item.h"
@@ -56,7 +57,7 @@ protected:
     void save_(Grader_eval::Status, double);
 
 private:
-    Explanation_text_area* explanation_;
+    Explanation_edit_widget* explanation_;
 };
 
 // For grading boolean questions.
@@ -128,7 +129,7 @@ Abstract_grading_widget::Abstract_grading_widget(
     auto impl = new Wt::WContainerWidget;
     setImplementation(impl);
 
-    explanation_ = new Explanation_text_area(impl);
+    explanation_ = new Explanation_edit_widget(impl);
     explanation_->setText(model->explanation());
     explanation_->setFocus();
 
@@ -298,7 +299,7 @@ Grading_view::Grading_view(const Wt::Dbo::ptr<Self_eval> self_eval,
     widget->bindWidget("self_grade",
                        new Wt::WText(eval_item->format_score(self_eval->score())));
     widget->bindWidget("self_explanation",
-                       new Wt::WText(self_eval->explanation()));
+                       new Explanation_view_widget(self_eval->explanation()));
     widget->bindWidget("grading_widget", grading_widget);
     widget->bindWidget("status", new Wt::WText(status));
 }
