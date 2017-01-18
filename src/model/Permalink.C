@@ -4,18 +4,32 @@
 
 namespace {
 
-std::default_random_engine generator;
-std::uniform_int_distribution<int> distribution(0, 35);
+class Char_generator {
+public:
+    Char_generator();
+    char operator()();
 
-char random_char()
+private:
+    std::mt19937_64 generator_;
+    std::uniform_int_distribution<int> distribution_;
+};
+
+Char_generator::Char_generator() : distribution_(0, 35)
 {
-    int value = distribution(generator);
+    generator_.seed(std::random_device{}());
+}
+
+char Char_generator::operator()()
+{
+    int value = distribution_(generator_);
 
     if (value < 10)
         return value + '0';
     else
         return value - 10 + 'a';
 }
+
+Char_generator random_char;
 
 }
 
