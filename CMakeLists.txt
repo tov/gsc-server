@@ -79,5 +79,5 @@ target_link_libraries(gsc wthttp ${LIBRARIES})
 add_executable(gsc-fcgi ${SOURCE_FILES})
 target_link_libraries(gsc-fcgi wtfcgi ${LIBRARIES})
 
-add_executable(sql src/sql.C ${MODEL_SOURCE_FILES})
-target_link_libraries(sql wt wtdbo wtdbopostgres)
+add_executable(gscdb src/gscdb.C ${MODEL_SOURCE_FILES})
+target_link_libraries(gscdb wt wtdbo wtdbopostgres)
