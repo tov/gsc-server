@@ -177,8 +177,8 @@ Submission::save_self_eval(const dbo::ptr<Self_eval>& self_eval,
 }
 
 const dbo::ptr<Grader_eval>&
-Submission::get_grader_eval(const dbo::ptr<Self_eval>& self_eval,
-                            Session& session)
+Submission::get_grader_eval(const dbo::ptr <Self_eval>& self_eval,
+                            const Wt::Dbo::ptr<User> grader)
 {
     auto submission = self_eval->submission();
     auto sequence = self_eval->eval_item()->sequence();
@@ -188,7 +188,7 @@ Submission::get_grader_eval(const dbo::ptr<Self_eval>& self_eval,
     auto& result = submission->items_[sequence].grader_eval;
 
     if (!result) {
-        result = session.add(new Grader_eval(self_eval, session.user()));
+        result = self_eval.session()->add(new Grader_eval(self_eval, grader));
         submission.modify()->touch();
     }
 

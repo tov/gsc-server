@@ -167,7 +167,8 @@ void Admin_eval_item_widget::grader_retract_action_()
 void Admin_eval_item_widget::grader_save_status_(Grader_eval::Status status)
 {
     dbo::Transaction transaction(session_);
-    auto grader_eval = Submission::get_grader_eval(model_.self_eval, session_);
+    auto grader_eval = Submission::get_grader_eval(model_.self_eval,
+                                                   session_.user());
     auto grader_eval_m = grader_eval.modify();
     grader_response_->save(&*grader_eval_m);
     grader_eval_m->set_status(status);
