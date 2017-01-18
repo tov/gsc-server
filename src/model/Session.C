@@ -11,6 +11,7 @@
 #include "Grader_eval.h"
 #include "Partner_request.h"
 #include "Submission.h"
+#include "../Navigate.h"
 
 #include <Wt/Auth/AuthService>
 #include <Wt/Auth/HashFunction>
@@ -228,5 +229,18 @@ void Session::map_classes(Wt::Dbo::Session& dbo)
     dbo.mapClass<Submission>("submissions");
     dbo.mapClass<User>("users");
     dbo.mapClass<User_stats>("user_stats");
+}
+
+void Session::become_user(const Wt::Dbo::ptr<User>& user)
+{
+    login_.logout();
+
+    auto user_id = boost::lexical_cast<std::string>(user.id());
+    auto auth_user = users_.findWithId(user_id);
+    login_.login(auth_user);
+
+    user_ = user;
+
+    Navigate::to("/");
 }
 

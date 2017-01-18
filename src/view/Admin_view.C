@@ -16,6 +16,7 @@
 #include <Wt/WLineEdit>
 #include <Wt/WMenuItem>
 #include <Wt/WMessageBox>
+#include <Wt/WPushButton>
 #include <Wt/WSuggestionPopup>
 #include <Wt/WTable>
 
@@ -219,6 +220,53 @@ void Role_chooser::setFocus(bool b)
     editor_->setFocus(b);
 }
 
+class SU_widget : public Wt::WContainerWidget
+{
+public:
+    SU_widget(Session& session,
+              Wt::WContainerWidget* parent = nullptr);
+
+    using This = SU_widget;
+
+    virtual void setFocus(bool) override;
+
+private:
+    Session& session_;
+    Wt::WLineEdit* editor_;
+
+    void go();
+};
+
+SU_widget::SU_widget(Session& session, Wt::WContainerWidget* parent)
+        : WContainerWidget(parent),
+          session_(session)
+{
+    editor_ = new Wt::WLineEdit(this);
+    editor_->setEmptyText("username");
+    editor_->enterPressed().connect(this, &This::go);
+
+    auto popup = new User_suggester(session, this);
+    popup->forEdit(editor_);
+
+    auto go_button = new Wt::WPushButton("Go", this);
+    go_button->clicked().connect(this, &This::go);
+}
+
+void SU_widget::go()
+{
+    dbo::Transaction transaction(session_);
+
+    auto user = User::find_by_name(session_, editor_->text().toUTF8());
+    if (!user) return;
+
+    session_.become_user(user);
+}
+
+void SU_widget::setFocus(bool b)
+{
+    editor_->setFocus(b);
+}
+
 Admin_view::Admin_view(Session& session, Wt::WContainerWidget* parent)
         : WContainerWidget(parent), session_(session)
 {
@@ -236,11 +284,14 @@ Admin_view::Admin_view(Session& session, Wt::WContainerWidget* parent)
     auto cr = new Accelerator_text("Change &role:", table->elementAt(2, 0));
     cr->set_target(new Role_chooser(session_, table->elementAt(2, 1)));
 
+    auto su = new Accelerator_text("S&witch users:", table->elementAt(3, 0));
+    su->set_target(new SU_widget(session_, table->elementAt(3, 1)));
+
     auto hw = new Accelerator_button("Edit &assignments",
-                                     table->elementAt(3, 1));
+                                     table->elementAt(4, 1));
     hw->clicked().connect(Navigate("/hw"));
 
     auto play_game = new Accelerator_button("&Play game",
-                                            table->elementAt(4, 1));
+                                            table->elementAt(5, 1));
     play_game->clicked().connect(Navigate("/game"));
 }

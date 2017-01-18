@@ -29,6 +29,8 @@ public:
 
     std::string user_name() const;
 
+    void become_user(const Wt::Dbo::ptr<User>&);
+
     std::vector<dbo::ptr<User_stats>> top_users(int limit);
     int find_ranking();
     void add_to_score(int s);
