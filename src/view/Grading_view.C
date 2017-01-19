@@ -299,7 +299,8 @@ Grading_view::Grading_view(const Wt::Dbo::ptr<Self_eval> self_eval,
     widget->bindWidget("self_grade",
                        new Wt::WText(eval_item->format_score(self_eval->score())));
     widget->bindWidget("self_explanation",
-                       new Explanation_view_widget(self_eval->explanation()));
+                       new Explanation_view_widget(self_eval->explanation(),
+                                                   file_viewer()));
     widget->bindWidget("grading_widget", grading_widget);
     widget->bindWidget("status", new Wt::WText(status));
 }

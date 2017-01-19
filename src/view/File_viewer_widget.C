@@ -21,6 +21,7 @@ public:
     Single_file_viewer(const Wt::Dbo::ptr<File_meta>& source_file,
                        int file_number,
                        int& first_line_number,
+                       std::vector<Wt::WTableRow*>& lines,
                        const File_viewer_widget* viewer,
                        Wt::WContainerWidget* parent = nullptr);
 };
@@ -29,6 +30,7 @@ Single_file_viewer::Single_file_viewer(
         const Wt::Dbo::ptr<File_meta>& source_file,
         int file_number,
         int& line_number,
+        std::vector<Wt::WTableRow*>& lines,
         const File_viewer_widget* viewer,
         Wt::WContainerWidget* parent)
         : WContainerWidget(parent)
@@ -51,6 +53,7 @@ Single_file_viewer::Single_file_viewer(
                 new Wt::WText(Wt::WString::fromUTF8(line), Wt::PlainText));
         table->elementAt(row, 1)->setStyleClass("code-line");
         table->rowAt(row)->setId(viewer->line_id(line_number));
+        lines.push_back(table->rowAt(row));
         ++row;
         ++line_number;
     }
@@ -86,6 +89,9 @@ void File_viewer_widget::reload()
     file_selector_->clear();
     file_contents_->clear();
 
+    lines_.clear();
+    lines_.push_back(nullptr); // 1-based indexing
+
     Wt::Dbo::Transaction transaction(session_.dbo());
     Source_file_vec      files = submission_->source_files_sorted();
 
@@ -97,8 +103,8 @@ void File_viewer_widget::reload()
     int line_number = 1;
 
     for (const auto& file : files) {
-        new Single_file_viewer(file, file_number++, line_number, this,
-                               file_contents_);
+        new Single_file_viewer(file, file_number++, line_number, lines_,
+                               this, file_contents_);
     }
 }
 
@@ -122,6 +128,12 @@ std::string File_viewer_widget::file_id(int file_number) const
     return id() + "-F" + boost::lexical_cast<std::string>(file_number);
 }
 
+void File_viewer_widget::set_line_style(size_t line, const Wt::WString& style)
+{
+    if (0 < line && line < lines_.size())
+        lines_[line]->setStyleClass(style);
+}
+
 void File_viewer_widget::scroll_to_id_(const std::string& target) const
 {
     std::ostringstream code;
@@ -137,3 +149,4 @@ void File_viewer_widget::scroll_to_selected_file_()
 {
     scroll_to_file(file_selector_->currentIndex());
 }
+

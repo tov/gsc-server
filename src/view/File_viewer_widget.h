@@ -3,6 +3,8 @@
 #include <Wt/WCompositeWidget>
 #include <Wt/Dbo/ptr>
 
+#include <vector>
+
 class Session;
 
 class Submission;
@@ -28,6 +30,8 @@ public:
     std::string line_id(int line_number) const;
     std::string file_id(int file_number) const;
 
+    void set_line_style(size_t line, const Wt::WString& style);
+
 private:
     Session& session_;
     Wt::Dbo::ptr<Submission> submission_;
@@ -35,6 +39,8 @@ private:
     Wt::WContainerWidget* impl_;
     Wt::WComboBox* file_selector_;
     Wt::WContainerWidget* file_contents_;
+
+    std::vector<Wt::WTableRow*> lines_;
 
     void scroll_to_id_(const std::string& id) const;
     void scroll_to_selected_file_();

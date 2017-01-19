@@ -321,3 +321,11 @@ h2 {
     z-index: 1;
     background-color: white;
 }
+
+tr.student-highlight {
+    background-color: #ffff00;
+}
+
+tr.grader-highlight {
+    background-color: #ffccff;
+}

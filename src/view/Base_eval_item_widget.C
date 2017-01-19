@@ -67,7 +67,9 @@ void Base_eval_item_widget::add_evaluation_(const std::string& heading,
 
     p->bindWidget("heading", new Wt::WText(heading));
     p->bindWidget("score", new Wt::WText(score));
-    p->bindWidget("explanation", new Explanation_view_widget(explanation));
+    p->bindWidget("explanation",
+                  new Explanation_view_widget(explanation,
+                                              main_.file_viewer()));
 }
 
 void Base_eval_item_widget::add_navigation_(bool focus)

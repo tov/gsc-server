@@ -16,6 +16,8 @@ public:
                        Session&,
                        Wt::WContainerWidget* parent = nullptr);
 
+    File_viewer_widget* file_viewer() { return viewer_; }
+
 protected:
     Wt::Dbo::ptr<Submission> submission_;
     Session& session_;
