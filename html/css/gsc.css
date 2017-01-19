@@ -329,3 +329,9 @@ tr.student-highlight {
 tr.grader-highlight {
     background-color: #ffccff;
 }
+
+.line-link {
+    text-decoration: underline;
+    color: darkred;
+    cursor: pointer;
+}

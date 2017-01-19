@@ -128,7 +128,7 @@ std::string File_viewer_widget::file_id(int file_number) const
     return id() + "-F" + boost::lexical_cast<std::string>(file_number);
 }
 
-void File_viewer_widget::set_line_style(size_t line, const Wt::WString& style)
+void File_viewer_widget::set_line_style(int line, const Wt::WString& style)
 {
     if (0 < line && line < lines_.size())
         lines_[line]->setStyleClass(style);

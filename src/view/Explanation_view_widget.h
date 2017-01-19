@@ -15,4 +15,9 @@ public:
     Explanation_view_widget(const std::string& content,
                             File_viewer_widget* viewer,
                             Wt::WContainerWidget* parent = nullptr);
+
+private:
+    File_viewer_widget* const viewer_;
+
+    void initialize_viewer_(const std::string& content);
 };

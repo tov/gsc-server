@@ -30,7 +30,26 @@ public:
     std::string line_id(int line_number) const;
     std::string file_id(int file_number) const;
 
-    void set_line_style(size_t line, const Wt::WString& style);
+    void set_line_style(int line, const Wt::WString& style);
+
+    class Scroller {
+    public:
+        Scroller(File_viewer_widget* viewer, int line)
+                : viewer_(viewer), line_(line)
+        { }
+
+        template <typename... T>
+        void operator()(T&&...) { viewer_->scroll_to_line(line_); }
+
+    private:
+        File_viewer_widget* viewer_;
+        int line_;
+    };
+
+    Scroller scroller(int line)
+    {
+        return Scroller(this, line);
+    }
 
 private:
     Session& session_;
