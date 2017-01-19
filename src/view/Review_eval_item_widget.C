@@ -20,7 +20,10 @@ Review_eval_item_widget::Review_eval_item_widget(
                         eval_item->format_score(self_eval->score()),
                         self_eval->explanation());
 
-        if (grader_eval) {
+        if (grader_eval &&
+                self_eval->submission()->eval_status() ==
+                        Submission::Eval_status::complete)
+        {
             add_evaluation_("Grader evaluation",
                             eval_item->format_score(grader_eval->score()),
                             grader_eval->explanation());
