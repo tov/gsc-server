@@ -27,6 +27,8 @@ protected:
     void add_question_();
     void add_evaluation_(const std::string& heading,
                          const std::string& score,
-                         const std::string& explanation);
+                         const std::string& explanation,
+                         const std::string& highlight_style
+                                = "student-highlight");
     void add_navigation_(bool focus = true);
 };

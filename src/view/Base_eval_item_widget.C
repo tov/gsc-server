@@ -55,7 +55,8 @@ void Base_eval_item_widget::add_question_()
 
 void Base_eval_item_widget::add_evaluation_(const std::string& heading,
                                             const std::string& score,
-                                            const std::string& explanation)
+                                            const std::string& explanation,
+                                            const std::string& highlight_style)
 {
     auto p = new Wt::WTemplate(
             "<h5>${heading}</h5>"
@@ -69,7 +70,8 @@ void Base_eval_item_widget::add_evaluation_(const std::string& heading,
     p->bindWidget("score", new Wt::WText(score));
     p->bindWidget("explanation",
                   new Explanation_view_widget(explanation,
-                                              main_.file_viewer()));
+                                              main_.file_viewer(),
+                                              highlight_style));
 }
 
 void Base_eval_item_widget::add_navigation_(bool focus)

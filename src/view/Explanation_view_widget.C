@@ -8,14 +8,16 @@
 
 Explanation_view_widget::Explanation_view_widget(const std::string& content,
                                                  Wt::WContainerWidget* parent)
-        : Explanation_view_widget(content, nullptr, parent)
+        : Explanation_view_widget(content, nullptr, {}, parent)
 { }
 
 Explanation_view_widget::Explanation_view_widget(const std::string& content,
                                                  File_viewer_widget* viewer,
+                                                 const std::string& highlight_style,
                                                  Wt::WContainerWidget* parent)
         : WCompositeWidget(parent),
-          viewer_(viewer)
+          viewer_(viewer),
+          highlight_style_(highlight_style)
 {
     if (viewer_)
         initialize_viewer_(content);
@@ -39,7 +41,7 @@ void Explanation_view_widget::initialize_viewer_(const std::string& content)
 
     auto emit_link = [&]() {
         auto line_no = atoi(&buf[1]);
-        viewer_->set_line_style(line_no, "student-highlight");
+        viewer_->set_line_style(line_no, highlight_style_);
         auto link = new Wt::WText(buf, impl);
         buf.clear();
 

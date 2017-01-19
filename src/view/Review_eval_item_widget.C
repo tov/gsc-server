@@ -26,7 +26,8 @@ Review_eval_item_widget::Review_eval_item_widget(
         {
             add_evaluation_("Grader evaluation",
                             eval_item->format_score(grader_eval->score()),
-                            grader_eval->explanation());
+                            grader_eval->explanation(),
+                            "grader-highlight");
         }
     } else {
         new Wt::WText("<h5>No self evaluation submitted!</h5>", this);
