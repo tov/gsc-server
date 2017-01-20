@@ -207,6 +207,15 @@ void Submissions_view_row::update()
             status += " ago";
             set_eval_action("View");
             set_action_style_class("btn-link");
+            {
+                dbo::Transaction transaction(session_);
+                if (model_.submission->is_graded()) {
+                    new Wt::WText(model_.submission->grade_string(),
+                                  row_->elementAt(GRADE));
+                } else if (! model_.submission->is_evaluated()) {
+                    new Wt::WText("0%", row_->elementAt(GRADE));
+                }
+            }
             break;
         }
     }

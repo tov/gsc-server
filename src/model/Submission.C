@@ -124,7 +124,7 @@ double Submission::grade() const
     return session()->query<double>(
             "SELECT SUM(relative_value * g.score) / SUM(relative_value)"
             "  FROM eval_items e"
-            " INNER JOIN self_evals_s ON s.eval_item_id = e.id"
+            " INNER JOIN self_evals s ON s.eval_item_id = e.id"
             " INNER JOIN grader_evals g ON g.self_eval_id = s.id"
             " WHERE s.submission_id = ?"
     ).bind(id()).resultValue();
@@ -295,8 +295,8 @@ std::string Submission::eval_url() const
 
 size_t Submission::item_count() const
 {
-    load_cache();
-    return item_count_;
+    if (is_loaded_) return item_count_;
+    return assignment()->eval_items().size();
 }
 
 const std::vector<Submission::Item>& Submission::items() const
@@ -307,20 +307,34 @@ const std::vector<Submission::Item>& Submission::items() const
 
 double Submission::point_value() const
 {
-    load_cache();
-    return point_value_;
+    if (is_loaded_) return point_value_;
+
+    return session()->query<double>(
+            "SELECT SUM(relative_value)"
+            "  FROM eval_items"
+            " WHERE assignment_number = ?"
+    ).bind(assignment()->number()).resultValue();
 }
 
 bool Submission::is_evaluated() const
 {
-    load_cache();
-    return eval_status_ == Eval_status::complete;
+    return eval_status() == Eval_status::complete;
 }
 
 bool Submission::is_graded() const
 {
-    load_cache();
-    return is_graded_;
+    if (is_loaded_) {
+        return is_graded_;
+    }
+
+    auto grader_eval_count = session()->query<int>(
+            "SELECT COUNT(*)"
+            "  FROM self_evals s"
+            " INNER JOIN grader_evals g ON g.self_eval_id = s.id"
+            " WHERE s.submission_id = ?"
+    ).bind(id()).resultValue();
+
+    return grader_eval_count == self_evals_.size();
 }
 
 void Submission::load_cache() const
