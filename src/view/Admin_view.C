@@ -273,25 +273,31 @@ Admin_view::Admin_view(Session& session, Wt::WContainerWidget* parent)
     setStyleClass("admin-view");
 
     auto table = new Wt::WTable(this);
+    int row = 0;
 
     auto ja = new Accelerator_text("Jump to su&bmission",
-                                   table->elementAt(0, 0));
-    ja->set_target(new Submission_chooser(session_, table->elementAt(0, 1)));
+                                   table->elementAt(row, 0));
+    ja->set_target(new Submission_chooser(session_, table->elementAt(row, 1)));
 
-    auto js = new Accelerator_text("Jump to &student:", table->elementAt(1, 0));
-    js->set_target(new Student_chooser(session_, table->elementAt(1, 1)));
+    auto js = new Accelerator_text("Jump to &student:",
+                                   table->elementAt(++row, 0));
+    js->set_target(new Student_chooser(session_, table->elementAt(row, 1)));
 
-    auto cr = new Accelerator_text("Change &role:", table->elementAt(2, 0));
-    cr->set_target(new Role_chooser(session_, table->elementAt(2, 1)));
+    auto cr = new Accelerator_text("Change &role:", table->elementAt(++row, 0));
+    cr->set_target(new Role_chooser(session_, table->elementAt(row, 1)));
 
-    auto su = new Accelerator_text("S&witch users:", table->elementAt(3, 0));
-    su->set_target(new SU_widget(session_, table->elementAt(3, 1)));
+    auto su = new Accelerator_text("S&witch users:",
+                                   table->elementAt(++row, 0));
+    su->set_target(new SU_widget(session_, table->elementAt(row, 1)));
+
+    auto gr = new Accelerator_button("&Grade", table->elementAt(++row, 1));
+    gr->clicked().connect(Navigate("/grade"));
 
     auto hw = new Accelerator_button("Edit &assignments",
-                                     table->elementAt(4, 1));
+                                     table->elementAt(++row, 1));
     hw->clicked().connect(Navigate("/hw"));
 
     auto play_game = new Accelerator_button("&Play game",
-                                            table->elementAt(5, 1));
+                                            table->elementAt(++row, 1));
     play_game->clicked().connect(Navigate("/game"));
 }
