@@ -33,6 +33,7 @@ void Explanation_view_widget::initialize_viewer_(const std::string& content)
 
     std::string buf;
     bool in_L = false;
+    int jump_line = 0;
 
     auto emit_text = [&]() {
         new Wt::WText(buf, Wt::PlainText, impl);
@@ -45,6 +46,8 @@ void Explanation_view_widget::initialize_viewer_(const std::string& content)
         auto link = new Wt::WText(buf, impl);
         buf.clear();
 
+        if (jump_line == 0) jump_line = line_no;
+
         link->setStyleClass("line-link");
         link->clicked().connect(viewer_->scroller(line_no));
     };
@@ -55,22 +58,23 @@ void Explanation_view_widget::initialize_viewer_(const std::string& content)
                 emit_link();
             else
                 emit_text();
-            buf.push_back(c);
             in_L = true;
         } else if (isdigit(c) && in_L) {
-            buf.push_back(c);
+            // Nothing -- still in_L
         } else if (in_L && buf.size() > 1) {
             emit_link();
-            buf.push_back(c);
             in_L = false;
         } else {
-            buf.push_back(c);
             in_L = false;
         }
+        buf.push_back(c);
     }
 
     if (in_L && buf.size() > 1)
         emit_link();
     else
         emit_text();
+
+    if (jump_line != 0)
+        viewer_->scroll_to_line(jump_line);
 }
