@@ -16,17 +16,17 @@
 
 namespace dbo = Wt::Dbo;
 
-class Gscdb
+class Gsc_admin
 {
 public:
-    Gscdb();
+    Gsc_admin();
 
     void list_submissions(int asst_no);
-    void get_submission(const std::string& username, int asst_no);
-    void upload_file(const std::string& username, int asst_no,
+    void get_submission(int asst_no, const std::string& username);
+    void upload_file(int asst_no, const std::string& username,
                      const std::string& filename);
-    void record_grade(const std::string& username, int asst_no,
-                      double score, const std::string& comment);
+    void record_grade(int asst_no, const std::string& username, double score,
+                      const std::string& comment);
 
     dbo::Session& session() { return dbo_; }
 
@@ -46,7 +46,7 @@ void assert_argc(bool okay, const char* argv[], const char* message)
 {
     if (!okay) {
         std::cerr << "Usage: " << argv[0] << ' '
-                << argv[1] << ' ' << message << '\n';
+                  << argv[1] << ' ' << message << '\n';
         exit(2);
     }
 }
@@ -58,12 +58,12 @@ int main(int argc, const char* argv[])
         exit(1);
     }
 
-    Gscdb app;
+    Gsc_admin app;
     dbo::Transaction transaction(app.session());
 
     if (strcmp("get", argv[1]) == 0) {
-        assert_argc(argc == 4, argv, "USERNAME HW_NUMBER");
-        app.get_submission(argv[2], atoi(argv[3]));
+        assert_argc(argc == 4, argv, "HW_NUMBER USERNAME");
+        app.get_submission(atoi(argv[2]), argv[3]);
     }
 
     else if (strcmp("list", argv[1]) == 0) {
@@ -72,15 +72,15 @@ int main(int argc, const char* argv[])
     }
 
     else if (strcmp("upload", argv[1]) == 0) {
-        assert_argc(argc == 5, argv, "USERNAME HW_NUMBER FILENAME");
-        app.upload_file(argv[2], atoi(argv[3]), argv[4]);
+        assert_argc(argc == 5, argv, " HW_NUMBERUSERNAME FILENAME");
+        app.upload_file(atoi(argv[2]), argv[3], argv[4]);
     }
 
     else if (strcmp("grade", argv[1]) == 0) {
         assert_argc(argc == 5 || argc == 6, argv,
-                    "USERNAME HW_NUMBER SCORE [COMMENT]");
+                    " HW_NUMBERUSERNAME SCORE [COMMENT]");
         const char* comment = argc == 6 ? argv[5] : "";
-        app.record_grade(argv[2], atoi(argv[3]), atof(argv[4]), comment);
+        app.record_grade(atoi(argv[2]), argv[3], atof(argv[4]), comment);
     }
 
     else {
@@ -89,14 +89,14 @@ int main(int argc, const char* argv[])
     }
 }
 
-Gscdb::Gscdb()
+Gsc_admin::Gsc_admin()
         : connection_(get_db_string())
 {
     dbo_.setConnection(connection_);
     Session::map_classes(dbo_);
 }
 
-void Gscdb::get_submission(const std::string& username, int asst_no)
+void Gsc_admin::get_submission(int asst_no, const std::string& username)
 {
     auto assignment = find_assignment(asst_no);
     auto user       = find_user(username);
@@ -111,7 +111,7 @@ void Gscdb::get_submission(const std::string& username, int asst_no)
     }
 }
 
-void Gscdb::list_submissions(int asst_no)
+void Gsc_admin::list_submissions(int asst_no)
 {
     auto assignment = find_assignment(asst_no);
 
@@ -120,8 +120,8 @@ void Gscdb::list_submissions(int asst_no)
     }
 }
 
-void Gscdb::upload_file(const std::string& username, int asst_no,
-                        const std::string& filename)
+void Gsc_admin::upload_file(int asst_no, const std::string& username,
+                            const std::string& filename)
 {
     auto assignment = find_assignment(asst_no);
     auto user       = find_user(username);
@@ -135,8 +135,8 @@ void Gscdb::upload_file(const std::string& username, int asst_no,
     std::cout << "done\n";
 }
 
-void Gscdb::record_grade(const std::string& username, int asst_no,
-                         double score, const std::string& comment)
+void Gsc_admin::record_grade(int asst_no, const std::string& username, double score,
+                             const std::string& comment)
 {
     if (score < 0 || score > 1) {
         std::cerr << "Score must be in the interval [0, 1]\n";
@@ -152,7 +152,7 @@ void Gscdb::record_grade(const std::string& username, int asst_no,
     dbo::ptr<Eval_item> eval_item;
     for (const auto& item : submission->items())
         if (item.eval_item &&
-                item.eval_item->type() == Eval_item::Type::Informational)
+            item.eval_item->type() == Eval_item::Type::Informational)
             eval_item = item.eval_item;
 
     if (!eval_item) {
@@ -175,7 +175,7 @@ void Gscdb::record_grade(const std::string& username, int asst_no,
     std::cout << "done.\n";
 }
 
-dbo::ptr<User> Gscdb::find_user(const std::string& username)
+dbo::ptr<User> Gsc_admin::find_user(const std::string& username)
 {
     auto user = User::find_by_name(dbo_, username);
     if (!user) {
@@ -185,7 +185,7 @@ dbo::ptr<User> Gscdb::find_user(const std::string& username)
     return user;
 }
 
-dbo::ptr<Assignment> Gscdb::find_assignment(int number)
+dbo::ptr<Assignment> Gsc_admin::find_assignment(int number)
 {
     auto assignment = Assignment::find_by_number(dbo_, number);
     if (!assignment) {
@@ -195,7 +195,7 @@ dbo::ptr<Assignment> Gscdb::find_assignment(int number)
     return assignment;
 }
 
-dbo::ptr<Submission> Gscdb::find_submission(const dbo::ptr<User>& user,
+dbo::ptr<Submission> Gsc_admin::find_submission(const dbo::ptr<User>& user,
                                             const dbo::ptr<Assignment>& asst)
 {
     auto submission = Submission::find_by_assignment_and_user(dbo_, asst, user);
@@ -207,7 +207,7 @@ dbo::ptr<Submission> Gscdb::find_submission(const dbo::ptr<User>& user,
     return submission;
 }
 
-const char* Gscdb::get_db_string()
+const char* Gsc_admin::get_db_string()
 {
     auto db_string = std::getenv("POSTGRES_CONNINFO");
     return db_string ? db_string : "dbname=gsc";
