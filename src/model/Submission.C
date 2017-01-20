@@ -183,7 +183,8 @@ Submission::save_self_eval(const dbo::ptr<Self_eval>& self_eval,
         grader_eval_m->set_score(0.1);
         grader_eval_m->set_explanation("You chose no.");
         submission->items_[sequence].grader_eval = grader_eval;
-    } else {
+    } else if (self_eval->eval_item()->type() !=
+                   Eval_item::Type::Informational) {
         self_eval->grader_eval().remove();
         submission->items_[sequence].grader_eval = {};
     }
