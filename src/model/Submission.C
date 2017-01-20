@@ -333,7 +333,8 @@ bool Submission::is_graded() const
             "  FROM self_evals s"
             " INNER JOIN grader_evals g ON g.self_eval_id = s.id"
             " WHERE s.submission_id = ?"
-    ).bind(id()).resultValue();
+            "   AND g.status = ?"
+    ).bind(id()).bind((int) Grader_eval::Status::ready).resultValue();
 
     return grader_eval_count == self_evals_.size();
 }
@@ -365,10 +366,12 @@ void Submission::load_cache() const
 
         auto grader_eval = self_eval->grader_eval();
         if (grader_eval) {
-            ++grader_eval_count;
             items_[sequence].grader_eval = grader_eval;
-            grade_ += grader_eval->score() *
-                    self_eval->eval_item()->relative_value();
+            if (grader_eval->status() == Grader_eval::Status::ready) {
+                ++grader_eval_count;
+                grade_ += grader_eval->score() *
+                          self_eval->eval_item()->relative_value();
+            }
         }
     }
 
