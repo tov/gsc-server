@@ -51,13 +51,18 @@ void Explanation_view_widget::initialize_viewer_(const std::string& content)
 
     for (char c : content) {
         if (c == 'L') {
-            emit_text();
+            if (in_L && buf.size() > 1)
+                emit_link();
+            else
+                emit_text();
             buf.push_back(c);
             in_L = true;
         } else if (isdigit(c) && in_L) {
             buf.push_back(c);
         } else if (in_L && buf.size() > 1) {
             emit_link();
+            buf.push_back(c);
+            in_L = false;
         } else {
             buf.push_back(c);
             in_L = false;
