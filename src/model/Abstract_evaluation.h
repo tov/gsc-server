@@ -26,7 +26,7 @@ struct Abstract_evaluation
     virtual const dbo::ptr<Eval_item>& eval_item() const = 0;
     virtual const dbo::ptr<Submission>& submission() const = 0;
     const dbo::ptr<Assignment>& assignment() const;
-    std::string score_string() const;
+    virtual std::string score_string() const;
 
     virtual ~Abstract_evaluation() {}
 };

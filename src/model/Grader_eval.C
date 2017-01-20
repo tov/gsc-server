@@ -63,3 +63,15 @@ const Wt::Dbo::ptr<Submission>& Grader_eval::submission() const
 {
     return self_eval()->submission();
 }
+
+std::string Grader_eval::score_string() const
+{
+    switch (status()) {
+        case Status::ready:
+            return Abstract_evaluation::score_string();
+        case Status::held_back:
+            return "[held back]";
+        case Status::editing:
+            return "[not set]";
+    }
+}

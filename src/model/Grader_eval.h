@@ -39,7 +39,7 @@ public:
     void set_explanation(const std::string&) override;
     double score() const override { return score_; }
     void set_score(double) override ;
-
+    std::string score_string() const override;
     std::string owner_string(const dbo::ptr<User>& as_seen_by) const override;
     const Wt::Dbo::ptr<Eval_item>& eval_item() const override;
     const Wt::Dbo::ptr<Submission>& submission() const override;
