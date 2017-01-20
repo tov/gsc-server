@@ -335,3 +335,8 @@ tr.grader-highlight {
     color: darkred;
     cursor: pointer;
 }
+
+.submission-grade {
+    text-align: center;
+    font-size: 200%;
+}

@@ -44,7 +44,7 @@ public:
 
     std::string format_score(double) const;
 
-    static std::string pct_string(double);
+    static std::string pct_string(double, int precision = 2);
 
 private:
     dbo::ptr<Assignment> assignment_;

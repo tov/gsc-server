@@ -115,6 +115,21 @@ Submission::Eval_status Submission::eval_status() const
         return Eval_status::empty;
 }
 
+double Submission::grade() const
+{
+    if (is_loaded_) {
+        return grade_;
+    }
+
+    return session()->query<double>(
+            "SELECT SUM(relative_value * g.score) / SUM(relative_value)"
+            "  FROM eval_items e"
+            " INNER JOIN self_evals_s ON s.eval_item_id = e.id"
+            " INNER JOIN grader_evals g ON g.self_eval_id = s.id"
+            " WHERE s.submission_id = ?"
+    ).bind(id()).resultValue();
+}
+
 const dbo::ptr<Self_eval>&
 Submission::get_self_eval(const dbo::ptr<Eval_item>& eval_item,
                           const dbo::ptr<Submission>& submission)
@@ -313,6 +328,7 @@ void Submission::load_cache() const
     if (is_loaded_) return;
 
     item_count_ = 0;
+    grade_ = 0;
     point_value_ = 0;
 
     for (const auto& eval_item : assignment()->eval_items()) {
@@ -332,9 +348,12 @@ void Submission::load_cache() const
         auto sequence = self_eval->eval_item()->sequence();
         items_[sequence].self_eval = self_eval;
 
-        if (self_eval->grader_eval()) {
+        auto grader_eval = self_eval->grader_eval();
+        if (grader_eval) {
             ++grader_eval_count;
-            items_[sequence].grader_eval = self_eval->grader_eval();
+            items_[sequence].grader_eval = grader_eval;
+            grade_ += grader_eval->score() *
+                    self_eval->eval_item()->relative_value();
         }
     }
 
@@ -343,6 +362,8 @@ void Submission::load_cache() const
                  /* otherwise */                  : Eval_status::started;
 
     is_graded_ = grader_eval_count == item_count_;
+
+    grade_ /= point_value_;
 
     is_loaded_ = true;
 }
@@ -356,5 +377,10 @@ std::string Submission::owner_string() const
     }
 
     return result;
+}
+
+std::string Submission::grade_string() const
+{
+    return Eval_item::pct_string(grade(), 3);
 }
 

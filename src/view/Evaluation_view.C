@@ -72,6 +72,14 @@ void Evaluation_view::go_default()
     Wt::WApplication::instance()->setInternalPath(submission_->eval_url());
 
     right_column_->clear();
+
+    if (submission_->is_graded()) {
+        std::ostringstream fmt;
+        fmt << "<h2 class='submission-grade'>Grade: "
+            << submission_->grade_string() << "</h2>";
+        new Wt::WText(fmt.str(), right_column_);
+    }
+
     for (auto& row : submission_->items()) {
         if (!row.eval_item) continue;
 

@@ -22,7 +22,7 @@ using Self_evals      = dbo::collection<dbo::ptr<Self_eval>>;
 using Source_files    = dbo::collection<dbo::ptr<File_meta>>;
 using Source_file_vec = std::vector<dbo::ptr<File_meta>>;
 
-class Submission
+class Submission : public dbo::Dbo<Submission>
 {
 public:
     enum class Status
@@ -79,6 +79,8 @@ public:
 
     Status status() const;
     Eval_status eval_status() const;
+    double grade() const;
+    std::string grade_string() const;
 
     bool can_view(const dbo::ptr<User>&) const;
     bool can_submit(const dbo::ptr<User>&) const;
@@ -126,6 +128,7 @@ private:
     mutable double point_value_;
     mutable Eval_status eval_status_;
     mutable bool is_graded_;
+    mutable double grade_;
 
 public:
     template<typename Action>
