@@ -247,9 +247,6 @@ SU_widget::SU_widget(Session& session, Wt::WContainerWidget* parent)
 
     auto popup = new User_suggester(session, this);
     popup->forEdit(editor_);
-
-    auto go_button = new Wt::WPushButton("Go", this);
-    go_button->clicked().connect(this, &This::go);
 }
 
 void SU_widget::go()
