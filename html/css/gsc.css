@@ -180,6 +180,10 @@ input.username {
     margin-left: 1em;
 }
 
+.question ul li {
+    margin-left: 1em;
+}
+
 .code-line {
     font-family: monospace;
     white-space: pre;
