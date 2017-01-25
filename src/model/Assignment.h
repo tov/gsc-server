@@ -54,6 +54,8 @@ public:
 
     Status status() const;
 
+    double total_relative_value() const;
+
     static dbo::ptr<Assignment> find_by_number(dbo::Session&, int);
 
 private:

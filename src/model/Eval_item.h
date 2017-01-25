@@ -42,6 +42,9 @@ public:
     std::string relative_value_str() const;
     void set_relative_value(const std::string&);
 
+    double absolute_value() const;
+    std::string absolute_value_str() const;
+
     std::string format_score(double) const;
 
     static std::string pct_string(double, int precision = 2);
@@ -66,6 +69,8 @@ public:
         dbo::hasMany(a, self_evals_, dbo::ManyToOne, "eval_item");
     }
 };
+
+std::ostream& operator<<(std::ostream&, Eval_item::Type);
 
 DBO_EXTERN_TEMPLATES(Eval_item);
 

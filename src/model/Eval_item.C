@@ -51,3 +51,26 @@ std::string Eval_item::pct_string(double ratio, int precision)
     fmt << std::setprecision(precision) << 100 * ratio << '%';
     return fmt.str();
 }
+
+double Eval_item::absolute_value() const
+{
+    double denominator = assignment()->total_relative_value();
+    return denominator == 0 ? 0 : relative_value() / denominator;
+}
+
+std::string Eval_item::absolute_value_str() const
+{
+    return pct_string(absolute_value(), 3);
+}
+
+std::ostream& operator<<(std::ostream& o, Eval_item::Type type)
+{
+    switch (type) {
+        case Eval_item::Type::Boolean:
+            return o << "Boolean";
+        case Eval_item::Type::Scale:
+            return o << "Scale";
+        case Eval_item::Type::Informational:
+            return o << "Informational";
+    }
+}

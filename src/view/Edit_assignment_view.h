@@ -6,7 +6,6 @@
 #include <Wt/WContainerWidget>
 #include <Wt/WDialog>
 
-#include <memory>
 #include <vector>
 
 class Session;
@@ -20,12 +19,14 @@ public:
                          Session&,
                          Wt::WContainerWidget* parent = nullptr);
 
+    void reload_all();
+
 private:
     dbo::ptr<Assignment> assignment_;
     Session& session_;
 
     Wt::WContainerWidget* container_;
-    std::vector<std::unique_ptr<Edit_eval_item>> items_;
+    std::vector<Edit_eval_item*> items_;
 
     void more_();
     void add_item_(const dbo::ptr<Eval_item>&);

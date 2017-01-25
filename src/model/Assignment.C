@@ -51,3 +51,12 @@ Eval_items Assignment::eval_items() const
                       .orderBy("sequence");
 }
 
+double Assignment::total_relative_value() const
+{
+    return eval_items_.session()->query<double>(
+            "SELECT SUM(relative_value)"
+            "  FROM eval_items"
+            " WHERE assignment_number = ?"
+    ).bind(number()).resultValue();
+}
+
