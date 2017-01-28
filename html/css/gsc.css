@@ -20,6 +20,21 @@ body {
     width: 80px;
 }
 
+.grading-stats-view {
+    margin: 10px;
+}
+
+.grading-stats-view table {
+    margin: 0 auto;
+}
+
+.grading-stats-view table td,
+.grading-stats-view table th
+{
+    padding: 2px 4px;
+    text-align: right;
+}
+
 .submission-owner-widget {
     width: 240px;
     text-align: center;

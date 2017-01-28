@@ -9,6 +9,7 @@
 #include "view/Assignments_view.h"
 #include "view/Edit_assignment_view.h"
 #include "view/Error_view.h"
+#include "view/Grading_stats_view.h"
 #include "view/Grading_view.h"
 #include "view/Held_back_view.h"
 #include "view/Main_view.h"
@@ -108,6 +109,7 @@ static const regex trailing_slash("(.*)/");
 static const string hw("/hw");
 static const string held_back("/held_back");
 static const string grade("/grade");
+static const string grading_stats("/grading_stats");
 static const string root("/");
 static const string game("/game");
 static const string high_scores("/game/high_scores");
@@ -203,6 +205,16 @@ void Application_controller::handle_internal_path(
             } else {
                 setInternalPath("/grade/" + permalink, true);
             }
+
+            // /grading_stats
+        } else if (internal_path == Path::grading_stats) {
+            transaction.commit();
+            if (!current_user->can_grade()) permission_denied();
+
+            auto view = new Grading_stats_view(session_);
+
+            set_title("Grading stats");
+            set_widget(view);
 
             // /grade/:permalink
         } else if (std::regex_match(internal_path, sm, Path::grade_N)) {
