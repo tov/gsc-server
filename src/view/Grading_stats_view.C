@@ -29,12 +29,12 @@ Grading_stats_view::Grading_stats_view(Session& session,
     Grader_stats_view_model model;
 
     dbo::Transaction transaction(session_);
-    for (auto user : session.find<User>()
-                            .where("role <> ?")
-                            .bind((int) User::Role::Student)
-                            .resultList()) {
-        model[user->name()] = {user, {}, 0};
-    }
+//    for (auto user : session.find<User>()
+//                            .where("role <> ?")
+//                            .bind((int) User::Role::Student)
+//                            .resultList()) {
+//        model[user->name()] = {user, {}, 0};
+//    }
 
     static const std::string query =
             "SELECT u.name, e.assignment_number, COUNT(*)"
