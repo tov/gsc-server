@@ -2,6 +2,7 @@
 #include "Self_eval.h"
 #include "Session.h"
 #include "auth/User.h"
+#include "Eval_item.h"
 
 #include <Wt/Dbo/Impl>
 
@@ -11,10 +12,20 @@ Grader_eval::Grader_eval(const dbo::ptr<Self_eval>& self_eval,
                          const dbo::ptr<User>& grader)
         : self_eval_(self_eval),
           grader_(grader),
-          score_(0.0),
           time_stamp_(Wt::WDateTime::currentDateTime()),
           status_(static_cast<int>(Status::editing))
 {
+    switch (eval_item()->type()) {
+        case Eval_item::Type::Boolean:
+            score_ = 0;
+            break;
+        case Eval_item::Type::Scale:
+            score_ = self_eval_->score();
+            break;
+        case Eval_item::Type::Informational:
+            score_ = 1;
+            break;
+    }
 }
 
 void Grader_eval::set_explanation(const std::string& explanation)
@@ -75,3 +86,4 @@ std::string Grader_eval::score_string() const
             return "[not set]";
     }
 }
+

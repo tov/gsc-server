@@ -77,9 +77,9 @@ private:
 class Scale_grading_widget : public Abstract_grading_widget
 {
 public:
-    Scale_grading_widget(const dbo::ptr <Grader_eval>&,
-                         double starting_value,
-                         Session&, Wt::WContainerWidget* parent);
+    Scale_grading_widget(const dbo::ptr<Grader_eval>&,
+                         Session&,
+                         Wt::WContainerWidget* parent);
 
 protected:
     // Saves the Grader_eval in held-back status with current score.
@@ -108,13 +108,8 @@ Abstract_grading_widget::create(const dbo::ptr <Grader_eval>& grader_eval,
         case Eval_item::Type::Boolean:
             return new Boolean_grading_widget(grader_eval, session, parent);
         case Eval_item::Type::Scale:
-            // The default value for scale is the user-supplied value
-            return new Scale_grading_widget(grader_eval,
-                                            grader_eval->self_eval()->score(),
-                                            session, parent);
         case Eval_item::Type::Informational:
-            // The default value for informational is 1
-            return new Scale_grading_widget(grader_eval, 1, session, parent);
+            return new Scale_grading_widget(grader_eval, session, parent);
     }
 }
 
@@ -195,13 +190,13 @@ void Boolean_grading_widget::no_action_()
     save_(Grader_eval::Status::ready, 0);
 }
 
-Scale_grading_widget::Scale_grading_widget(const dbo::ptr <Grader_eval>& model,
-                                           double starting_value, Session& session,
+Scale_grading_widget::Scale_grading_widget(const dbo::ptr<Grader_eval>& model,
+                                           Session& session,
                                            Wt::WContainerWidget* parent)
         : Abstract_grading_widget(model, session, parent)
 {
     edit_ = new Unit_line_edit(buttons_);
-    edit_->set_value(starting_value);
+    edit_->set_value(model->score());
     edit_->setStyleClass("unit-edit");
 
     apply_button_ = new Wt::WPushButton("Apply", buttons_);
