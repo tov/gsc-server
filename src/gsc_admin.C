@@ -1,6 +1,7 @@
 #include "model/auth/User.h"
 #include "model/Assignment.h"
 #include "model/Eval_item.h"
+#include "model/Exam_grade.h"
 #include "model/File_data.h"
 #include "model/File_meta.h"
 #include "model/Grader_eval.h"
@@ -29,6 +30,8 @@ public:
 
     void grant_extension(int asst_no, const string& username, const string& timespec);
     void upload_file(int asst_no, const string& username, const string& filename);
+    void set_exam_score(int exam_no, const string& username,
+                        int points, int possible);
 
     dbo::Session& session() { return dbo_; }
 
@@ -74,6 +77,12 @@ int main(int argc, const char* argv[])
         app.upload_file(atoi(argv[2]), argv[3], argv[4]);
     }
 
+    else if (strcmp("set_exam", argv[1]) == 0) {
+        assert_argc(argc == 6, argv, "EXAM_NUMBER USERNAME POINTS POSSIBLE");
+        app.set_exam_score(atoi(argv[2]), argv[3],
+                           atoi(argv[4]), atoi(argv[5]));
+    }
+
     else {
         cerr << "Unknown command: " << argv[1] << '\n';
         exit(3);
@@ -117,6 +126,18 @@ void Gsc_admin::upload_file(int asst_no, const string& username, const string& f
     cout << "done\n";
 }
 
+void Gsc_admin::set_exam_score(int exam_no, const string& username,
+                               int points, int possible)
+{
+    auto user = find_user(username);
+    auto exam_grade = Exam_grade::get_by_user_and_sequence(user, exam_no);
+
+    cout << "Setting " << username << " exam " << sequence
+         << " to " << points << " / " << possible;
+    exam_grade.modify()->set_points_and_possible(points, possible);
+    cout << "done\n";
+}
+
 dbo::ptr<User> Gsc_admin::find_user(const string& username)
 {
     auto user = User::find_by_name(dbo_, username);
@@ -154,3 +175,4 @@ const char* Gsc_admin::get_db_string()
     auto db_string = getenv("POSTGRES_CONNINFO");
     return db_string ? db_string : "dbname=gsc";
 }
+

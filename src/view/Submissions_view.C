@@ -426,7 +426,7 @@ Submissions_view::Submissions_view(const Wt::Dbo::ptr<User>& user,
         auto exam_row = exam_table->rowAt(row++);
 
         std::ostringstream fmt;
-        fmt << "Exam " << each->sequence();
+        fmt << "Exam " << each->number();
         new Wt::WText(fmt.str(), exam_row->elementAt(0));
 
         fmt.str("");

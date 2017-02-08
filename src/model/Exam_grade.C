@@ -4,9 +4,9 @@
 
 DBO_INSTANTIATE_TEMPLATES(Exam_grade);
 
-Exam_grade::Exam_grade(const dbo::ptr <User>& user, int sequence)
+Exam_grade::Exam_grade(const dbo::ptr <User>& user, int number)
         : user_(user),
-          sequence_(sequence),
+          number_(number),
           points_(0),
           possible_(0)
 { }
@@ -28,20 +28,19 @@ Exam_grade::find_by_user(const dbo::ptr<User>& user)
 {
     return user.session()->find<Exam_grade>()
                .where("user_id = ?").bind(user.id())
-               .orderBy("sequence");
+               .orderBy("number");
 }
 
 dbo::ptr<Exam_grade>
-Exam_grade::get_by_user_and_sequence(const dbo::ptr<User>& user,
-                                     int sequence)
+Exam_grade::get_by_user_and_number(const dbo::ptr<User>& user, int number)
 {
     dbo::ptr<Exam_grade> result =
             user.session()->find<Exam_grade>()
                 .where("user_id = ?").bind(user.id())
-                .where("sequence = ?").bind(sequence);
+                .where("number = ?").bind(number);
 
     if (! result)
-        return user.session()->add(new Exam_grade(user, sequence));
+        return user.session()->add(new Exam_grade(user, number));
     else
         return result;
 }

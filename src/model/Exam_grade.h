@@ -11,10 +11,10 @@ class Exam_grade
 {
 public:
     Exam_grade() {}
-    Exam_grade(const dbo::ptr<User>& user, int sequence);
+    Exam_grade(const dbo::ptr<User>& user, int number);
 
     const dbo::ptr<User>& user() const { return user_; }
-    int sequence() const { return sequence_; }
+    int number() const { return number_; }
     int points() const { return points_; }
     int possible() const { return possible_; }
 
@@ -26,11 +26,11 @@ public:
     find_by_user(const dbo::ptr<User>&);
 
     static dbo::ptr<Exam_grade>
-    get_by_user_and_sequence(const dbo::ptr<User>&, int sequence);
+    get_by_user_and_number(const dbo::ptr<User>&, int number);
 
 private:
     dbo::ptr<User> user_;
-    int sequence_;
+    int number_;
     int points_;
     int possible_;
 
@@ -39,7 +39,7 @@ public:
     void persist(Action& a)
     {
         dbo::belongsTo(a, user_, "user", dbo::OnDeleteCascade);
-        dbo::field(a, sequence_, "sequence");
+        dbo::field(a, number_, "number");
         dbo::field(a, points_, "points");
         dbo::field(a, possible_, "possible");
     }
