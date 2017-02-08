@@ -28,7 +28,8 @@ class Gsc_admin
 public:
     Gsc_admin();
 
-    void grant_extension(int asst_no, const string& username, const string& timespec);
+    void grant_extension(int asst_no, const string& username,
+                         const string& timespec, bool eval);
     void upload_file(int asst_no, const string& username, const string& filename);
     void set_exam_score(int exam_no, const string& username,
                         int points, int possible);
@@ -67,9 +68,15 @@ int main(int argc, const char* argv[])
     dbo::Transaction transaction(app.session());
 
     if (strcmp("extend", argv[1]) == 0) {
-        assert_argc(argc == 4 || argc == 5, argv,
-                    "HW_NUMBER USERNAME EXT_SPEC");
-        app.grant_extension(atoi(argv[2]), argv[3], argc == 5 ? argv[4] : "");
+        assert_argc(argc == 5, argv,
+                    "HW_NUMBER USERNAME TIMESPEC");
+        app.grant_extension(atoi(argv[2]), argv[3], argv[4], false);
+    }
+
+    if (strcmp("extend_eval", argv[1]) == 0) {
+        assert_argc(argc == 5, argv,
+                    "HW_NUMBER USERNAME TIMESPEC");
+        app.grant_extension(atoi(argv[2]), argv[3], argv[4], true);
     }
 
     else if (strcmp("upload", argv[1]) == 0) {
@@ -84,7 +91,7 @@ int main(int argc, const char* argv[])
     }
 
     else {
-        cerr << "Unknown command: " << argv[1] << '\n';
+
         exit(3);
     }
 }
@@ -96,7 +103,8 @@ Gsc_admin::Gsc_admin()
     Session::map_classes(dbo_);
 }
 
-void Gsc_admin::grant_extension(int asst_no, const string& username, const string& timespec)
+void Gsc_admin::grant_extension(int asst_no, const string& username,
+                                string const& timespec, bool eval)
 {
     auto assignment = find_assignment(asst_no);
     auto user       = find_user(username);
@@ -104,13 +112,15 @@ void Gsc_admin::grant_extension(int asst_no, const string& username, const strin
 
     auto locale = Wt::WLocale::currentLocale();
     locale.setTimeZone("CST-6CDT,M3.2.0/2,M11.1.0/2");
-    auto local_when = Wt::WLocalDateTime::fromString(timespec, locale);
-    auto when       = local_when.toUTC();
+    auto local_time = Wt::WLocalDateTime::fromString(timespec, locale);
 
-    cout << "Extending to " << local_when.toString() << ".\n";
-
-    submission->set_due_date(when);
-    submission->set_eval_date(when.addDays(2));
+    if (eval) {
+        cout << "Extending eval date to " << local_time.toString() << ".\n";
+        submission->set_eval_date(local_time.toUTC());
+    } else {
+        cout << "Extending due date to " << local_time.toString() << ".\n";
+        submission->set_due_date(local_time.toUTC());
+    }
 }
 
 void Gsc_admin::upload_file(int asst_no, const string& username, const string& filename)
