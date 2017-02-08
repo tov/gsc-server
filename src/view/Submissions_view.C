@@ -2,6 +2,7 @@
 #include "Date_time_edit.h"
 #include "../model/auth/User.h"
 #include "../model/Assignment.h"
+#include "../model/Exam_grade.h"
 #include "../model/Submission.h"
 #include "../model/Session.h"
 
@@ -22,33 +23,44 @@ struct Submissions_view_model_item {
     Submission::Eval_status eval_status;
 };
 
-using Submissions_view_model = std::vector<Submissions_view_model_item>;
+struct Submissions_view_model {
+    std::vector<Submissions_view_model_item> submissions;
+    std::vector<Wt::Dbo::ptr<Exam_grade>> exams;
+};
 
 void load_model(const Wt::Dbo::ptr<User>& user, Session& session,
                 Submissions_view_model& result)
 {
     Wt::Dbo::Transaction transaction(session);
 
+    auto& submissions = result.submissions;
+
     for (const auto& submission : user->submissions()) {
         int index = submission->assignment()->number();
-        while (index >= result.size()) result.emplace_back();
+        while (index >= submissions.size())
+            submissions.emplace_back();
 
         // Make sure this is loaded now.
         submission->user1()->name();
 
-        result[index].submission  = submission;
-        result[index].file_count  = submission->file_count();
-        result[index].eval_status = submission->eval_status();
+        submissions[index].submission  = submission;
+        submissions[index].file_count  = submission->file_count();
+        submissions[index].eval_status = submission->eval_status();
     }
 
     for (const auto& assignment : session.find<Assignment>().resultList()) {
         int index = assignment->number();
-        while (index >= result.size()) result.emplace_back();
+        while (index >= submissions.size())
+            submissions.emplace_back();
 
-        if (! result[index].submission) {
+        if (! submissions[index].submission) {
             auto submission = new Submission(user, assignment);
-            result[index].submission = session.add(submission);
+            submissions[index].submission = session.add(submission);
         }
+    }
+
+    for (auto exam_grade : Exam_grade::find_by_user(user)) {
+        result.exams.push_back(exam_grade);
     }
 
     transaction.commit();
@@ -389,21 +401,38 @@ Submissions_view::Submissions_view(const Wt::Dbo::ptr<User>& user,
                                    Session& session,
                                    Wt::WContainerWidget* parent)
         : WContainerWidget(parent),
-          session_(session)
+          session_(session),
+          model_(std::make_unique<Submissions_view_model>())
 {
     setStyleClass("submissions-view");
 
-    load_model(user, session, model_);
+    load_model(user, session, *model_);
 
     auto table = new Wt::WTable(this);
     table->setHeaderCount(1);
     Submissions_view_row::add_headings(table->rowAt(0));
 
     int row = 1;
-    for (const auto& each : model_) {
+    for (const auto& each : model_->submissions) {
         if (!each.submission) continue;
-
         rows_.push_back(Submissions_view_row::construct(each, session,
                                                         table->rowAt(row++)));
+    }
+
+    auto exam_table = new Wt::WTable(this);
+    exam_table->setStyleClass("exam-table");
+    row = 0;
+    for (const auto& each : model_->exams) {
+        auto exam_row = exam_table->rowAt(row++);
+
+        std::ostringstream fmt;
+        fmt << "Exam " << each->sequence();
+        new Wt::WText(fmt.str(), exam_row->elementAt(0));
+
+        fmt.str("");
+        fmt << each->points() << " / " << each->possible();
+        new Wt::WText(fmt.str(), exam_row->elementAt(1));
+
+        new Wt::WText(each->pct_string(), exam_row->elementAt(2));
     }
 }

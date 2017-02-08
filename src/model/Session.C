@@ -6,6 +6,7 @@
 #include "Self_eval.h"
 #include "Assignment.h"
 #include "Eval_item.h"
+#include "Exam_grade.h"
 #include "File_data.h"
 #include "File_meta.h"
 #include "Grader_eval.h"
@@ -100,9 +101,16 @@ Session::Session(dbo::SqlConnectionPool& pool)
             student.addIdentity(Auth::Identity::LoginName, name);
             my_password_service.updatePassword(student, "");
 
+            auto user = users_.find(student);
+
+            auto exam1 = add(new Exam_grade(user, 1));
+            exam1.modify()->set_points_and_possible(40, 50);
+            auto exam2 = add(new Exam_grade(user, 2));
+            exam2.modify()->set_points_and_possible(37, 50);
+
             for (auto asst : {asst1, asst2, asst3, asst4}) {
                 auto submission =
-                        add(new Submission(users_.find(student), asst));
+                        add(new Submission(user, asst));
                 File_meta::upload("file.h", "#pragma once\n", submission);
                 File_meta::upload("file.C",
                                   "#include \"file.h\"\n\nnamespace meh {\n\n}\n",
@@ -221,6 +229,7 @@ void Session::map_classes(Wt::Dbo::Session& dbo)
     dbo.mapClass<Assignment>("assignments");
     dbo.mapClass<Auth_token>("auth_tokens");
     dbo.mapClass<Eval_item>("eval_items");
+    dbo.mapClass<Exam_grade>("exam_grades");
     dbo.mapClass<File_data>("file_data");
     dbo.mapClass<File_meta>("file_meta");
     dbo.mapClass<Grader_eval>("grader_evals");

@@ -12,6 +12,7 @@ set(MODEL_SOURCE_FILES
         src/model/Abstract_evaluation.C
         src/model/Assignment.C
         src/model/Eval_item.C
+        src/model/Exam_grade.C
         src/model/File_data.C
         src/model/File_meta.C
         src/model/Grader_eval.C
