@@ -130,10 +130,10 @@ void Gsc_admin::set_exam_score(int exam_no, const string& username,
                                int points, int possible)
 {
     auto user = find_user(username);
-    auto exam_grade = Exam_grade::get_by_user_and_sequence(user, exam_no);
+    auto exam_grade = Exam_grade::get_by_user_and_number(user, exam_no);
 
-    cout << "Setting " << username << " exam " << sequence
-         << " to " << points << " / " << possible;
+    cout << "Setting " << username << " exam " << exam_no
+         << " to " << points << " / " << possible << "...";
     exam_grade.modify()->set_points_and_possible(points, possible);
     cout << "done\n";
 }
