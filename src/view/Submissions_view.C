@@ -95,6 +95,7 @@ protected:
 
 private:
     Wt::WText* status_;
+    Wt::WText* grade_;
     Wt::WPushButton* action_;
     std::string action_url_;
 
@@ -112,6 +113,7 @@ Submissions_view_row::Submissions_view_row(
     new Wt::WText(model_.submission->assignment()->name(),
                   row->elementAt(NAME));
     status_ = new Wt::WText(row_->elementAt(STATUS));
+    grade_  = new Wt::WText(row_->elementAt(GRADE));
     action_ = new Wt::WPushButton(row_->elementAt(ACTION));
 
     action_->clicked().connect(this, &Submissions_view_row::action);
@@ -203,7 +205,7 @@ void Submissions_view_row::update()
                 }
 
                 case Submission::Eval_status::complete: {
-                    row_->setStyleClass("self-eval complete");
+
                     status += "Self-eval complete";
                     set_eval_action("Edit");
                     set_action_style_class("btn");
@@ -222,10 +224,9 @@ void Submissions_view_row::update()
             {
                 dbo::Transaction transaction(session_);
                 if (model_.submission->is_graded()) {
-                    new Wt::WText(model_.submission->grade_string(),
-                                  row_->elementAt(GRADE));
+                    grade_->setText(model_.submission->grade_string());
                 } else if (! model_.submission->is_evaluated()) {
-                    new Wt::WText("0%", row_->elementAt(GRADE));
+                    grade_->setText("0%");
                 }
             }
             break;
@@ -316,9 +317,6 @@ void Admin_submissions_view_row::update()
     Submissions_view_row::update();
     due_date_->set_date_time(model_.submission->effective_due_date());
     eval_date_->set_date_time(model_.submission->effective_eval_date());
-
-    due_date_->set_top(eval_date_->date_time());
-    eval_date_->set_bottom(due_date_->date_time());
 
     if (model_.submission->extended()) {
         due_date_->setStyleClass("extended");
