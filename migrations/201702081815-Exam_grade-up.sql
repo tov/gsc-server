@@ -5,4 +5,4 @@ create table "exam_grades" (
   "number" integer not null,
   "points" integer not null,
   "possible" integer not null
-)
+);
