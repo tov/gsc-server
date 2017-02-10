@@ -100,7 +100,7 @@ public:
                                double score, const std::string& explanation);
 
     static const dbo::ptr<Grader_eval>&
-    get_grader_eval(const dbo::ptr<Self_eval>&, const Wt::Dbo::ptr<User>);
+    get_grader_eval(const dbo::ptr<Self_eval>&, const dbo::ptr<User>&);
 
     static void retract_grader_eval(const dbo::ptr<Grader_eval>&);
 

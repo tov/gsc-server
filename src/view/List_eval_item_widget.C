@@ -65,7 +65,7 @@ void List_eval_item_widget::add_scores_()
 
     self_score = model_.self_eval
                  ? model_.self_eval->score_string()
-                 : "<em>[not set]</em>";
+                 : "[not set]";
 
     if (main_.submission()->is_graded() ||
         (role == User::Role::Admin && model_.grader_eval))
@@ -75,7 +75,7 @@ void List_eval_item_widget::add_scores_()
         grader_score = model_.grader_eval->score_string();
     } else {
         grader = "Grader";
-        grader_score = "<em>[not set]</em>";
+        grader_score = "[not set]";
     }
 
     auto table = new Wt::WTemplate(

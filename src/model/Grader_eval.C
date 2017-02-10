@@ -83,7 +83,7 @@ std::string Grader_eval::score_string() const
         case Status::held_back:
             return "[held back]";
         case Status::editing:
-            return "[not set]";
+            return "[editing]";
     }
 }
 

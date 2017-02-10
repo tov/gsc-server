@@ -178,10 +178,11 @@ Submission::save_self_eval(const dbo::ptr<Self_eval>& self_eval,
 
     if (score == 0.0 &&
             self_eval->eval_item()->type() == Eval_item::Type::Boolean) {
-        auto grader_eval = Grader_eval::get_for(self_eval, session);
+        auto grader_eval = get_grader_eval(self_eval, session.user());
         auto grader_eval_m = grader_eval.modify();
         grader_eval_m->set_score(0.1);
         grader_eval_m->set_explanation("You chose no.");
+        grader_eval_m->set_status(Grader_eval::Status::ready);
         submission->items_[sequence].grader_eval = grader_eval;
     } else if (self_eval->eval_item()->type() !=
                    Eval_item::Type::Informational) {
@@ -193,8 +194,8 @@ Submission::save_self_eval(const dbo::ptr<Self_eval>& self_eval,
 }
 
 const dbo::ptr<Grader_eval>&
-Submission::get_grader_eval(const dbo::ptr <Self_eval>& self_eval,
-                            const Wt::Dbo::ptr<User> grader)
+Submission::get_grader_eval(const dbo::ptr<Self_eval>& self_eval,
+                            const dbo::ptr<User>& grader)
 {
     auto submission = self_eval->submission();
     auto sequence = self_eval->eval_item()->sequence();
