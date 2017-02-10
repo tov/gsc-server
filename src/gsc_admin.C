@@ -73,7 +73,7 @@ int main(int argc, const char* argv[])
         app.grant_extension(atoi(argv[2]), argv[3], argv[4], false);
     }
 
-    if (strcmp("extend_eval", argv[1]) == 0) {
+    else if (strcmp("extend_eval", argv[1]) == 0) {
         assert_argc(argc == 5, argv,
                     "HW_NUMBER USERNAME TIMESPEC");
         app.grant_extension(atoi(argv[2]), argv[3], argv[4], true);
@@ -91,7 +91,8 @@ int main(int argc, const char* argv[])
     }
 
     else {
-
+        cerr << "Unrecognized command: " << argv[1] << '\n';
+        cerr << "Commands are: extend extend_eval upload set_exam";
         exit(3);
     }
 }
@@ -108,7 +109,7 @@ void Gsc_admin::grant_extension(int asst_no, const string& username,
 {
     auto assignment = find_assignment(asst_no);
     auto user       = find_user(username);
-    auto submission = find_submission(user, assignment).modify();
+    auto submission = find_submission(user, assignment);
 
     auto locale = Wt::WLocale::currentLocale();
     locale.setTimeZone("CST-6CDT,M3.2.0/2,M11.1.0/2");
@@ -116,11 +117,19 @@ void Gsc_admin::grant_extension(int asst_no, const string& username,
 
     if (eval) {
         cout << "Extending eval date to " << local_time.toString() << ".\n";
-        submission->set_eval_date(local_time.toUTC());
+        submission.modify()->set_eval_date(local_time.toUTC());
+//        cout << "Effective eval date is "
+//                << submission->effective_eval_date()
+//                             .toLocalTime(locale).toString()
+//                << ".\n";
     } else {
         cout << "Extending due date to " << local_time.toString() << ".\n";
-        submission->set_due_date(local_time.toUTC());
+        submission.modify()->set_due_date(local_time.toUTC());
+//        cout << "Effective due date is "
+//             << submission->effective_due_date().toLocalTime(locale).toString()
+//             << ".\n";
     }
+
 }
 
 void Gsc_admin::upload_file(int asst_no, const string& username, const string& filename)
