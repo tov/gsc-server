@@ -118,16 +118,9 @@ void Gsc_admin::grant_extension(int asst_no, const string& username,
     if (eval) {
         cout << "Extending eval date to " << local_time.toString() << ".\n";
         submission.modify()->set_eval_date(local_time.toUTC());
-//        cout << "Effective eval date is "
-//                << submission->effective_eval_date()
-//                             .toLocalTime(locale).toString()
-//                << ".\n";
     } else {
         cout << "Extending due date to " << local_time.toString() << ".\n";
         submission.modify()->set_due_date(local_time.toUTC());
-//        cout << "Effective due date is "
-//             << submission->effective_due_date().toLocalTime(locale).toString()
-//             << ".\n";
     }
 
 }
