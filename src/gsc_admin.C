@@ -12,6 +12,13 @@
 #include <Wt/Dbo/backend/Postgres>
 #include <Wt/WLocalDateTime>
 
+#include <Wt/Auth/AuthService>
+#include <Wt/Auth/HashFunction>
+#include <Wt/Auth/Identity>
+#include <Wt/Auth/PasswordService>
+#include <Wt/Auth/PasswordStrengthValidator>
+#include <Wt/Auth/PasswordVerifier>
+
 #include <iostream>
 #include <cstdlib>
 #include <cstring>
@@ -33,6 +40,7 @@ public:
     void upload_file(int asst_no, const string& username, const string& filename);
     void set_exam_score(int exam_no, const string& username,
                         int points, int possible);
+    void set_password(const string& username, const string& password);
 
     dbo::Session& session() { return dbo_; }
 
@@ -88,6 +96,11 @@ int main(int argc, const char* argv[])
         assert_argc(argc == 6, argv, "EXAM_NUMBER USERNAME POINTS POSSIBLE");
         app.set_exam_score(atoi(argv[2]), argv[3],
                            atoi(argv[4]), atoi(argv[5]));
+    }
+
+    else if (strcmp("passwd", argv[1]) == 0) {
+        assert_argc(argc == 4, argv, "USERNAME NEW_PASSWORD");
+        app.set_password(argv[2], argv[3]);
     }
 
     else {
@@ -148,6 +161,22 @@ void Gsc_admin::set_exam_score(int exam_no, const string& username,
          << " to " << points << " / " << possible << "...";
     exam_grade.modify()->set_points_and_possible(points, possible);
     cout << "done\n";
+}
+
+
+void Gsc_admin::set_password(const string& username, const string& password)
+{
+    User_database user_database(dbo_);
+    Wt::Auth::AuthService auth_service;
+    Wt::Auth::PasswordService password_service(auth_service);
+
+    Wt::Auth::PasswordVerifier* verifier = new Wt::Auth::PasswordVerifier();
+    verifier->addHashFunction(new Wt::Auth::BCryptHashFunction(7));
+    password_service.setVerifier(verifier);
+
+    auto user = find_user(username);
+    auto db_user = user_database.find(user);
+    password_service.updatePassword(db_user, password);
 }
 
 dbo::ptr<User> Gsc_admin::find_user(const string& username)
