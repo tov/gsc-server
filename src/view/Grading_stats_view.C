@@ -42,9 +42,12 @@ Grading_stats_view::Grading_stats_view(Session& session,
                     " INNER JOIN grader_evals g ON g.grader_id = u.id"
                     " INNER JOIN self_evals s ON g.self_eval_id = s.id"
                     " INNER JOIN eval_items e ON s.eval_item_id = e.id"
+                    " WHERE u.role <> ?"
                     " GROUP BY u.name, e.assignment_number";
-    for (auto row : session.query<boost::tuple<std::string, int, int>>
-                                   (query).resultList()) {
+    auto results =
+            session.query<boost::tuple<std::string, int, int>>(query)
+                   .bind(int(User::Role::Student)).resultList();
+    for (auto row : results) {
         const std::string& user_name = boost::get<0>(row);
         int assignment_number = boost::get<1>(row);
         int count = boost::get<2>(row);
