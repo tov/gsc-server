@@ -177,6 +177,7 @@ void Gsc_admin::set_password(const string& username, const string& password)
     auto user = find_user(username);
     auto db_user = user_database.find(user);
     password_service.updatePassword(db_user, password);
+    cout << "Set password for user " << user->name() << '\n';
 }
 
 dbo::ptr<User> Gsc_admin::find_user(const string& username)
