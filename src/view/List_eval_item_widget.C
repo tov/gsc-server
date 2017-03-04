@@ -29,12 +29,6 @@ void List_eval_item_widget::add_buttons_()
         auto edit = new Wt::WPushButton("Edit", buttons);
         edit->clicked().connect(this,
                                 &List_eval_item_widget::focus_action_);
-
-        if (session_.user()->can_admin() && model_.self_eval) {
-            auto retract = new Wt::WPushButton("Retract", buttons);
-            retract->clicked().connect(this,
-                                       &List_eval_item_widget::retract_action_);
-        }
     } else {
         auto view = new Wt::WPushButton("View", buttons);
         view->clicked().connect(this,
