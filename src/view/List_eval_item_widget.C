@@ -62,7 +62,9 @@ void List_eval_item_widget::add_scores_()
                  : "[not set]";
 
     if (main_.submission()->is_graded() ||
-        (role == User::Role::Admin && model_.grader_eval))
+        (model_.grader_eval &&
+                (role == User::Role::Admin ||
+                 main_.submission()->can_eval(current_user))))
     {
         auto grader_user = model_.grader_eval->grader();
         grader = grader_user->can_grade() ? grader_user->name() : "Auto";
