@@ -114,6 +114,11 @@ Self_eval::find_with_grade_status(Grader_eval::Status status,
     ).bind((int) status).resultList();
 }
 
+bool Self_eval::can_edit(const dbo::ptr<User>& user) const
+{
+    return submission()->can_eval(user);
+}
+
 std::string Self_eval::owner_string(const dbo::ptr<User>& as_seen_by) const
 {
     if (as_seen_by == submission()->user1() ||
