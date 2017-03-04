@@ -25,15 +25,15 @@ void List_eval_item_widget::add_buttons_()
     auto buttons = new Wt::WContainerWidget(this);
     buttons->setStyleClass("buttons");
 
-    if (model_.self_eval->can_edit(session_.user())) {
-        auto edit = new Wt::WPushButton("Edit", buttons);
-        edit->clicked().connect(this,
-                                &List_eval_item_widget::focus_action_);
+    auto focus_btn = new Wt::WPushButton(buttons);
+
+    if (main_.submission()->can_eval(session_.user())) {
+        focus_btn->setText("Edit");
     } else {
-        auto view = new Wt::WPushButton("View", buttons);
-        view->clicked().connect(this,
-                                &List_eval_item_widget::focus_action_);
+        focus_btn->setText("View");
     }
+
+    focus_btn->clicked().connect(this, &List_eval_item_widget::focus_action_);
 }
 
 void List_eval_item_widget::add_scores_()

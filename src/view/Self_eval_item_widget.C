@@ -26,12 +26,19 @@ Self_eval_item_widget::Self_eval_item_widget(
     auto buttons = new Wt::WContainerWidget(this);
     buttons->setStyleClass("buttons");
 
-    auto label = model.eval_item->type() == Eval_item::Type::Informational
-                 ? "Continue"
-                 : "Save";
-    save_button_ = new Wt::WPushButton(label, buttons);
-    save_button_->clicked().connect(this,
-                                    &Self_eval_item_widget::save_action_);
+    if (model.grader_eval && model.grader_eval->score() == 1) {
+        response_widget_->setDisabled(true);
+        save_button_ = new Wt::WPushButton("Back", buttons);
+        save_button_->clicked().connect(this,
+                                        &Self_eval_item_widget::back_action_);
+    } else {
+        auto label = model.eval_item->type() == Eval_item::Type::Informational
+                     ? "Continue"
+                     : "Save";
+        save_button_ = new Wt::WPushButton(label, buttons);
+        save_button_->clicked().connect(this,
+                                        &Self_eval_item_widget::save_action_);
+    }
 
     if (model_.grader_eval) {
         auto score = model_.eval_item->format_score(model_.grader_eval->score());
@@ -55,6 +62,11 @@ void Self_eval_item_widget::save_action_()
                                response_widget_->explanation());
     transaction.commit();
 
+    main_.go_default();
+}
+
+void Self_eval_item_widget::back_action_()
+{
     main_.go_default();
 }
 

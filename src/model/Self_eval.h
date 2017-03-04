@@ -35,7 +35,6 @@ public:
     std::string eval_url() const;
     std::string grade_url() const;
 
-    bool can_edit(const dbo::ptr<User>&) const;
     std::string owner_string(const dbo::ptr<User>& as_seen_by) const override;
 
     static dbo::ptr<Self_eval> find_by_permalink(dbo::Session&,

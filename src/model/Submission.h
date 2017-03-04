@@ -84,7 +84,7 @@ public:
 
     bool can_view(const dbo::ptr<User>&) const;
     bool can_submit(const dbo::ptr<User>&) const;
-    bool can_eval(const dbo::ptr<User>&) const;
+    bool can_eval(const dbo::ptr <User>&) const;
     bool can_view_eval(const dbo::ptr<User>&) const;
 
     std::string url() const;

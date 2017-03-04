@@ -19,6 +19,7 @@ private:
     Wt::WPushButton* save_button_;
 
     void save_action_();
+    void back_action_();
     void validate_();
 };
 

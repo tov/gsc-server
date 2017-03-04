@@ -261,14 +261,16 @@ bool Submission::can_submit(const dbo::ptr<User>& user) const
                     (user == user1_ || user == user2_));
 }
 
-bool Submission::can_eval(const dbo::ptr<User>& user) const
+bool Submission::can_eval(const dbo::ptr <User>& user) const
 {
-    auto now = Wt::WDateTime::currentDateTime();
+    if (user->can_admin()) return true;
+    if (user != user1_ && user != user2_) return false;
 
-    return user->can_admin() ||
-           (effective_due_date() < now &&
-                   now <= effective_eval_date() &&
-                   (user == user1_ || user == user2_));
+    auto now = Wt::WDateTime::currentDateTime();
+    if (now < effective_due_date() || effective_eval_date() < now)
+        return false;
+
+    return true;
 }
 
 bool Submission::can_view_eval(const dbo::ptr<User>& user) const
