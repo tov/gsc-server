@@ -27,5 +27,5 @@ if [ ! -d $build_dir ]; then
     )
 fi
 
-make -C $build_dir $target
+make -j 4 -C $build_dir $target
 
