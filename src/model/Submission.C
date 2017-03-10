@@ -121,17 +121,13 @@ double Submission::grade() const
         return grade_;
     }
 
-    try {
-        return session()->query<double>(
-                "SELECT SUM(relative_value * g.score) / NULLIF(SUM(relative_value), 0)"
-                        "  FROM self_evals s"
-                        " INNER JOIN eval_items e ON s.eval_item_id = e.id"
-                        " INNER JOIN grader_evals g ON g.self_eval_id = s.id"
-                        " WHERE s.submission_id = ?"
-        ).bind(id()).resultValue();
-    } catch (...) {
-        return 0;
-    }
+    return session()->query<double>(
+            "SELECT SUM(relative_value * g.score) / NULLIF(SUM(relative_value), 0)"
+                    "  FROM self_evals s"
+                    " INNER JOIN eval_items e ON s.eval_item_id = e.id"
+                    " INNER JOIN grader_evals g ON g.self_eval_id = s.id"
+                    " WHERE s.submission_id = ?"
+    ).bind(id()).resultValue();
 }
 
 const dbo::ptr<Self_eval>&
