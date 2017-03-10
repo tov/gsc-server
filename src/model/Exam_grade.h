@@ -20,13 +20,14 @@ public:
 
     void set_points_and_possible(int points, int possible);
 
+    double grade() const;
     std::string pct_string() const;
 
     static dbo::collection<dbo::ptr<Exam_grade>>
     find_by_user(const dbo::ptr<User>&);
 
     static dbo::ptr<Exam_grade>
-    get_by_user_and_number(const dbo::ptr<User>&, int number);
+    find_by_user_and_number(const dbo::ptr<User>&, int number);
 
 private:
     dbo::ptr<User> user_;

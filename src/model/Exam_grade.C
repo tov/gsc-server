@@ -17,10 +17,16 @@ void Exam_grade::set_points_and_possible(int points, int possible)
     possible_ = possible;
 }
 
+double Exam_grade::grade() const
+{
+    if (possible() == 0) return 0;
+    else return double(points()) / possible();
+}
+
 std::string Exam_grade::pct_string() const
 {
     if (possible() == 0) return "N/A";
-    return Eval_item::pct_string(double(points()) / possible(), 3);
+    return Eval_item::pct_string(grade(), 3);
 }
 
 Wt::Dbo::collection<Wt::Dbo::ptr<Exam_grade>>
@@ -32,7 +38,7 @@ Exam_grade::find_by_user(const dbo::ptr<User>& user)
 }
 
 dbo::ptr<Exam_grade>
-Exam_grade::get_by_user_and_number(const dbo::ptr<User>& user, int number)
+Exam_grade::find_by_user_and_number(const dbo::ptr <User>& user, int number)
 {
     dbo::ptr<Exam_grade> result =
             user.session()->find<Exam_grade>()

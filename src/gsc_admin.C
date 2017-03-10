@@ -41,6 +41,7 @@ public:
     void set_exam_score(int exam_no, const string& username,
                         int points, int possible);
     void set_password(const string& username, const string& password);
+    void print_csv();
 
     dbo::Session& session() { return dbo_; }
 
@@ -103,6 +104,11 @@ int main(int argc, const char* argv[])
         app.set_password(argv[2], argv[3]);
     }
 
+    else if (strcmp("csv", argv[1]) == 0) {
+        assert_argc(argc == 2, argv, "");
+        app.print_csv();
+    }
+
     else {
         cerr << "Unrecognized command: " << argv[1] << '\n';
         cerr << "Commands are: extend extend_eval upload set_exam";
@@ -155,7 +161,7 @@ void Gsc_admin::set_exam_score(int exam_no, const string& username,
                                int points, int possible)
 {
     auto user = find_user(username);
-    auto exam_grade = Exam_grade::get_by_user_and_number(user, exam_no);
+    auto exam_grade = Exam_grade::find_by_user_and_number(user, exam_no);
 
     cout << "Setting " << username << " exam " << exam_no
          << " to " << points << " / " << possible << "...";
@@ -178,6 +184,47 @@ void Gsc_admin::set_password(const string& username, const string& password)
     auto db_user = user_database.find(user);
     password_service.updatePassword(db_user, password);
     cout << "Set password for user " << user->name() << '\n';
+}
+
+void Gsc_admin::print_csv()
+{
+    const auto assigns_q = dbo_.find<Assignment>().orderBy("number")
+                               .resultList();
+    const auto exams_q = dbo_.query<int>("SELECT number FROM exam_grades")
+                             .orderBy("number")
+                             .groupBy("number")
+                             .resultList();
+
+    std::vector<dbo::ptr<Assignment>> assigns(assigns_q.begin(), assigns_q.end());
+    std::vector<int> exams(exams_q.begin(), exams_q.end());
+
+    cout << "NetID";
+    for (const auto& assign : assigns)
+        cout << ",hw" << assign->number();
+    for (int exam : exams)
+        cout << ",exam" << exam;
+    cout << '\n';
+
+    const auto users = dbo_.find<User>()
+                           .where("role = ?").bind(int(User::Role::Student))
+                           .orderBy("name")
+                           .resultList();
+
+    for (const auto& user : users) {
+        cout << user->name();
+
+        for (const auto& assign : assigns) {
+            auto submission = Submission::find_by_assignment_and_user(dbo_, assign, user);
+            cout << ',' << (submission? submission->grade() : 0);
+        }
+
+        for (int exam : exams) {
+            auto exam_grade = Exam_grade::find_by_user_and_number(user, exam);
+            cout << ',' << (exam_grade? exam_grade->grade() : 0);
+        }
+
+        cout << '\n';
+    }
 }
 
 dbo::ptr<User> Gsc_admin::find_user(const string& username)
