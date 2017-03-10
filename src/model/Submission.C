@@ -123,8 +123,8 @@ double Submission::grade() const
 
     return session()->query<double>(
             "SELECT SUM(relative_value * g.score) / SUM(relative_value)"
-            "  FROM eval_items e"
-            " INNER JOIN self_evals s ON s.eval_item_id = e.id"
+            "  FROM self_evals s"
+            " INNER JOIN eval_items e ON s.eval_item_id = e.id"
             " INNER JOIN grader_evals g ON g.self_eval_id = s.id"
             " WHERE s.submission_id = ?"
     ).bind(id()).resultValue();
