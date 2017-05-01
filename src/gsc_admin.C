@@ -223,7 +223,7 @@ void Gsc_admin::print_csv()
             cout << ',' << (exam_grade? exam_grade->grade() : 0);
         }
 
-        cout << '\n';
+        cout << endl;
     }
 }
 
