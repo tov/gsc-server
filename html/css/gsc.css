@@ -359,3 +359,15 @@ tr.grader-highlight {
     text-align: center;
     font-size: 200%;
 }
+
+.partner-notification {
+    border: 1px solid darkred;
+    background-color: #fcc;
+    border-radius: 5px;
+    margin-bottom: 1em;
+    padding: 0.5em;
+}
+
+.partner-notification .buttons {
+    margin: 0.5em 0;
+}

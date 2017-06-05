@@ -23,11 +23,18 @@ public:
            const dbo::ptr<User>& requestee,
            const dbo::ptr<Assignment>&);
 
-    void confirm(Session&) const;
+    bool confirm(Session&) const;
 
     const dbo::ptr<User>& requestor() const { return requestor_; }
     const dbo::ptr<User>& requestee() const { return requestee_; }
     const dbo::ptr<Assignment>& assignment() const { return assignment_; }
+
+    static dbo::ptr<Partner_request>
+    find_by_requestor_and_requestee(
+            Session&,
+            const dbo::ptr<User>& requestor,
+            const dbo::ptr<User>& requestee,
+            const dbo::ptr<Assignment>&);
 
     static dbo::ptr<Partner_request>
     find_by_requestor(Session&,
@@ -52,6 +59,11 @@ public:
         dbo::belongsTo(a, requestee_, "requestee", dbo::OnDeleteCascade);
         dbo::belongsTo(a, assignment_, "assignment", dbo::OnDeleteCascade);
     }
+
+    Wt::Dbo::ptr<Partner_request> find_by_requestor_and_requestee(Session& session,
+                                                                  const Wt::Dbo::ptr<User>& requestor,
+                                                                  const Wt::Dbo::ptr<User>* requestee,
+                                                                  const Wt::Dbo::ptr<Assignment>& assignment);
 };
 
 DBO_EXTERN_TEMPLATES(Partner_request);

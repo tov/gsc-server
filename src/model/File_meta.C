@@ -1,6 +1,7 @@
 #include "File_meta.h"
 #include "File_data.h"
 #include "Submission.h"
+#include "auth/User.h"
 
 #include <Wt/Dbo/Impl>
 
@@ -51,4 +52,33 @@ File_meta::upload(const std::string& name, const std::string& contents,
     transaction.commit();
 
     return result;
+}
+
+void File_meta::rename(const std::string& new_name)
+{
+    name_ = new_name;
+}
+
+void File_meta::re_own(const dbo::ptr <Submission>& new_owner)
+{
+    Source_file_vec avoid = new_owner->source_files_sorted();
+
+    auto exists = [&](const std::string& name) {
+        for (const auto& each : avoid) {
+            if (name == each->name()) return true;
+        }
+        return false;
+    };
+
+    if (exists(name())) {
+        std::string alternate = name() + "." + submission()->user1()->name();
+
+        while (exists(alternate)) {
+            alternate += "~";
+        }
+
+        rename(alternate);
+    }
+
+    submission_ = new_owner;
 }

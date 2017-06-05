@@ -405,3 +405,19 @@ std::string Submission::grade_string() const
     return Eval_item::pct_string(grade(), 3);
 }
 
+bool Submission::join_together(dbo::ptr <Submission> keep,
+                               dbo::ptr <Submission> kill)
+{
+    if (keep->user2() || kill->user2()) return false;
+    if (keep->user1() == kill->user1()) return false;
+    if (keep->assignment() != kill->assignment()) return false;
+
+    for (dbo::ptr<File_meta> file : kill->source_files_sorted())
+        file.modify()->re_own(keep);
+
+    keep.modify()->user2_ = kill->user1_;
+    kill.remove();
+
+    return true;
+}
+

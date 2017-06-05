@@ -21,6 +21,9 @@ public:
     int line_count() const { return line_count_; }
     const dbo::ptr<Submission>& submission() const { return submission_; }
 
+    void rename(const std::string&);
+    void re_own(const dbo::ptr<Submission>&);
+
     static dbo::ptr<File_meta>
     upload(const std::string& name,
            const std::string& contents,

@@ -104,6 +104,9 @@ public:
 
     static void retract_grader_eval(const dbo::ptr<Grader_eval>&);
 
+    static bool join_together(dbo::ptr<Submission> keep,
+                              dbo::ptr<Submission> kill);
+
     void touch();
 
     static dbo::ptr<Submission>

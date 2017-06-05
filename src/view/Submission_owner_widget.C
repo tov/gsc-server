@@ -35,12 +35,18 @@ Partner_pending::Partner_pending(Submission_owner_widget* main,
           main_(main),
           request_(request)
 {
+    setStyleClass("partner-notification partner-pending");
+
     std::ostringstream message;
     message << "Your partner request to <strong>"
             << request_->requestee()->name()
             << "</strong> is pending confirmation. ";
     new Wt::WText(message.str(), this);
-    auto cancel = new Wt::WPushButton("Cancel", this);
+
+    auto buttons = new Wt::WContainerWidget(this);
+    buttons->setStyleClass("buttons");
+
+    auto cancel = new Wt::WPushButton("Cancel", buttons);
     cancel->clicked().connect(this, &Partner_pending::cancel_);
 }
 
@@ -70,13 +76,17 @@ Partner_requestor::Partner_requestor(Submission_owner_widget* main,
         : WContainerWidget(parent),
           main_(main)
 {
-    new Wt::WText("Partner: ", this);
-    edit_ = new Wt::WLineEdit(this);
-    new Wt::WText(" ", this);
-    auto request = new Wt::WPushButton("Request", this);
+    setStyleClass("partner-notification partner-requestor");
 
+    new Wt::WText("Request partner: ", this);
+
+    edit_ = new Wt::WLineEdit(this);
     edit_->setStyleClass("username");
     edit_->setEmptyText("NetID");
+
+    auto buttons = new Wt::WContainerWidget(this);
+    buttons->setStyleClass("buttons");
+    auto request = new Wt::WPushButton("Send", buttons);
 
     request->clicked().connect(this, &Partner_requestor::submit_);
     edit_->enterPressed().connect(this, &Partner_requestor::submit_);
@@ -144,14 +154,18 @@ Partner_confirmer::Partner_confirmer(Submission_owner_widget* main,
           main_(main),
           request_(request)
 {
+    setStyleClass("partner-notification partner-confirmer");
+
     std::ostringstream message;
     message << "You have a partner request from <strong>"
             << request->requestor()->name()
             << "</strong>. ";
     new Wt::WText(message.str(), this);
 
-    auto reject = new Wt::WPushButton("Reject", this);
-    auto accept = new Wt::WPushButton("Accept", this);
+    auto buttons = new Wt::WContainerWidget(this);
+    buttons->setStyleClass("buttons");
+    auto reject = new Wt::WPushButton("Reject", buttons);
+    auto accept = new Wt::WPushButton("Accept", buttons);
 
     reject->clicked().connect(this, &Partner_confirmer::reject_);
     accept->clicked().connect(this, &Partner_confirmer::accept_);
@@ -160,9 +174,24 @@ Partner_confirmer::Partner_confirmer(Submission_owner_widget* main,
 void Partner_confirmer::accept_()
 {
     dbo::Transaction transaction(main_->session_);
-    request_->confirm(main_->session_);
+    bool success = request_->confirm(main_->session_);
     transaction.commit();
-    main_->update_();
+
+    if (success) {
+        main_->update_();
+    } else {
+        Wt::WMessageBox* box = new Wt::WMessageBox(
+                "Error",
+                Wt::WString::fromUTF8("That partner request has"
+                                              " been withdrawn :("),
+                Wt::Critical, Wt::Ok, this);
+        box->setModal(true);
+        box->buttonClicked().connect(std::bind([=] () {
+            delete box;
+            main_->update_();
+        }));
+        box->show();
+    }
 }
 
 void Partner_confirmer::reject_()
