@@ -7,10 +7,6 @@
 class Session;
 class Submission;
 
-class Partner_confirmer;
-class Partner_pending;
-class Partner_requestor;
-
 class Submission_owner_widget : public Wt::WCompositeWidget
 {
 public:
@@ -27,8 +23,4 @@ private:
     void update_admin_();
     void update_grader_();
     void update_student_();
-
-    friend class Partner_confirmer;
-    friend class Partner_pending;
-    friend class Partner_requestor;
 };
