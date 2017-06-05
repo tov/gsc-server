@@ -19,7 +19,8 @@ Partner_request::create(Session& session,
     if (other_submission && other_submission->user2())
         return {};
 
-    if (Partner_request::find_by_requestor(session, requestor, assignment))
+    if (Partner_request::find_by_requestor_and_assignment(session, requestor,
+                                                          assignment))
         return {};
 
     auto request = new Partner_request;
@@ -69,10 +70,27 @@ Partner_request::find_by_requestor_and_requestee(
                   .where("assignment_number = ?").bind(assignment.id());
 }
 
-Wt::Dbo::ptr<Partner_request>
+Wt::Dbo::collection<Wt::Dbo::ptr<Partner_request>>
 Partner_request::find_by_requestor(Session& session,
-                                   const Wt::Dbo::ptr<User>& requestor,
-                                   const Wt::Dbo::ptr<Assignment>& assignment)
+                                   const dbo::ptr<User>& requestor)
+{
+    return session.find<Partner_request>()
+                  .where("requestor_id = ?").bind(requestor.id());
+}
+
+Wt::Dbo::collection<Wt::Dbo::ptr<Partner_request>>
+Partner_request::find_by_requestee(Session& session,
+                                   const dbo::ptr<User>& requestee)
+{
+    return session.find<Partner_request>()
+                  .where("requestee_id = ?").bind(requestee.id());
+}
+
+
+Wt::Dbo::ptr<Partner_request>
+Partner_request::find_by_requestor_and_assignment(Session& session,
+                                                  const Wt::Dbo::ptr<User>& requestor,
+                                                  const Wt::Dbo::ptr<Assignment>& assignment)
 {
     return session.find<Partner_request>()
                   .where("requestor_id = ?").bind(requestor.id())
@@ -80,9 +98,9 @@ Partner_request::find_by_requestor(Session& session,
 }
 
 Wt::Dbo::collection<Wt::Dbo::ptr<Partner_request>>
-Partner_request::find_by_requestee(Session& session,
-                                   const Wt::Dbo::ptr<User>& requestee,
-                                   const Wt::Dbo::ptr<Assignment>& assignment)
+Partner_request::find_by_requestee_and_assignment(Session& session,
+                                                  const Wt::Dbo::ptr<User>& requestee,
+                                                  const Wt::Dbo::ptr<Assignment>& assignment)
 {
     return session.find<Partner_request>()
                   .where("requestee_id = ?").bind(requestee.id())
@@ -100,4 +118,3 @@ void Partner_request::delete_requests(Session& session,
            .bind(assignment.id())
            .run();
 }
-

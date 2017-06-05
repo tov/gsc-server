@@ -334,16 +334,17 @@ void Submission_owner_widget::update_student_()
     auto assignment = submission_->assignment();
     if (!assignment->partner()) return;
 
-    auto outgoing = Partner_request::find_by_requestor(session_, self,
-                                                       assignment);
+    auto outgoing =
+            Partner_request::find_by_requestor_and_assignment(
+                    session_, self, assignment);
     if (outgoing) {
         new Partner_pending(this, outgoing, impl_);
     } else {
         new Partner_requestor(this, impl_);
     }
 
-    auto incoming = Partner_request::find_by_requestee(session_, self,
-                                                       assignment);
+    auto incoming = Partner_request::find_by_requestee_and_assignment(
+            session_, self, assignment);
     for (const auto& request : incoming) {
         new Partner_confirmer(this, request, impl_);
     }

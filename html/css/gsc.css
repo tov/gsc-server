@@ -318,7 +318,9 @@ h2 {
 
 .buttons button,
 .buttons input,
-.dialog-buttons button {
+.dialog-buttons button,
+.buttons-inline button,
+.buttons-inline input {
     margin: 0 5px;
 }
 
@@ -371,3 +373,9 @@ tr.grader-highlight {
 .partner-notification .buttons {
     margin: 0.5em 0;
 }
+
+.submissions-view .partner-notification {
+    margin: 1em;
+    text-align: center;
+}
+

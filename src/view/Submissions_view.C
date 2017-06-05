@@ -1,5 +1,6 @@
 #include "Submissions_view.h"
 #include "Date_time_edit.h"
+#include "Partner_notifications_widget.h"
 #include "../model/auth/User.h"
 #include "../model/Assignment.h"
 #include "../model/Exam_grade.h"
@@ -403,6 +404,8 @@ Submissions_view::Submissions_view(const Wt::Dbo::ptr<User>& user,
           model_(std::make_unique<Submissions_view_model>())
 {
     setStyleClass("submissions-view");
+
+    new Partner_notification_widget(user, {}, session, this);
 
     load_model(user, session, *model_);
 

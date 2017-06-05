@@ -37,15 +37,21 @@ public:
             const dbo::ptr<User>& requestee,
             const dbo::ptr<Assignment>&);
 
-    static dbo::ptr<Partner_request>
-    find_by_requestor(Session&,
-                      const dbo::ptr<User>&,
-                      const dbo::ptr<Assignment>&);
+    static dbo::collection<dbo::ptr<Partner_request>>
+    find_by_requestor(Session&, const dbo::ptr<User>&);
 
     static dbo::collection<dbo::ptr<Partner_request>>
-    find_by_requestee(Session&,
-                      const dbo::ptr<User>&,
-                      const dbo::ptr<Assignment>&);
+    find_by_requestee(Session&, const dbo::ptr<User>&);
+
+    static dbo::ptr<Partner_request>
+    find_by_requestor_and_assignment(Session&,
+                                     const dbo::ptr<User>&,
+                                     const dbo::ptr<Assignment>&);
+
+    static dbo::collection<dbo::ptr<Partner_request>>
+    find_by_requestee_and_assignment(Session&,
+                                     const dbo::ptr<User>&,
+                                     const dbo::ptr<Assignment>&);
 
     static void
     delete_requests(Session&,

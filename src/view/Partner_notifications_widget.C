@@ -1,0 +1,143 @@
+#include "Partner_notifications_widget.h"
+#include "../model/auth/User.h"
+#include "../model/Assignment.h"
+#include "../model/Session.h"
+#include "../model/Partner_request.h"
+
+Partner_pending_widget::Partner_pending_widget(
+        Partner_notification_widget* main,
+        const Wt::Dbo::ptr<Partner_request>& request,
+        bool inline_buttons,
+        bool show_assignment)
+        : main_(main)
+        , request_(request)
+        , WContainerWidget(main->impl_)
+{
+    setStyleClass("partner-notification partner-pending");
+
+    std::ostringstream message;
+    message << "Your partner request to <strong>"
+            << request_->requestee()->name()
+            << "</strong>";
+    if (show_assignment)
+        message << " for " << request_->assignment()->name();
+    message << " is pending confirmation. ";
+    new Wt::WText(message.str(), this);
+
+    auto buttons = new Wt::WContainerWidget(this);
+    buttons->setInline(inline_buttons);
+    buttons->setStyleClass(inline_buttons? "buttons-inline" : "buttons");
+
+    auto cancel = new Wt::WPushButton("Cancel", buttons);
+    cancel->clicked().connect(this, &Partner_pending_widget::cancel_);
+}
+
+void Partner_pending_widget::cancel_() {
+    dbo::Transaction transaction(main_->session_);
+    request_.remove();
+    transaction.commit();
+    main_->update_();
+}
+
+Partner_confirmer_widget::Partner_confirmer_widget(
+        Partner_notification_widget* main,
+        const Wt::Dbo::ptr<Partner_request>& request,
+        bool inline_buttons,
+        bool show_assignment)
+        : main_(main)
+        , request_(request)
+        , WContainerWidget(main->impl_)
+{
+
+    setStyleClass("partner-notification partner-confirmer");
+
+    std::ostringstream message;
+    message << "You have a partner request from <strong>"
+            << request->requestor()->name()
+            << "</strong>";
+    if (show_assignment)
+        message << " for " << request_->assignment()->name();
+    message << ".";
+
+    new Wt::WText(message.str(), this);
+
+    auto buttons = new Wt::WContainerWidget(this);
+    buttons->setStyleClass(inline_buttons? "buttons-inline" : "buttons");
+    buttons->setInline(inline_buttons);
+    auto reject = new Wt::WPushButton("Reject", buttons);
+    auto accept = new Wt::WPushButton("Accept", buttons);
+
+    reject->clicked().connect(this, &Partner_confirmer_widget::reject_);
+    accept->clicked().connect(this, &Partner_confirmer_widget::accept_);
+}
+
+void Partner_confirmer_widget::accept_()
+{
+    dbo::Transaction transaction(main_->session_);
+    auto submission = request_->confirm(main_->session_);
+    transaction.commit();
+
+    if (submission) {
+        main_->update_();
+    } else {
+        Wt::WMessageBox* box = new Wt::WMessageBox(
+                "Error",
+                Wt::WString::fromUTF8("That partner request has"
+                                              " been withdrawn :("),
+                Wt::Critical, Wt::Ok, this);
+        box->setModal(true);
+        box->buttonClicked().connect(std::bind([=] () {
+            delete box;
+            main_->update_();
+        }));
+        box->show();
+    }
+}
+
+void Partner_confirmer_widget::reject_()
+{
+    dbo::Transaction transaction(main_->session_);
+    request_.remove();
+    transaction.commit();
+    delete this;
+}
+
+Partner_notification_widget::Partner_notification_widget(
+        const Wt::Dbo::ptr<User>& user,
+        const Wt::Dbo::ptr<Assignment>& assignment,
+        Session& session,
+        Wt::WContainerWidget* parent)
+        : session_(session)
+        , user_(user)
+        , assignment_(assignment)
+        , WCompositeWidget(parent)
+{
+    setImplementation(impl_ = new Wt::WContainerWidget());
+    update_();
+}
+
+void Partner_notification_widget::update_() {
+    impl_->clear();
+
+    dbo::Transaction transaction(session_);
+
+    if (assignment_) {
+        auto incoming = Partner_request::find_by_requestee_and_assignment(
+                session_, user_, assignment_);
+        for (const auto& each : incoming)
+            new Partner_confirmer_widget(this, each, false, false);
+
+        if (auto outgoing = Partner_request::find_by_requestor_and_assignment(
+                session_, user_, assignment_))
+            new Partner_pending_widget(this, outgoing, false, false);
+    } else {
+        auto incoming = Partner_request::find_by_requestee(session_, user_);
+        for (const auto& each : incoming)
+            new Partner_confirmer_widget(this, each, true, true);
+
+        auto outgoing = Partner_request::find_by_requestor(session_, user_);
+        for (const auto& each : outgoing)
+            new Partner_pending_widget(this, each, true, true);
+    }
+}
+
