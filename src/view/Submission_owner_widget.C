@@ -8,8 +8,8 @@
 #include "../model/Partner_request.h"
 
 #include <Wt/Dbo/Dbo>
+#include <Wt/WBreak>
 #include <Wt/WLineEdit>
-#include <Wt/WMessageBox>
 #include <Wt/WPushButton>
 #include <Wt/WText>
 

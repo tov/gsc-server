@@ -5,6 +5,13 @@
 #include "../model/Partner_request.h"
 #include "../model/Submission.h"
 
+#include <Wt/Dbo/Dbo>
+#include <Wt/WApplication>
+#include <Wt/WLineEdit>
+#include <Wt/WMessageBox>
+#include <Wt/WPushButton>
+#include <Wt/WText>
+
 Partner_pending_widget::Partner_pending_widget(
         Partner_notification_widget* main,
         const Wt::Dbo::ptr<Partner_request>& request,
