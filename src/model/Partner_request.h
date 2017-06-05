@@ -23,7 +23,8 @@ public:
            const dbo::ptr<User>& requestee,
            const dbo::ptr<Assignment>&);
 
-    bool confirm(Session&) const;
+    // Returns the pointer to the joint submission on success.
+    dbo::ptr<Submission> confirm(Session&) const;
 
     const dbo::ptr<User>& requestor() const { return requestor_; }
     const dbo::ptr<User>& requestee() const { return requestee_; }

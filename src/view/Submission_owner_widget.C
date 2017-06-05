@@ -174,11 +174,11 @@ Partner_confirmer::Partner_confirmer(Submission_owner_widget* main,
 void Partner_confirmer::accept_()
 {
     dbo::Transaction transaction(main_->session_);
-    bool success = request_->confirm(main_->session_);
+    auto submission = request_->confirm(main_->session_);
     transaction.commit();
 
-    if (success) {
-        main_->update_();
+    if (submission) {
+        Wt::WApplication::instance()->setInternalPath(submission->url(), true);
     } else {
         Wt::WMessageBox* box = new Wt::WMessageBox(
                 "Error",

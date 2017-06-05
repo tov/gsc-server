@@ -29,12 +29,13 @@ Partner_request::create(Session& session,
     return session.add(request);
 }
 
-bool Partner_request::confirm(Session& session) const
+dbo::ptr<Submission>
+Partner_request::confirm(Session& session) const
 {
     // Confirm that the request hasn't been cancelled
     auto self = Partner_request::find_by_requestor_and_requestee(
             session, requestor_, requestee_, assignment_);
-    if (!self) return false;
+    if (!self) return {};
 
     auto submission1 = Submission::find_by_assignment_and_user(
             session, assignment_, requestor_);
@@ -42,21 +43,23 @@ bool Partner_request::confirm(Session& session) const
             session, assignment_, requestee_);
 
     if (submission1->user2() || submission2->user2())
-        return false;
+        return {};
 
     bool success = Submission::join_together(submission1, submission2);
 
-    if (success)
+    if (success) {
         session.execute("DELETE FROM partner_requests"
-                        " WHERE (requestor_id = ? OR requestor_id = ?"
-                        "    OR  requestee_id = ? OR requestee_id = ?)"
-                        "   AND assignment_number = ?")
+                                " WHERE (requestor_id = ? OR requestor_id = ?"
+                                "    OR  requestee_id = ? OR requestee_id = ?)"
+                                "   AND assignment_number = ?")
                .bind(requestor_.id()).bind(requestee_.id())
                .bind(requestor_.id()).bind(requestee_.id())
                .bind(assignment_.id())
                .run();
-
-    return success;
+        return submission1;
+    } else {
+        return {};
+    }
 }
 
 Wt::Dbo::ptr<Partner_request>
