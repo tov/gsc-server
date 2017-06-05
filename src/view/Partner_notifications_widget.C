@@ -4,6 +4,7 @@
 #include "../model/Session.h"
 #include "../model/Partner_request.h"
 #include "../model/Submission.h"
+#include "../Navigate.h"
 
 #include <Wt/Dbo/Dbo>
 #include <Wt/WApplication>
@@ -79,13 +80,12 @@ Partner_confirmer_widget::Partner_confirmer_widget(
 void Partner_confirmer_widget::accept_()
 {
     dbo::Transaction transaction(main_->session_);
-    auto submission = request_->confirm(main_->session_);
+    auto joint_submission = request_->confirm(main_->session_);
     transaction.commit();
 
-    if (submission) {
+    if (joint_submission) {
         if (main_->submission_)
-            Wt::WApplication::instance()->setInternalPath(submission->url(),
-                                                          true);
+            Navigate::to(joint_submission->url());
         else
             main_->update_();
     } else {
