@@ -250,6 +250,7 @@ void Submission_owner_widget::update_admin_()
     {
         new Wt::WText(" ", impl_);
         auto button = new Wt::WPushButton("x", impl_);
+        button->setToolTip("Break up partnership");
         button->clicked().connect(std::bind([=] () {
             dbo::Transaction transaction2(session_);
             submission_.modify()->set_user2(dbo::ptr<User>());

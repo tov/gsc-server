@@ -65,11 +65,6 @@ public:
         dbo::belongsTo(a, requestee_, "requestee", dbo::OnDeleteCascade);
         dbo::belongsTo(a, assignment_, "assignment", dbo::OnDeleteCascade);
     }
-
-    Wt::Dbo::ptr<Partner_request> find_by_requestor_and_requestee(Session& session,
-                                                                  const Wt::Dbo::ptr<User>& requestor,
-                                                                  const Wt::Dbo::ptr<User>* requestee,
-                                                                  const Wt::Dbo::ptr<Assignment>& assignment);
 };
 
 DBO_EXTERN_TEMPLATES(Partner_request);
