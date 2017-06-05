@@ -48,14 +48,8 @@ Partner_request::confirm(Session& session) const
     bool success = Submission::join_together(submission1, submission2);
 
     if (success) {
-        session.execute("DELETE FROM partner_requests"
-                                " WHERE (requestor_id = ? OR requestor_id = ?"
-                                "    OR  requestee_id = ? OR requestee_id = ?)"
-                                "   AND assignment_number = ?")
-               .bind(requestor_.id()).bind(requestee_.id())
-               .bind(requestor_.id()).bind(requestee_.id())
-               .bind(assignment_.id())
-               .run();
+        delete_requests(session, requestor_, assignment_);
+        delete_requests(session, requestee_, assignment_);
         return submission1;
     } else {
         return {};
@@ -93,5 +87,17 @@ Partner_request::find_by_requestee(Session& session,
     return session.find<Partner_request>()
                   .where("requestee_id = ?").bind(requestee.id())
                   .where("assignment_number = ?").bind(assignment.id());
+}
+
+void Partner_request::delete_requests(Session& session,
+                                      const dbo::ptr <User>& user,
+                                      const dbo::ptr <Assignment>& assignment)
+{
+    session.execute("DELETE FROM partner_requests"
+                            " WHERE (requestor_id = ? OR requestee_id = ?)"
+                            "   AND assignment_number = ?")
+           .bind(user.id()).bind(user.id())
+           .bind(assignment.id())
+           .run();
 }
 

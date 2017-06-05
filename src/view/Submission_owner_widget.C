@@ -258,6 +258,33 @@ void Submission_owner_widget::update_admin_()
             update_();
         }));
     }
+
+    else if (!submission_->user2()) {
+        new Wt::WBreak(impl_);
+        new Wt::WText("Partner with: ", impl_);
+        auto edit = new Wt::WLineEdit(impl_);
+        edit->setStyleClass("username");
+        edit->setEmptyText("NetID");
+        edit->enterPressed().connect(std::bind([=] () {
+            dbo::Transaction transaction2(session_);
+
+            auto user2 = User::find_by_name(session_, edit->text().toUTF8());
+            if (!user2) return;
+
+            auto other = Submission::find_by_assignment_and_user(
+                    session_, submission_->assignment(), user2);
+            if (!other) return;
+
+            Submission::join_together(submission_, other);
+            Partner_request::delete_requests(session_, submission_->user1(),
+                                             submission_->assignment());
+            Partner_request::delete_requests(session_, submission_->user2(),
+                                             submission_->assignment());
+
+            transaction2.commit();
+            update_();
+        }));
+    }
 }
 
 void Submission_owner_widget::update_grader_()

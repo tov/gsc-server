@@ -39,13 +39,18 @@ public:
 
     static dbo::ptr<Partner_request>
     find_by_requestor(Session&,
-                      const dbo::ptr<User>&, const
-                      dbo::ptr<Assignment>&);
+                      const dbo::ptr<User>&,
+                      const dbo::ptr<Assignment>&);
 
     static dbo::collection<dbo::ptr<Partner_request>>
     find_by_requestee(Session&,
-                      const dbo::ptr<User>&, const
-                      dbo::ptr<Assignment>&);
+                      const dbo::ptr<User>&,
+                      const dbo::ptr<Assignment>&);
+
+    static void
+    delete_requests(Session&,
+                    const dbo::ptr<User>&,
+                    const dbo::ptr<Assignment>&);
 
 private:
     dbo::ptr<User> requestor_;
