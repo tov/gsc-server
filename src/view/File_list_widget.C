@@ -63,7 +63,11 @@ void File_list_widget::reload()
 
     Wt::Dbo::Transaction transaction(session_);
 
-    int row = 0;
+    new Wt::WText("<strong>filename</strong>", elementAt(0, 0));
+    new Wt::WText("<strong>loc</strong>", elementAt(0, 1));
+    new Wt::WText("<strong>rm</strong>", elementAt(0, 2));
+
+    int row = 1;
 
     bool can_delete = submission_->can_submit(session_.user());
 
