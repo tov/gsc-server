@@ -246,7 +246,7 @@ void Assignments_view::fewer_()
         message << assignment->name() << " currently has "
                 << submission_count << " submission(s) and "
                 << eval_item_count << " eval item(s). Are you sure you want "
-                "to delete it?";;
+                "to delete it?";
 
         auto dialog = new Confirmation_dialog(message.str(), this);
         dialog->accepted().connect(this, &Assignments_view::real_fewer_);

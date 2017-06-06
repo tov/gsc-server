@@ -23,4 +23,6 @@ private:
     void update_admin_();
     void update_grader_();
     void update_student_();
+
+    void break_up_partnership_();
 };

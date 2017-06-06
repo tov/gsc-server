@@ -1,6 +1,8 @@
 #include "Submission_owner_widget.h"
+#include "Confirmation_dialog.h"
 #include "User_suggester.h"
 #include "Partner_notifications_widget.h"
+
 #include "../model/auth/User.h"
 #include "../model/Assignment.h"
 #include "../model/Session.h"
@@ -62,14 +64,18 @@ void Submission_owner_widget::update_admin_()
              status == Submission::Status::extended))
     {
         new Wt::WText(" ", impl_);
-        auto button = new Wt::WPushButton("x", impl_);
+        auto button = new Wt::WPushButton("X", impl_);
+        button->setStyleClass("btn btn-danger");
         button->setToolTip("Break up partnership");
         button->clicked().connect(std::bind([=] () {
-            dbo::Transaction transaction2(session_);
-            submission_.modify()->set_user2(dbo::ptr<User>());
-            transaction2.commit();
+            std::ostringstream message;
+            message << "Are you sure you want to break up this partnership? "
+                    << "<strong>" << submission_->user2()->name() << "</strong>"
+                    << " will be left with no submission.";
 
-            update_();
+            auto dialog = new Confirmation_dialog(message.str(), this);
+            dialog->accepted().connect(
+                    this, &Submission_owner_widget::break_up_partnership_);
         }));
     }
 
@@ -83,7 +89,10 @@ void Submission_owner_widget::update_admin_()
             dbo::Transaction transaction2(session_);
 
             auto user2 = User::find_by_name(session_, edit->text().toUTF8());
-            if (!user2) return;
+            if (!user2) {
+                edit->setText("");
+                return;
+            };
 
             auto other = Submission::find_by_assignment_and_user(
                     session_, submission_->assignment(), user2);
@@ -140,4 +149,13 @@ void Submission_owner_widget::update_student_()
     }
 
     new Partner_notification_widget(self, submission_, session_, impl_);
+}
+
+void Submission_owner_widget::break_up_partnership_()
+{
+    dbo::Transaction transaction(session_);
+    submission_.modify()->set_user2({});
+    transaction.commit();
+
+    update_();
 }
