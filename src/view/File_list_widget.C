@@ -63,13 +63,14 @@ void File_list_widget::reload()
 
     Wt::Dbo::Transaction transaction(session_);
 
+    bool can_delete = submission_->can_submit(session_.user());
+
     new Wt::WText("<strong>filename</strong>", elementAt(0, 0));
     new Wt::WText("<strong>loc</strong>", elementAt(0, 1));
-    new Wt::WText("<strong>rm</strong>", elementAt(0, 2));
+    if (can_delete)
+        new Wt::WText("<strong>rm</strong>", elementAt(0, 2));
 
     int row = 1;
-
-    bool can_delete = submission_->can_submit(session_.user());
 
     for (Wt::Dbo::ptr<File_meta> file : submission_->source_files_sorted()) {
         Wt::WResource  * download = new File_resource(file, this);
