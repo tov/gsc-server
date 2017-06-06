@@ -4,6 +4,7 @@
 #include "List_eval_item_widget.h"
 #include "Review_eval_item_widget.h"
 #include "Self_eval_item_widget.h"
+#include "Submission_owner_widget.h"
 
 #include "File_viewer_widget.h"
 
@@ -79,6 +80,8 @@ void Evaluation_view::go_default()
             << submission_->grade_string() << "</h2>";
         new Wt::WText(fmt.str(), right_column_);
     }
+
+    new Submission_owner_widget(submission_, session_, right_column_);
 
     for (auto& row : submission_->items()) {
         if (!row.eval_item) continue;

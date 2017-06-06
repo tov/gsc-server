@@ -139,13 +139,5 @@ void Submission_owner_widget::update_student_()
         return;
     }
 
-    auto status = submission_->status();
-    if (!(status == Submission::Status::open ||
-            status == Submission::Status::extended))
-        return;
-
-    auto assignment = submission_->assignment();
-    if (!assignment->partner()) return;
-
     new Partner_notification_widget(self, submission_, session_, impl_);
 }

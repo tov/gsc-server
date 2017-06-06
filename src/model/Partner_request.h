@@ -30,6 +30,9 @@ public:
     const dbo::ptr<User>& requestee() const { return requestee_; }
     const dbo::ptr<Assignment>& assignment() const { return assignment_; }
 
+    // Can this Partner_request still be acted on?
+    bool is_active(Session&) const;
+
     static dbo::ptr<Partner_request>
     find_by_requestor_and_requestee(
             Session&,

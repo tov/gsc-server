@@ -191,21 +191,27 @@ void Partner_notification_widget::update_() {
         auto incoming = Partner_request::find_by_requestee_and_assignment(
                 session_, user_, submission_->assignment());
         for (const auto& each : incoming)
-            new Partner_confirmer_widget(this, each, false);
+            if (each->is_active(session_))
+                new Partner_confirmer_widget(this, each, false);
 
-        if (auto outgoing = Partner_request::find_by_requestor_and_assignment(
-                session_, user_, submission_->assignment()))
+        auto outgoing = Partner_request::find_by_requestor_and_assignment(
+                session_, user_, submission_->assignment());
+        if (outgoing && outgoing->is_active(session_))
             new Partner_pending_widget(this, outgoing, false);
         else
-            new Partner_requestor_widget(this);
+            if (submission_->can_submit(user_) &&
+                    submission_->assignment()->partner())
+                new Partner_requestor_widget(this);
     } else {
         auto incoming = Partner_request::find_by_requestee(session_, user_);
         for (const auto& each : incoming)
-            new Partner_confirmer_widget(this, each, true);
+            if (each->is_active(session_))
+                new Partner_confirmer_widget(this, each, true);
 
         auto outgoing = Partner_request::find_by_requestor(session_, user_);
         for (const auto& each : outgoing)
-            new Partner_pending_widget(this, each, true);
+            if (each->is_active(session_))
+                new Partner_pending_widget(this, each, true);
     }
 }
 

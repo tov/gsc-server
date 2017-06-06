@@ -118,3 +118,20 @@ void Partner_request::delete_requests(Session& session,
            .bind(assignment.id())
            .run();
 }
+
+bool Partner_request::is_active(Session& session) const
+{
+    auto submission1 = Submission::find_by_assignment_and_user(
+            session, assignment_, requestor_);
+    if (submission1 && submission1->user1() == requestor_ &&
+            submission1->can_submit(requestor_))
+        return true;
+
+    auto submission2 = Submission::find_by_assignment_and_user(
+            session, assignment_, requestee_);
+    if (submission2 && submission1->user1() == requestee_ &&
+        submission2->can_submit(requestee_))
+        return true;
+
+    return false;
+}
