@@ -14,7 +14,7 @@ sudo true
 
 # Need a debug (WtHTTP) version of gsc to create the tables and set the
 # password.
-bin/build-debug.sh
+bin/build.sh debug
 
 # Stop Apache, which stops access to the database
 sudo service apache2 stop
