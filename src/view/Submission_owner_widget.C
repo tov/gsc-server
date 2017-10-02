@@ -79,7 +79,7 @@ void Submission_owner_widget::update_admin_()
         }));
     }
 
-    else if (!submission_->user2()) {
+    else if (!submission_->user2() && submission_->assignment()->partner()) {
         new Wt::WBreak(impl_);
         new Wt::WText("Partner with: ", impl_);
         auto edit = new Wt::WLineEdit(impl_);
