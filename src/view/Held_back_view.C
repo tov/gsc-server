@@ -54,14 +54,18 @@ Held_back_view::Held_back_view(Session& session, Wt::WContainerWidget* parent)
     {
         auto held_back = Self_eval::find_with_grade_status(
                 Grader_eval::Status::held_back, session_);
-        new Wt::WText("<h4>Held back</h4>", container);
-        new Self_eval_table(held_back, container);
+        if (!held_back.empty()) {
+            new Wt::WText("<h4>Held back</h4>", container);
+            new Self_eval_table(held_back, container);
+        }
     }
 
     {
         auto editing = Self_eval::find_with_grade_status(
                 Grader_eval::Status::editing, session_);
-        new Wt::WText("<h4>Editing</h4>", container);
-        new Self_eval_table(editing, container);
+        if (!editing.empty()) {
+            new Wt::WText("<h4>Editing</h4>", container);
+            new Self_eval_table(editing, container);
+        }
     }
 }

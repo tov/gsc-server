@@ -2,6 +2,7 @@
 #include "Accelerator_button.h"
 #include "Accelerator_text.h"
 #include "File_manager_view.h"
+#include "Held_back_view.h"
 #include "User_suggester.h"
 #include "game/HangmanWidget.h"
 #include "game/HighScoresWidget.h"
@@ -294,7 +295,13 @@ Admin_view::Admin_view(Session& session, Wt::WContainerWidget* parent)
                                      table->elementAt(++row, 1));
     hw->clicked().connect(Navigate("/hw"));
 
+    auto gs = new Accelerator_button("Grading s&tats", table->elementAt
+                                                                    (++row, 1));
+    gs->clicked().connect(Navigate("/grading_stats"));
+
     auto play_game = new Accelerator_button("&Play game",
                                             table->elementAt(++row, 1));
     play_game->clicked().connect(Navigate("/game"));
+
+    new Held_back_view(session_, this);
 }
