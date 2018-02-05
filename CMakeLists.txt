@@ -86,6 +86,7 @@ target_link_libraries(gsc-fcgi wtfcgi ${LIBRARIES})
 add_executable(gscdb src/gscdb.C ${MODEL_SOURCE_FILES})
 target_precompiled_header(gscdb src/prefix.h)
 target_link_libraries(gscdb ${LIBRARIES})
+
 add_executable(gsc_admin src/gsc_admin.C ${MODEL_SOURCE_FILES})
 target_precompiled_header(gsc_admin src/prefix.h)
 target_link_libraries(gsc_admin ${LIBRARIES})

@@ -72,13 +72,13 @@ int main(int argc, const char* argv[])
     }
 
     else if (strcmp("upload", argv[1]) == 0) {
-        assert_argc(argc == 5, argv, " HW_NUMBERUSERNAME FILENAME");
+        assert_argc(argc == 5, argv, " HW_NUMBER USERNAME FILENAME");
         app.upload_file(atoi(argv[2]), argv[3], argv[4]);
     }
 
     else if (strcmp("grade", argv[1]) == 0) {
         assert_argc(argc == 5 || argc == 6, argv,
-                    " HW_NUMBERUSERNAME SCORE [COMMENT]");
+                    " HW_NUMBER USERNAME SCORE [COMMENT]");
         const char* comment = argc == 6 ? argv[5] : "";
         app.record_grade(atoi(argv[2]), argv[3], atof(argv[4]), comment);
     }
