@@ -22,6 +22,7 @@ public:
     Gsc_admin();
 
     void list_submissions(int asst_no);
+    void find_partner(int asst_no, const std::string& username);
     void get_submission(int asst_no, const std::string& username);
     void upload_file(int asst_no, const std::string& username,
                      const std::string& filename);
@@ -71,8 +72,13 @@ int main(int argc, const char* argv[])
         app.list_submissions(atoi(argv[2]));
     }
 
+    else if (strcmp("partner", argv[1]) == 0) {
+        assert_argc(argc == 4, argv, "HW_NUMBER USERNAME");
+        app.find_partner(atoi(argv[2]), argv[3]);
+    }
+
     else if (strcmp("upload", argv[1]) == 0) {
-        assert_argc(argc == 5, argv, " HW_NUMBER USERNAME FILENAME");
+        assert_argc(argc == 5, argv, "HW_NUMBER USERNAME FILENAME");
         app.upload_file(atoi(argv[2]), argv[3], argv[4]);
     }
 
@@ -118,6 +124,23 @@ void Gsc_admin::list_submissions(int asst_no)
     for (auto submission : assignment->submissions()) {
         std::cout << submission->user1()->name() << '\n';
     }
+}
+
+void Gsc_admin::find_partner(int asst_no, const std::string& username)
+{
+    auto assignment = find_assignment(asst_no);
+    auto user       = find_user(username);
+    auto submission = find_submission(user, assignment);
+
+    dbo::ptr<User> partner;
+
+    if (submission->user1() == user) {
+        partner = submission->user2();
+    } else {
+        partner = submission->user1();
+    }
+
+    if (partner) std::cout << partner->name() << '\n';
 }
 
 void Gsc_admin::upload_file(int asst_no, const std::string& username,
