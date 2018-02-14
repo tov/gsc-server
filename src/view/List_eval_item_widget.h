@@ -2,6 +2,7 @@
 
 #include "Base_eval_item_widget.h"
 
+// A list of evaluation items, which allows focusing on a particular item.
 class List_eval_item_widget : public Base_eval_item_widget
 {
 public:

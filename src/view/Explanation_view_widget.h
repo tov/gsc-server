@@ -7,6 +7,7 @@
 
 class File_viewer_widget;
 
+// Displays a student's self-eval explanations, with links to line tags.
 class Explanation_view_widget : public Wt::WCompositeWidget {
 public:
     Explanation_view_widget(const std::string& content,

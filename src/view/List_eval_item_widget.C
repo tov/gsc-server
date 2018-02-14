@@ -46,6 +46,8 @@ void List_eval_item_widget::add_scores_()
     Wt::WString grader;
     Wt::WString grader_score;
 
+    Wt::WString attention_class = "list-eval-item";
+
     switch (role) {
         case User::Role::Student:
             self = "You";
@@ -69,10 +71,18 @@ void List_eval_item_widget::add_scores_()
         auto grader_user = model_.grader_eval->grader();
         grader = grader_user->can_grade() ? grader_user->name() : "Auto";
         grader_score = model_.grader_eval->score_string();
+
+        if (model_.grader_eval->score() < model_.self_eval->score())
+            attention_class = "list-eval-item has-been-docked";
+        else if (!model_.grader_eval->explanation().empty())
+            attention_class = "list-eval-item has-explanation";
+
     } else {
         grader = "Grader";
         grader_score = "[not set]";
     }
+
+    setStyleClass(attention_class);
 
     auto table = new Wt::WTemplate(
             "<table class='scores'>"

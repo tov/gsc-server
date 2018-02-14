@@ -159,6 +159,24 @@ input.username {
     height: 8em;
 }
 
+.list-eval-item {
+    margin: 1em 0.25em;
+    padding: 0 0.5em;
+    border-radius: 5px;
+}
+
+.list-eval-item.has-been-docked {
+    margin: 1em 0.25em;
+    background-color: #ffcccc;
+    border: 1px solid #990000;
+}
+
+.list-eval-item.has-explanation {
+    margin: 1em 0.25em;
+    background-color: #ccffcc;
+    border: 1px solid #009900;
+}
+
 .evaluation-view table.scores {
     margin-left: auto;
     margin-right: auto;
