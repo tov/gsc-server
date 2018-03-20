@@ -13,20 +13,9 @@ Grader_eval::Grader_eval(const dbo::ptr<Self_eval>& self_eval,
         : self_eval_(self_eval),
           grader_(grader),
           time_stamp_(Wt::WDateTime::currentDateTime()),
-          status_(static_cast<int>(Status::editing))
-{
-    switch (eval_item()->type()) {
-        case Eval_item::Type::Boolean:
-            score_ = 0;
-            break;
-        case Eval_item::Type::Scale:
-            score_ = self_eval_->score();
-            break;
-        case Eval_item::Type::Informational:
-            score_ = 1;
-            break;
-    }
-}
+          status_(static_cast<int>(Status::editing)),
+          score_(1)
+{ }
 
 void Grader_eval::set_explanation(const std::string& explanation)
 {
