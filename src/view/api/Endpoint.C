@@ -4,6 +4,8 @@
 #include "Request_handler.h"
 #include "Resource.h"
 
+#include <memory>
+
 namespace api {
 
 Endpoint::Endpoint(Wt::Dbo::SqlConnectionPool& pool)
@@ -14,20 +16,26 @@ void Endpoint::handleRequest(const Wt::Http::Request& request,
 {
     Request_handler handler(session_, request, response);
 
-    try {
-        auto user = handler.authenticate();
-        auto uri = handler.parse_uri();
+    std::unique_ptr<Resource::Base> resource;
 
-        std::cout << "*** authenticated user: " << user->name() << "\n";
+    try {
+        auto current_user = handler.authenticate();
+        std::cout << "*** authenticated user: " << current_user->name() << "\n";
         std::cout << "*** got " << request.method() << " request for: "
                   << request.pathInfo() << "\n";
+
+        resource = handler.parse_uri();
+
+        Wt::Dbo::Transaction transaction(session_);
+        resource->load(session_, current_user);
+        resource->process();
+
     } catch (const Http_status& status) {
         status.respond(response);
         return;
     }
 
-    response.addHeader("Content-Type", "application/json");
-    response.out() << "true";
+    resource->send(response);
 }
 
 } // end namespace api

@@ -40,8 +40,12 @@ parse_authorization(const std::string& header_value)
 Request_handler::Request_handler(Db_session& session,
                                  Wt::Http::Request const& request,
                                  Wt::Http::Response& response)
-        : session_{session}, request_{request}, response_{response},
-          path_info_{request_.pathInfo()}, method_{request.method()} {}
+        : session_{session}
+        , request_{request}
+        , response_{response}
+        , path_info_{request_.pathInfo()}
+        , method_{request.method()}
+{ }
 
 dbo::ptr<User> Request_handler::authenticate()
 {
@@ -56,7 +60,7 @@ dbo::ptr<User> Request_handler::authenticate()
 
 std::unique_ptr<Resource::Base> Request_handler::parse_uri()
 {
-    return Resource::Base::parse(path_info_);
+    return Resource::Base::create(method_, path_info_);
 }
 
 static std::string const cookie_name = "gsc_cookie";

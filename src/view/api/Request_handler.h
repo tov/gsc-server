@@ -21,9 +21,7 @@ struct Credentials
 class Request_handler
 {
 public:
-    Request_handler(Db_session&,
-                    Wt::Http::Request const&,
-                    Wt::Http::Response&);
+    Request_handler(Db_session&, Wt::Http::Request const&, Wt::Http::Response&);
 
     dbo::ptr<User> authenticate();
     std::unique_ptr<Resource::Base> parse_uri();

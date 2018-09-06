@@ -5,6 +5,7 @@
 #include <Wt/WDateTime.h>
 #include <Wt/Dbo/Types.h>
 #include <Wt/Dbo/WtSqlTraits.h>
+#include <Wt/JSon/Value.h>
 
 #include <string>
 
@@ -32,10 +33,15 @@ public:
     };
 
     const std::string& name() const { return name_; }
+
     void set_name(const std::string& name) { name_ = name; }
 
     Role role() const { return static_cast<Role>(role_); }
     void set_role(Role r) { role_ = static_cast<int>(r); }
+
+    const char* role_string() const { return role_to_string(role()); }
+    static const char* role_to_string(Role);
+
     bool can_grade() const;
     bool can_admin() const;
     bool can_view(const dbo::ptr<User>&) const;
@@ -44,20 +50,25 @@ public:
     void set_password(const Wt::Auth::PasswordHash&);
 
     Auth_tokens auth_tokens() const { return auth_tokens_; }
+
     void add_auth_token(const std::string&, const Wt::WDateTime&);
     void remove_auth_token(const std::string&);
     int update_auth_token(const std::string& old, const std::string& new_);
 
     int failed_login_attempts() const { return failed_login_attempts_; }
+
     void set_failed_login_attempts(int n) { failed_login_attempts_ = n; }
 
-    const Wt::WDateTime& last_login_attempt() const
-    { return last_login_attempt_; };
+    const Wt::WDateTime&
+    last_login_attempt() const { return last_login_attempt_; };
 
     void set_last_login_attempt(const Wt::WDateTime& date)
-    { last_login_attempt_ = date; }
+    {
+        last_login_attempt_ = date;
+    }
 
     std::vector<dbo::ptr<Submission>> submissions() const;
+
     dbo::weak_ptr<User_stats> user_stats() const { return user_stats_; }
 
     std::string hw_url() const;
@@ -65,19 +76,22 @@ public:
     static dbo::ptr<User> find_by_name(dbo::Session&, const std::string&);
     static dbo::ptr<User> find_by_auth_token(dbo::Session&, const std::string&);
 
+    Wt::Json::Value to_json() const;
+    void patch_json(Wt::Json::Value const&);
+
 private:
     std::string name_;
     int role_ = static_cast<int>(Role::Student);
 
-    std::string   password_;
-    std::string   password_method_;
-    std::string   password_salt_;
-    int           failed_login_attempts_ = 0;
+    std::string password_;
+    std::string password_method_;
+    std::string password_salt_;
+    int failed_login_attempts_ = 0;
     Wt::WDateTime last_login_attempt_;
-    Auth_tokens   auth_tokens_;
+    Auth_tokens auth_tokens_;
 
-    Submissions   submissions1_;
-    Submissions   submissions2_;
+    Submissions submissions1_;
+    Submissions submissions2_;
 
     dbo::weak_ptr<User_stats> user_stats_;
 

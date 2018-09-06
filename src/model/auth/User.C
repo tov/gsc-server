@@ -15,6 +15,8 @@
 
 #include <algorithm>
 
+namespace J = Wt::Json;
+
 DBO_INSTANTIATE_TEMPLATES(User)
 
 User::User(const std::string& name)
@@ -114,4 +116,21 @@ bool User::can_view(const dbo::ptr<User>& other) const
 std::string User::hw_url() const
 {
     return "/~" + name() + "/hw";
+}
+
+Wt::Json::Value User::to_json() const
+{
+    Wt::Json::Object result;
+    result["name"] = J::Value(name());
+    result["role"] = J::Value(role_string());
+    return J::Value(result);
+}
+
+const char* User::role_to_string(User::Role role)
+{
+    switch (role) {
+        case User::Role::Admin: return "admin";
+        case User::Role::Grader: return "grader";
+        case User::Role::Student: return "student";
+    }
 }
