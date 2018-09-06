@@ -3,12 +3,12 @@
 #include "game/HighScoresWidget.h"
 #include "Admin_view.h"
 
-#include <Wt/Auth/AuthWidget>
-#include <Wt/WApplication>
-#include <Wt/WAnchor>
-#include <Wt/WLineEdit>
-#include <Wt/WPushButton>
-#include <Wt/WTemplate>
+#include <Wt/Auth/AuthWidget.h>
+#include <Wt/WApplication.h>
+#include <Wt/WAnchor.h>
+#include <Wt/WLineEdit.h>
+#include <Wt/WPushButton.h>
+#include <Wt/WTemplate.h>
 
 using namespace Wt;
 

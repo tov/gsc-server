@@ -2,8 +2,8 @@
 
 #include "specializations.h"
 
-#include <Wt/Dbo/WtSqlTraits>
-#include <Wt/Dbo/Types>
+#include <Wt/Dbo/WtSqlTraits.h>
+#include <Wt/Dbo/Types.h>
 
 #include <iostream>
 #include <string>

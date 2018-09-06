@@ -2,10 +2,10 @@
 
 #include "../model/Abstract_evaluation.h"
 
-#include <Wt/WCompositeWidget>
-#include <Wt/WContainerWidget>
-#include <Wt/WSignal>
-#include <Wt/WWidget>
+#include <Wt/WCompositeWidget.h>
+#include <Wt/WContainerWidget.h>
+#include <Wt/WSignal.h>
+#include <Wt/WWidget.h>
 
 #include <vector>
 

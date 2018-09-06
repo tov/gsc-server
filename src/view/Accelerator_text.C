@@ -1,7 +1,7 @@
 #include "Accelerator_text.h"
 
-#include <Wt/WApplication>
-#include <Wt/WText>
+#include <Wt/WApplication.h>
+#include <Wt/WText.h>
 
 #include <cctype>
 #include <regex>

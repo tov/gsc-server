@@ -4,13 +4,13 @@
 #include "../model/Session.h"
 #include "../model/Submission.h"
 
-#include <Wt/Dbo/Transaction>
-#include <Wt/Http/Request>
-#include <Wt/Http/Response>
-#include <Wt/WAnchor>
-#include <Wt/WLink>
-#include <Wt/WPushButton>
-#include <Wt/WText>
+#include <Wt/Dbo/Transaction.h>
+#include <Wt/Http/Request.h>
+#include <Wt/Http/Response.h>
+#include <Wt/WAnchor.h>
+#include <Wt/WLink.h>
+#include <Wt/WPushButton.h>
+#include <Wt/WText.h>
 
 // A resource for downloading a source file.
 class File_resource : public Wt::WResource

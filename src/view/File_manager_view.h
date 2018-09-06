@@ -2,7 +2,7 @@
 
 #include "Abstract_file_view.h"
 
-#include <Wt/WContainerWidget>
+#include <Wt/WContainerWidget.h>
 
 class File_manager_view : public Abstract_file_view
 {

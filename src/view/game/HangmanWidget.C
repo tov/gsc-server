@@ -13,11 +13,11 @@
 #include "ImagesWidget.h"
 #include "LettersWidget.h"
 
-#include <Wt/WApplication>
-#include <Wt/WBreak>
-#include <Wt/WComboBox>
-#include <Wt/WPushButton>
-#include <Wt/WText>
+#include <Wt/WApplication.h>
+#include <Wt/WBreak.h>
+#include <Wt/WComboBox.h>
+#include <Wt/WPushButton.h>
+#include <Wt/WText.h>
 
 #include <boost/lexical_cast.hpp>
 

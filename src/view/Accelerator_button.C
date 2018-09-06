@@ -1,7 +1,7 @@
 #include "Accelerator_button.h"
 
-#include <Wt/WApplication>
-#include <Wt/WText>
+#include <Wt/WApplication.h>
+#include <Wt/WText.h>
 
 Accelerator_button::Accelerator_button(const Wt::WString& text,
                                        Wt::WContainerWidget* parent)

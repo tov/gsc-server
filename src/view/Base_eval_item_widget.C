@@ -4,9 +4,9 @@
 #include "../model/Eval_item.h"
 #include "../model/Session.h"
 
-#include <Wt/WPushButton>
-#include <Wt/WTemplate>
-#include <Wt/WText>
+#include <Wt/WPushButton.h>
+#include <Wt/WTemplate.h>
+#include <Wt/WText.h>
 
 Base_eval_item_widget::Base_eval_item_widget(const Submission::Item& model,
                                              Evaluation_view& main,

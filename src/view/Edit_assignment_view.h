@@ -2,9 +2,9 @@
 
 #include "../model/Assignment.h"
 
-#include <Wt/Dbo/ptr>
-#include <Wt/WContainerWidget>
-#include <Wt/WDialog>
+#include <Wt/Dbo/ptr.h>
+#include <Wt/WContainerWidget.h>
+#include <Wt/WDialog.h>
 
 #include <vector>
 

@@ -4,7 +4,7 @@
 #include "Self_eval.h"
 #include "Submission.h"
 
-#include <Wt/Dbo/Impl>
+#include <Wt/Dbo/Impl.h>
 
 #include <cstdlib>
 #include <iomanip>

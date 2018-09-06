@@ -4,8 +4,8 @@
 #include "../model/auth/User.h"
 #include "../model/Session.h"
 
-#include <Wt/WTable>
-#include <Wt/WText>
+#include <Wt/WTable.h>
+#include <Wt/WText.h>
 
 #include <map>
 #include <set>

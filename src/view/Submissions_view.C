@@ -7,14 +7,14 @@
 #include "../model/Submission.h"
 #include "../model/Session.h"
 
-#include <Wt/Dbo/Dbo>
-#include <Wt/Dbo/Transaction>
-#include <Wt/WApplication>
-#include <Wt/WDateTime>
-#include <Wt/WLocalDateTime>
-#include <Wt/WPushButton>
-#include <Wt/WTable>
-#include <Wt/WText>
+#include <Wt/Dbo/Dbo.h>
+#include <Wt/Dbo/Transaction.h>
+#include <Wt/WApplication.h>
+#include <Wt/WDateTime.h>
+#include <Wt/WLocalDateTime.h>
+#include <Wt/WPushButton.h>
+#include <Wt/WTable.h>
+#include <Wt/WText.h>
 
 #include <vector>
 

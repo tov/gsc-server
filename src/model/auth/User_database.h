@@ -1,7 +1,7 @@
 #pragma once
 
-#include <Wt/Auth/AbstractUserDatabase>
-#include <Wt/Dbo/Dbo>
+#include <Wt/Auth/AbstractUserDatabase.h>
+#include <Wt/Dbo/Dbo.h>
 
 namespace dbo = Wt::Dbo;
 

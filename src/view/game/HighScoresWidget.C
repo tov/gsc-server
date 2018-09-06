@@ -9,11 +9,11 @@
 #include "../../model/auth/User.h"
 #include "../../model/game/User_stats.h"
 
-#include <Wt/WApplication>
-#include <Wt/WPushButton>
-#include <Wt/WText>
-#include <Wt/WTable>
-#include <Wt/Dbo/Dbo>
+#include <Wt/WApplication.h>
+#include <Wt/WPushButton.h>
+#include <Wt/WText.h>
+#include <Wt/WTable.h>
+#include <Wt/Dbo/Dbo.h>
 
 #include <boost/lexical_cast.hpp>
 

@@ -3,7 +3,7 @@
 #include "../model/Eval_item.h"
 #include "../model/Submission.h"
 
-#include <Wt/WContainerWidget>
+#include <Wt/WContainerWidget.h>
 
 class Evaluation_view;
 class Session;

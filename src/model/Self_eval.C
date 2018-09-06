@@ -6,8 +6,8 @@
 
 #include "Permalink.h"
 
-#include <Wt/Dbo/Impl>
-#include <Wt/WDateTime>
+#include <Wt/Dbo/Impl.h>
+#include <Wt/WDateTime.h>
 
 DBO_INSTANTIATE_TEMPLATES(Self_eval);
 

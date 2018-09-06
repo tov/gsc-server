@@ -2,7 +2,7 @@
 #include "Unit_line_edit.h"
 #include "Explanation_edit_widget.h"
 
-#include <Wt/WPushButton>
+#include <Wt/WPushButton.h>
 
 Admin_response_widget::Admin_response_widget(Wt::WContainerWidget* parent)
         : Admin_response_widget(nullptr, parent)

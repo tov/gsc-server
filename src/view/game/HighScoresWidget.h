@@ -8,7 +8,7 @@
 #ifndef HIGH_SCORES_WIDGET_H_
 #define HIGH_SCORES_WIDGET_H_
 
-#include <Wt/WContainerWidget>
+#include <Wt/WContainerWidget.h>
 
 class Session;
 

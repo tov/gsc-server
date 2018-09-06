@@ -1,9 +1,9 @@
 #include "Error_view.h"
 
-#include <Wt/WApplication>
-#include <Wt/WBreak>
-#include <Wt/WPushButton>
-#include <Wt/WText>
+#include <Wt/WApplication.h>
+#include <Wt/WBreak.h>
+#include <Wt/WPushButton.h>
+#include <Wt/WText.h>
 
 Error_view::Error_view(const std::string& message)
 {

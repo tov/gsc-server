@@ -1,7 +1,7 @@
 #pragma once
 
-#include <Wt/Dbo/Dbo>
-#include <Wt/WContainerWidget>
+#include <Wt/Dbo/Dbo.h>
+#include <Wt/WContainerWidget.h>
 
 #include <memory>
 

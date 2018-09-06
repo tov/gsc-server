@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Wt/WContainerWidget>
+#include <Wt/WContainerWidget.h>
 
 class Error_view : public Wt::WContainerWidget
 {

@@ -1,9 +1,9 @@
 #include "Application_controller.h"
 #include "model/Session.h"
 
-#include <Wt/Dbo/SqlConnectionPool>
-#include <Wt/WServer>
-#include <Wt/WString>
+#include <Wt/Dbo/SqlConnectionPool.h>
+#include <Wt/WServer.h>
+#include <Wt/WString.h>
 
 #include <cstdlib>
 

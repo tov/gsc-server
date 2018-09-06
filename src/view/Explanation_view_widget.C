@@ -1,7 +1,7 @@
 #include "Explanation_view_widget.h"
 #include "File_viewer_widget.h"
 
-#include <Wt/WText>
+#include <Wt/WText.h>
 
 #include <cctype>
 #include <cstdlib>

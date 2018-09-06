@@ -6,7 +6,7 @@
 #include "../model/Session.h"
 #include "../model/Submission.h"
 
-#include <Wt/WText>
+#include <Wt/WText.h>
 
 Admin_eval_item_widget::Admin_eval_item_widget(
         const Submission::Item& model,

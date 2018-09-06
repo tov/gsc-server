@@ -3,9 +3,9 @@
 #include "Abstract_evaluation.h"
 #include "Grader_eval.h"
 
-#include <Wt/Dbo/Types>
-#include <Wt/Dbo/WtSqlTraits>
-#include <Wt/WDateTime>
+#include <Wt/Dbo/Types.h>
+#include <Wt/Dbo/WtSqlTraits.h>
+#include <Wt/WDateTime.h>
 
 namespace dbo = Wt::Dbo;
 

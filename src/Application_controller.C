@@ -18,9 +18,9 @@
 #include "view/game/HangmanWidget.h"
 #include "view/game/HighScoresWidget.h"
 
-#include <Wt/WBootstrapTheme>
-#include <Wt/WLocale>
-#include <Wt/WWidget>
+#include <Wt/WBootstrapTheme.h>
+#include <Wt/WLocale.h>
+#include <Wt/WWidget.h>
 
 #include <cstdlib>
 #include <regex>

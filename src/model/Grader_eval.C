@@ -4,7 +4,7 @@
 #include "auth/User.h"
 #include "Eval_item.h"
 
-#include <Wt/Dbo/Impl>
+#include <Wt/Dbo/Impl.h>
 
 DBO_INSTANTIATE_TEMPLATES(Grader_eval);
 

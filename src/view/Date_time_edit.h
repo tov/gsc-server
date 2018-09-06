@@ -1,9 +1,9 @@
 #pragma once
 
-#include <Wt/WCompositeWidget>
-#include <Wt/WContainerWidget>
-#include <Wt/WDateEdit>
-#include <Wt/WTimeEdit>
+#include <Wt/WCompositeWidget.h>
+#include <Wt/WContainerWidget.h>
+#include <Wt/WDateEdit.h>
+#include <Wt/WTimeEdit.h>
 
 class Date_time_validator;
 

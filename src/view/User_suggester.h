@@ -2,8 +2,8 @@
 
 #include "../model/auth/User.h"
 
-#include <Wt/WSuggestionPopup>
-#include <Wt/WContainerWidget>
+#include <Wt/WSuggestionPopup.h>
+#include <Wt/WContainerWidget.h>
 
 class Session;
 

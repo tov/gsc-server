@@ -3,7 +3,7 @@
 #include "Single_eval_item_widget.h"
 #include "../model/Grader_eval.h"
 
-#include <Wt/WPushButton>
+#include <Wt/WPushButton.h>
 
 class Admin_response_widget;
 

@@ -2,7 +2,7 @@
 
 #include <string>
 
-#include <Wt/Dbo/ptr>
+#include <Wt/Dbo/ptr.h>
 
 namespace dbo = Wt::Dbo;
 

@@ -1,8 +1,8 @@
 #pragma once
 
-#include <Wt/WContainerWidget>
-#include <Wt/WDialog>
-#include <Wt/WSignal>
+#include <Wt/WContainerWidget.h>
+#include <Wt/WDialog.h>
+#include <Wt/WSignal.h>
 
 class Confirmation_dialog : public Wt::WDialog
 {

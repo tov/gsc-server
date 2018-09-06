@@ -4,7 +4,7 @@
 #include "Auth_token.h"
 #include "User.h"
 
-#include <Wt/Auth/Identity>
+#include <Wt/Auth/Identity.h>
 
 #include <cstdlib>
 #include <string>

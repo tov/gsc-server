@@ -2,7 +2,7 @@
 
 #include "Accelerator_text.h"
 
-#include <Wt/WCompositeWidget>
+#include <Wt/WCompositeWidget.h>
 
 class Accelerator_button : public Wt::WCompositeWidget
 {

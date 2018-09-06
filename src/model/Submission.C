@@ -8,8 +8,8 @@
 #include "Session.h"
 #include "auth/User.h"
 
-#include <Wt/WDateTime>
-#include <Wt/Dbo/Impl>
+#include <Wt/WDateTime.h>
+#include <Wt/Dbo/Impl.h>
 
 #include <algorithm>
 #include <functional>

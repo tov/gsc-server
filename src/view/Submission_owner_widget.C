@@ -9,11 +9,11 @@
 #include "../model/Submission.h"
 #include "../model/Partner_request.h"
 
-#include <Wt/Dbo/Dbo>
-#include <Wt/WBreak>
-#include <Wt/WLineEdit>
-#include <Wt/WPushButton>
-#include <Wt/WText>
+#include <Wt/Dbo/Dbo.h>
+#include <Wt/WBreak.h>
+#include <Wt/WLineEdit.h>
+#include <Wt/WPushButton.h>
+#include <Wt/WText.h>
 
 #include <sstream>
 

@@ -1,7 +1,7 @@
 #pragma once
 
-#include <Wt/WCompositeWidget>
-#include <Wt/WContainerWidget>
+#include <Wt/WCompositeWidget.h>
+#include <Wt/WContainerWidget.h>
 
 class Session;
 

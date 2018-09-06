@@ -2,12 +2,12 @@
 
 #include "auth/User_database.h"
 
-#include <Wt/Auth/Login>
-#include <Wt/Auth/AbstractUserDatabase>
+#include <Wt/Auth/Login.h>
+#include <Wt/Auth/AbstractUserDatabase.h>
 
-#include <Wt/Dbo/Session>
-#include <Wt/Dbo/ptr>
-#include <Wt/Dbo/SqlConnectionPool>
+#include <Wt/Dbo/Session.h>
+#include <Wt/Dbo/ptr.h>
+#include <Wt/Dbo/SqlConnectionPool.h>
 
 #include <vector>
 

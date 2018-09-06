@@ -8,7 +8,7 @@
 #ifndef LETTERS_WIDGET_H_
 #define LETTERS_WIDGET_H_
 
-#include <Wt/WCompositeWidget>
+#include <Wt/WCompositeWidget.h>
 
 namespace Wt {
 class WContainerWidget;

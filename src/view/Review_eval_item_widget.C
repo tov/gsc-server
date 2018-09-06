@@ -2,7 +2,7 @@
 #include "../model/Grader_eval.h"
 #include "../model/Self_eval.h"
 
-#include <Wt/WText>
+#include <Wt/WText.h>
 
 Review_eval_item_widget::Review_eval_item_widget(
         const Submission::Item& model,

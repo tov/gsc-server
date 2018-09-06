@@ -1,7 +1,7 @@
 #pragma once
 
-#include <Wt/Dbo/Dbo>
-#include <Wt/WDateTime>
+#include <Wt/Dbo/Dbo.h>
+#include <Wt/WDateTime.h>
 
 namespace dbo = Wt::Dbo;
 

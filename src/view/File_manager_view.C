@@ -7,16 +7,16 @@
 #include "../model/File_meta.h"
 #include "../model/Submission.h"
 
-#include <Wt/Http/Response>
-#include <Wt/WApplication>
-#include <Wt/WEnvironment>
-#include <Wt/WHBoxLayout>
-#include <Wt/WFileUpload>
-#include <Wt/WLocalDateTime>
-#include <Wt/WMessageBox>
-#include <Wt/WProgressBar>
-#include <Wt/WPushButton>
-#include <Wt/WTable>
+#include <Wt/Http/Response.h>
+#include <Wt/WApplication.h>
+#include <Wt/WEnvironment.h>
+#include <Wt/WHBoxLayout.h>
+#include <Wt/WFileUpload.h>
+#include <Wt/WLocalDateTime.h>
+#include <Wt/WMessageBox.h>
+#include <Wt/WProgressBar.h>
+#include <Wt/WPushButton.h>
+#include <Wt/WTable.h>
 
 #include <boost/filesystem.hpp>
 

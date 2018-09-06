@@ -1,7 +1,7 @@
 #pragma once
 
-#include <Wt/WContainerWidget>
-#include <Wt/Dbo/ptr>
+#include <Wt/WContainerWidget.h>
+#include <Wt/Dbo/ptr.h>
 
 class Session;
 

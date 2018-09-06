@@ -5,10 +5,10 @@
 #include "../model/Self_eval.h"
 #include "../model/Session.h"
 
-#include <Wt/WAnchor>
-#include <Wt/WLink>
-#include <Wt/WTable>
-#include <Wt/WText>
+#include <Wt/WAnchor.h>
+#include <Wt/WLink.h>
+#include <Wt/WTable.h>
+#include <Wt/WText.h>
 
 class Self_eval_table : public Wt::WContainerWidget
 {

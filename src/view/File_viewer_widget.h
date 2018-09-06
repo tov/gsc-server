@@ -1,7 +1,7 @@
 #pragma once
 
-#include <Wt/WCompositeWidget>
-#include <Wt/Dbo/ptr>
+#include <Wt/WCompositeWidget.h>
+#include <Wt/Dbo/ptr.h>
 
 #include <vector>
 

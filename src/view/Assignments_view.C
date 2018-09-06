@@ -4,17 +4,17 @@
 #include "../model/Assignment.h"
 #include "../Navigate.h"
 
-#include <Wt/WApplication>
-#include <Wt/WBreak>
-#include <Wt/WCheckBox>
-#include <Wt/WDateTime>
-#include <Wt/WLocalDateTime>
-#include <Wt/WDialog>
-#include <Wt/WLineEdit>
-#include <Wt/WPushButton>
-#include <Wt/WTable>
-#include <Wt/WText>
-#include <Wt/WTime>
+#include <Wt/WApplication.h>
+#include <Wt/WBreak.h>
+#include <Wt/WCheckBox.h>
+#include <Wt/WDateTime.h>
+#include <Wt/WLocalDateTime.h>
+#include <Wt/WDialog.h>
+#include <Wt/WLineEdit.h>
+#include <Wt/WPushButton.h>
+#include <Wt/WTable.h>
+#include <Wt/WText.h>
+#include <Wt/WTime.h>
 
 #include <sstream>
 

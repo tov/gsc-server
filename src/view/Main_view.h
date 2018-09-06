@@ -3,7 +3,7 @@
 #include "../model/Session.h"
 #include "File_manager_view.h"
 
-#include <Wt/WContainerWidget>
+#include <Wt/WContainerWidget.h>
 
 class Named_tab_widget;
 

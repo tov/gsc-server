@@ -1,9 +1,9 @@
 #include "Response_widget.h"
 
-#include <Wt/WButtonGroup>
-#include <Wt/WRadioButton>
-#include <Wt/WSlider>
-#include <Wt/WTextArea>
+#include <Wt/WButtonGroup.h>
+#include <Wt/WRadioButton.h>
+#include <Wt/WSlider.h>
+#include <Wt/WTextArea.h>
 
 Response_widget::Response_widget(Wt::WContainerWidget* parent)
         : WCompositeWidget(parent)

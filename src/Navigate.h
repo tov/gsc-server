@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Wt/WApplication>
+#include <Wt/WApplication.h>
 
 class Navigate
 {

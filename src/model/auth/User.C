@@ -9,9 +9,9 @@
 #include "../Self_eval.h"
 #include "../Submission.h"
 
-#include <Wt/Auth/PasswordHash>
-#include <Wt/Dbo/Impl>
-#include <Wt/Auth/Identity>
+#include <Wt/Auth/PasswordHash.h>
+#include <Wt/Dbo/Impl.h>
+#include <Wt/Auth/Identity.h>
 
 #include <algorithm>
 

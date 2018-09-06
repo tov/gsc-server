@@ -8,16 +8,16 @@
 #include "model/Session.h"
 #include "model/Submission.h"
 
-#include <Wt/Dbo/Dbo>
-#include <Wt/Dbo/backend/Postgres>
-#include <Wt/WLocalDateTime>
+#include <Wt/Dbo/Dbo.h>
+#include <Wt/Dbo/backend/Postgres.h>
+#include <Wt/WLocalDateTime.h>
 
-#include <Wt/Auth/AuthService>
-#include <Wt/Auth/HashFunction>
-#include <Wt/Auth/Identity>
-#include <Wt/Auth/PasswordService>
-#include <Wt/Auth/PasswordStrengthValidator>
-#include <Wt/Auth/PasswordVerifier>
+#include <Wt/Auth/AuthService.h>
+#include <Wt/Auth/HashFunction.h>
+#include <Wt/Auth/Identity.h>
+#include <Wt/Auth/PasswordService.h>
+#include <Wt/Auth/PasswordStrengthValidator.h>
+#include <Wt/Auth/PasswordVerifier.h>
 
 #include <iostream>
 #include <cstdlib>

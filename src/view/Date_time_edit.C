@@ -1,6 +1,6 @@
 #include "Date_time_edit.h"
 
-#include <Wt/WLocalDateTime>
+#include <Wt/WLocalDateTime.h>
 
 Date_time_edit::Date_time_edit(Wt::WContainerWidget* parent)
         : WCompositeWidget(parent)

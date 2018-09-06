@@ -2,9 +2,9 @@
 
 #include "../model/Eval_item.h"
 
-#include <Wt/WCompositeWidget>
-#include <Wt/WContainerWidget>
-#include <Wt/WSignal>
+#include <Wt/WCompositeWidget.h>
+#include <Wt/WContainerWidget.h>
+#include <Wt/WSignal.h>
 
 class Response_widget : public Wt::WCompositeWidget
 {

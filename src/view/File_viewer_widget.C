@@ -4,14 +4,14 @@
 #include "../model/File_meta.h"
 #include "../model/Submission.h"
 
-#include <Wt/Dbo/Transaction>
-#include <Wt/WApplication>
-#include <Wt/WComboBox>
-#include <Wt/WContainerWidget>
-#include <Wt/WEnvironment>
-#include <Wt/WScrollArea>
-#include <Wt/WTable>
-#include <Wt/WText>
+#include <Wt/Dbo/Transaction.h>
+#include <Wt/WApplication.h>
+#include <Wt/WComboBox.h>
+#include <Wt/WContainerWidget.h>
+#include <Wt/WEnvironment.h>
+#include <Wt/WScrollArea.h>
+#include <Wt/WTable.h>
+#include <Wt/WText.h>
 
 #include <sstream>
 

@@ -1,9 +1,9 @@
 #pragma once
 
-#include <Wt/WCompositeWidget>
-#include <Wt/WContainerWidget>
-#include <Wt/WLineEdit>
-#include <Wt/WSignal>
+#include <Wt/WCompositeWidget.h>
+#include <Wt/WContainerWidget.h>
+#include <Wt/WLineEdit.h>
+#include <Wt/WSignal.h>
 
 class Unit_line_edit : public Wt::WCompositeWidget
 {

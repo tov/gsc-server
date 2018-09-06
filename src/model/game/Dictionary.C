@@ -4,8 +4,8 @@
  * See the LICENSE file for terms of use.
  */
 
-#include <Wt/WApplication>
-#include <Wt/WStringUtil>
+#include <Wt/WApplication.h>
+#include <Wt/WStringUtil.h>
 
 #include "Dictionary.h"
 #include <fstream>

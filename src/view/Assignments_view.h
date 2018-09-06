@@ -2,10 +2,10 @@
 
 #include "../model/Session.h"
 
-#include <Wt/Dbo/ptr>
-#include <Wt/WContainerWidget>
-#include <Wt/WDialog>
-#include <Wt/WTable>
+#include <Wt/Dbo/ptr.h>
+#include <Wt/WContainerWidget.h>
+#include <Wt/WDialog.h>
+#include <Wt/WTable.h>
 
 #include <memory>
 #include <vector>

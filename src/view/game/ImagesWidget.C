@@ -6,7 +6,7 @@
 
 #include "ImagesWidget.h"
 
-#include <Wt/WImage>
+#include <Wt/WImage.h>
 
 using namespace Wt;
 

@@ -4,8 +4,8 @@
 #include "../model/Grader_eval.h"
 #include "../model/Session.h"
 
-#include <Wt/WPushButton>
-#include <Wt/WTemplate>
+#include <Wt/WPushButton.h>
+#include <Wt/WTemplate.h>
 
 List_eval_item_widget::List_eval_item_widget(
         const Submission::Item& model,

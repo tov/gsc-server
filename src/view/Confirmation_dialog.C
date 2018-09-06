@@ -1,8 +1,8 @@
 #include "Confirmation_dialog.h"
 
-#include <Wt/WBreak>
-#include <Wt/WPushButton>
-#include <Wt/WText>
+#include <Wt/WBreak.h>
+#include <Wt/WPushButton.h>
+#include <Wt/WText.h>
 
 Confirmation_dialog::Confirmation_dialog(const std::string& message,
                                          Wt::WObject* parent)

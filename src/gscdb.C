@@ -7,8 +7,8 @@
 #include "model/Session.h"
 #include "model/Submission.h"
 
-#include <Wt/Dbo/Dbo>
-#include <Wt/Dbo/backend/Postgres>
+#include <Wt/Dbo/Dbo.h>
+#include <Wt/Dbo/backend/Postgres.h>
 
 #include <iostream>
 #include <cstdlib>

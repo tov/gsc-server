@@ -1,7 +1,7 @@
 #pragma once
 
-#include <Wt/WContainerWidget>
-#include <Wt/WTextArea>
+#include <Wt/WContainerWidget.h>
+#include <Wt/WTextArea.h>
 
 class Explanation_edit_widget : public Wt::WTextArea
 {

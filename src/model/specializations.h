@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Wt/Dbo/Dbo>
+#include <Wt/Dbo/Dbo.h>
 
 class Assignment;
 class File_data;

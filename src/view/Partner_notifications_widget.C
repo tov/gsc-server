@@ -6,12 +6,12 @@
 #include "../model/Submission.h"
 #include "../Navigate.h"
 
-#include <Wt/Dbo/Dbo>
-#include <Wt/WApplication>
-#include <Wt/WLineEdit>
-#include <Wt/WMessageBox>
-#include <Wt/WPushButton>
-#include <Wt/WText>
+#include <Wt/Dbo/Dbo.h>
+#include <Wt/WApplication.h>
+#include <Wt/WLineEdit.h>
+#include <Wt/WMessageBox.h>
+#include <Wt/WPushButton.h>
+#include <Wt/WText.h>
 
 Partner_pending_widget::Partner_pending_widget(
         Partner_notification_widget* main,

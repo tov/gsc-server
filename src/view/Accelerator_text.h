@@ -1,9 +1,9 @@
 #pragma once
 
-#include <Wt/WCompositeWidget>
-#include <Wt/WContainerWidget>
-#include <Wt/WString>
-#include <Wt/WWidget>
+#include <Wt/WCompositeWidget.h>
+#include <Wt/WContainerWidget.h>
+#include <Wt/WString.h>
+#include <Wt/WWidget.h>
 
 class Accelerator_text : public Wt::WCompositeWidget
 {

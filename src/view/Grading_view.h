@@ -2,8 +2,8 @@
 
 #include "Abstract_file_view.h"
 
-#include <Wt/Dbo/ptr>
-#include <Wt/WContainerWidget>
+#include <Wt/Dbo/ptr.h>
+#include <Wt/WContainerWidget.h>
 
 class Self_eval;
 class Session;

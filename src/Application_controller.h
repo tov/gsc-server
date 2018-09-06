@@ -2,9 +2,9 @@
 
 #include "model/Session.h"
 
-#include <Wt/Dbo/ptr>
-#include <Wt/Dbo/SqlConnectionPool>
-#include <Wt/WApplication>
+#include <Wt/Dbo/ptr.h>
+#include <Wt/Dbo/SqlConnectionPool.h>
+#include <Wt/WApplication.h>
 
 #include <string>
 

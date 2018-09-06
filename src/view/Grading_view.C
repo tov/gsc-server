@@ -9,15 +9,15 @@
 #include "../model/Assignment.h"
 #include "../model/Session.h"
 
-#include <Wt/Dbo/ptr>
-#include <Wt/WApplication>
-#include <Wt/WCompositeWidget>
-#include <Wt/WContainerWidget>
-#include <Wt/WLineEdit>
-#include <Wt/WPushButton>
-#include <Wt/WSignal>
-#include <Wt/WTemplate>
-#include <Wt/WText>
+#include <Wt/Dbo/ptr.h>
+#include <Wt/WApplication.h>
+#include <Wt/WCompositeWidget.h>
+#include <Wt/WContainerWidget.h>
+#include <Wt/WLineEdit.h>
+#include <Wt/WPushButton.h>
+#include <Wt/WSignal.h>
+#include <Wt/WTemplate.h>
+#include <Wt/WText.h>
 
 // Abstract base class for grading self evaluations. Derived classes specialize
 // for boolean-type evaluations and scale-type evaluations (including

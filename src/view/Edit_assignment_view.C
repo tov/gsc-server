@@ -4,14 +4,14 @@
 #include "../model/Eval_item.h"
 #include "../model/Session.h"
 
-#include <Wt/WBreak>
-#include <Wt/WButtonGroup>
-#include <Wt/WLineEdit>
-#include <Wt/WPushButton>
-#include <Wt/WRadioButton>
-#include <Wt/WTemplate>
-#include <Wt/WText>
-#include <Wt/WTextArea>
+#include <Wt/WBreak.h>
+#include <Wt/WButtonGroup.h>
+#include <Wt/WLineEdit.h>
+#include <Wt/WPushButton.h>
+#include <Wt/WRadioButton.h>
+#include <Wt/WTemplate.h>
+#include <Wt/WText.h>
+#include <Wt/WTextArea.h>
 
 #include <cstdlib>
 

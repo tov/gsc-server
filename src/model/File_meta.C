@@ -3,7 +3,7 @@
 #include "Submission.h"
 #include "auth/User.h"
 
-#include <Wt/Dbo/Impl>
+#include <Wt/Dbo/Impl.h>
 
 DBO_INSTANTIATE_TEMPLATES(File_meta);
 

@@ -4,7 +4,7 @@
 #include "Session.h"
 #include "Submission.h"
 
-#include <Wt/Dbo/Impl>
+#include <Wt/Dbo/Impl.h>
 
 DBO_INSTANTIATE_TEMPLATES(Partner_request);
 

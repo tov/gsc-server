@@ -7,7 +7,7 @@
 #include "Self_eval.h"
 #include "File_meta.h"
 
-#include <Wt/Dbo/Impl>
+#include <Wt/Dbo/Impl.h>
 
 DBO_INSTANTIATE_TEMPLATES(Assignment);
 

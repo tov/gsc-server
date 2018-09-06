@@ -10,7 +10,7 @@
 
 #include <vector>
 
-#include <Wt/WContainerWidget>
+#include <Wt/WContainerWidget.h>
 
 class Session;
 

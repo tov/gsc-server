@@ -2,9 +2,9 @@
 
 #include "../specializations.h"
 
-#include <Wt/WDateTime>
-#include <Wt/Dbo/Types>
-#include <Wt/Dbo/WtSqlTraits>
+#include <Wt/WDateTime.h>
+#include <Wt/Dbo/Types.h>
+#include <Wt/Dbo/WtSqlTraits.h>
 
 #include <string>
 

@@ -1,7 +1,7 @@
 #include "Abstract_file_view.h"
 #include "File_viewer_widget.h"
 
-#include <Wt/WHBoxLayout>
+#include <Wt/WHBoxLayout.h>
 
 Abstract_file_view::Abstract_file_view(
         const Wt::Dbo::ptr<Submission>& submission,

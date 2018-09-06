@@ -6,7 +6,7 @@
 
 #include "WordWidget.h"
 
-#include <Wt/WText>
+#include <Wt/WText.h>
 
 using namespace Wt;
 

@@ -12,14 +12,14 @@
 #include "../model/Submission.h"
 #include "../model/Session.h"
 
-#include <Wt/WApplication>
-#include <Wt/WComboBox>
-#include <Wt/WLineEdit>
-#include <Wt/WMenuItem>
-#include <Wt/WMessageBox>
-#include <Wt/WPushButton>
-#include <Wt/WSuggestionPopup>
-#include <Wt/WTable>
+#include <Wt/WApplication.h>
+#include <Wt/WComboBox.h>
+#include <Wt/WLineEdit.h>
+#include <Wt/WMenuItem.h>
+#include <Wt/WMessageBox.h>
+#include <Wt/WPushButton.h>
+#include <Wt/WSuggestionPopup.h>
+#include <Wt/WTable.h>
 
 #include <sstream>
 #include <vector>

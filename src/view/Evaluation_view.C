@@ -16,12 +16,12 @@
 #include "../model/Session.h"
 #include "../model/Submission.h"
 
-#include <Wt/WApplication>
-#include <Wt/WContainerWidget>
-#include <Wt/WHBoxLayout>
-#include <Wt/WPushButton>
-#include <Wt/WTemplate>
-#include <Wt/WText>
+#include <Wt/WApplication.h>
+#include <Wt/WContainerWidget.h>
+#include <Wt/WHBoxLayout.h>
+#include <Wt/WPushButton.h>
+#include <Wt/WTemplate.h>
+#include <Wt/WText.h>
 
 Evaluation_view::Evaluation_view(const dbo::ptr<Submission>& submission,
                                  Session& session,

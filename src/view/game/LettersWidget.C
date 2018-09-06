@@ -6,10 +6,10 @@
 
 #include "LettersWidget.h"
 
-#include <Wt/WPushButton>
-#include <Wt/WTable>
-#include <Wt/WApplication>
-#include <Wt/WEvent>
+#include <Wt/WPushButton.h>
+#include <Wt/WTable.h>
+#include <Wt/WApplication.h>
+#include <Wt/WEvent.h>
 
 using namespace Wt;
 

@@ -1,8 +1,8 @@
 #pragma once
 
-#include <Wt/Dbo/ptr>
-#include <Wt/WResource>
-#include <Wt/WTable>
+#include <Wt/Dbo/ptr.h>
+#include <Wt/WResource.h>
+#include <Wt/WTable.h>
 
 class File_deleter;
 

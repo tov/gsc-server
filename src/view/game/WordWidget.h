@@ -8,7 +8,7 @@
 #ifndef WORD_WIDGET_H_
 #define WORD_WIDGET_H_
 
-#include <Wt/WContainerWidget>
+#include <Wt/WContainerWidget.h>
 
 class WordWidget : public Wt::WContainerWidget
 {

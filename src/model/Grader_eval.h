@@ -5,9 +5,9 @@
 #include "auth/User.h"
 #include "Abstract_evaluation.h"
 
-#include <Wt/Dbo/WtSqlTraits>
-#include <Wt/Dbo/Types>
-#include <Wt/WDateTime>
+#include <Wt/Dbo/WtSqlTraits.h>
+#include <Wt/Dbo/Types.h>
+#include <Wt/WDateTime.h>
 
 #include <string>
 

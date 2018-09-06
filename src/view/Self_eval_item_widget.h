@@ -2,7 +2,7 @@
 
 #include "Single_eval_item_widget.h"
 
-#include <Wt/WPushButton>
+#include <Wt/WPushButton.h>
 
 class Response_widget;
 
