@@ -3,8 +3,9 @@
 #include "../model/Session.h"
 
 #include <Wt/Auth/AuthService.h>
-#include <Wt/WDateTime.h>
 #include <Wt/Utils.h>
+#include <Wt/WDateTime.h>
+#include <Wt/WString.h>
 
 #include <algorithm>
 #include <regex>
@@ -56,6 +57,10 @@ void Http_status::respond(Wt::Http::Response& response) const
         case 401:
             title = "Unauthorized";
             response.addHeader("WWW-Authenticate", "Basic realm=gsc");
+            break;
+
+        case 403:
+            title = "Forbidden";
             break;
 
         default:
@@ -143,14 +148,15 @@ public:
     dbo::ptr<User> authenticate_by_password();
 
 private:
-//    void set_cookie(const std::string& value, int seconds);
+    void create_cookie(Wt::Auth::User const&);
+    void set_cookie(std::string const& value, int ttl_seconds) const;
+    void check_password_strength(Credentials const&) const;
 
     Db_session& session_;
     Wt::Http::Request const& request_;
     Wt::Http::Response& response_;
     std::string path_info_;
     std::string method_;
-    void set_cookie(const std::string& value, int ttl_seconds) const;
 };
 
 Request_handler::Request_handler(Db_session& session,
@@ -188,6 +194,24 @@ void Request_handler::set_cookie(std::string const& value, int ttl_seconds) cons
     response_.addHeader("Set-Cookie", out_cookie.str());
 }
 
+void Request_handler::create_cookie(Wt::Auth::User const& auth_user)
+{
+    std::string auth_token = session_.auth().createAuthToken(auth_user);
+    set_cookie(auth_token, 60 * session_.auth().authTokenValidity());
+}
+
+void Request_handler::check_password_strength(Credentials const& cred) const
+{
+    Wt::Auth::PasswordStrengthValidator psv;
+    auto psv_result = psv.evaluateStrength(cred.password, cred.username, "");
+
+    if (psv_result.isValid()) return;
+
+    std::ostringstream msg;
+    msg << "Please try a stronger password (" << psv_result.message() << ")";
+    throw Http_status{403, msg.str()};
+}
+
 dbo::ptr<User> Request_handler::authenticate_by_cookie()
 {
     std::string const* in_cookie = request_.getCookieValue(cookie_name);
@@ -207,22 +231,31 @@ dbo::ptr<User> Request_handler::authenticate_by_password()
 {
     using Wt::Auth::PasswordResult;
 
+    // If no authorization header is provided, give up; otherwise, parse it.
     auto auth_header = request_.headerValue("Authorization");
     if (auth_header.empty()) return {};
-
     auto credentials = parse_authorization(auth_header);
 
     dbo::Transaction transaction(session_);
 
+    // Look up the user by name.
     auto user = User::find_by_name(session_, credentials.username);
 
+    // Intercept user creation requests. These are POSTs to /users, and are only
+    // valid if the user doesn't exist. In that case, we create the user and
+    // create and set a login cookie.
     if (path_info_ == Path::users && method_ == "POST") {
         if (user) throw Http_status{403, "User already exists"};
+        check_password_strength(credentials);
         user = session_.create_user(credentials.username, credentials.password);
+        create_cookie(session_.users().find(user));
+        return user;
     }
 
+    // Otherwise, the user doesn't exist.
     if (!user) throw Http_status{401, "User does not exist"};
 
+    // The user exists, so we need to validate their password.
     auto& service  = session_.passwordAuth();
     auto auth_user = session_.users().find(user);
 
@@ -239,13 +272,9 @@ dbo::ptr<User> Request_handler::authenticate_by_password()
         }
 
         case PasswordResult::PasswordValid:
-            break;
+            create_cookie(auth_user);
+            return user;
     }
-
-    std::string auth_token = session_.auth().createAuthToken(auth_user);
-    set_cookie(auth_token, 60 * session_.auth().authTokenValidity());
-
-    return user;
 }
 
 /*
