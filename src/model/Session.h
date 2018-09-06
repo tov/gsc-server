@@ -15,30 +15,22 @@
 class User;
 class User_stats;
 
-class Session : public Wt::Dbo::Session
+class Db_session : public Wt::Dbo::Session
 {
 public:
-    Session(Wt::Dbo::SqlConnectionPool&);
-
-    Wt::Auth::AbstractUserDatabase& users();
-
-    Wt::Auth::Login& login() { return login_; }
+    Db_session(Wt::Dbo::SqlConnectionPool&);
 
     Wt::Dbo::Session& dbo() { return *this; };
 
-    Wt::Dbo::ptr<User> user() const;
+    User_database& users() { return users_; }
 
-    std::string user_name() const;
+    const User_database& users() const { return users_; }
 
     Wt::Dbo::ptr<User> create_user(const std::string& username,
                                    const std::string& password,
                                    User::Role role = User::Role::Student);
 
-    void become_user(const Wt::Dbo::ptr<User>&);
-
     std::vector<dbo::ptr<User_stats>> top_users(int limit);
-    int find_ranking();
-    void add_to_score(int s);
 
     static void map_classes(Wt::Dbo::Session&);
 
@@ -53,10 +45,29 @@ public:
 
 private:
     User_database users_;
+
+    void create_index(const char* table, const char* field, bool unique = true);
+};
+
+class Session : public Db_session
+{
+public:
+    Session(Wt::Dbo::SqlConnectionPool&);
+
+    Wt::Auth::Login& login() { return login_; }
+
+    Wt::Dbo::ptr<User> user() const;
+
+    std::string user_name() const;
+
+    void become_user(const Wt::Dbo::ptr<User>&);
+
+    int find_ranking();
+    void add_to_score(int s);
+
+private:
     Wt::Auth::Login login_;
 
     mutable Wt::Dbo::ptr<User> user_;
-
-    void create_index(const char* table, const char* field, bool unique = true);
 };
 

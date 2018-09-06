@@ -41,35 +41,8 @@ Auth::PasswordService my_password_service(my_auth_service);
 
 }
 
-void Session::configureAuth()
-{
-    my_auth_service.setAuthTokensEnabled(true, "gsc_cookie");
-
-    auto verifier = std::make_unique<Auth::PasswordVerifier>();
-    verifier->addHashFunction(std::make_unique<Auth::BCryptHashFunction>(7));
-
-    my_password_service.setVerifier(std::move(verifier));
-    my_password_service.setStrengthValidator(
-            std::make_unique<Auth::PasswordStrengthValidator>());
-    my_password_service.setAttemptThrottlingEnabled(true);
-}
-
-dbo::ptr<User>
-Session::create_user(const std::string& username,
-                     const std::string& password,
-                     User::Role role)
-{
-    Auth::User user = users_.registerNew();
-    user.addIdentity(Auth::Identity::LoginName, username);
-    my_password_service.updatePassword(user, password);
-
-    auto user_obj = users_.find(user);
-    user_obj.modify()->set_role(role);
-    return user_obj;
-}
-
-Session::Session(dbo::SqlConnectionPool& pool)
-        : users_(*this)
+Db_session::Db_session(Wt::Dbo::SqlConnectionPool& pool)
+    : users_{*this}
 {
     setConnectionPool(pool);
 
@@ -128,14 +101,46 @@ Session::Session(dbo::SqlConnectionPool& pool)
     }
 
     transaction.commit();
+
 }
+
+void Db_session::configureAuth()
+{
+    my_auth_service.setAuthTokensEnabled(true, "gsc_cookie");
+
+    auto verifier = std::make_unique<Auth::PasswordVerifier>();
+    verifier->addHashFunction(std::make_unique<Auth::BCryptHashFunction>(7));
+
+    my_password_service.setVerifier(std::move(verifier));
+    my_password_service.setStrengthValidator(
+            std::make_unique<Auth::PasswordStrengthValidator>());
+    my_password_service.setAttemptThrottlingEnabled(true);
+}
+
+dbo::ptr<User>
+Db_session::create_user(const std::string& username,
+                        const std::string& password,
+                        User::Role role)
+{
+    Auth::User user = users_.registerNew();
+    user.addIdentity(Auth::Identity::LoginName, username);
+    my_password_service.updatePassword(user, password);
+
+    auto user_obj = users_.find(user);
+    user_obj.modify()->set_role(role);
+    return user_obj;
+}
+
+Session::Session(dbo::SqlConnectionPool& pool)
+        : Db_session(pool)
+{ }
 
 dbo::ptr<User> Session::user() const
 {
     if (login_.loggedIn()) {
         auto login_name = login_.user().identity(Auth::Identity::LoginName);
         if (!user_ || user_->name() != login_name)
-            user_ = users_.find(login_.user());
+            user_ = users().find(login_.user());
 
         return user_;
     } else return dbo::ptr<User>();
@@ -162,7 +167,7 @@ void Session::add_to_score(int s)
 }
 
 std::vector<dbo::ptr<User_stats>>
-Session::top_users(int limit)
+Db_session::top_users(int limit)
 {
     dbo::Transaction transaction(*this);
 
@@ -191,23 +196,18 @@ int Session::find_ranking()
     return ranking + 1;
 }
 
-Auth::AbstractUserDatabase& Session::users()
-{
-    return users_;
-}
-
-const Auth::AuthService& Session::auth()
+const Auth::AuthService& Db_session::auth()
 {
     return my_auth_service;
 }
 
-const Auth::AbstractPasswordService& Session::passwordAuth()
+const Auth::AbstractPasswordService& Db_session::passwordAuth()
 {
     return my_password_service;
 }
 
 std::unique_ptr<Wt::Dbo::SqlConnectionPool>
-Session::createConnectionPool(const std::string& db)
+Db_session::createConnectionPool(const std::string& db)
 {
     auto connection = std::make_unique<dbo::backend::Postgres>(db);
     connection->setProperty("show-queries", "true");
@@ -215,7 +215,7 @@ Session::createConnectionPool(const std::string& db)
                                                          10);
 }
 
-void Session::create_index(const char* table, const char* field, bool unique)
+void Db_session::create_index(const char* table, const char* field, bool unique)
 {
     std::ostringstream query;
     query << "CREATE ";
@@ -226,7 +226,7 @@ void Session::create_index(const char* table, const char* field, bool unique)
     execute(query.str());
 }
 
-void Session::map_classes(Wt::Dbo::Session& dbo)
+void Db_session::map_classes(Wt::Dbo::Session& dbo)
 {
     dbo.mapClass<Assignment>("assignments");
     dbo.mapClass<Auth_token>("auth_tokens");
@@ -247,7 +247,7 @@ void Session::become_user(const Wt::Dbo::ptr<User>& user)
     login_.logout();
 
     auto user_id = boost::lexical_cast<std::string>(user.id());
-    auto auth_user = users_.findWithId(user_id);
+    auto auth_user = users().findWithId(user_id);
     login_.login(auth_user);
 
     user_ = user;

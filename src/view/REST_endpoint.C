@@ -125,7 +125,7 @@ parse_authorization(const std::string& header_value)
  */
 
 REST_endpoint::REST_endpoint(Wt::Dbo::SqlConnectionPool& pool)
-        : pool_{pool}
+        : session_{pool}
 { }
 
 void REST_endpoint::handleRequest(const Wt::Http::Request& request,
@@ -137,17 +137,39 @@ void REST_endpoint::handleRequest(const Wt::Http::Request& request,
         std::string const path_info = request.pathInfo();
         std::string const method    = request.method();
 
-        Session session(pool_);
-        dbo::Transaction transaction(session);
+        dbo::Transaction transaction(session_);
 
-        auto user = User::find_by_name(session, auth.first);
+        auto user = User::find_by_name(session_, auth.first);
 
         if (path_info == Path::users && method == "POST") {
             if (user) throw Http_status{403, "User already exists"};
-            user = session.create_user(auth.first, auth.second);
+            user = session_.create_user(auth.first, auth.second);
         }
 
         if (!user) throw Http_status{401, "User does not exist"};
+
+        {
+            using Wt::Auth::PasswordResult;
+
+            auto& service  = session_.passwordAuth();
+            auto auth_user = session_.users().find(user);
+
+            switch (service.verifyPassword(auth_user, auth.second)) {
+                case PasswordResult::PasswordInvalid:
+                    throw Http_status{401, "Invalid password"};
+
+                case PasswordResult::LoginThrottling: {
+                    auto seconds = service.delayForNextAttempt(auth_user);
+                    std::ostringstream msg;
+                    msg << "Too many attempts; please wait " << seconds
+                        << " seconds";
+                    throw Http_status{401, msg.str()};
+                }
+
+                case PasswordResult::PasswordValid:
+                    break;
+            }
+        }
 
         std::smatch sm;
 

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../model/Session.h"
+
 #include <Wt/WResource.h>
 
 class REST_endpoint : public Wt::WResource
@@ -11,5 +13,5 @@ public:
                        Wt::Http::Response&) override;
 
 private:
-    Wt::Dbo::SqlConnectionPool& pool_;
+    Db_session session_;
 };
