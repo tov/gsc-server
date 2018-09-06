@@ -9,12 +9,14 @@ Abstract_file_view::Abstract_file_view(const Wt::Dbo::ptr<Submission>& submissio
           session_(session)
 {
     auto container = setNewImplementation<Wt::WContainerWidget>();
-    auto hbox = container->setLayout(std::make_unique<Wt::WHBoxLayout>());
+    auto layout    = std::make_unique<Wt::WHBoxLayout>();
+    auto hbox      = layout.get();
+    container->setLayout(std::move(layout));
 
-    auto viewer = std::make_unique<File_viewer_widget>(submission_, session_);
-    viewer_ = hbox->addWidget(std::move(viewer));
+    viewer_        = hbox->addWidget(
+            std::make_unique<File_viewer_widget>(submission_, session_));
+    right_column_  = hbox->addWidget(
+            std::make_unique<Wt::WContainerWidget>(), 1);
 
-    auto right_column = std::make_unique<Wt::WContainerWidget>();
-    right_column_ = hbox->addWidget(std::move(right_column), 1);
     right_column_->setStyleClass("right-column");
 }

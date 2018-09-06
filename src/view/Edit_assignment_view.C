@@ -197,7 +197,7 @@ void Edit_assignment_view::more_()
 
 void Edit_assignment_view::add_item_(const dbo::ptr<Eval_item>& eval_item)
 {
-    auto widget = new Edit_eval_item(eval_item, *this, session_);
+    auto widget = container_->addNew<Edit_eval_item>(eval_item, *this, session_);
     items_.push_back(widget);
 }
 
@@ -232,7 +232,7 @@ void Edit_assignment_view::real_fewer_()
     items_.back()->eval_item_.remove();
     transaction.commit();
 
-    delete items_.back();
+    container_->removeChild(items_.back());
     items_.pop_back();
 }
 

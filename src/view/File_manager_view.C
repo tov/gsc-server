@@ -162,10 +162,9 @@ File_manager_view::File_manager_view(const Wt::Dbo::ptr<Submission>& submission,
                                              file_list->changed(),
                                              session_);
 
-    right_column_->addWidget(std::move(file_list));
+    auto raw_file_list = right_column_->addWidget(std::move(file_list));
+    auto raw_date_list = right_column_->addNew<Date_list>(submission_);
 
-    auto date_list = right_column_->addNew<Date_list>(submission_);
-
-    file_list->changed().connect(viewer_, &File_viewer_widget::reload);
-    file_list->changed().connect(date_list, &Date_list::reload);
+    raw_file_list->changed().connect(viewer_, &File_viewer_widget::reload);
+    raw_file_list->changed().connect(raw_date_list, &Date_list::reload);
 }
