@@ -28,7 +28,7 @@ Review_eval_item_widget::Review_eval_item_widget(
                             "grader-highlight");
         }
     } else {
-        new Wt::WText("<h5>No self evaluation submitted!</h5>", this);
+        addNew<Wt::WText>("<h5>No self evaluation submitted!</h5>");
     }
 
     add_navigation_();

@@ -15,35 +15,33 @@ Explanation_view_widget::Explanation_view_widget(const std::string& content,
                                                  File_viewer_widget* viewer,
                                                  const std::string& highlight_style,
                                                  Wt::WContainerWidget* parent)
-        : WCompositeWidget(parent),
-          viewer_(viewer),
+        : viewer_(viewer),
           highlight_style_(highlight_style)
 {
     if (viewer_)
         initialize_viewer_(content);
     else
-        setImplementation(new Wt::WText(content, Wt::PlainText));
+        setNewImplementation<Wt::WText>(content, Wt::TextFormat::Plain);
 }
 
 void Explanation_view_widget::initialize_viewer_(const std::string& content)
 {
-    auto impl = new Wt::WContainerWidget;
+    auto impl = setNewImplementation<Wt::WContainerWidget>();
     impl->setInline(true);
-    setImplementation(impl);
 
     std::string buf;
     bool in_L = false;
     int jump_line = 0;
 
     auto emit_text = [&]() {
-        new Wt::WText(buf, Wt::PlainText, impl);
+        impl->addNew<Wt::WText>(buf, Wt::TextFormat::Plain);
         buf.clear();
     };
 
     auto emit_link = [&]() {
         auto line_no = atoi(&buf[1]);
         viewer_->set_line_style(line_no, highlight_style_);
-        auto link = new Wt::WText(buf, impl);
+        auto link = impl->addNew<Wt::WText>(buf);
         buf.clear();
 
         if (jump_line == 0) jump_line = line_no;

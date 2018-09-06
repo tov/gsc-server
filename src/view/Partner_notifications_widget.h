@@ -54,13 +54,13 @@ private:
 };
 
 
-class Partner_notification_widget : Wt::WCompositeWidget
+class Partner_notification_widget : public Wt::WCompositeWidget
 {
 public:
-    Partner_notification_widget(const Wt::Dbo::ptr<User>&,
-                                const Wt::Dbo::ptr<Submission>&,
-                                Session& session,
-                                Wt::WContainerWidget* parent);
+    Partner_notification_widget(
+                const Wt::Dbo::ptr<User>&,
+                const Wt::Dbo::ptr<Submission>&,
+                Session& session);
 
 private:
     Wt::Dbo::ptr<User> user_;

@@ -10,10 +10,8 @@ const Wt::WSuggestionPopup::Options User_suggester::options = {
         ""             // appendReplacedText (prepare next email address)
 };
 
-User_suggester::User_suggester(Session& session,
-                               User::Role role,
-                               Wt::WContainerWidget* parent)
-        : WSuggestionPopup(options, parent)
+User_suggester::User_suggester(Session& session, User::Role role)
+        : WSuggestionPopup(options)
 {
     Wt::Dbo::Transaction transaction(session);
 
@@ -24,9 +22,8 @@ User_suggester::User_suggester(Session& session,
         addSuggestion(user->name());
 }
 
-User_suggester::User_suggester(Session& session,
-                               Wt::WContainerWidget* parent)
-        : WSuggestionPopup(options, parent)
+User_suggester::User_suggester(Session& session)
+        : WSuggestionPopup(options)
 {
     Wt::Dbo::Transaction transaction(session);
 

@@ -10,7 +10,7 @@
 #include <iomanip>
 #include <sstream>
 
-DBO_INSTANTIATE_TEMPLATES(Eval_item);
+DBO_INSTANTIATE_TEMPLATES(Eval_item)
 
 Eval_item::Eval_item(const dbo::ptr<Assignment>& assignment, int sequence)
         : assignment_(assignment), sequence_(sequence)

@@ -35,4 +35,4 @@ public:
     }
 };
 
-DBO_EXTERN_TEMPLATES(File_data);
+DBO_EXTERN_TEMPLATES(File_data)

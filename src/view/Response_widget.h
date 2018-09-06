@@ -11,7 +11,7 @@ class Response_widget : public Wt::WCompositeWidget
 public:
     Response_widget(Wt::WContainerWidget* parent = nullptr);
 
-    static Response_widget*
+    static std::unique_ptr<Response_widget>
     create(Eval_item::Type, Wt::WContainerWidget* parent = nullptr);
 
     virtual bool is_ready() const = 0;

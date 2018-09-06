@@ -2,7 +2,7 @@
 #include "Eval_item.h"
 #include "auth/User.h"
 
-DBO_INSTANTIATE_TEMPLATES(Exam_grade);
+DBO_INSTANTIATE_TEMPLATES(Exam_grade)
 
 Exam_grade::Exam_grade(const dbo::ptr <User>& user, int number)
         : user_(user),
@@ -46,7 +46,7 @@ Exam_grade::find_by_user_and_number(const dbo::ptr <User>& user, int number)
                 .where("number = ?").bind(number);
 
     if (! result)
-        return user.session()->add(new Exam_grade(user, number));
+        return user.session()->addNew<Exam_grade>(user, number);
     else
         return result;
 }

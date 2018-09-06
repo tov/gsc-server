@@ -14,22 +14,21 @@
 using namespace Wt;
 
 LettersWidget::LettersWidget(WContainerWidget* parent)
-        : WCompositeWidget(parent)
 {
-    setImplementation(impl_ = new WTable());
+    impl_ = setNewImplementation<WTable>();
 
     impl_->resize(13 * 30, WLength::Auto);
 
     for (int i = 0; i < 26; ++i) {
         std::string c(1, char('A' + i));
 
-        auto button = new WPushButton(c, impl_->elementAt(i / 13, i % 13));
+        auto button = impl_->elementAt(i / 13, i % 13)->addNew<WPushButton>(c);
         letterButtons_.push_back(button);
 
         button->resize(WLength(30), WLength::Auto);
 
         button->clicked().connect
-                (boost::bind(&LettersWidget::process_key_index, this, i));
+                (std::bind(&LettersWidget::process_key_index, this, i));
     }
 
     WApplication::instance()->globalKeyPressed().connect(

@@ -4,24 +4,17 @@
 
 #include <Wt/WPushButton.h>
 
-Admin_response_widget::Admin_response_widget(Wt::WContainerWidget* parent)
-        : Admin_response_widget(nullptr, parent)
-{ }
-
-Admin_response_widget::Admin_response_widget(Abstract_evaluation* model,
-                                             Wt::WContainerWidget* parent)
-        : WCompositeWidget(parent)
+Admin_response_widget::Admin_response_widget(Abstract_evaluation* model)
 {
-    auto impl = new Wt::WContainerWidget;
-    setImplementation(impl);
+    auto impl = setNewImplementation<Wt::WContainerWidget>();
     impl->setStyleClass("admin-response-widget");
 
-    explanation_ = new Explanation_edit_widget(impl);
+    explanation_ = impl->addNew<Explanation_edit_widget>();
 
-    buttons_ = new Wt::WContainerWidget(impl);
+    buttons_ = impl->addNew<Wt::WContainerWidget>();
     buttons_->setStyleClass("buttons");
 
-    grade_ = new Unit_line_edit(buttons_);
+    grade_ = buttons_->addNew<Unit_line_edit>();
     grade_->setStyleClass("unit-edit");
 
     using This = Admin_response_widget;

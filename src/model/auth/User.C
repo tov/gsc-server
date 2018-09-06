@@ -15,7 +15,7 @@
 
 #include <algorithm>
 
-DBO_INSTANTIATE_TEMPLATES(User);
+DBO_INSTANTIATE_TEMPLATES(User)
 
 User::User(const std::string& name)
         : name_(name) {}
@@ -64,7 +64,8 @@ void User::add_auth_token(const std::string& value, const Wt::WDateTime& expires
 
     if (auth_tokens_.size() > 50) return;
 
-    auth_tokens_.insert(dbo::ptr<Auth_token>(new Auth_token(value, expires)));
+    auth_tokens_.insert(dbo::ptr<Auth_token>(
+            std::make_unique<Auth_token>(value, expires)));
 }
 
 void User::remove_auth_token(const std::string& value)

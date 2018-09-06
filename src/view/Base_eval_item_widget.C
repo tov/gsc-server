@@ -12,8 +12,7 @@ Base_eval_item_widget::Base_eval_item_widget(const Submission::Item& model,
                                              Evaluation_view& main,
                                              Session& session,
                                              Wt::WContainerWidget* parent)
-        : WContainerWidget(parent),
-          model_(model),
+        : model_(model),
           main_(main),
           session_(session)
 { }
@@ -33,9 +32,8 @@ void Base_eval_item_widget::retract_action_()
 
 void Base_eval_item_widget::add_item_heading_()
 {
-    auto h4 = new Wt::WTemplate("<h4>Question ${number} "
-                                        "<small>(${value})</small></h4>",
-                                this);
+    auto h4 = addNew<Wt::WTemplate>("<h4>Question ${number} "
+                                    "<small>(${value})</small></h4>");
 
     std::string number = boost::lexical_cast<std::string>(
             model_.eval_item->sequence());
@@ -43,14 +41,15 @@ void Base_eval_item_widget::add_item_heading_()
             model_.eval_item->relative_value()
             / main_.submission()->point_value());
 
-    h4->bindWidget("number", new Wt::WText(number));
-    h4->bindWidget("value", new Wt::WText(value));
+    h4->bindWidget("number", std::make_unique<Wt::WText>(number));
+    h4->bindWidget("value", std::make_unique<Wt::WText>(value));
 }
 
 void Base_eval_item_widget::add_question_()
 {
-    auto p = new Wt::WTemplate("<p class='question'>${question}</p>", this);
-    p->bindWidget("question", new Wt::WText(model_.eval_item->prompt()));
+    auto p = addNew<Wt::WTemplate>("<p class='question'>${question}</p>");
+    p->bindWidget("question",
+                  std::make_unique<Wt::WText>(model_.eval_item->prompt()));
 }
 
 void Base_eval_item_widget::add_evaluation_(const std::string& heading,
@@ -58,30 +57,28 @@ void Base_eval_item_widget::add_evaluation_(const std::string& heading,
                                             const std::string& explanation,
                                             const std::string& highlight_style)
 {
-    auto p = new Wt::WTemplate(
+    auto p = addNew<Wt::WTemplate>(
             "<h5>${heading}</h5>"
             "<p class='answer'>"
               "<strong>${score}.</strong>"
               " ${explanation}"
-            "</p>",
-            this);
+            "</p>");
 
-    p->bindWidget("heading", new Wt::WText(heading));
-    p->bindWidget("score", new Wt::WText(score));
+    p->bindWidget("heading", std::make_unique<Wt::WText>(heading));
+    p->bindWidget("score", std::make_unique<Wt::WText>(score));
     p->bindWidget("explanation",
-                  new Explanation_view_widget(explanation,
-                                              main_.file_viewer(),
-                                              highlight_style));
+                  std::make_unique<Explanation_view_widget>(
+                          explanation, main_.file_viewer(), highlight_style));
 }
 
 void Base_eval_item_widget::add_navigation_(bool focus)
 {
-    auto buttons = new Wt::WContainerWidget(this);
+    auto buttons = addNew<Wt::WContainerWidget>();
     buttons->setStyleClass("buttons");
 
-    auto prev_btn = new Wt::WPushButton("Prev", buttons);
-    auto list_btn = new Wt::WPushButton("List", buttons);
-    auto next_btn = new Wt::WPushButton("Next", buttons);
+    auto prev_btn = buttons->addNew<Wt::WPushButton>("Prev");
+    auto list_btn = buttons->addNew<Wt::WPushButton>("List");
+    auto next_btn = buttons->addNew<Wt::WPushButton>("Next");
 
     auto sequence = model_.eval_item->sequence();
 

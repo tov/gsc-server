@@ -13,7 +13,7 @@ Admin_eval_item_widget::Admin_eval_item_widget(
         Evaluation_view& main,
         Session& session,
         Wt::WContainerWidget* parent)
-        : Single_eval_item_widget(model, main, session, parent)
+        : Single_eval_item_widget(model, main, session)
 {
     load_();
     self_update_button_();
@@ -22,14 +22,14 @@ Admin_eval_item_widget::Admin_eval_item_widget(
 }
 
 void Admin_eval_item_widget::load_() {
-    new Wt::WText("<h5>Self evaluation</h5>", this);
-    self_response_ = new Admin_response_widget(this);
+    addNew<Wt::WText>("<h5>Self evaluation</h5>");
+    self_response_ = addNew<Admin_response_widget>();
     self_response_->setFocus(true);
     auto self_buttons = self_response_->buttons();
 
     self_response_->changed().connect(this, &This::self_update_button_);
 
-    self_save_button_ = new Wt::WPushButton("Save", self_buttons);
+    self_save_button_ = self_buttons->addNew<Wt::WPushButton>("Save");
     self_save_button_->clicked().connect(this, &This::self_save_action_);
 
     if (!model_.self_eval) {
@@ -39,27 +39,27 @@ void Admin_eval_item_widget::load_() {
         return;
     }
 
-    auto self_retract_button = new Wt::WPushButton("Retract", self_buttons);
+    auto self_retract_button = self_buttons->addNew<Wt::WPushButton>("Retract");
     self_retract_button->clicked().connect(this, &This::self_retract_action_);
 
     self_response_->load(&*model_.self_eval);
 
-    new Wt::WText("<h5>Grader evaluation</h5>", this);
-    grader_response_ = new Admin_response_widget(this);
+    addNew<Wt::WText>("<h5>Grader evaluation</h5>");
+    grader_response_ = addNew<Admin_response_widget>();
     grader_response_->setFocus(true);
     auto grader_buttons = grader_response_->buttons();
 
     grader_response_->changed().connect(this, &This::grader_update_button_);
 
-    grader_save_button_ = new Wt::WPushButton("Save", grader_buttons);
+    grader_save_button_ = grader_buttons->addNew<Wt::WPushButton>("Save");
     grader_save_button_->clicked().connect(this, &This::grader_save_action_);
 
-    grader_hold_button_ = new Wt::WPushButton("Hold", grader_buttons);
+    grader_hold_button_ = grader_buttons->addNew<Wt::WPushButton>("Hold");
     grader_hold_button_->clicked().connect(this, &This::grader_hold_action_);
 
     if (!model_.grader_eval) return;
 
-    auto grader_retract_button = new Wt::WPushButton("Retract", grader_buttons);
+    auto grader_retract_button = grader_buttons->addNew<Wt::WPushButton>("Retract");
     grader_retract_button->clicked().connect(
             this, &This::grader_retract_action_);
 

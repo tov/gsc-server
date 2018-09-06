@@ -72,6 +72,6 @@ public:
 
 std::ostream& operator<<(std::ostream&, Eval_item::Type);
 
-DBO_EXTERN_TEMPLATES(Eval_item);
+DBO_EXTERN_TEMPLATES(Eval_item)
 
 

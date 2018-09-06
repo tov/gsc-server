@@ -28,37 +28,36 @@ const int MaxGuesses = 9;
 }
 
 HangmanWidget::HangmanWidget(Session& session, WContainerWidget* parent)
-        : WContainerWidget(parent),
-          session_(session),
+        : session_(session),
           badGuesses_(0)
 {
     setStyleClass("hangman-widget");
-    setContentAlignment(AlignCenter);
+    setContentAlignment(AlignmentFlag::Center);
 
-    title_ = new WText(tr("hangman.readyToPlay"), this);
+    title_ = addNew<WText>(tr("hangman.readyToPlay"));
 
-    word_       = new WordWidget(this);
-    statusText_ = new WText(this);
-    images_     = new ImagesWidget(MaxGuesses, this);
+    word_       = addNew<WordWidget>();
+    statusText_ = addNew<WText>();
+    images_     = addNew<ImagesWidget>(MaxGuesses);
 
-    letters_ = new LettersWidget(this);
+    letters_ = addNew<LettersWidget>();
     letters_->letterPushed().connect(this, &HangmanWidget::registerGuess);
 
-    buttons_ = new WContainerWidget(this);
+    buttons_ = addNew<WContainerWidget>();
     buttons_->setStyleClass("buttons");
 
-    language_ = new WComboBox(buttons_);
+    language_ = buttons_->addNew<WComboBox>();
     language_->addItem(tr("hangman.englishWords").arg(18957));
     language_->addItem(tr("hangman.dutchWords").arg(1688));
 
-    new WBreak(buttons_);
+    buttons_->addNew<WBreak>();
 
-    auto high_scores = new WPushButton("High scores", buttons_);
+    auto high_scores = buttons_->addNew<WPushButton>("High scores");
     high_scores->clicked().connect(std::bind([=]() {
         WApplication::instance()->setInternalPath("/game/high_scores", true);
     }));
 
-    auto new_game = new WPushButton(tr("hangman.newGame"), buttons_);
+    auto new_game = buttons_->addNew<WPushButton>(tr("hangman.newGame"));
     new_game->clicked().connect(this, &HangmanWidget::newGame);
     new_game->setAttributeValue("accesskey", "n");
 

@@ -8,8 +8,7 @@
 class Accelerator_text : public Wt::WCompositeWidget
 {
 public:
-    Accelerator_text(const Wt::WString&,
-                     Wt::WContainerWidget* parent = nullptr);
+    Accelerator_text(const Wt::WString&);
 
     void set_target(Wt::WWidget*);
     void set_target(Wt::Signal<>*);

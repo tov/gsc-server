@@ -37,4 +37,4 @@ struct Auth_token {
     }
 };
 
-DBO_EXTERN_TEMPLATES(Auth_token);
+DBO_EXTERN_TEMPLATES(Auth_token)

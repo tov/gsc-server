@@ -12,12 +12,13 @@
 #include <Wt/Dbo/Impl.h>
 
 #include <algorithm>
+#include <cctype>
 #include <functional>
 #include <locale>
 #include <regex>
 #include <sstream>
 
-DBO_INSTANTIATE_TEMPLATES(Submission);
+DBO_INSTANTIATE_TEMPLATES(Submission)
 
 Submission::Submission(const dbo::ptr <User>& user,
                        const dbo::ptr <Assignment>& assignment)
@@ -49,7 +50,13 @@ Source_file_vec Submission::source_files_sorted() const
         return std::lexicographical_compare(
                 a->name().begin(), a->name().end(),
                 b->name().begin(), b->name().end(),
-                boost::is_iless()
+                [](char c1, char c2) {
+                    char C1 = std::toupper(c1);
+                    char C2 = std::toupper(c2);
+                    if (C1 < C2) return -1;
+                    if (C1 > C2) return 1;
+                    return 0;
+                }
         );
     });
 
@@ -139,8 +146,7 @@ Submission::get_self_eval(const dbo::ptr<Eval_item>& eval_item,
     auto& result = submission->items_[eval_item->sequence()].self_eval;
 
     if (!result) {
-        result = submission.session()->add(new Self_eval(eval_item,
-                                                         submission));
+        result = submission.session()->addNew<Self_eval>(eval_item, submission);
         submission.modify()->touch();
     }
 
@@ -193,7 +199,7 @@ Submission::save_self_eval(const dbo::ptr<Self_eval>& self_eval,
     submission.modify()->touch();
 }
 
-const dbo::ptr<Grader_eval>&
+dbo::ptr<Grader_eval>
 Submission::get_grader_eval(const dbo::ptr<Self_eval>& self_eval,
                             const dbo::ptr<User>& grader)
 {
@@ -205,7 +211,7 @@ Submission::get_grader_eval(const dbo::ptr<Self_eval>& self_eval,
     auto& result = submission->items_[sequence].grader_eval;
 
     if (!result) {
-        result = self_eval.session()->add(new Grader_eval(self_eval, grader));
+        result = self_eval.session()->addNew<Grader_eval>(self_eval, grader);
         submission.modify()->touch();
     }
 
@@ -242,7 +248,7 @@ Submission::find_by_assignment_and_user(dbo::Session& session,
                    .where("assignment_number = ?")
                    .bind(assignment->number());
     if (!result)
-        result = session.add(new Submission(user, assignment));
+        result = session.addNew<Submission>(user, assignment);
 
     return result;
 }

@@ -21,11 +21,10 @@ Submission_owner_widget::Submission_owner_widget(
         const dbo::ptr<Submission>& submission,
         Session& session,
         Wt::WContainerWidget* parent)
-        : WCompositeWidget(parent),
-          session_(session),
+        : session_(session),
           submission_(submission)
 {
-    setImplementation(impl_ = new Wt::WContainerWidget);
+    impl_ = setNewImplementation<Wt::WContainerWidget>();
     setStyleClass("submission-owner-widget");
     update_();
 }
@@ -63,8 +62,8 @@ void Submission_owner_widget::update_admin_()
             (status == Submission::Status::open ||
              status == Submission::Status::extended))
     {
-        new Wt::WText(" ", impl_);
-        auto button = new Wt::WPushButton("X", impl_);
+        impl_->addNew<Wt::WText>(" ");
+        auto button = impl_->addNew<Wt::WPushButton>("X");
         button->setStyleClass("btn btn-danger");
         button->setToolTip("Break up partnership");
         button->clicked().connect(std::bind([=] () {
@@ -73,18 +72,18 @@ void Submission_owner_widget::update_admin_()
                     << "<strong>" << submission_->user2()->name() << "</strong>"
                     << " will be left with no submission.";
 
-            auto dialog = new Confirmation_dialog(message.str(), this);
+            auto dialog = new Confirmation_dialog(message.str());
             dialog->accepted().connect(
                     this, &Submission_owner_widget::break_up_partnership_);
         }));
     }
 
     else if (!submission_->user2() && submission_->assignment()->partner()) {
-        new Wt::WBreak(impl_);
-        new Wt::WText("Partner with: ", impl_);
-        auto edit = new Wt::WLineEdit(impl_);
+        impl_->addNew<Wt::WBreak>();
+        impl_->addNew<Wt::WText>("Partner with: ");
+        auto edit = impl_->addNew<Wt::WLineEdit>();
         edit->setStyleClass("username");
-        edit->setEmptyText("NetID");
+//        edit->setEmptyText("NetID");
         edit->enterPressed().connect(std::bind([=] () {
             dbo::Transaction transaction2(session_);
 
@@ -126,7 +125,7 @@ void Submission_owner_widget::update_grader_()
     }
     transaction.commit();
 
-    new Wt::WText(message.str(), impl_);
+    impl_->addNew<Wt::WText>(message.str());
 }
 
 void Submission_owner_widget::update_student_()
@@ -144,11 +143,11 @@ void Submission_owner_widget::update_student_()
         message << "Partnered with <strong>"
                 << other_user->name()
                 << "</strong>";
-        new Wt::WText(message.str(), impl_);
+        impl_->addNew<Wt::WText>(message.str());
         return;
     }
 
-    new Partner_notification_widget(self, submission_, session_, impl_);
+    impl_->addNew<Partner_notification_widget>(self, submission_, session_);
 }
 
 void Submission_owner_widget::break_up_partnership_()

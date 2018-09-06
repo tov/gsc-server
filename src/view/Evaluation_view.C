@@ -26,7 +26,7 @@
 Evaluation_view::Evaluation_view(const dbo::ptr<Submission>& submission,
                                  Session& session,
                                  Wt::WContainerWidget* parent)
-        : Abstract_file_view(submission, session, parent)
+        : Abstract_file_view(submission, session)
 {
     load_();
     setStyleClass("evaluation-view");
@@ -50,11 +50,11 @@ void Evaluation_view::go_to(unsigned int index)
     const auto& model = submission_->items().at(index);
 
     if (session_.user()->can_admin())
-        new Admin_eval_item_widget(model, *this, session_, right_column_);
+        right_column_->addNew<Admin_eval_item_widget>(model, *this, session_);
     else if (submission_->can_eval(session_.user()))
-        new Self_eval_item_widget(model, *this, session_, right_column_);
+        right_column_->addNew<Self_eval_item_widget>(model, *this, session_);
     else
-        new Review_eval_item_widget(model, *this, session_, right_column_);
+        right_column_->addNew<Review_eval_item_widget>(model, *this, session_);
 }
 
 void Evaluation_view::go_default()
@@ -78,15 +78,15 @@ void Evaluation_view::go_default()
         std::ostringstream fmt;
         fmt << "<h2 class='submission-grade'>Grade: "
             << submission_->grade_string() << "</h2>";
-        new Wt::WText(fmt.str(), right_column_);
+        right_column_->addNew<Wt::WText>(fmt.str());
     }
 
-    new Submission_owner_widget(submission_, session_, right_column_);
+    right_column_->addNew<Submission_owner_widget>(submission_, session_);
 
     for (auto& row : submission_->items()) {
         if (!row.eval_item) continue;
 
-        new List_eval_item_widget(row, *this, session_, right_column_);
+        right_column_->addNew<List_eval_item_widget>(row, *this, session_);
     }
 }
 

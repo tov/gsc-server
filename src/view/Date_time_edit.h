@@ -16,7 +16,7 @@ public:
     Wt::WDateTime date_time() const;
 
     virtual void setToolTip(const Wt::WString&,
-                            Wt::TextFormat = Wt::PlainText) override;
+                            Wt::TextFormat = Wt::TextFormat::Plain) override;
 
     Wt::WValidator::State validate();
 

@@ -14,19 +14,18 @@ int main(int argc, char** argv)
 
         Session::configureAuth();
 
-        Wt::WString::setDefaultEncoding(Wt::UTF8);
+        Wt::WString::setDefaultEncoding(Wt::CharEncoding::UTF8);
 
         auto db_string = std::getenv("POSTGRES_CONNINFO");
         std::unique_ptr<Wt::Dbo::SqlConnectionPool> pool(
                 Session::createConnectionPool(db_string ? db_string :
                                               "dbname=gsc"));
 
-        server.addEntryPoint(Wt::Application,
-                             boost::bind(&Application_controller::create,
-                                         pool.get(),
-                                         _1),
+        server.addEntryPoint(Wt::EntryPointType::Application,
+                             [&](const Wt::WEnvironment& env) {
+                                 return Application_controller::create(pool.get(), env);
+                             },
                              "/gsc");
-        // Why doesn't std::bind work here?
 
         server.run();
     } catch (Wt::WServer::Exception& e) {

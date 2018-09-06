@@ -9,7 +9,7 @@
 #include <Wt/Dbo/Impl.h>
 #include <Wt/WDateTime.h>
 
-DBO_INSTANTIATE_TEMPLATES(Self_eval);
+DBO_INSTANTIATE_TEMPLATES(Self_eval)
 
 Self_eval::Self_eval(const dbo::ptr<Eval_item>& eval_item,
                      const dbo::ptr<Submission>& submission)

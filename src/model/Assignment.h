@@ -85,4 +85,4 @@ public:
     }
 };
 
-DBO_EXTERN_TEMPLATES(Assignment);
+DBO_EXTERN_TEMPLATES(Assignment)

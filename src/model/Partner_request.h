@@ -15,7 +15,10 @@ class User;
 class Partner_request
 {
 public:
-    Partner_request() {}
+    Partner_request() = default;
+    Partner_request(const dbo::ptr<User>& requestor,
+                    const dbo::ptr<User>& requestee,
+                    const dbo::ptr<Assignment>& assignment);
 
     static dbo::ptr<Partner_request>
     create(Session&,
@@ -76,4 +79,4 @@ public:
     }
 };
 
-DBO_EXTERN_TEMPLATES(Partner_request);
+DBO_EXTERN_TEMPLATES(Partner_request)

@@ -7,8 +7,7 @@
 class Accelerator_button : public Wt::WCompositeWidget
 {
 public:
-    Accelerator_button(const Wt::WString&,
-                       Wt::WContainerWidget* parent = nullptr);
+    Accelerator_button(const Wt::WString&);
 
     Wt::Signal<>& clicked() { return clicked_; }
 

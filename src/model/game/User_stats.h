@@ -39,4 +39,4 @@ public:
     }
 };
 
-DBO_EXTERN_TEMPLATES(User_stats);
+DBO_EXTERN_TEMPLATES(User_stats)

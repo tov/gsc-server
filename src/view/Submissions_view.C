@@ -18,17 +18,6 @@
 
 #include <vector>
 
-struct Submissions_view_model_item {
-    Wt::Dbo::ptr<Submission> submission;
-    size_t file_count = 0;
-    Submission::Eval_status eval_status;
-};
-
-struct Submissions_view_model {
-    std::vector<Submissions_view_model_item> submissions;
-    std::vector<Wt::Dbo::ptr<Exam_grade>> exams;
-};
-
 void load_model(const Wt::Dbo::ptr<User>& user, Session& session,
                 Submissions_view_model& result)
 {
@@ -55,8 +44,8 @@ void load_model(const Wt::Dbo::ptr<User>& user, Session& session,
             submissions.emplace_back();
 
         if (! submissions[index].submission) {
-            auto submission = new Submission(user, assignment);
-            submissions[index].submission = session.add(submission);
+            submissions[index].submission =
+                    session.addNew<Submission>(user, assignment);
         }
     }
 
@@ -67,42 +56,6 @@ void load_model(const Wt::Dbo::ptr<User>& user, Session& session,
     transaction.commit();
 }
 
-class Submissions_view_row : public Wt::WObject
-{
-public:
-    enum columns { NAME, STATUS, DUE_DATE, EVAL_DATE, GRADE, ACTION, };
-
-    static std::unique_ptr<Submissions_view_row>
-    construct(const Submissions_view_model_item& model,
-              Session& session,
-              Wt::WTableRow* row);
-
-    static void add_headings(Wt::WTableRow*);
-
-protected:
-    Submissions_view_row(const Submissions_view_model_item& model,
-                         Session& session,
-                         Wt::WTableRow* row);
-
-    const Submissions_view_model_item& model_;
-    Session& session_;
-    Wt::WTableRow* row_;
-
-    virtual void update();
-
-    virtual void set_files_action(const char[]);
-    virtual void set_eval_action(const char[]);
-    virtual void set_action_style_class(const char[]);
-
-private:
-    Wt::WText* status_;
-    Wt::WText* grade_;
-    Wt::WPushButton* action_;
-    std::string action_url_;
-
-    void action();
-};
-
 Submissions_view_row::Submissions_view_row(
         const Submissions_view_model_item& model,
         Session& session,
@@ -111,23 +64,23 @@ Submissions_view_row::Submissions_view_row(
           session_(session),
           row_(row)
 {
-    new Wt::WText(model_.submission->assignment()->name(),
-                  row->elementAt(NAME));
-    status_ = new Wt::WText(row_->elementAt(STATUS));
-    grade_  = new Wt::WText(row_->elementAt(GRADE));
-    action_ = new Wt::WPushButton(row_->elementAt(ACTION));
+    row->elementAt(NAME)->addNew<Wt::WText>(
+            model_.submission->assignment()->name());
+    status_ = row_->elementAt(STATUS)->addNew<Wt::WText>();
+    grade_  = row_->elementAt(GRADE)->addNew<Wt::WText>();
+    action_ = row_->elementAt(ACTION)->addNew<Wt::WPushButton>();
 
     action_->clicked().connect(this, &Submissions_view_row::action);
 }
 
 void Submissions_view_row::add_headings(Wt::WTableRow* row)
 {
-    new Wt::WText("Assignment",     row->elementAt(NAME));
-    new Wt::WText("Status",         row->elementAt(STATUS));
-    new Wt::WText("Due",            row->elementAt(DUE_DATE));
-    new Wt::WText("Self-eval due",  row->elementAt(EVAL_DATE));
-    new Wt::WText("Grade",          row->elementAt(GRADE));
-    new Wt::WText("Action",         row->elementAt(ACTION));
+    row->elementAt(NAME)     ->addNew<Wt::WText>("Assignment");
+    row->elementAt(STATUS)   ->addNew<Wt::WText>("Status");
+    row->elementAt(DUE_DATE) ->addNew<Wt::WText>("Due");
+    row->elementAt(EVAL_DATE)->addNew<Wt::WText>("Self-eval due");
+    row->elementAt(GRADE)    ->addNew<Wt::WText>("Grade");
+    row->elementAt(ACTION)   ->addNew<Wt::WText>("Action");
 }
 
 void Submissions_view_row::set_files_action(const char* title)
@@ -152,7 +105,7 @@ void Submissions_view_row::update()
     auto const now = Wt::WDateTime::currentDateTime();
 
     auto time_to = [&](const Wt::WDateTime& date) {
-        return now.timeTo(date, 2);
+        return now.timeTo(date, std::chrono::seconds{2});
     };
 
     action_->show();
@@ -218,7 +171,8 @@ void Submissions_view_row::update()
         case Submission::Status::closed: {
             row_->setStyleClass("closed");
             status += "Closed ";
-            status += model_.submission->effective_eval_date().timeTo(now, 2);
+            status += model_.submission->effective_eval_date().timeTo(
+                    now, std::chrono::seconds{2});
             status += " ago";
             set_eval_action("View");
             set_action_style_class("btn-link");
@@ -262,12 +216,12 @@ Student_submissions_view_row::Student_submissions_view_row(
         Wt::WTableRow* row)
         : Submissions_view_row(model, session, row)
 {
-    new Wt::WText(model_.submission->effective_due_date().toLocalTime()
-                        .toString("ddd, MMM d 'at' h:mm AP"),
-                  row_->elementAt(DUE_DATE));
-    new Wt::WText(model_.submission->effective_eval_date().toLocalTime()
-                        .toString("ddd, MMM d 'at' h:mm AP"),
-                  row_->elementAt(EVAL_DATE));
+    row_->elementAt(DUE_DATE)->addNew<Wt::WText>(
+            model_.submission->effective_due_date().toLocalTime()
+                  .toString("ddd, MMM d 'at' h:mm AP"));
+    row_->elementAt(EVAL_DATE)->addNew<Wt::WText>(
+            model_.submission->effective_eval_date().toLocalTime()
+                  .toString("ddd, MMM d 'at' h:mm AP"));
 }
 
 class Admin_submissions_view_row : public Submissions_view_row
@@ -298,8 +252,8 @@ Admin_submissions_view_row::Admin_submissions_view_row(
         Wt::WTableRow* row)
         : Submissions_view_row(model, session, row)
 {
-    due_date_ = new Date_time_edit(row->elementAt(DUE_DATE));
-    eval_date_ = new Date_time_edit(row->elementAt(EVAL_DATE));
+    due_date_ = row->elementAt(DUE_DATE)->addNew<Date_time_edit>();
+    eval_date_ = row->elementAt(EVAL_DATE)->addNew<Date_time_edit>();
 
     due_date_->set_date_format("M/d/yy");
     eval_date_->set_date_format("M/d/yy");
@@ -340,7 +294,7 @@ void Admin_submissions_view_row::update()
 
 void Admin_submissions_view_row::due_date_changed_()
 {
-    if (due_date_->validate() == Wt::WValidator::Valid) {
+    if (due_date_->validate() == Wt::ValidationState::Valid) {
         due_date_->setStyleClass("");
         Wt::Dbo::Transaction transaction(session_);
         model_.submission.modify()->set_due_date(due_date_->date_time());
@@ -353,7 +307,7 @@ void Admin_submissions_view_row::due_date_changed_()
 
 void Admin_submissions_view_row::eval_date_changed_()
 {
-    if (eval_date_->validate() == Wt::WValidator::Valid) {
+    if (eval_date_->validate() == Wt::ValidationState::Valid) {
         eval_date_->setStyleClass("");
         Wt::Dbo::Transaction transaction(session_);
         model_.submission.modify()->set_eval_date(eval_date_->date_time());
@@ -399,17 +353,16 @@ Submissions_view_row::construct(const Submissions_view_model_item& model,
 Submissions_view::Submissions_view(const Wt::Dbo::ptr<User>& user,
                                    Session& session,
                                    Wt::WContainerWidget* parent)
-        : WContainerWidget(parent),
-          session_(session),
+        : session_(session),
           model_(std::make_unique<Submissions_view_model>())
 {
     setStyleClass("submissions-view");
 
-    new Partner_notification_widget(user, {}, session, this);
+    addNew<Partner_notification_widget>(user, dbo::ptr<Submission>{}, session);
 
     load_model(user, session, *model_);
 
-    auto table = new Wt::WTable(this);
+    auto table = addNew<Wt::WTable>();
     table->setHeaderCount(1);
     Submissions_view_row::add_headings(table->rowAt(0));
 
@@ -420,7 +373,7 @@ Submissions_view::Submissions_view(const Wt::Dbo::ptr<User>& user,
                                                         table->rowAt(row++)));
     }
 
-    auto exam_table = new Wt::WTable(this);
+    auto exam_table = addNew<Wt::WTable>();
     exam_table->setStyleClass("exam-table");
     row = 0;
     for (const auto& each : model_->exams) {
@@ -428,12 +381,12 @@ Submissions_view::Submissions_view(const Wt::Dbo::ptr<User>& user,
 
         std::ostringstream fmt;
         fmt << "Exam " << each->number();
-        new Wt::WText(fmt.str(), exam_row->elementAt(0));
+        exam_row->elementAt(0)->addNew<Wt::WText>(fmt.str());
 
         fmt.str("");
         fmt << each->points() << " / " << each->possible();
-        new Wt::WText(fmt.str(), exam_row->elementAt(1));
+        exam_row->elementAt(1)->addNew<Wt::WText>(fmt.str());
 
-        new Wt::WText(each->pct_string(), exam_row->elementAt(2));
+        exam_row->elementAt(2)->addNew<Wt::WText>(each->pct_string());
     }
 }

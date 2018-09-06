@@ -4,11 +4,25 @@
 #include <Wt/WResource.h>
 #include <Wt/WTable.h>
 
-class File_deleter;
-
 class File_meta;
 class Session;
 class Submission;
+
+// Action for deleting a source file.
+class File_deleter : public Wt::WObject
+{
+public:
+    File_deleter(const Wt::Dbo::ptr<File_meta>& source_file,
+                 Wt::Signal<>& changed,
+                 Session& session);
+
+    void go();
+
+private:
+    Wt::Signal<>& changed_;
+    Wt::Dbo::ptr<File_meta> source_file_;
+    Session& session_;
+};
 
 // A list of source files that allows downloading and deleting.
 class File_list_widget : public Wt::WTable

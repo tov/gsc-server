@@ -13,12 +13,11 @@ using namespace Wt;
 const int ImagesWidget::HURRAY = -1;
 
 ImagesWidget::ImagesWidget(int maxGuesses, WContainerWidget *parent)
-  : WContainerWidget(parent)
 {
   for (int i = 0; i <= maxGuesses; ++i) {
     std::string fname = "/images/hangman";
     fname += boost::lexical_cast<std::string>(i) + ".jpg";
-    WImage *theImage = new WImage(fname, this);
+    WImage *theImage = addNew<WImage>(fname);
     images_.push_back(theImage);
 
     // Although not necessary, we can avoid flicker (on konqueror)
@@ -27,7 +26,7 @@ ImagesWidget::ImagesWidget(int maxGuesses, WContainerWidget *parent)
     theImage->hide();
   }
 
-  WImage *hurray = new WImage("/images/hangmanhurray.jpg", this);
+  WImage *hurray = addNew<WImage>("/images/hangmanhurray.jpg");
   hurray->hide();
   images_.push_back(hurray);
 

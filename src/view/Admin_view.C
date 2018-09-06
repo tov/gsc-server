@@ -27,8 +27,7 @@
 class Submission_chooser : public Wt::WContainerWidget
 {
 public:
-    Submission_chooser(Session& session,
-                       Wt::WContainerWidget* parent = nullptr);
+    Submission_chooser(Session& session);
 
     using This = Submission_chooser;
 
@@ -44,20 +43,18 @@ private:
     std::vector<Wt::Dbo::ptr<Submission>> submissions_;
 };
 
-Submission_chooser::Submission_chooser(Session& session,
-                                       Wt::WContainerWidget* parent)
-        : WContainerWidget(parent),
-          session_(session)
+Submission_chooser::Submission_chooser(Session& session)
+        : session_(session)
 {
-    editor_ = new Wt::WLineEdit(this);
-    editor_->setEmptyText("username");
+    editor_ = addNew<Wt::WLineEdit>();
+//    editor_->setEmptyText("username");
     editor_->keyWentUp().connect(this, &This::update);
     editor_->enterPressed().connect(this, &This::go);
 
-    auto popup = new User_suggester(session, User::Role::Student, this);
+    auto popup = addNew<User_suggester>(session, User::Role::Student);
     popup->forEdit(editor_);
 
-    combo_  = new Wt::WComboBox(this);
+    combo_  = addNew<Wt::WComboBox>();
     combo_->changed().connect(this, &This::go);
     combo_->enterPressed().connect(this, &This::go);
 }
@@ -113,8 +110,7 @@ void Submission_chooser::setFocus(bool b)
 class Student_chooser : public Wt::WContainerWidget
 {
 public:
-    Student_chooser(Session& session,
-                    Wt::WContainerWidget* parent = nullptr);
+    Student_chooser(Session& session);
 
     virtual void setFocus(bool) override;
 
@@ -125,14 +121,14 @@ private:
     Wt::WLineEdit* editor_;
 };
 
-Student_chooser::Student_chooser(Session& session, Wt::WContainerWidget* parent)
-        : WContainerWidget(parent), session_(session)
+Student_chooser::Student_chooser(Session& session)
+        : session_(session)
 {
-    editor_ = new Wt::WLineEdit(this);
-    editor_->setEmptyText("username");
+    editor_ = addNew<Wt::WLineEdit>();
+//    editor_->setEmptyText("username");
     editor_->enterPressed().connect(this, &Student_chooser::go);
 
-    auto popup = new User_suggester(session, User::Role::Student, this);
+    auto popup = addNew<User_suggester>(session, User::Role::Student);
     popup->forEdit(editor_);
 }
 
@@ -155,8 +151,7 @@ void Student_chooser::setFocus(bool b)
 class Role_chooser : public Wt::WContainerWidget
 {
 public:
-    Role_chooser(Session& session,
-                 Wt::WContainerWidget* parent = nullptr);
+    Role_chooser(Session& session);
 
     using This = Role_chooser;
 
@@ -171,19 +166,17 @@ private:
     Wt::WComboBox* combo_;
 };
 
-Role_chooser::Role_chooser(Session& session,
-                           Wt::WContainerWidget* parent)
-        : WContainerWidget(parent),
-          session_(session)
+Role_chooser::Role_chooser(Session& session)
+        : session_(session)
 {
-    editor_ = new Wt::WLineEdit(this);
-    editor_->setEmptyText("username");
+    editor_ = addNew<Wt::WLineEdit>();
+//    editor_->setEmptyText("username");
     editor_->keyWentUp().connect(this, &This::update);
 
-    auto popup = new User_suggester(session, this);
+    auto popup = addNew<User_suggester>(session);
     popup->forEdit(editor_);
 
-    combo_  = new Wt::WComboBox(this);
+    combo_  = addNew<Wt::WComboBox>();
     combo_->enterPressed().connect(this, &This::go);
     combo_->changed().connect(this, &This::go);
 }
@@ -224,8 +217,7 @@ void Role_chooser::setFocus(bool b)
 class SU_widget : public Wt::WContainerWidget
 {
 public:
-    SU_widget(Session& session,
-              Wt::WContainerWidget* parent = nullptr);
+    SU_widget(Session& session);
 
     using This = SU_widget;
 
@@ -238,15 +230,14 @@ private:
     void go();
 };
 
-SU_widget::SU_widget(Session& session, Wt::WContainerWidget* parent)
-        : WContainerWidget(parent),
-          session_(session)
+SU_widget::SU_widget(Session& session)
+        : session_(session)
 {
-    editor_ = new Wt::WLineEdit(this);
-    editor_->setEmptyText("username");
+    editor_ = addNew<Wt::WLineEdit>();
+//    editor_->setEmptyText("username");
     editor_->enterPressed().connect(this, &This::go);
 
-    auto popup = new User_suggester(session, this);
+    auto popup = addNew<User_suggester>(session);
     popup->forEdit(editor_);
 }
 
@@ -265,43 +256,37 @@ void SU_widget::setFocus(bool b)
     editor_->setFocus(b);
 }
 
-Admin_view::Admin_view(Session& session, Wt::WContainerWidget* parent)
-        : WContainerWidget(parent), session_(session)
+Admin_view::Admin_view(Session& session)
+        : session_(session)
 {
     setStyleClass("admin-view");
 
-    auto table = new Wt::WTable(this);
+    auto table = addNew<Wt::WTable>();
     int row = 0;
 
-    auto ja = new Accelerator_text("Jump to su&bmission",
-                                   table->elementAt(row, 0));
-    ja->set_target(new Submission_chooser(session_, table->elementAt(row, 1)));
+    auto ja = table->elementAt(row, 0)->addNew<Accelerator_text>("Jump to su&bmission");
+    ja->set_target(table->elementAt(row, 1)->addNew<Submission_chooser>(session_));
 
-    auto js = new Accelerator_text("Jump to &student:",
-                                   table->elementAt(++row, 0));
-    js->set_target(new Student_chooser(session_, table->elementAt(row, 1)));
+    auto js = table->elementAt(++row, 0)->addNew<Accelerator_text>("Jump to &student:");
+    js->set_target(table->elementAt(row, 1)->addNew<Student_chooser>(session_));
 
-    auto cr = new Accelerator_text("Change &role:", table->elementAt(++row, 0));
-    cr->set_target(new Role_chooser(session_, table->elementAt(row, 1)));
+    auto cr = table->elementAt(++row, 0)->addNew<Accelerator_text>("Change &role:");
+    cr->set_target(table->elementAt(row, 1)->addNew<Role_chooser>(session_));
 
-    auto su = new Accelerator_text("S&witch users:",
-                                   table->elementAt(++row, 0));
-    su->set_target(new SU_widget(session_, table->elementAt(row, 1)));
+    auto su = table->elementAt(++row, 0)->addNew<Accelerator_text>("S&witch users:");
+    su->set_target(table->elementAt(row, 1)->addNew<SU_widget>(session_));
 
-    auto gr = new Accelerator_button("&Grade", table->elementAt(++row, 1));
+    auto gr = table->elementAt(++row, 0)->addNew<Accelerator_button>("&Grade");
     gr->clicked().connect(Navigate("/grade"));
 
-    auto hw = new Accelerator_button("Edit &assignments",
-                                     table->elementAt(++row, 1));
+    auto hw = table->elementAt(++row, 0)->addNew<Accelerator_button>("Edit &assignments");
     hw->clicked().connect(Navigate("/hw"));
 
-    auto gs = new Accelerator_button("Grading s&tats", table->elementAt
-                                                                    (++row, 1));
+    auto gs = table->elementAt(++row, 0)->addNew<Accelerator_button>("Grading s&tats");
     gs->clicked().connect(Navigate("/grading_stats"));
 
-    auto play_game = new Accelerator_button("&Play game",
-                                            table->elementAt(++row, 1));
+    auto play_game = table->elementAt(++row, 0)->addNew<Accelerator_button>("&Play game");
     play_game->clicked().connect(Navigate("/game"));
 
-    new Held_back_view(session_, this);
+    addNew<Held_back_view>(session_);
 }

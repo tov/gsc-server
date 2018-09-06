@@ -12,7 +12,7 @@ List_eval_item_widget::List_eval_item_widget(
         Evaluation_view& main,
         Session& session,
         Wt::WContainerWidget* parent)
-        : Base_eval_item_widget(model, main, session, parent)
+        : Base_eval_item_widget(model, main, session)
 {
     add_item_heading_();
     add_question_();
@@ -22,10 +22,10 @@ List_eval_item_widget::List_eval_item_widget(
 
 void List_eval_item_widget::add_buttons_()
 {
-    auto buttons = new Wt::WContainerWidget(this);
+    auto buttons = addNew<Wt::WContainerWidget>();
     buttons->setStyleClass("buttons");
 
-    auto focus_btn = new Wt::WPushButton(buttons);
+    auto focus_btn = buttons->addNew<Wt::WPushButton>();
 
     if (main_.submission()->can_eval(session_.user())) {
         focus_btn->setText("Edit");
@@ -84,18 +84,17 @@ void List_eval_item_widget::add_scores_()
 
     setStyleClass(attention_class);
 
-    auto table = new Wt::WTemplate(
+    auto table = addNew<Wt::WTemplate>(
             "<table class='scores'>"
                     "<tr><th>${self}</th><td>${self-score}</td></tr>"
                     "<tr><th>${grader}</th><td>${grader-score}</td></tr>"
-                    "</table>",
-            this
+                    "</table>"
     );
 
-    table->bindWidget("self", new Wt::WText(self));
-    table->bindWidget("self-score", new Wt::WText(self_score));
-    table->bindWidget("grader", new Wt::WText(grader));
-    table->bindWidget("grader-score", new Wt::WText(grader_score));
+    table->bindWidget("self", std::make_unique<Wt::WText>(self));
+    table->bindWidget("self-score", std::make_unique<Wt::WText>(self_score));
+    table->bindWidget("grader", std::make_unique<Wt::WText>(grader));
+    table->bindWidget("grader-score", std::make_unique<Wt::WText>(grader_score));
 }
 
 void List_eval_item_widget::focus_action_()

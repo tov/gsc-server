@@ -20,9 +20,8 @@ public:
 Self_eval_table::Self_eval_table(
         const dbo::collection<dbo::ptr<Self_eval>>& model,
         Wt::WContainerWidget* parent)
-        : WContainerWidget(parent)
 {
-    auto table = new Wt::WTable(this);
+    auto table = addNew<Wt::WTable>();
 
     for (dbo::ptr<Self_eval> self_eval : model) {
         auto row = table->rowAt(table->rowCount());
@@ -31,22 +30,20 @@ Self_eval_table::Self_eval_table(
         auto grade_url = self_eval->grade_url();
         auto grader = self_eval->grader_eval()->grader()->name();
 
-        new Wt::WAnchor(Wt::WLink(Wt::WLink::InternalPath, eval_url),
-                        eval_url,
-                        row->elementAt(0));
-        new Wt::WText(grader, row->elementAt(1));
-        new Wt::WAnchor(Wt::WLink(Wt::WLink::InternalPath, grade_url),
-                        grade_url,
-                        row->elementAt(2));
+        row->elementAt(0)->addNew<Wt::WAnchor>(
+                Wt::WLink(Wt::LinkType::InternalPath, eval_url),
+                eval_url);
+        row->elementAt(1)->addNew<Wt::WText>(grader);
+        row->elementAt(2)->addNew<Wt::WAnchor>(
+                Wt::WLink(Wt::LinkType::InternalPath, grade_url),
+                grade_url);
     }
 }
 
 Held_back_view::Held_back_view(Session& session, Wt::WContainerWidget* parent)
-        : WCompositeWidget(parent),
-          session_(session)
+        : session_(session)
 {
-    auto container = new Wt::WContainerWidget;
-    setImplementation(container);
+    auto container = setNewImplementation<Wt::WContainerWidget>();
     setStyleClass("held-back");
 
     dbo::Transaction transaction(session_);
@@ -55,8 +52,8 @@ Held_back_view::Held_back_view(Session& session, Wt::WContainerWidget* parent)
         auto held_back = Self_eval::find_with_grade_status(
                 Grader_eval::Status::held_back, session_);
         if (!held_back.empty()) {
-            new Wt::WText("<h4>Held back</h4>", container);
-            new Self_eval_table(held_back, container);
+            container->addNew<Wt::WText>("<h4>Held back</h4>");
+            container->addNew<Self_eval_table>(held_back);
         }
     }
 
@@ -64,8 +61,8 @@ Held_back_view::Held_back_view(Session& session, Wt::WContainerWidget* parent)
         auto editing = Self_eval::find_with_grade_status(
                 Grader_eval::Status::editing, session_);
         if (!editing.empty()) {
-            new Wt::WText("<h4>Editing</h4>", container);
-            new Self_eval_table(editing, container);
+            container->addNew<Wt::WText>("<h4>Editing</h4>");
+            container->addNew<Self_eval_table>(editing);
         }
     }
 }

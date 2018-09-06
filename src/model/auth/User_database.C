@@ -110,7 +110,7 @@ void User_database::setPassword(const Auth::User& user,
 
 Auth::User::Status User_database::status(const Auth::User&) const
 {
-    return Auth::User::Normal;
+    return Auth::User::Status::Normal;
 }
 
 void User_database::setStatus(const Auth::User& user,
@@ -166,7 +166,7 @@ Auth::User User_database::findWithIdentity(const std::string& provider,
 
 Auth::User User_database::registerNew()
 {
-    user_cache_ = session_.add(new User);
+    user_cache_ = session_.addNew<User>();
     user_cache_.flush();
     return Auth::User(boost::lexical_cast<std::string>(user_cache_.id()),
                       *this);

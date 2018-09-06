@@ -38,8 +38,7 @@ public:
                 : viewer_(viewer), line_(line)
         { }
 
-        template <typename... T>
-        void operator()(T&&...) { viewer_->scroll_to_line(line_); }
+        void operator()() { viewer_->scroll_to_line(line_); }
 
     private:
         File_viewer_widget* viewer_;

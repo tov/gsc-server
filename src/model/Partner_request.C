@@ -6,7 +6,7 @@
 
 #include <Wt/Dbo/Impl.h>
 
-DBO_INSTANTIATE_TEMPLATES(Partner_request);
+DBO_INSTANTIATE_TEMPLATES(Partner_request)
 
 dbo::ptr<Partner_request>
 Partner_request::create(Session& session,
@@ -23,11 +23,7 @@ Partner_request::create(Session& session,
                                                           assignment))
         return {};
 
-    auto request = new Partner_request;
-    request->requestor_ = requestor;
-    request->requestee_ = requestee;
-    request->assignment_ = assignment;
-    return session.add(request);
+    return session.addNew<Partner_request>(requestor, requestee, assignment);
 }
 
 dbo::ptr<Submission>
@@ -135,3 +131,11 @@ bool Partner_request::is_active(Session& session) const
 
     return false;
 }
+
+Partner_request::Partner_request(const dbo::ptr<User>& requestor,
+                                 const dbo::ptr<User>& requestee,
+                                 const dbo::ptr<Assignment>& assignment)
+        : requestor_{requestor}
+        , requestee_{requestee}
+        , assignment_{assignment}
+{ }

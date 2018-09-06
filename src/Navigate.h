@@ -23,3 +23,10 @@ private:
     std::string uri_;
 };
 
+template <>
+struct Wt::Signals::Impl::function_traits<Navigate>
+{
+    static const size_t argCount = 0;
+    using function = std::function<void()>;
+};
+

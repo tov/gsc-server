@@ -13,29 +13,28 @@
 using namespace Wt;
 
 Main_view::Main_view(Session& session, WContainerWidget* parent)
-        : WContainerWidget(parent), session_(session)
+        : session_(session)
 {
-    auto h1 = new WTemplate("<h1>${home} <small>${title}</small></h1>", this);
+    auto h1 = addNew<WTemplate>("<h1>${home} <small>${title}</small></h1>");
 
-    auto home = new Wt::WText("gsc");
-    h1->bindWidget("home", home);
+    auto home = h1->bindWidget("home", std::make_unique<Wt::WText>("gsc"));
     home->clicked().connect(std::bind([=]() {
         Wt::WApplication::instance()->setInternalPath("/", true);
     }));
     home->setToolTip("Go home");
     home->setStyleClass("home-link");
 
-    title_ = new Wt::WText("Homework Server");
-    h1->bindWidget("title", title_);
+    title_ = h1->bindWidget("title",
+                            std::make_unique<Wt::WText>("Homework Server"));
 
-    root_ = new Wt::WContainerWidget(this);
+    root_ = addNew<Wt::WContainerWidget>();
 
-    Auth::AuthModel* authModel = new Auth::AuthModel(Session::auth(),
-                                                     session_.users(), this);
+    auto authModel = std::make_unique<Auth::AuthModel>(
+            Session::auth(), session_.users());
     authModel->addPasswordAuth(&Session::passwordAuth());
 
-    Auth::AuthWidget* authWidget = new Auth::AuthWidget(session_.login(), this);
-    authWidget->setModel(authModel);
+    auto authWidget = addNew<Auth::AuthWidget>(session_.login());
+    authWidget->setModel(std::move(authModel));
     authWidget->setRegistrationEnabled(true);
     authWidget->processEnvironment();
 }
@@ -45,11 +44,11 @@ void Main_view::set_title(const Wt::WString& title)
     title_->setText(title);
 }
 
-void Main_view::set_widget(Wt::WWidget* new_widget)
+void Main_view::set_widget(std::unique_ptr<Wt::WWidget> new_widget)
 {
     root_->clear();
 
     if (new_widget != nullptr)
-        root_->addWidget(new_widget);
+        root_->addWidget(std::move(new_widget));
 }
 

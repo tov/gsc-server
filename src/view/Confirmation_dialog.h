@@ -17,5 +17,5 @@ private:
     Wt::Signal<> accepted_;
     Wt::Signal<> rejected_;
 
-    void finished_(Wt::WDialog::DialogCode);
+    void finished_(Wt::DialogCode);
 };

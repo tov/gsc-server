@@ -3,5 +3,5 @@
 
 #include <Wt/Dbo/Impl.h>
 
-DBO_INSTANTIATE_TEMPLATES(File_data);
+DBO_INSTANTIATE_TEMPLATES(File_data)
 

@@ -19,7 +19,6 @@ Partner_pending_widget::Partner_pending_widget(
         bool inline_buttons)
         : main_(main)
         , request_(request)
-        , WContainerWidget(main->impl_)
 {
     setStyleClass("partner-notification partner-pending");
 
@@ -30,13 +29,13 @@ Partner_pending_widget::Partner_pending_widget(
     if (!main_->submission_)
         message << " for " << request_->assignment()->name();
     message << " is pending confirmation. ";
-    new Wt::WText(message.str(), this);
+    addNew<Wt::WText>(message.str());
 
-    auto buttons = new Wt::WContainerWidget(this);
+    auto buttons = addNew<Wt::WContainerWidget>();
     buttons->setInline(inline_buttons);
     buttons->setStyleClass(inline_buttons? "buttons-inline" : "buttons");
 
-    auto cancel = new Wt::WPushButton("Cancel", buttons);
+    auto cancel = buttons->addNew<Wt::WPushButton>("Cancel");
     cancel->clicked().connect(this, &Partner_pending_widget::cancel_);
 }
 
@@ -53,7 +52,6 @@ Partner_confirmer_widget::Partner_confirmer_widget(
         bool inline_buttons)
         : main_(main)
         , request_(request)
-        , WContainerWidget(main->impl_)
 {
     setStyleClass("partner-notification partner-confirmer");
 
@@ -65,13 +63,13 @@ Partner_confirmer_widget::Partner_confirmer_widget(
         message << " for " << request_->assignment()->name();
     message << ".";
 
-    new Wt::WText(message.str(), this);
+    addNew<Wt::WText>(message.str());
 
-    auto buttons = new Wt::WContainerWidget(this);
+    auto buttons = addNew<Wt::WContainerWidget>();
     buttons->setStyleClass(inline_buttons? "buttons-inline" : "buttons");
     buttons->setInline(inline_buttons);
-    auto reject = new Wt::WPushButton("Reject", buttons);
-    auto accept = new Wt::WPushButton("Accept", buttons);
+    auto reject = buttons->addNew<Wt::WPushButton>("Reject");
+    auto accept = buttons->addNew<Wt::WPushButton>("Accept");
 
     reject->clicked().connect(this, &Partner_confirmer_widget::reject_);
     accept->clicked().connect(this, &Partner_confirmer_widget::accept_);
@@ -89,17 +87,18 @@ void Partner_confirmer_widget::accept_()
         else
             main_->update_();
     } else {
-        Wt::WMessageBox* box = new Wt::WMessageBox(
+        auto box = addNew<Wt::WMessageBox>(
                 "Error",
                 Wt::WString::fromUTF8("That partner request has"
                                               " been withdrawn :("),
-                Wt::Critical, Wt::Ok, this);
+                Wt::Icon::Critical, Wt::StandardButton::Ok);
         box->setModal(true);
         box->buttonClicked().connect(std::bind([=] () {
             delete box;
             main_->update_();
         }));
-        box->show(); }
+        box->show();
+    }
 }
 
 void Partner_confirmer_widget::reject_()
@@ -112,20 +111,19 @@ void Partner_confirmer_widget::reject_()
 
 Partner_requestor_widget::Partner_requestor_widget
         (Partner_notification_widget* main)
-        : WContainerWidget(main->impl_)
-        , main_(main)
+        : main_(main)
 {
     setStyleClass("partner-notification partner-requestor");
 
-    new Wt::WText("Request partner: ", this);
+    addNew<Wt::WText>("Request partner: ");
 
-    edit_ = new Wt::WLineEdit(this);
+    edit_ = addNew<Wt::WLineEdit>();
     edit_->setStyleClass("username");
-    edit_->setEmptyText("NetID");
+//    edit_->setEmptyText("NetID");
 
-    auto buttons = new Wt::WContainerWidget(this);
+    auto buttons = addNew<Wt::WContainerWidget>();
     buttons->setStyleClass("buttons");
-    auto request = new Wt::WPushButton("Send", buttons);
+    auto request = buttons->addNew<Wt::WPushButton>("Send");
 
     request->clicked().connect(this, &Partner_requestor_widget::submit_);
     edit_->enterPressed().connect(this, &Partner_requestor_widget::submit_);
@@ -159,26 +157,24 @@ void Partner_requestor_widget::error_()
     std::ostringstream message;
     message << "User “" << edit_->text()
             << "” does not exist or is unavailable.";
-    Wt::WMessageBox* box = new Wt::WMessageBox(
+    auto box = addNew<Wt::WMessageBox>(
             "Error",
             Wt::WString::fromUTF8(message.str()),
-            Wt::Critical, Wt::Ok, this);
+            Wt::Icon::Critical, Wt::StandardButton::Ok);
     box->setModal(true);
     box->buttonClicked().connect(std::bind([=] () { delete box; }));
     box->show();
 }
 
 Partner_notification_widget::Partner_notification_widget(
-        const Wt::Dbo::ptr<User>& user,
-        const Wt::Dbo::ptr<Submission>& submission,
-        Session& session,
-        Wt::WContainerWidget* parent)
+            const Wt::Dbo::ptr<User>& user,
+            const Wt::Dbo::ptr<Submission>& submission,
+            Session& session)
         : session_(session)
         , user_(user)
         , submission_(submission)
-        , WCompositeWidget(parent)
 {
-    setImplementation(impl_ = new Wt::WContainerWidget());
+    impl_ = setNewImplementation<Wt::WContainerWidget>();
     update_();
 }
 
@@ -192,26 +188,26 @@ void Partner_notification_widget::update_() {
                 session_, user_, submission_->assignment());
         for (const auto& each : incoming)
             if (each->is_active(session_))
-                new Partner_confirmer_widget(this, each, false);
+                impl_->addNew<Partner_confirmer_widget>(this, each, false);
 
         auto outgoing = Partner_request::find_by_requestor_and_assignment(
                 session_, user_, submission_->assignment());
         if (outgoing && outgoing->is_active(session_))
-            new Partner_pending_widget(this, outgoing, false);
+            impl_->addNew<Partner_pending_widget>(this, outgoing, false);
         else
             if (submission_->can_submit(user_) &&
                     submission_->assignment()->partner())
-                new Partner_requestor_widget(this);
+                impl_->addNew<Partner_requestor_widget>(this);
     } else {
         auto incoming = Partner_request::find_by_requestee(session_, user_);
         for (const auto& each : incoming)
             if (each->is_active(session_))
-                new Partner_confirmer_widget(this, each, true);
+                impl_->addNew<Partner_confirmer_widget>(this, each, true);
 
         auto outgoing = Partner_request::find_by_requestor(session_, user_);
         for (const auto& each : outgoing)
             if (each->is_active(session_))
-                new Partner_pending_widget(this, each, true);
+                impl_->addNew<Partner_pending_widget>(this, each, true);
     }
 }
 

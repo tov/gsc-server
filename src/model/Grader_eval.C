@@ -6,7 +6,7 @@
 
 #include <Wt/Dbo/Impl.h>
 
-DBO_INSTANTIATE_TEMPLATES(Grader_eval);
+DBO_INSTANTIATE_TEMPLATES(Grader_eval)
 
 Grader_eval::Grader_eval(const dbo::ptr<Self_eval>& self_eval,
                          const dbo::ptr<User>& grader)
@@ -43,7 +43,7 @@ dbo::ptr<Grader_eval> Grader_eval::get_for(
     if (result)
         return result;
     else
-        return session.add(new Grader_eval(self_eval, session.user()));
+        return session.addNew<Grader_eval>(self_eval, session.user());
 }
 
 std::string Grader_eval::owner_string(const dbo::ptr<User>& as_seen_by) const

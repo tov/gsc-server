@@ -8,7 +8,7 @@
 class Unit_line_edit : public Wt::WCompositeWidget
 {
 public:
-    Unit_line_edit(Wt::WContainerWidget* parent = nullptr);
+    Unit_line_edit();
 
     static constexpr double INVALID = -1.0;
 

@@ -70,4 +70,4 @@ public:
     }
 };
 
-DBO_EXTERN_TEMPLATES(Grader_eval);
+DBO_EXTERN_TEMPLATES(Grader_eval)

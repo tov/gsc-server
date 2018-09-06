@@ -6,16 +6,16 @@
 
 Confirmation_dialog::Confirmation_dialog(const std::string& message,
                                          Wt::WObject* parent)
-        : WDialog("Confirm action", parent)
+        : WDialog("Confirm action")
 {
-    new Wt::WText(message, contents());
-    new Wt::WBreak(contents());
+    contents()->addNew<Wt::WText>(message);
+    contents()->addNew<Wt::WBreak>();
 
-    auto buttons = new Wt::WContainerWidget(contents());
+    auto buttons = contents()->addNew<Wt::WContainerWidget>();
     buttons->setStyleClass("dialog-buttons");
 
-    auto no  = new Wt::WPushButton("No", buttons);
-    auto yes = new Wt::WPushButton("Yes", buttons);
+    auto no  = buttons->addNew<Wt::WPushButton>("No");
+    auto yes = buttons->addNew<Wt::WPushButton>("Yes");
     no->clicked().connect(this, &Wt::WDialog::reject);
     yes->clicked().connect(this, &Wt::WDialog::accept);
 
@@ -24,9 +24,9 @@ Confirmation_dialog::Confirmation_dialog(const std::string& message,
     show();
 }
 
-void Confirmation_dialog::finished_(Wt::WDialog::DialogCode code)
+void Confirmation_dialog::finished_(Wt::DialogCode code)
 {
-    if (code == Wt::WDialog::Accepted)
+    if (code == Wt::DialogCode::Accepted)
         accepted_.emit();
     else
         rejected_.emit();

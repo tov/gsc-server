@@ -1,7 +1,7 @@
 #include "User_stats.h"
 #include "../auth/User.h"
 
-DBO_INSTANTIATE_TEMPLATES(User_stats);
+DBO_INSTANTIATE_TEMPLATES(User_stats)
 
 User_stats::User_stats(const dbo::ptr<User>& user)
         : user_(user)

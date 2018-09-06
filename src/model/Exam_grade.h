@@ -46,4 +46,4 @@ public:
     }
 };
 
-DBO_EXTERN_TEMPLATES(Exam_grade);
+DBO_EXTERN_TEMPLATES(Exam_grade)

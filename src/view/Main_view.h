@@ -15,7 +15,7 @@ public:
     Main_view(Session&, Wt::WContainerWidget* parent = nullptr);
 
     void set_title(const Wt::WString&);
-    void set_widget(Wt::WWidget*);
+    void set_widget(std::unique_ptr<Wt::WWidget>);
 
 private:
     Wt::WText* title_;

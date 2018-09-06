@@ -9,7 +9,7 @@
 
 #include <Wt/Dbo/Impl.h>
 
-DBO_INSTANTIATE_TEMPLATES(Assignment);
+DBO_INSTANTIATE_TEMPLATES(Assignment)
 
 Assignment::Assignment(int number,
                        const std::string& name,

@@ -14,7 +14,10 @@ class Submission;
 class File_meta
 {
 public:
-    File_meta() {}
+    File_meta() = default;
+    File_meta(const std::string& name,
+              const dbo::ptr<Submission>& submission,
+              int line_count);
 
     const std::string& name() const { return name_; }
     const dbo::weak_ptr<File_data>& file_data() const { return file_data_; }
@@ -48,4 +51,4 @@ public:
     }
 };
 
-DBO_EXTERN_TEMPLATES(File_meta);
+DBO_EXTERN_TEMPLATES(File_meta)

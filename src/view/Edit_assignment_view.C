@@ -33,7 +33,7 @@ private:
 
     Wt::WTextArea* prompt_;
     Wt::WLineEdit* value_;
-    Wt::WButtonGroup* type_;
+    std::shared_ptr<Wt::WButtonGroup> type_;
 
     void view_mode_();
     void edit_mode_();
@@ -50,8 +50,7 @@ Edit_eval_item::Edit_eval_item(const dbo::ptr<Eval_item>& eval_item,
                                Edit_assignment_view& main,
                                Session& session,
                                Wt::WContainerWidget* parent)
-        : WContainerWidget(parent),
-          eval_item_(eval_item),
+        : eval_item_(eval_item),
           main_(main),
           session_(session),
           in_edit_mode_(false)
@@ -69,23 +68,22 @@ void Edit_eval_item::view_mode_()
     in_edit_mode_ = false;
     clear();
 
-    auto templ = new Wt::WTemplate(
+    auto templ = addNew<Wt::WTemplate>(
             "<h5>Question ${sequence} <small>(${type}, ${value})</small></h5>"
-            "<p>${prompt}</p>",
-            this);
+            "<p>${prompt}</p>");
 
     std::string sequence =
             boost::lexical_cast<std::string>(eval_item_->sequence());
-    templ->bindWidget("sequence", new Wt::WText(sequence));
+    templ->bindWidget("sequence", std::make_unique<Wt::WText>(sequence));
 
     std::string type = boost::lexical_cast<std::string>(eval_item_->type());
-    templ->bindWidget("type", new Wt::WText(type));
+    templ->bindWidget("type", std::make_unique<Wt::WText>(type));
 
-    templ->bindWidget("value", new Wt::WText(eval_item_->absolute_value_str()));
+    templ->bindWidget("value", std::make_unique<Wt::WText>(eval_item_->absolute_value_str()));
 
-    templ->bindWidget("prompt", new Wt::WText(eval_item_->prompt()));
+    templ->bindWidget("prompt", std::make_unique<Wt::WText>(eval_item_->prompt()));
 
-    auto edit_button = new Wt::WPushButton("Edit", this);
+    auto edit_button = addNew<Wt::WPushButton>("Edit");
     edit_button->clicked().connect(this, &Edit_eval_item::edit_action_);
 }
 
@@ -96,22 +94,22 @@ void Edit_eval_item::edit_mode_()
 
     std::ostringstream title;
     title << "<h5>Question " << eval_item_->sequence() << "</h5>";
-    new Wt::WText(title.str(), this);
+    addNew<Wt::WText>(title.str());
 
-    prompt_ = new Wt::WTextArea(eval_item_->prompt(), this);
+    prompt_ = addNew<Wt::WTextArea>(eval_item_->prompt());
     prompt_->setStyleClass("prompt");
-    new Wt::WBreak(this);
+    addNew<Wt::WBreak>();
 
-    new Wt::WText("Relative value: ", this);
-    value_ = new Wt::WLineEdit(eval_item_->relative_value_str(), this);
+    addNew<Wt::WText>("Relative value: ");
+    value_ = addNew<Wt::WLineEdit>(eval_item_->relative_value_str());
     value_->setStyleClass("relative-value");
 
-    new Wt::WBreak(this);
-    new Wt::WText("Type: ", this);
-    type_ = new Wt::WButtonGroup(this);
-    type_->addButton(new Wt::WRadioButton("Boolean", this));
-    type_->addButton(new Wt::WRadioButton("Scale", this));
-    type_->addButton(new Wt::WRadioButton("Informational", this));
+    addNew<Wt::WBreak>();
+    addNew<Wt::WText>("Type: ");
+    type_ = std::make_shared<Wt::WButtonGroup>();
+    type_->addButton(addNew<Wt::WRadioButton>("Boolean"));
+    type_->addButton(addNew<Wt::WRadioButton>("Scale"));
+    type_->addButton(addNew<Wt::WRadioButton>("Informational"));
 
     switch (eval_item_->type()) {
         case Eval_item::Type::Boolean:
@@ -125,9 +123,9 @@ void Edit_eval_item::edit_mode_()
             break;
     }
 
-    new Wt::WBreak(this);
+    addNew<Wt::WBreak>();
 
-    auto save_button = new Wt::WPushButton("Save", this);
+    auto save_button = addNew<Wt::WPushButton>("Save");
     save_button->clicked().connect(this, &Edit_eval_item::save_action_);
 }
 
@@ -174,23 +172,22 @@ Edit_assignment_view::Edit_assignment_view(
         const Wt::Dbo::ptr<Assignment>& assignment,
         Session& session,
         Wt::WContainerWidget* parent)
-        : WContainerWidget(parent),
-          assignment_(assignment),
+        : assignment_(assignment),
           session_(session)
 {
     setStyleClass("edit-assignment-view");
 
-    container_ = new Wt::WContainerWidget(this);
+    container_ = addNew<Wt::WContainerWidget>();
 
     dbo::Transaction transaction(session_);
     for (const auto& eval_item : assignment_->eval_items())
         add_item_(eval_item);
     transaction.commit();
 
-    auto buttons = new Wt::WContainerWidget(this);
+    auto buttons = addNew<Wt::WContainerWidget>();
     buttons->setStyleClass("buttons");
-    auto more = new Wt::WPushButton("More", buttons);
-    auto fewer = new Wt::WPushButton("Fewer", buttons);
+    auto more = buttons->addNew<Wt::WPushButton>("More");
+    auto fewer = buttons->addNew<Wt::WPushButton>("Fewer");
 
     more->clicked().connect(this, &Edit_assignment_view::more_);
     fewer->clicked().connect(this, &Edit_assignment_view::fewer_);
@@ -200,7 +197,7 @@ void Edit_assignment_view::more_()
 {
     dbo::Transaction transaction(session_);
     int sequence = (int)assignment_->eval_items().size() + 1;
-    auto eval_item = session_.add(new Eval_item(assignment_, sequence));
+    auto eval_item = session_.addNew<Eval_item>(assignment_, sequence);
     add_item_(eval_item);
 }
 

@@ -11,10 +11,12 @@ Self_eval_item_widget::Self_eval_item_widget(
         Evaluation_view& main,
         Session& session,
         Wt::WContainerWidget* parent)
-        : Single_eval_item_widget(model, main, session, parent)
+        : Single_eval_item_widget(model, main, session)
 {
-    response_widget_ = Response_widget::create(model.eval_item->type(),
-                                               this);
+    auto response_widget = Response_widget::create(model.eval_item->type());
+    response_widget_ = response_widget.get();
+    addWidget(std::move(response_widget));
+
     if (model.self_eval) {
         response_widget_->set_value(model.self_eval->score());
         response_widget_->set_explanation(model.self_eval->explanation());
@@ -23,19 +25,19 @@ Self_eval_item_widget::Self_eval_item_widget(
     response_widget_->changed().connect(this,
                                         &Self_eval_item_widget::validate_);
 
-    auto buttons = new Wt::WContainerWidget(this);
+    auto buttons = addNew<Wt::WContainerWidget>();
     buttons->setStyleClass("buttons");
 
     if (model.grader_eval && model.grader_eval->score() == 1) {
         response_widget_->setDisabled(true);
-        save_button_ = new Wt::WPushButton("Back", buttons);
+        save_button_ = buttons->addNew<Wt::WPushButton>("Back");
         save_button_->clicked().connect(this,
                                         &Self_eval_item_widget::back_action_);
     } else {
         auto label = model.eval_item->type() == Eval_item::Type::Informational
                      ? "Continue"
                      : "Save";
-        save_button_ = new Wt::WPushButton(label, buttons);
+        save_button_ = buttons->addNew<Wt::WPushButton>(label);
         save_button_->clicked().connect(this,
                                         &Self_eval_item_widget::save_action_);
     }

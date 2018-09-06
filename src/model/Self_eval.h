@@ -72,4 +72,4 @@ public:
     }
 };
 
-DBO_EXTERN_TEMPLATES(Self_eval);
+DBO_EXTERN_TEMPLATES(Self_eval)

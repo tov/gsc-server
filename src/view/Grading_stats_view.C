@@ -23,8 +23,7 @@ using Grader_stats_view_model
 
 Grading_stats_view::Grading_stats_view(Session& session,
                                      Wt::WContainerWidget* parent)
-        : WCompositeWidget(parent),
-          session_(session)
+        : session_(session)
 {
     Grader_stats_view_model model;
 
@@ -45,12 +44,12 @@ Grading_stats_view::Grading_stats_view(Session& session,
                     " WHERE u.role <> ?"
                     " GROUP BY u.name, e.assignment_number";
     auto results =
-            session.query<boost::tuple<std::string, int, int>>(query)
+            session.query<std::tuple<std::string, int, int>>(query)
                    .bind(int(User::Role::Student)).resultList();
     for (auto row : results) {
-        const std::string& user_name = boost::get<0>(row);
-        int assignment_number = boost::get<1>(row);
-        int count = boost::get<2>(row);
+        const std::string& user_name = std::get<0>(row);
+        int assignment_number = std::get<1>(row);
+        int count = std::get<2>(row);
 
         auto& row_model = model[user_name];
         row_model.counts[assignment_number] = count;
@@ -60,37 +59,34 @@ Grading_stats_view::Grading_stats_view(Session& session,
 
     std::set<int> assignments;
 
-    auto impl = new Wt::WContainerWidget;
-    setImplementation(impl);
+    auto impl = setNewImplementation<Wt::WContainerWidget>();
     setStyleClass("grading-stats-view");
 
-    auto table = new Wt::WTable(impl);
-    table->setHeaderCount(1, Wt::Horizontal);
-    table->setHeaderCount(1, Wt::Vertical);
+    auto table = impl->addNew<Wt::WTable>();
+    table->setHeaderCount(1, Wt::Orientation::Horizontal);
+    table->setHeaderCount(1, Wt::Orientation::Vertical);
 
     int row = 1;
     for (const auto& p : model) {
-        new Wt::WText(p.first, table->elementAt(row, 0));
-        new Wt::WText(boost::lexical_cast<std::string>(p.second.total_count),
-                      table->elementAt(row, 1));
+        table->elementAt(row, 0)->addNew<Wt::WText>(p.first);
+        table->elementAt(row, 1)->addNew<Wt::WText>(boost::lexical_cast<std::string>(p.second.total_count));
 
         for (const auto& q : p.second.counts) {
-            new Wt::WText(boost::lexical_cast<std::string>(q.second),
-                          table->elementAt(row, q.first + 1));
+            table->elementAt(row, q.first + 1)->addNew<Wt::WText>(boost::lexical_cast<std::string>(q.second));
             assignments.insert(q.first);
         }
 
         ++row;
     }
 
-    new Wt::WText("Total", table->elementAt(0, 1));
+    table->elementAt(0, 1)->addNew<Wt::WText>("Total");
     for (int asst : assignments) {
-        new Wt::WText("hw" + boost::lexical_cast<std::string>(asst),
-                      table->elementAt(0, asst + 1));
+        table->elementAt(0, asst + 1)->addNew<Wt::WText>(
+                "hw" + boost::lexical_cast<std::string>(asst));
     }
 
-    auto buttons = new Wt::WContainerWidget(impl);
+    auto buttons = impl->addNew<Wt::WContainerWidget>();
     buttons->setStyleClass("buttons");
-    auto grade_button = new Accelerator_button("&Grade", buttons);
+    auto grade_button = buttons->addNew<Accelerator_button>("&Grade");
     grade_button->clicked().connect(Navigate("/grade"));
 }

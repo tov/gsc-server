@@ -19,11 +19,10 @@
 
 using namespace Wt;
 
-HighScoresWidget::HighScoresWidget(Session& session, WContainerWidget* parent) :
-        WContainerWidget(parent),
-        session_(session)
+HighScoresWidget::HighScoresWidget(Session& session, WContainerWidget* parent)
+        : session_(session)
 {
-    setContentAlignment(AlignCenter);
+    setContentAlignment(AlignmentFlag::Center);
     setStyleClass("highscores");
     update();
 }
@@ -43,16 +42,16 @@ void HighScoresWidget::update()
                     + ". Almost there !";
     }
 
-    WText* score = new WText("<p>" + yourScore + "</p>", this);
+    WText* score = addNew<WText>("<p>" + yourScore + "</p>");
     score->addStyleClass("score");
 
-    WTable* table = new WTable(this);
+    WTable* table = addNew<WTable>();
 
-    new WText("Rank", table->elementAt(0, 0));
-    new WText("User", table->elementAt(0, 1));
-    new WText("Games", table->elementAt(0, 2));
-    new WText("Score", table->elementAt(0, 3));
-    new WText("Last game", table->elementAt(0, 4));
+    table->elementAt(0, 0)->addNew<WText>("Rank");
+    table->elementAt(0, 1)->addNew<WText>("User");
+    table->elementAt(0, 2)->addNew<WText>("Games");
+    table->elementAt(0, 3)->addNew<WText>("Score");
+    table->elementAt(0, 4)->addNew<WText>("Last game");
     table->setHeaderCount(1);
 
     long long formerScore = -1;
@@ -66,27 +65,25 @@ void HighScoresWidget::update()
         }
 
         int row = table->rowCount();
-        new WText(boost::lexical_cast<std::string>(rank),
-                  table->elementAt(row, 0));
-        new WText(stats->user()->name(), table->elementAt(row, 1));
-        new WText(boost::lexical_cast<std::string>(stats->games_played()),
-                  table->elementAt(row, 2));
-        new WText(boost::lexical_cast<std::string>(stats->score()),
-                  table->elementAt(row, 3));
+        table->elementAt(row, 0)->addNew<WText>(
+                boost::lexical_cast<std::string>(rank));
+        table->elementAt(row, 1)->addNew<WText>(stats->user()->name());
+        table->elementAt(row, 2)->addNew<WText>(boost::lexical_cast<std::string>(stats->games_played()));
+        table->elementAt(row, 3)->addNew<WText>(boost::lexical_cast<std::string>(stats->score()));
         if (!stats->last_game().isNull())
-            new WText(stats->last_game().timeTo(WDateTime::currentDateTime())
-                      + " ago", table->elementAt(row, 4));
+            table->elementAt(row, 4)->addNew<WText>(stats->last_game().timeTo(WDateTime::currentDateTime())
+                      + " ago");
         else
-            new WText("---", table->elementAt(row, 4));
+            table->elementAt(row, 4)->addNew<WText>("---");
 
         if (session_.user_name() == stats->user()->name())
             table->rowAt(row)->setId("self");
     }
 
-    WText* fineprint = new WText(tr("highscore.info"), this);
+    WText* fineprint = addNew<WText>(tr("highscore.info"));
     fineprint->addStyleClass("fineprint");
 
-    WPushButton* play_game = new WPushButton("Back to game", this);
+    WPushButton* play_game = addNew<WPushButton>("Back to game");
     play_game->clicked().connect(std::bind([=]() {
         WApplication::instance()->setInternalPath("/game", true);
     }));

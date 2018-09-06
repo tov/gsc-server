@@ -99,7 +99,7 @@ public:
     static void save_self_eval(const dbo::ptr<Self_eval>&, Session&,
                                double score, const std::string& explanation);
 
-    static const dbo::ptr<Grader_eval>&
+    static dbo::ptr<Grader_eval>
     get_grader_eval(const dbo::ptr<Self_eval>&, const dbo::ptr<User>&);
 
     static void retract_grader_eval(const dbo::ptr<Grader_eval>&);
@@ -148,4 +148,4 @@ public:
     }
 };
 
-DBO_EXTERN_TEMPLATES(Submission);
+DBO_EXTERN_TEMPLATES(Submission)

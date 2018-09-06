@@ -3,13 +3,11 @@
 #include <Wt/WLocalDateTime.h>
 
 Date_time_edit::Date_time_edit(Wt::WContainerWidget* parent)
-        : WCompositeWidget(parent)
 {
-    auto impl = new Wt::WContainerWidget;
-    setImplementation(impl);
+    auto impl = setNewImplementation<Wt::WContainerWidget>();
 
-    date_edit_ = new Wt::WDateEdit(impl);
-    time_edit_ = new Wt::WTimeEdit(impl);
+    date_edit_ = impl->addNew<Wt::WDateEdit>();
+    time_edit_ = impl->addNew<Wt::WTimeEdit>();
 
     date_edit_->setStyleClass("date-edit");
     time_edit_->setStyleClass("time-edit");
@@ -17,8 +15,8 @@ Date_time_edit::Date_time_edit(Wt::WContainerWidget* parent)
     date_edit_->changed().connect(this, &Date_time_edit::fire_changed_);
     time_edit_->changed().connect(this, &Date_time_edit::fire_changed_);
 
-    date_edit_->selected().connect(this, &Date_time_edit::fire_selected_);
-    time_edit_->selected().connect(this, &Date_time_edit::fire_selected_);
+    date_edit_->focussed().connect(this, &Date_time_edit::fire_selected_);
+    time_edit_->focussed().connect(this, &Date_time_edit::fire_selected_);
 }
 
 void Date_time_edit::set_date_time(const Wt::WDateTime& date)
@@ -40,27 +38,29 @@ Wt::WCalendar* Date_time_edit::calendar() const
 
 Wt::WValidator::State Date_time_edit::validate()
 {
+    using VS = Wt::ValidationState;
+
     if (date_edit_->text() == "" && time_edit_->text() == "") {
         if (mandatory_)
-            return Wt::WValidator::InvalidEmpty;
+            return VS::InvalidEmpty;
         else
-            return Wt::WValidator::Valid;
+            return VS::Valid;
     }
 
-    if (date_edit_->validate() != Wt::WValidator::Valid)
-        return Wt::WValidator::Invalid;
+    if (date_edit_->validate() != VS::Valid)
+        return VS::Invalid;
 
-    if (time_edit_->validate() != Wt::WValidator::Valid)
-        return Wt::WValidator::Invalid;
+    if (time_edit_->validate() != VS::Valid)
+        return VS::Invalid;
 
     auto value = date_time();
 
     if (bottom_.isValid() && value < bottom_)
-        return Wt::WValidator::Invalid;
+        return VS::Invalid;
     if (top_.isValid() && value > top_)
-        return Wt::WValidator::Invalid;
+        return VS::Invalid;
 
-    return Wt::WValidator::Valid;
+    return VS::Valid;
 }
 
 void Date_time_edit::fire_changed_()

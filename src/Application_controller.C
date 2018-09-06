@@ -18,8 +18,8 @@
 #include "view/game/HangmanWidget.h"
 #include "view/game/HighScoresWidget.h"
 
+#include <Wt/Date/tz.h>
 #include <Wt/WBootstrapTheme.h>
-#include <Wt/WLocale.h>
 #include <Wt/WWidget.h>
 
 #include <cstdlib>
@@ -54,11 +54,11 @@ void permission_denied(const std::string& message = denied_message)
 
 }
 
-Application_controller*
+std::unique_ptr<Wt::WApplication>
 Application_controller::create(Wt::Dbo::SqlConnectionPool* pool,
                                const Wt::WEnvironment& env)
 {
-    return new Application_controller(pool, env);
+    return std::make_unique<Application_controller>(pool, env);
 }
 
 Application_controller::Application_controller(Wt::Dbo::SqlConnectionPool* pool,
@@ -70,15 +70,16 @@ Application_controller::Application_controller(Wt::Dbo::SqlConnectionPool* pool,
     messageResourceBundle().use(appRoot() + "strings");
     messageResourceBundle().use(appRoot() + "templates");
 
-    setTheme(new Wt::WBootstrapTheme());
+    setTheme(std::make_shared<Wt::WBootstrapTheme>());
     useStyleSheet("css/gsc.css");
 
     // There ought to be a way to pick this up from the environment.
     auto locale = this->locale();
-    locale.setTimeZone("CST-6CDT,M3.2.0/2,M11.1.0/2");
+    auto time_zone = date::locate_zone("America/Chicago");
+    locale.setTimeZone(time_zone);
     setLocale(locale);
 
-    main_ = new Main_view(session_, root());
+    main_ = root()->addNew<Main_view>(session_);
 
     internalPathChanged().connect(
             this, &Application_controller::handle_internal_path);
@@ -171,7 +172,7 @@ void Application_controller::handle_internal_path(
 
                 case User::Role::Admin:
                     set_title("Edit assignments");
-                    set_widget(new Assignments_view(session_));
+                    set_new_widget<Assignments_view>(session_);
                     break;
             }
 
@@ -211,10 +212,8 @@ void Application_controller::handle_internal_path(
             transaction.commit();
             if (!current_user->can_grade()) permission_denied();
 
-            auto view = new Grading_stats_view(session_);
-
             set_title("Grading stats");
-            set_widget(view);
+            set_new_widget<Grading_stats_view>(session_);
 
             // /grade/:permalink
         } else if (std::regex_match(internal_path, sm, Path::grade_N)) {
@@ -225,10 +224,8 @@ void Application_controller::handle_internal_path(
             if (!self_eval) not_found("No such evaluation.");
             transaction.commit();
 
-            auto view = new Grading_view(self_eval, session_);
-
             set_title("Grading");
-            set_widget(view);
+            set_new_widget<Grading_view>(self_eval, session_);
 
             // /~:user/hw
         } else if (std::regex_match(internal_path, sm, Path::user_hw)) {
@@ -239,7 +236,7 @@ void Application_controller::handle_internal_path(
                 permission_denied();
 
             set_title(Title::user_hw(user));
-            set_widget(new Submissions_view(user, session_));
+            set_new_widget<Submissions_view>(user, session_);
 
         // ~:user/hw/:n
         } else if (std::regex_match(internal_path, sm, Path::user_hw_N)) {
@@ -252,7 +249,7 @@ void Application_controller::handle_internal_path(
                 permission_denied();
 
             set_title(Title::user_hw_N(submission));
-            set_widget(new File_manager_view(submission, session_));
+            set_new_widget<File_manager_view>(submission, session_);
 
             // ~:user/hw/:n/eval
         } else if (std::regex_match(internal_path, sm, Path::user_hw_N_eval)) {
@@ -263,11 +260,11 @@ void Application_controller::handle_internal_path(
 
             check_eval_view_privileges(current_user, submission);
 
-            auto view = new Evaluation_view(submission, session_);
+            auto view = std::make_unique<Evaluation_view>(submission, session_);
             view->go_default();
 
             set_title(Title::user_hw_N_eval(submission));
-            set_widget(view);
+            set_widget(std::move(view));
 
             // ~:user/hw/:n/eval/:m
         } else if (std::regex_match(internal_path, sm,
@@ -282,22 +279,22 @@ void Application_controller::handle_internal_path(
             check_eval_view_privileges(current_user, submission);
             transaction.commit();
 
-            auto view = new Evaluation_view(submission, session_);
+            auto view = std::make_unique<Evaluation_view>(submission, session_);
             view->go_to((unsigned) m);
 
             set_title(Title::user_hw_N_eval(submission));
-            set_widget(view);
+            set_widget(std::move(view));
 
             // /game
         } else if (internal_path == Path::game) {
             transaction.commit();
             set_title("Gaming ground");
-            set_widget(new HangmanWidget(session_));
+            set_new_widget<HangmanWidget>(session_);
 
             // /game/high_scores
         } else if (internal_path == Path::high_scores) {
             set_title("High scores");
-            set_widget(new HighScoresWidget(session_));
+            set_new_widget<HighScoresWidget>(session_);
 
             // /hw/:n
         } else if (std::regex_match(internal_path, sm, Path::hw_N)) {
@@ -307,7 +304,7 @@ void Application_controller::handle_internal_path(
             transaction.commit();
 
             set_title("Edit " + assignment->name());
-            set_widget(new Edit_assignment_view(assignment, session_));
+            set_new_widget<Edit_assignment_view>(assignment, session_);
 
             // /admin
         } else if (internal_path == Path::admin) {
@@ -315,7 +312,7 @@ void Application_controller::handle_internal_path(
             if (!current_user->can_admin()) permission_denied();
 
             set_title("Admin");
-            set_widget(new Admin_view(session_));
+            set_new_widget<Admin_view>(session_);
 
             // /held_back
         } else if (internal_path == Path::held_back) {
@@ -323,7 +320,7 @@ void Application_controller::handle_internal_path(
             if (!current_user->can_admin()) permission_denied();
 
             set_title("Held-back evaluations");
-            set_widget(new Held_back_view(session_));
+            set_new_widget<Held_back_view>(session_);
 
             // /~:user
         } else if (std::regex_match(internal_path, sm, Path::user)) {
@@ -338,7 +335,7 @@ void Application_controller::handle_internal_path(
         }
     } catch (const Load_error& e) {
         set_title(e.title);
-        set_widget(new Error_view(e.message));
+        set_new_widget<Error_view>(e.message);
     }
 }
 
@@ -348,9 +345,9 @@ void Application_controller::set_title(const std::string& title)
     main_->set_title(title);
 }
 
-void Application_controller::set_widget(Wt::WWidget* widget)
+void Application_controller::set_widget(std::unique_ptr<Wt::WWidget> widget)
 {
-    main_->set_widget(widget);
+    main_->set_widget(std::move(widget));
 }
 
 Wt::Dbo::ptr<User>

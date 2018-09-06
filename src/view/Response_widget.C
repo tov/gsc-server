@@ -6,9 +6,8 @@
 #include <Wt/WTextArea.h>
 
 Response_widget::Response_widget(Wt::WContainerWidget* parent)
-        : WCompositeWidget(parent)
 {
-    setImplementation(container_ = new Wt::WContainerWidget);
+    container_ = setNewImplementation<Wt::WContainerWidget>();
 }
 
 class Explanation_response_widget : public Response_widget
@@ -27,17 +26,16 @@ protected:
 
 Explanation_response_widget::Explanation_response_widget(
         Wt::WContainerWidget* parent)
-        : Response_widget(parent)
 {
-    score_ = new Wt::WContainerWidget(container_);
+    score_ = container_->addNew<Wt::WContainerWidget>();
     score_->setStyleClass("score");
 
-    explanation_holder_ = new Wt::WContainerWidget(container_);
+    explanation_holder_ = container_->addNew<Wt::WContainerWidget>();
 
-    new Wt::WText("<p>Explain (using line references like <em>L14</em>):</p>",
-                  explanation_holder_);
+    explanation_holder_->addNew<Wt::WText>(
+            "<p>Explain (using line references like <em>L14</em>):</p>");
 
-    explanation_ = new Wt::WTextArea(explanation_holder_);
+    explanation_ = explanation_holder_->addNew<Wt::WTextArea>();
     explanation_->setStyleClass("explanation");
     explanation_->setInline(false);
     explanation_->changed().connect(
@@ -66,7 +64,7 @@ public:
     virtual void set_value(double d) override;
 
 private:
-    Wt::WButtonGroup* no_yes_;
+    std::shared_ptr<Wt::WButtonGroup> no_yes_;
     Wt::WRadioButton* no_;
     Wt::WRadioButton* yes_;
 
@@ -76,9 +74,11 @@ private:
 Boolean_response_widget::Boolean_response_widget(Wt::WContainerWidget* parent)
         : Explanation_response_widget(parent)
 {
-    no_yes_ = new Wt::WButtonGroup(score_);
-    no_yes_->addButton(no_ = new Wt::WRadioButton("No", score_));
-    no_yes_->addButton(yes_ = new Wt::WRadioButton("Yes", score_));
+    no_yes_ = std::make_shared<Wt::WButtonGroup>();
+    no_     = score_->addNew<Wt::WRadioButton>("No");
+    yes_    = score_->addNew<Wt::WRadioButton>("Yes");
+    no_yes_->addButton(no_);
+    no_yes_->addButton(yes_);
 
     no_->setFocus();
 
@@ -92,14 +92,14 @@ Boolean_response_widget::Boolean_response_widget(Wt::WContainerWidget* parent)
 
 bool Boolean_response_widget::is_ready() const
 {
-    return no_yes_->selectedButton() == no_
-           || (no_yes_->selectedButton() == yes_
+    return no_yes_->checkedButton() == no_
+           || (no_yes_->checkedButton() == yes_
                && !explanation_->text().empty());
 }
 
 double Boolean_response_widget::value() const
 {
-    return no_yes_->selectedButton() == yes_ ? 1.0 : 0.0;
+    return no_yes_->checkedButton() == yes_ ? 1.0 : 0.0;
 }
 
 void Boolean_response_widget::set_value(double d)
@@ -132,9 +132,9 @@ private:
 Scale_response_widget::Scale_response_widget(Wt::WContainerWidget* parent)
         : Explanation_response_widget(parent)
 {
-    slider_ = new Wt::WSlider(score_);
+    slider_ = score_->addNew<Wt::WSlider>();
     slider_->resize(200, 50);
-    slider_->setTickPosition(Wt::WSlider::TicksAbove);
+    slider_->setTickPosition(Wt::WSlider::TickPosition::TicksAbove);
     slider_->setTickInterval(20);
     slider_->setMinimum(0);
     slider_->setMaximum(100);
@@ -199,17 +199,17 @@ std::string Informational_response_widget::explanation() const
 void Informational_response_widget::set_explanation(const std::string&)
 { }
 
-Response_widget*
+std::unique_ptr<Response_widget>
 Response_widget::create(Eval_item::Type type,
-                                 Wt::WContainerWidget* parent)
+                        Wt::WContainerWidget* parent)
 {
     switch (type) {
         case Eval_item::Type::Boolean:
-            return new Boolean_response_widget(parent);
+            return std::make_unique<Boolean_response_widget>();
         case Eval_item::Type::Scale:
-            return new Scale_response_widget(parent);
+            return std::make_unique<Scale_response_widget>();
         case Eval_item::Type::Informational:
-            return new Informational_response_widget(parent);
+            return std::make_unique<Informational_response_widget>();
     }
 }
 

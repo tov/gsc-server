@@ -47,9 +47,7 @@ class File_uploader : public Wt::WContainerWidget
 {
 public:
     File_uploader(const Wt::Dbo::ptr<Submission>&,
-                  Wt::Signal<>& changed,
-                  Session& session,
-                  WContainerWidget* parent);
+                      Wt::Signal<>& changed, Session& session);
 
 private:
     Wt::Signal<>& changed_;
@@ -66,17 +64,17 @@ const Wt::WString Date_list::date_format_ = "ddd, MMM d 'at' h:mm AP";
 
 Date_list::Date_list(const Wt::Dbo::ptr<Submission>& submission,
                      Wt::WContainerWidget* parent)
-        : WTable(parent), submission_(submission)
+        : submission_(submission)
 {
     setStyleClass("date-list");
 
-    new Wt::WText("Due:", elementAt(0, 0));
-    new Wt::WText("Eval due:", elementAt(1, 0));
-    new Wt::WText("Last modified:", elementAt(2, 0));
+    elementAt(0, 0)->addNew<Wt::WText>("Due:");
+    elementAt(1, 0)->addNew<Wt::WText>("Eval due:");
+    elementAt(2, 0)->addNew<Wt::WText>("Last modified:");
 
-    due_date_ = new Wt::WText("", elementAt(0, 1));
-    eval_date_ = new Wt::WText("", elementAt(1, 1));
-    last_modified_ = new Wt::WText("", elementAt(2, 1));
+    due_date_ = elementAt(0, 1)->addNew<Wt::WText>();
+    eval_date_ = elementAt(1, 1)->addNew<Wt::WText>();
+    last_modified_ = elementAt(2, 1)->addNew<Wt::WText>();
 
     reload();
 }
@@ -94,14 +92,12 @@ Wt::WString Date_list::format_(const Wt::WDateTime& date)
 }
 
 File_uploader::File_uploader(const Wt::Dbo::ptr<Submission>& submission,
-                             Wt::Signal<>& changed, Session& session,
-                             WContainerWidget* parent)
-        : WContainerWidget(parent),
-          submission_(submission),
+                             Wt::Signal<>& changed, Session& session)
+        : submission_(submission),
           changed_(changed),
           session_(session)
 {
-    upload_ = new Wt::WFileUpload(this);
+    upload_ = addNew<Wt::WFileUpload>();
     upload_->setFileTextSize(100);
     upload_->setMultiple(true);
     upload_->uploaded().connect(this, &File_uploader::uploaded_);
@@ -109,10 +105,10 @@ File_uploader::File_uploader(const Wt::Dbo::ptr<Submission>& submission,
 
     if (Wt::WApplication::instance()->environment().ajax()) {
         setStyleClass("file-uploader btn");
-        auto label = new Wt::WText("Upload files...", this);
+        auto label = addNew<Wt::WText>("Upload files...");
         upload_->changed().connect(upload_, &Wt::WFileUpload::upload);
     } else {
-        auto button = new Wt::WPushButton("Upload", this);
+        auto button = addNew<Wt::WPushButton>("Upload");
         button->clicked().connect(upload_, &Wt::WFileUpload::upload);
     }
 }
@@ -144,10 +140,10 @@ void File_uploader::uploaded_()
 
 void File_uploader::too_large_()
 {
-    auto message_box = new Wt::WMessageBox("Upload Error",
-                                           "File too large",
-                                           Wt::Critical, Wt::Ok,
-                                           this);
+    auto message_box = addNew<Wt::WMessageBox>("Upload Error",
+                                               "File too large",
+                                               Wt::Icon::Critical,
+                                               Wt::StandardButton::Ok);
     message_box->setModal(true);
     message_box->buttonClicked().connect(std::bind([=]() {
         delete message_box;
@@ -158,21 +154,21 @@ void File_uploader::too_large_()
 File_manager_view::File_manager_view(
         const Wt::Dbo::ptr<Submission>& submission,
         Session& session,
-        Wt::WContainerWidget* parent) :
-
-        Abstract_file_view(submission, session, parent)
+        Wt::WContainerWidget* parent)
+        : Abstract_file_view(submission, session)
 {
-    new Submission_owner_widget(submission_, session_, right_column_);
+    right_column_->addNew<Submission_owner_widget>(submission_, session_);
 
-    auto file_list = new File_list_widget(submission_, session_);
+    auto file_list = std::make_unique<File_list_widget>(submission_, session_);
 
     if (submission_->can_submit(session_.user()))
-        new File_uploader(submission_, file_list->changed(),
-                          session_, right_column_);
+        right_column_->addNew<File_uploader>(submission_,
+                                             file_list->changed(),
+                                             session_);
 
-    right_column_->addWidget(file_list);
+    right_column_->addWidget(std::move(file_list));
 
-    auto date_list = new Date_list(submission_, right_column_);
+    auto date_list = right_column_->addNew<Date_list>(submission_);
 
     file_list->changed().connect(viewer_, &File_viewer_widget::reload);
     file_list->changed().connect(date_list, &Date_list::reload);

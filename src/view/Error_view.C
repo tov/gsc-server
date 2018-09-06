@@ -7,12 +7,12 @@
 
 Error_view::Error_view(const std::string& message)
 {
-    setContentAlignment(Wt::AlignCenter);
+    setContentAlignment(Wt::AlignmentFlag::Center);
 
-    new Wt::WText(message, this);
-    new Wt::WBreak(this);
+    addNew<Wt::WText>(message);
+    addNew<Wt::WBreak>();
 
-    auto button = new Wt::WPushButton("Home", this);
+    auto button = addNew<Wt::WPushButton>("Home");
     button->clicked().connect(std::bind([=]() {
         Wt::WApplication::instance()->setInternalPath("/", true);
     }));

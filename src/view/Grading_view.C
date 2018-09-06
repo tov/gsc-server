@@ -31,7 +31,7 @@ public:
 
     // Creates an object of the correct derived class as determined by the
     // Type of the Grader_eval.
-    static Abstract_grading_widget*
+    static std::unique_ptr<Abstract_grading_widget>
     create(const dbo::ptr<Grader_eval>&,
            Session&,
            Wt::WContainerWidget* parent = nullptr);
@@ -44,7 +44,7 @@ protected:
     Session& session_;
 
     Wt::WContainerWidget* buttons_;
-    Wt::WPushButton* hold_button_;
+    Wt::WPushButton* hold_button_ = nullptr;
 
     // Adds the hold_button_ to buttons_. Derived classes should call after
     // adding anything to buttons_ that should appear first.
@@ -79,7 +79,7 @@ class Scale_grading_widget : public Abstract_grading_widget
 public:
     Scale_grading_widget(const dbo::ptr<Grader_eval>&,
                          Session&,
-                         Wt::WContainerWidget* parent);
+                         Wt::WContainerWidget* parent = nullptr);
 
 protected:
     // Saves the Grader_eval in held-back status with current score.
@@ -99,17 +99,17 @@ private:
     void save_(Grader_eval::Status);
 };
 
-Abstract_grading_widget*
+std::unique_ptr<Abstract_grading_widget>
 Abstract_grading_widget::create(const dbo::ptr <Grader_eval>& grader_eval,
                                 Session& session,
                                 Wt::WContainerWidget* parent)
 {
     switch (grader_eval->self_eval()->eval_item()->type()) {
         case Eval_item::Type::Boolean:
-            return new Boolean_grading_widget(grader_eval, session, parent);
+            return std::make_unique<Boolean_grading_widget>(grader_eval, session);
         case Eval_item::Type::Scale:
         case Eval_item::Type::Informational:
-            return new Scale_grading_widget(grader_eval, session, parent);
+            return std::make_unique<Scale_grading_widget>(grader_eval, session);
     }
 }
 
@@ -117,28 +117,24 @@ Abstract_grading_widget::Abstract_grading_widget(
         const dbo::ptr<Grader_eval>& model,
         Session& session,
         Wt::WContainerWidget* parent)
-        : WCompositeWidget(parent),
-          model_(model),
+        : model_(model),
           session_(session)
 {
-    auto impl = new Wt::WContainerWidget;
-    setImplementation(impl);
+    auto impl = setNewImplementation<Wt::WContainerWidget>();
 
-    explanation_ = new Explanation_edit_widget(impl);
+    explanation_ = impl->addNew<Explanation_edit_widget>();
     explanation_->setText(model->explanation());
     explanation_->setFocus();
 
-    buttons_ = new Wt::WContainerWidget(impl);
+    buttons_ = impl->addNew<Wt::WContainerWidget>();
     buttons_->setStyleClass("buttons");
-
-    hold_button_ = new Wt::WPushButton("Hold");
-    hold_button_->clicked().connect(this,
-                                    &Abstract_grading_widget::hold_action_);
 }
 
 void Abstract_grading_widget::add_hold_button()
 {
-    buttons_->addWidget(hold_button_);
+    hold_button_ = buttons_->addNew<Wt::WPushButton>("Hold");
+    hold_button_->clicked().connect(this,
+                                    &Abstract_grading_widget::hold_action_);
 }
 
 Abstract_grading_widget::~Abstract_grading_widget()
@@ -172,9 +168,9 @@ Boolean_grading_widget::Boolean_grading_widget(
         Wt::WContainerWidget* parent)
         : Abstract_grading_widget(model, session, parent)
 {
-    auto yes_button = new Wt::WPushButton("Yes", buttons_);
+    auto yes_button = buttons_->addNew<Wt::WPushButton>("Yes");
     yes_button->clicked().connect(this, &Boolean_grading_widget::yes_action_);
-    auto no_button = new Wt::WPushButton("No", buttons_);
+    auto no_button = buttons_->addNew<Wt::WPushButton>("No");
     no_button->clicked().connect(this, &Boolean_grading_widget::no_action_);
 
     add_hold_button();
@@ -193,13 +189,13 @@ void Boolean_grading_widget::no_action_()
 Scale_grading_widget::Scale_grading_widget(const dbo::ptr<Grader_eval>& model,
                                            Session& session,
                                            Wt::WContainerWidget* parent)
-        : Abstract_grading_widget(model, session, parent)
+        : Abstract_grading_widget(model, session)
 {
-    edit_ = new Unit_line_edit(buttons_);
+    edit_ = buttons_->addNew<Unit_line_edit>();
     edit_->set_value(model->score());
     edit_->setStyleClass("unit-edit");
 
-    apply_button_ = new Wt::WPushButton("Apply", buttons_);
+    apply_button_ = buttons_->addNew<Wt::WPushButton>("Apply");
     apply_button_->clicked().connect(this,
                                      &Scale_grading_widget::apply_action_);
 
@@ -246,10 +242,10 @@ void Scale_grading_widget::save_(Grader_eval::Status status)
 Grading_view::Grading_view(const Wt::Dbo::ptr<Self_eval> self_eval,
                            Session& session,
                            Wt::WContainerWidget* parent)
-        : Abstract_file_view(self_eval->submission(), session, parent),
+        : Abstract_file_view(self_eval->submission(), session),
           model_(self_eval)
 {
-    auto widget = new Wt::WTemplate(
+    auto widget = right_column_->addNew<Wt::WTemplate>(
         "<div class='grading-view'>"
           "<h4>Question ${sequence} <small>${homework}</small></h4>"
           "<p class='question'>${question}</p>"
@@ -259,8 +255,7 @@ Grading_view::Grading_view(const Wt::Dbo::ptr<Self_eval> self_eval,
           "<h5>Your evaluation</h5>"
           "${grading_widget}"
           "<p class='status'>Status: ${status}</p>"
-        "</div>",
-        right_column_
+        "</div>"
     );
 
     dbo::Transaction transaction(session_);
@@ -288,16 +283,18 @@ Grading_view::Grading_view(const Wt::Dbo::ptr<Self_eval> self_eval,
             break;
     }
 
-    widget->bindWidget("sequence", new Wt::WText(sequence));
-    widget->bindWidget("homework", new Wt::WText(assignment->name()));
-    widget->bindWidget("question", new Wt::WText(eval_item->prompt()));
+    widget->bindWidget("sequence", std::make_unique<Wt::WText>(sequence));
+    widget->bindWidget("homework", std::make_unique<Wt::WText>(assignment->name()));
+    widget->bindWidget("question", std::make_unique<Wt::WText>(eval_item->prompt()));
     widget->bindWidget("self_grade",
-                       new Wt::WText(eval_item->format_score(self_eval->score())));
+                       std::make_unique<Wt::WText>(
+                               eval_item->format_score(self_eval->score())));
     widget->bindWidget("self_explanation",
-                       new Explanation_view_widget(self_eval->explanation(),
-                                                   file_viewer(),
-                                                   "student-highlight"));
-    widget->bindWidget("grading_widget", grading_widget);
-    widget->bindWidget("status", new Wt::WText(status));
+                       std::make_unique<Explanation_view_widget>(
+                               self_eval->explanation(),
+                               file_viewer(),
+                               "student-highlight"));
+    widget->bindWidget("grading_widget", std::move(grading_widget));
+    widget->bindWidget("status", std::make_unique<Wt::WText>(status));
 }
 

@@ -3,24 +3,18 @@
 
 #include <Wt/WHBoxLayout.h>
 
-Abstract_file_view::Abstract_file_view(
-        const Wt::Dbo::ptr<Submission>& submission,
-        Session& session,
-        Wt::WContainerWidget* parent)
-        : WCompositeWidget(parent),
-          submission_(submission),
-          session_(session),
-          viewer_(new File_viewer_widget(submission_, session_)),
-          right_column_(new Wt::WContainerWidget)
+Abstract_file_view::Abstract_file_view(const Wt::Dbo::ptr<Submission>& submission,
+                                       Session& session)
+        : submission_(submission),
+          session_(session)
 {
-    auto container = new Wt::WContainerWidget;
-    setImplementation(container);
+    auto container = setNewImplementation<Wt::WContainerWidget>();
+    auto hbox = container->setLayout(std::make_unique<Wt::WHBoxLayout>());
 
-    auto hbox = new Wt::WHBoxLayout();
-    container->setLayout(hbox);
+    auto viewer = std::make_unique<File_viewer_widget>(submission_, session_);
+    viewer_ = hbox->addWidget(std::move(viewer));
 
-    hbox->addWidget(viewer_);
-    hbox->addWidget(right_column_, 1);
-
+    auto right_column = std::make_unique<Wt::WContainerWidget>();
+    right_column_ = hbox->addWidget(std::move(right_column), 1);
     right_column_->setStyleClass("right-column");
 }

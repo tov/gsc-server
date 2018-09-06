@@ -9,7 +9,6 @@
 #include <Wt/WComboBox.h>
 #include <Wt/WContainerWidget.h>
 #include <Wt/WEnvironment.h>
-#include <Wt/WScrollArea.h>
 #include <Wt/WTable.h>
 #include <Wt/WText.h>
 
@@ -33,24 +32,22 @@ Single_file_viewer::Single_file_viewer(
         std::vector<Wt::WTableRow*>& lines,
         const File_viewer_widget* viewer,
         Wt::WContainerWidget* parent)
-        : WContainerWidget(parent)
 {
     setId(viewer->file_id(file_number));
 
-    auto file_name = new Wt::WText("<h4>" + source_file->name() + "</h4>", this);
+    auto file_name = addNew<Wt::WText>("<h4>" + source_file->name() + "</h4>");
 
-    auto               table = new Wt::WTable(this);
+    auto               table = addNew<Wt::WTable>();
     std::istringstream file_stream(source_file->file_data().lock()->contents());
     std::string        line;
     int                row   = 0;
 
     while (std::getline(file_stream, line)) {
-        table->elementAt(row, 0)->addWidget(new Wt::WText
-                                                    (boost::lexical_cast<std::string>
-                                                             (line_number)));
+        table->elementAt(row, 0)->addNew<Wt::WText>(
+                boost::lexical_cast<std::string>(line_number));
         table->elementAt(row, 0)->setStyleClass("code-number");
-        table->elementAt(row, 1)->addWidget(
-                new Wt::WText(Wt::WString::fromUTF8(line), Wt::PlainText));
+        table->elementAt(row, 1)->addNew<Wt::WText>(
+                Wt::WString::fromUTF8(line), Wt::TextFormat::Plain);
         table->elementAt(row, 1)->setStyleClass("code-line");
         table->rowAt(row)->setId(viewer->line_id(line_number));
         lines.push_back(table->rowAt(row));
@@ -63,21 +60,20 @@ File_viewer_widget::File_viewer_widget(
         const Wt::Dbo::ptr<Submission>& submission,
         Session& session,
         Wt::WContainerWidget* parent)
-        : WCompositeWidget(parent),
-          session_(session),
+        : session_(session),
           submission_(submission)
 {
-    setImplementation(impl_ = new Wt::WContainerWidget);
+    impl_ = setNewImplementation<Wt::WContainerWidget>();
 
-    file_selector_ = new Wt::WComboBox(impl_);
+    file_selector_ = impl_->addNew<Wt::WComboBox>();
     file_selector_->changed().connect(this,
                                       &File_viewer_widget::scroll_to_selected_file_);
     if (!Wt::WApplication::instance()->environment().ajax())
         file_selector_->hide();
 
-    file_contents_ = new Wt::WContainerWidget;
-    auto scroll_area = new Wt::WScrollArea(impl_);
-    scroll_area->setWidget(file_contents_);
+    auto scroll_area = impl_->addNew<Wt::WContainerWidget>();
+    file_contents_ = scroll_area->addNew<Wt::WContainerWidget>();
+    scroll_area->setOverflow(Wt::Overflow::Auto);
     scroll_area->setStyleClass("file-viewer");
     scroll_area->setId(id() + "-area");
 

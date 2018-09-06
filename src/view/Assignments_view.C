@@ -18,43 +18,6 @@
 
 #include <sstream>
 
-class Assignments_view_row
-{
-public:
-    Assignments_view_row(const dbo::ptr<Assignment>&,
-                         Session&,
-                         Wt::WTableRow*);
-
-    enum columns
-    {
-        NUMBER,
-        NAME,
-        PARTNER,
-        OPEN_DATE,
-        DUE_DATE,
-        EVAL_DATE,
-        POINTS,
-        ACTION,
-    };
-
-    static void add_headings(Wt::WTableRow*);
-
-private:
-    dbo::ptr<Assignment> assignment_;
-    Session& session_;
-    Wt::WTableRow* row_;
-    Wt::WCheckBox* partner_;
-    Wt::WLineEdit* name_;
-    Date_time_edit* open_date_;
-    Date_time_edit* due_date_;
-    Date_time_edit* eval_date_;
-    Wt::WLineEdit* points_;
-
-    void update_() const;
-
-    friend class Assignments_view;
-};
-
 Assignments_view_row::Assignments_view_row(
         const dbo::ptr<Assignment>& assignment,
         Session& session,
@@ -63,15 +26,15 @@ Assignments_view_row::Assignments_view_row(
           session_(session),
           row_(row)
 {
-    new Wt::WText(boost::lexical_cast<std::string>(assignment_->number()),
-                  row_->elementAt(NUMBER));
-    name_ = new Wt::WLineEdit(row_->elementAt(NAME));
-    partner_ = new Wt::WCheckBox(row_->elementAt(PARTNER));
-    open_date_ = new Date_time_edit(row_->elementAt(OPEN_DATE));
-    due_date_ = new Date_time_edit(row_->elementAt(DUE_DATE));
-    eval_date_ = new Date_time_edit(row_->elementAt(EVAL_DATE));
-    points_ = new Wt::WLineEdit(row_->elementAt(POINTS));
-    auto edit = new Wt::WPushButton("Edit", row_->elementAt(ACTION));
+    row_->elementAt(NUMBER)->addNew<Wt::WText>(
+            boost::lexical_cast<std::string>(assignment_->number()));
+    name_      = row_->elementAt(NAME)->addNew<Wt::WLineEdit>();
+    partner_   = row_->elementAt(PARTNER)->addNew<Wt::WCheckBox>();
+    open_date_ = row_->elementAt(OPEN_DATE)->addNew<Date_time_edit>();
+    due_date_  = row_->elementAt(DUE_DATE)->addNew<Date_time_edit>();
+    eval_date_ = row_->elementAt(EVAL_DATE)->addNew<Date_time_edit>();
+    points_    = row_->elementAt(POINTS)->addNew<Wt::WLineEdit>();
+    auto edit  = row_->elementAt(ACTION) ->addNew<Wt::WPushButton>("Edit");
 
     name_->setStyleClass("name");
     points_->setStyleClass("points");
@@ -108,7 +71,7 @@ Assignments_view_row::Assignments_view_row(
     eval_date_->set_time_format("H:mm");
 
     open_date_->changed().connect(std::bind([=] () {
-        if (open_date_->validate() == Wt::WValidator::Valid) {
+        if (open_date_->validate() == Wt::ValidationState::Valid) {
             dbo::Transaction transaction(session_);
             assignment_.modify()->set_open_date(open_date_->date_time());
             transaction.commit();
@@ -120,7 +83,7 @@ Assignments_view_row::Assignments_view_row(
     }));
 
     due_date_->changed().connect(std::bind([=] () {
-        if (due_date_->validate() == Wt::WValidator::Valid) {
+        if (due_date_->validate() == Wt::ValidationState::Valid) {
             dbo::Transaction transaction(session_);
             assignment_.modify()->set_due_date(due_date_->date_time());
             transaction.commit();
@@ -132,7 +95,7 @@ Assignments_view_row::Assignments_view_row(
     }));
 
     eval_date_->changed().connect(std::bind([=] () {
-        if (eval_date_->validate() == Wt::WValidator::Valid) {
+        if (eval_date_->validate() == Wt::ValidationState::Valid) {
             dbo::Transaction transaction(session_);
             assignment_.modify()->set_eval_date(eval_date_->date_time());
             transaction.commit();
@@ -143,24 +106,26 @@ Assignments_view_row::Assignments_view_row(
         }
     }));
 
-    std::ostringstream url;
-    url << "/hw/" << assignment->number();
-    edit->clicked().connect(Navigate(url.str()));
+    std::ostringstream url_stream;
+    url_stream << "/hw/" << assignment->number();
+    auto url = url_stream.str();
+//    edit->clicked().connect(Navigate(url.str()));
+    edit->clicked().connect([=]() { Navigate::to(url); });
 
     update_();
 }
 
 void Assignments_view_row::add_headings(Wt::WTableRow* row)
 {
-    new Wt::WText("#",         row->elementAt(NUMBER));
-    new Wt::WText("Name",      row->elementAt(NAME));
-    (new Wt::WText("2",         row->elementAt(PARTNER)))
-            ->setToolTip("Allow partners");
-    new Wt::WText("Opens",     row->elementAt(OPEN_DATE));
-    new Wt::WText("Due",       row->elementAt(DUE_DATE));
-    new Wt::WText("Self-eval", row->elementAt(EVAL_DATE));
-    new Wt::WText("Pts",       row->elementAt(POINTS));
-    new Wt::WText("Action",    row->elementAt(ACTION));
+    row->elementAt(NUMBER)->addNew<Wt::WText>("#");
+    row->elementAt(NAME)->addNew<Wt::WText>("Name");
+    row->elementAt(PARTNER)->addNew<Wt::WText>("2")
+       ->setToolTip("Allow partners");
+    row->elementAt(OPEN_DATE)->addNew<Wt::WText>("Opens");
+    row->elementAt(DUE_DATE)->addNew<Wt::WText>("Due");
+    row->elementAt(EVAL_DATE)->addNew<Wt::WText>("Self-eval");
+    row->elementAt(POINTS)->addNew<Wt::WText>("Pts");
+    row->elementAt(ACTION)->addNew<Wt::WText>("Action");
 }
 
 void Assignments_view_row::update_() const
@@ -178,10 +143,8 @@ void Assignments_view_row::update_() const
 //    eval_date_->set_bottom(due_date_->date_time());
 }
 
-Assignments_view::Assignments_view(Session& session,
-                                   Wt::WContainerWidget* parent)
-        : WContainerWidget(parent),
-          session_(session)
+Assignments_view::Assignments_view(Session& session)
+        : session_(session)
 {
     setStyleClass("assignments-view");
 
@@ -190,7 +153,7 @@ Assignments_view::Assignments_view(Session& session,
                                .orderBy("number")
                                .resultList();
 
-    table_ = new Wt::WTable(this);
+    table_ = addNew<Wt::WTable>();
     table_->setHeaderCount(1);
     Assignments_view_row::add_headings(table_->rowAt(0));
 
@@ -201,11 +164,11 @@ Assignments_view::Assignments_view(Session& session,
     }
     transaction.commit();
 
-    auto buttons = new Wt::WContainerWidget(this);
+    auto buttons = addNew<Wt::WContainerWidget>();
     buttons->setStyleClass("buttons");
 
-    auto more = new Wt::WPushButton("More", buttons);
-    auto fewer = new Wt::WPushButton("Fewer", buttons);
+    auto more = buttons->addNew<Wt::WPushButton>("More");
+    auto fewer = buttons->addNew<Wt::WPushButton>("Fewer");
 
     more->clicked().connect(this, &Assignments_view::more_);
     fewer->clicked().connect(this, &Assignments_view::fewer_);
@@ -220,8 +183,8 @@ void Assignments_view::more_()
     auto date = local_date.toUTC();
 
     dbo::Transaction transaction(session_);
-    auto assignment = session_.add(
-            new Assignment(number, name, 0, date, date, date));
+    auto assignment = session_.addNew<Assignment>(
+            number, name, 0, date, date, date);
     transaction.commit();
 
     rows_.push_back(std::make_unique<Assignments_view_row>(
@@ -261,6 +224,6 @@ void Assignments_view::real_fewer_()
     rows_.back()->assignment_.remove();
     transaction.commit();
 
-    table_->deleteRow(table_->rowCount() - 1);
+    table_->removeRow(table_->rowCount() - 1);
     rows_.pop_back();
 }

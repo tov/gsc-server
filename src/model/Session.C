@@ -45,12 +45,12 @@ void Session::configureAuth()
 {
     my_auth_service.setAuthTokensEnabled(true, "gsc_cookie");
 
-    Auth::PasswordVerifier* verifier = new Auth::PasswordVerifier();
-    verifier->addHashFunction(new Auth::BCryptHashFunction(7));
+    auto verifier = std::make_unique<Auth::PasswordVerifier>();
+    verifier->addHashFunction(std::make_unique<Auth::BCryptHashFunction>(7));
 
-    my_password_service.setVerifier(verifier);
+    my_password_service.setVerifier(std::move(verifier));
     my_password_service.setStrengthValidator(
-            new Auth::PasswordStrengthValidator());
+            std::make_unique<Auth::PasswordStrengthValidator>());
     my_password_service.setAttemptThrottlingEnabled(true);
 }
 
@@ -82,19 +82,19 @@ Session::Session(dbo::SqlConnectionPool& pool)
 
         auto now = Wt::WDateTime::currentDateTime();
 
-        auto asst1 = add(new Assignment(1, "Homework 1", 10,
+        auto asst1 = addNew<Assignment>(1, "Homework 1", 10,
                                         now.addDays(-10), now.addDays(-3),
-                                        now.addDays(-1)));
-        auto asst2 = add(new Assignment(2, "Homework 2", 10,
+                                        now.addDays(-1));
+        auto asst2 = addNew<Assignment>(2, "Homework 2", 10,
                                         now.addDays(-3),
                                         now.addDays(4),
-                                        now.addDays(6)));
-        auto asst3 = add(new Assignment(3, "Homework 3", 10,
+                                        now.addDays(6));
+        auto asst3 = addNew<Assignment>(3, "Homework 3", 10,
                                         now.addDays(-8), now.addDays(-1),
-                                        now.addDays(1)));
-        auto asst4 = add(new Assignment(4, "Homework 4", 10,
+                                        now.addDays(1));
+        auto asst4 = addNew<Assignment>(4, "Homework 4", 10,
                                         now.addDays(4), now.addDays(11),
-                                        now.addDays(13)));
+                                        now.addDays(13));
 
         for (auto name : std::vector<std::string>{"student", "s1", "s2", "s3"}) {
             Auth::User student = users_.registerNew();
@@ -103,14 +103,13 @@ Session::Session(dbo::SqlConnectionPool& pool)
 
             auto user = users_.find(student);
 
-            auto exam1 = add(new Exam_grade(user, 1));
+            auto exam1 = addNew<Exam_grade>(user, 1);
             exam1.modify()->set_points_and_possible(40, 50);
-            auto exam2 = add(new Exam_grade(user, 2));
+            auto exam2 = addNew<Exam_grade>(user, 2);
             exam2.modify()->set_points_and_possible(37, 50);
 
             for (auto asst : {asst1, asst2, asst3, asst4}) {
-                auto submission =
-                        add(new Submission(user, asst));
+                auto submission = addNew<Submission>(user, asst);
                 File_meta::upload("file.h", "#pragma once\n", submission);
                 File_meta::upload("file.C",
                                   "#include \"file.h\"\n\nnamespace meh {\n\n}\n",
@@ -152,7 +151,7 @@ void Session::add_to_score(int s)
     if (!u) return;
 
     dbo::ptr<User_stats> stats = u->user_stats().lock();
-    if (!stats) stats = add(new User_stats(u));
+    if (!stats) stats = addNew<User_stats>(u);
 
     stats.modify()->record_game(s);
 
@@ -209,8 +208,7 @@ Session::createConnectionPool(const std::string& db)
 {
     auto connection = std::make_unique<dbo::backend::Postgres>(db);
     connection->setProperty("show-queries", "true");
-
-    return new dbo::FixedSqlConnectionPool(connection.release(), 10);
+    return new dbo::FixedSqlConnectionPool(std::move(connection), 10);
 }
 
 void Session::create_index(const char* table, const char* field, bool unique)

@@ -10,8 +10,7 @@
 
 using namespace Wt;
 
-WordWidget::WordWidget(WContainerWidget *parent) :
-  WContainerWidget(parent)
+WordWidget::WordWidget(WContainerWidget *parent)
 {
   addStyleClass("wordcontainer");
 }
@@ -24,7 +23,7 @@ void WordWidget::init(const std::wstring &word)
   clear();
   wordLetters_.clear();
   for(unsigned int i = 0; i < word_.size(); ++i) {
-    WText *c = new WText("-", this);
+    WText *c = addNew<WText>("-");
     wordLetters_.push_back(c);
   }
 }

@@ -5,7 +5,9 @@
 #include <Wt/Dbo/ptr.h>
 #include <Wt/Dbo/SqlConnectionPool.h>
 #include <Wt/WApplication.h>
+#include <Wt/WLocale.h>
 
+#include <memory>
 #include <string>
 
 class Main_view;
@@ -18,19 +20,24 @@ class Submission;
 class Application_controller : public Wt::WApplication
 {
 public:
-    static Application_controller*
-    create(Wt::Dbo::SqlConnectionPool*,
-               const Wt::WEnvironment&);
+    static std::unique_ptr<Wt::WApplication>
+    create(Wt::Dbo::SqlConnectionPool*, const Wt::WEnvironment&);
+
+    Application_controller(Wt::Dbo::SqlConnectionPool*,
+                           const Wt::WEnvironment&);
 
 private:
     Session session_;
     Main_view* main_;
 
     void set_title(const std::string&);
-    void set_widget(Wt::WWidget* widget);
+    void set_widget(std::unique_ptr<Wt::WWidget> widget);
 
-    Application_controller(Wt::Dbo::SqlConnectionPool*,
-                               const Wt::WEnvironment&);
+    template <class T, class... Arg>
+    void set_new_widget(Arg&&... arg)
+    {
+        set_widget(std::make_unique<T>(std::forward<Arg>(arg)...));
+    }
 
     void handle_internal_path(const std::string&);
     void on_auth_event();

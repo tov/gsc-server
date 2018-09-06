@@ -3,12 +3,10 @@
 #include <Wt/WApplication.h>
 #include <Wt/WText.h>
 
-Accelerator_button::Accelerator_button(const Wt::WString& text,
-                                       Wt::WContainerWidget* parent)
-        : WCompositeWidget(parent)
+Accelerator_button::Accelerator_button(const Wt::WString& text)
 {
-    auto impl = new Wt::WText(Accelerator_text::parse_label(text, key_));
-    setImplementation(impl);
+    auto impl = setNewImplementation<Wt::WText>(
+            Accelerator_text::parse_label(text, key_));
 
     setStyleClass("btn");
 

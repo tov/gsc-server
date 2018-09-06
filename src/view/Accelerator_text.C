@@ -9,12 +9,9 @@
 #include <stdexcept>
 #include <string>
 
-Accelerator_text::Accelerator_text(const Wt::WString& text,
-                                   Wt::WContainerWidget* parent)
-        : WCompositeWidget(parent)
+Accelerator_text::Accelerator_text(const Wt::WString& text)
 {
-    auto impl = new Wt::WText(parse_label(text, key_));
-    setImplementation(impl);
+    auto impl = setNewImplementation<Wt::WText>(parse_label(text, key_));
 
     impl->clicked().connect(this, &Accelerator_text::click_);
     Wt::WApplication::instance()->globalKeyPressed()

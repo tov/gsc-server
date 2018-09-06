@@ -25,30 +25,10 @@ private:
     Wt::Dbo::ptr<File_meta> source_file_;
 };
 
-// Action for deleting a source file.
-class File_deleter : public Wt::WObject
-{
-public:
-    File_deleter(const Wt::Dbo::ptr<File_meta>& source_file,
-                 Wt::Signal<>& changed,
-                 Session& session)
-            : changed_(changed),
-              source_file_(source_file),
-              session_(session) {}
-
-    void go();
-
-private:
-    Wt::Signal<>& changed_;
-    Wt::Dbo::ptr<File_meta> source_file_;
-    Session& session_;
-};
-
 File_list_widget::File_list_widget(const Wt::Dbo::ptr<Submission>& submission,
                                    Session& session,
                                    Wt::WContainerWidget* parent)
-        : WTable(parent),
-          submission_(submission),
+        : submission_(submission),
           session_(session)
 {
     setStyleClass("file-list");
@@ -65,21 +45,20 @@ void File_list_widget::reload()
 
     bool can_delete = submission_->can_submit(session_.user());
 
-    new Wt::WText("<strong>filename</strong>", elementAt(0, 0));
-    new Wt::WText("<strong>loc</strong>", elementAt(0, 1));
+    elementAt(0, 0)->addNew<Wt::WText>("<strong>filename</strong>");
+    elementAt(0, 1)->addNew<Wt::WText>("<strong>loc</strong>");
     if (can_delete)
-        new Wt::WText("<strong>rm</strong>", elementAt(0, 2));
+        elementAt(0, 2)->addNew<Wt::WText>("<strong>rm</strong>");
 
     int row = 1;
 
     for (Wt::Dbo::ptr<File_meta> file : submission_->source_files_sorted()) {
-        Wt::WResource  * download = new File_resource(file, this);
-        Wt::WAnchor    * anchor   = new Wt::WAnchor(Wt::WLink(download),
-                                                    file->name(),
-                                                    elementAt(row, 0));
-        Wt::WText      * loc      = new Wt::WText(
-                boost::lexical_cast<std::string>(file->line_count()),
-                elementAt(row, 1));
+        auto download = std::make_shared<File_resource>(file, this);
+
+        auto anchor = elementAt(row, 0)->addNew<Wt::WAnchor>(
+                Wt::WLink(download), file->name());
+        auto loc = elementAt(row, 1)->addNew<Wt::WText>(
+                boost::lexical_cast<std::string>(file->line_count()));
 
         elementAt(row, 1)->setStyleClass("file-list-loc");
 
@@ -87,11 +66,10 @@ void File_list_widget::reload()
         loc->setToolTip("lines of code");
 
         if (can_delete) {
-            auto remove = new Wt::WPushButton("X", elementAt(row, 2));
+            auto remove = elementAt(row, 2)->addNew<Wt::WPushButton>("X");
             remove->setToolTip("delete file");
 
-            auto deleter = std::make_unique<File_deleter>(
-                    file, changed_, session_);
+            auto deleter = std::make_unique<File_deleter>(file, changed_, session_);
             remove->clicked().connect(&*deleter, &File_deleter::go);
             deleters_.push_back(std::move(deleter));
         }
@@ -102,8 +80,7 @@ void File_list_widget::reload()
 
 File_resource::File_resource(const Wt::Dbo::ptr<File_meta>& source_file,
                              Wt::WObject* parent)
-        : WResource(parent),
-          source_file_(source_file)
+        : source_file_(source_file)
 {
     suggestFileName(source_file_->name());
 }
@@ -123,6 +100,14 @@ void File_resource::handleRequest(const Wt::Http::Request& request,
     response.setMimeType("text/plain");
     response.out() << text->contents();
 }
+
+File_deleter::File_deleter(const Wt::Dbo::ptr<File_meta>& source_file,
+                           Wt::Signal<>& changed,
+                           Session& session)
+        : changed_(changed),
+          source_file_(source_file),
+          session_(session)
+{}
 
 void File_deleter::go()
 {
