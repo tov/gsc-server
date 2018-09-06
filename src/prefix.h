@@ -15,7 +15,8 @@
 #include <Wt/Dbo/Types.h>
 #include <Wt/Dbo/WtSqlTraits.h>
 
-#include <Wt/Http/Response>
+#include <Wt/Http/Request.h>
+#include <Wt/Http/Response.h>
 
 #include <Wt/WAnchor.h>
 #include <Wt/WApplication.h>

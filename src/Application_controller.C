@@ -55,15 +55,15 @@ void permission_denied(const std::string& message = denied_message)
 }
 
 std::unique_ptr<Wt::WApplication>
-Application_controller::create(Wt::Dbo::SqlConnectionPool* pool,
+Application_controller::create(Wt::Dbo::SqlConnectionPool& pool,
                                const Wt::WEnvironment& env)
 {
     return std::make_unique<Application_controller>(pool, env);
 }
 
-Application_controller::Application_controller(Wt::Dbo::SqlConnectionPool* pool,
+Application_controller::Application_controller(Wt::Dbo::SqlConnectionPool& pool,
                                                const Wt::WEnvironment& env)
-        : WApplication(env), session_(*pool)
+        : WApplication(env), session_(pool)
 {
     setTitle("gsc homework server");
 

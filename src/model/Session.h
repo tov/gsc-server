@@ -1,6 +1,7 @@
 #pragma once
 
 #include "auth/User_database.h"
+#include "auth/User.h"
 
 #include <Wt/Auth/Login.h>
 #include <Wt/Auth/AbstractUserDatabase.h>
@@ -28,6 +29,10 @@ public:
     Wt::Dbo::ptr<User> user() const;
 
     std::string user_name() const;
+
+    Wt::Dbo::ptr<User> create_user(const std::string& username,
+                                   const std::string& password,
+                                   User::Role role = User::Role::Student);
 
     void become_user(const Wt::Dbo::ptr<User>&);
 

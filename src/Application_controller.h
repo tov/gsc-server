@@ -21,9 +21,9 @@ class Application_controller : public Wt::WApplication
 {
 public:
     static std::unique_ptr<Wt::WApplication>
-    create(Wt::Dbo::SqlConnectionPool*, const Wt::WEnvironment&);
+    create(Wt::Dbo::SqlConnectionPool&, const Wt::WEnvironment&);
 
-    Application_controller(Wt::Dbo::SqlConnectionPool*,
+    Application_controller(Wt::Dbo::SqlConnectionPool&,
                            const Wt::WEnvironment&);
 
 private:

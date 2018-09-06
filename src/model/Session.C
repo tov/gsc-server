@@ -54,6 +54,20 @@ void Session::configureAuth()
     my_password_service.setAttemptThrottlingEnabled(true);
 }
 
+dbo::ptr<User>
+Session::create_user(const std::string& username,
+                     const std::string& password,
+                     User::Role role)
+{
+    Auth::User user = users_.registerNew();
+    user.addIdentity(Auth::Identity::LoginName, username);
+    my_password_service.updatePassword(user, password);
+
+    auto user_obj = users_.find(user);
+    user_obj.modify()->set_role(role);
+    return user_obj;
+}
+
 Session::Session(dbo::SqlConnectionPool& pool)
         : users_(*this)
 {
@@ -68,17 +82,10 @@ Session::Session(dbo::SqlConnectionPool& pool)
         create_index("users", "name", false);
         create_index("self_evals", "permalink", false);
 
-        Auth::User root_user = users_.registerNew();
-        root_user.addIdentity(Auth::Identity::LoginName, "root");
         auto root_password = std::getenv("ADMIN_PASSWORD");
-        if (root_password)
-            my_password_service.updatePassword(root_user, root_password);
-        users_.find(root_user).modify()->set_role(User::Role::Admin);
-
-        Auth::User jtov = users_.registerNew();
-        jtov.addIdentity(Auth::Identity::LoginName, "jtov");
-        my_password_service.updatePassword(jtov, "");
-        users_.find(jtov).modify()->set_role(User::Role::Admin);
+        create_user("root", root_password? root_password : "",
+                    User::Role::Admin);
+        create_user("jtov", "", User::Role::Admin);
 
         auto now = Wt::WDateTime::currentDateTime();
 
@@ -97,11 +104,7 @@ Session::Session(dbo::SqlConnectionPool& pool)
                                         now.addDays(13));
 
         for (auto name : std::vector<std::string>{"student", "s1", "s2", "s3"}) {
-            Auth::User student = users_.registerNew();
-            student.addIdentity(Auth::Identity::LoginName, name);
-            my_password_service.updatePassword(student, "");
-
-            auto user = users_.find(student);
+            auto user = create_user(name, "");
 
             auto exam1 = addNew<Exam_grade>(user, 1);
             exam1.modify()->set_points_and_possible(40, 50);

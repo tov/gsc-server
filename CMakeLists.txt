@@ -27,6 +27,7 @@ set(SOURCE_FILES
         ${MODEL_SOURCE_FILES}
         src/Application_controller.C
         src/Navigate.h
+        src/util/unbase64.cpp
         src/view/Abstract_file_view.C
         src/view/Accelerator_button.C
         src/view/Accelerator_text.C

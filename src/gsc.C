@@ -1,5 +1,6 @@
 #include "Application_controller.h"
 #include "model/Session.h"
+#include "view/REST_endpoint.h"
 
 #include <Wt/Dbo/SqlConnectionPool.h>
 #include <Wt/WServer.h>
@@ -21,9 +22,12 @@ int main(int argc, char** argv)
         auto db_string  = env_string? env_string : "dbname=gsc";
         auto pool       = Session::createConnectionPool(db_string);
 
+        REST_endpoint endpoint(*pool);
+
+        server.addResource(&endpoint, "/api");
         server.addEntryPoint(Wt::EntryPointType::Application,
                              [&](const Wt::WEnvironment& env) {
-                                 return Application_controller::create(pool.get(), env);
+                                 return Application_controller::create(*pool, env);
                              },
                              "/gsc");
 
