@@ -1,5 +1,4 @@
 #include "REST_endpoint.h"
-#include "../util/unbase64.h"
 #include "../model/auth/User.h"
 #include "../model/Session.h"
 
@@ -108,7 +107,8 @@ parse_authorization(const std::string& header_value)
         throw Http_status{400, "Could not parse authorization header"};
     }
 
-    std::string decoded = b64decode(&*sm[1].first, &*sm[1].second);
+    std::string encoded(sm[1].first, sm[1].second);
+    std::string decoded = Wt::Utils::base64Decode(encoded);
     auto colon = std::find(decoded.begin(), decoded.end(), ':');
 
     if (colon == decoded.end()) {
