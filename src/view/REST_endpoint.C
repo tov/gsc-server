@@ -3,6 +3,8 @@
 #include "../model/Session.h"
 
 #include <Wt/Auth/AuthService.h>
+#include <Wt/Json/Value.h>
+#include <Wt/Json/Serializer.h>
 #include <Wt/Utils.h>
 #include <Wt/WDateTime.h>
 #include <Wt/WString.h>
@@ -11,6 +13,8 @@
 #include <regex>
 #include <sstream>
 #include <string>
+
+namespace J = Wt::Json;
 
 /*
  * HTTP STATUS CODES
@@ -67,13 +71,13 @@ void Http_status::respond(Wt::Http::Response& response) const
             title = "Error";
     }
 
-    response.addHeader("Content-Type", "text/html");
+    response.addHeader("Content-Type", "application/json");
 
-    auto& out = response.out();
-    out << "<html>";
-    out << "<head><title>" << status_code_ << " " << title << "</title></head>";
-    out << Wt::Utils::htmlEncode(message_);
-    out << "</html>";
+    J::Object json;
+    json["status"]  = J::Value(status_code_);
+    json["title"]   = J::Value(title);
+    json["message"] = J::Value(message_);
+    response.out() << J::serialize(json);
 }
 
 /*
