@@ -1,5 +1,4 @@
 #include "REST_endpoint.h"
-#include "../config.h"
 #include "../util/unbase64.h"
 #include "../model/auth/User.h"
 #include "../model/Session.h"
@@ -148,7 +147,7 @@ void REST_endpoint::handleRequest(const Wt::Http::Request& request,
             user = session.create_user(auth.first, auth.second);
         }
 
-        if (!user) throw Http_status(401, "User does not exist");
+        if (!user) throw Http_status{401, "User does not exist"};
 
         std::smatch sm;
 
