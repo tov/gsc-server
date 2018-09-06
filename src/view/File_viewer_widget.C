@@ -14,17 +14,19 @@
 
 #include <sstream>
 
-class Single_file_viewer : Wt::WContainerWidget
+class Single_file_viewer : public Wt::WContainerWidget
 {
 public:
     Single_file_viewer(const Wt::Dbo::ptr<File_meta>& source_file,
-                           int file_number, int& first_line_number,
-                           std::vector<Wt::WTableRow*>& lines,
-                           const File_viewer_widget* viewer);
+                       int file_number,
+                       int& first_line_number,
+                       std::vector<Wt::WTableRow*>& lines,
+                       const File_viewer_widget* viewer);
 };
 
 Single_file_viewer::Single_file_viewer(const Wt::Dbo::ptr<File_meta>& source_file,
-                                       int file_number, int& line_number,
+                                       int file_number,
+                                       int& line_number,
                                        std::vector<Wt::WTableRow*>& lines,
                                        const File_viewer_widget* viewer)
 {
@@ -90,10 +92,10 @@ void File_viewer_widget::reload()
 
     int file_number = 0;
     int line_number = 1;
-
     for (const auto& file : files) {
-        new Single_file_viewer(file, file_number++, line_number, lines_,
-                               this);
+        file_contents_->addNew<Single_file_viewer>(file, file_number++,
+                                                   line_number, lines_,
+                                                   this);
     }
 }
 
