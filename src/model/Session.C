@@ -203,12 +203,13 @@ const Auth::AbstractPasswordService& Session::passwordAuth()
     return my_password_service;
 }
 
-dbo::SqlConnectionPool*
+std::unique_ptr<Wt::Dbo::SqlConnectionPool>
 Session::createConnectionPool(const std::string& db)
 {
     auto connection = std::make_unique<dbo::backend::Postgres>(db);
     connection->setProperty("show-queries", "true");
-    return new dbo::FixedSqlConnectionPool(std::move(connection), 10);
+    return std::make_unique<dbo::FixedSqlConnectionPool>(std::move(connection),
+                                                         10);
 }
 
 void Session::create_index(const char* table, const char* field, bool unique)

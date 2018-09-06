@@ -7,6 +7,7 @@
 
 #include <cstdlib>
 
+
 int main(int argc, char** argv)
 {
     try {
@@ -16,10 +17,9 @@ int main(int argc, char** argv)
 
         Wt::WString::setDefaultEncoding(Wt::CharEncoding::UTF8);
 
-        auto db_string = std::getenv("POSTGRES_CONNINFO");
-        std::unique_ptr<Wt::Dbo::SqlConnectionPool> pool(
-                Session::createConnectionPool(db_string ? db_string :
-                                              "dbname=gsc"));
+        auto env_string = std::getenv("POSTGRES_CONNINFO");
+        auto db_string  = env_string? env_string : "dbname=gsc";
+        auto pool       = Session::createConnectionPool(db_string);
 
         server.addEntryPoint(Wt::EntryPointType::Application,
                              [&](const Wt::WEnvironment& env) {

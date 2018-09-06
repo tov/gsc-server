@@ -38,8 +38,12 @@ public:
     static void map_classes(Wt::Dbo::Session&);
 
     static void configureAuth();
-    static Wt::Dbo::SqlConnectionPool* createConnectionPool(const std::string&);
+
+    static std::unique_ptr<Wt::Dbo::SqlConnectionPool>
+    createConnectionPool(const std::string&);
+
     static const Wt::Auth::AuthService& auth();
+
     static const Wt::Auth::AbstractPasswordService& passwordAuth();
 
 private:
