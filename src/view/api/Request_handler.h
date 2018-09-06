@@ -32,7 +32,7 @@ private:
 
     void create_cookie_(Wt::Auth::User const&);
     void set_cookie_(std::string const& value, int ttl_seconds) const;
-    void check_password_strength_(Credentials const& cred) const;
+    static void check_password_strength_(Credentials const& cred);
 
     Db_session& session_;
     Wt::Http::Request const& request_;

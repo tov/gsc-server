@@ -20,15 +20,11 @@ void Endpoint::handleRequest(const Wt::Http::Request& request,
 
     try {
         auto current_user = handler.authenticate();
-        std::cout << "*** authenticated user: " << current_user->name() << "\n";
-        std::cout << "*** got " << request.method() << " request for: "
-                  << request.pathInfo() << "\n";
-
         resource = handler.parse_uri();
 
         Wt::Dbo::Transaction transaction(session_);
-        resource->load(session_, current_user);
-        resource->process();
+        resource->load(current_user);
+        resource->process(request, current_user);
 
     } catch (const Http_status& status) {
         status.respond(response);

@@ -45,26 +45,28 @@ void Base::send(Wt::Http::Response& response) const
 class Users : public Base
 {
 public:
-    Users() = default;
-
-    void load(dbo::Session&, dbo::ptr<User> const&) override;
+    void load(dbo::ptr<User> const&) override;
 
 protected:
-    void do_get_() override;
+    void do_get_(dbo::ptr<User> const&) override;
+    void do_patch_(Wt::Http::Request const& request,
+                   dbo::ptr<User> const&) override;
+    void do_post_(Wt::Http::Request const& request,
+                  dbo::ptr<User> const&) override;
 
 private:
     dbo::collection<dbo::ptr<User>> users_;
 };
 
-void Users::load(dbo::Session& session, dbo::ptr<User> const& current_user)
+void Users::load(dbo::ptr<User> const& current_user)
 {
     if (current_user->role() != User::Role::Admin)
         denied();
 
-    users_ = session.find<User>();
+    users_ = current_user.session()->find<User>();
 }
 
-void Users::do_get_()
+void Users::do_get_(dbo::ptr<User> const& current_user)
 {
     J::Array result;
 
@@ -74,27 +76,57 @@ void Users::do_get_()
     use_json(result);
 }
 
+void Users::do_post_(Wt::Http::Request const& request,
+                     dbo::ptr<User> const& current_user)
+{
+    success();
+}
+
+void Users::do_patch_(Wt::Http::Request const& request,
+                      dbo::ptr<User> const& current_user)
+{
+
+}
+
 class Users_1 : public Base
 {
 public:
     Users_1(std::string username)
             : username_{std::move(username)} {}
 
-    void load(dbo::Session&, dbo::ptr<User> const&) override;
+    void load(dbo::ptr<User> const&) override;
+
+protected:
+    void do_get_(dbo::ptr<User> const&) override;
+    void do_delete_(dbo::ptr<User> const&) override;
 
 private:
     std::string username_;
     dbo::ptr<User> user_;
 };
 
-void Users_1::load(dbo::Session& session, dbo::ptr<User> const& current_user)
+void Users_1::load(dbo::ptr<User> const& current_user)
 {
     if (current_user->name() != username_ &&
             current_user->role() != User::Role::Admin)
         denied();
 
-    user_ = User::find_by_name(session, username_);
+    user_ = User::find_by_name(*current_user.session(), username_);
     if (!user_) not_found();
+}
+
+void Users_1::do_get_(dbo::ptr<User> const&)
+{
+    use_json(user_->to_json());
+}
+
+void Users_1::do_delete_(dbo::ptr<User> const& current_user)
+{
+    if (current_user->role() != User::Role::Admin)
+        denied();
+
+    user_.remove();
+    success();
 }
 
 class Users_1_hws : public Base
@@ -103,13 +135,13 @@ public:
     Users_1_hws(std::string username)
             : username_{std::move(username)} {}
 
-    void load(dbo::Session&, dbo::ptr<User> const&) override;
+    void load(dbo::ptr<User> const&) override;
 
 private:
     std::string username_;
 };
 
-void Users_1_hws::load(dbo::Session& session, dbo::ptr<User> const& current_user)
+void Users_1_hws::load(dbo::ptr<User> const& current_user)
 {
 
 }
@@ -120,14 +152,14 @@ public:
     Users_1_hws_2(std::string username, int hw_number)
             : username_{std::move(username)}, hw_number_{hw_number} {}
 
-    void load(dbo::Session&, dbo::ptr<User> const&) override;
+    void load(dbo::ptr<User> const&) override;
 
 private:
     std::string username_;
     int hw_number_;
 };
 
-void Users_1_hws_2::load(dbo::Session& session, dbo::ptr<User> const& current_user)
+void Users_1_hws_2::load(dbo::ptr<User> const& current_user)
 {
 
 }
@@ -138,14 +170,14 @@ public:
     Users_1_hws_2_files(std::string username, int hw_number)
             : username_{std::move(username)}, hw_number_{hw_number} {}
 
-    void load(dbo::Session&, dbo::ptr<User> const&) override;
+    void load(dbo::ptr<User> const&) override;
 
 private:
     std::string username_;
     int hw_number_;
 };
 
-void Users_1_hws_2_files::load(dbo::Session& session, dbo::ptr<User> const& current_user)
+void Users_1_hws_2_files::load(dbo::ptr<User> const& current_user)
 {
 
 }
@@ -159,7 +191,7 @@ public:
             : username_{std::move(username)}, hw_number_{hw_number},
               filename_{std::move(filename)} {}
 
-    void load(dbo::Session&, dbo::ptr<User> const&) override;
+    void load(dbo::ptr<User> const&) override;
 
 private:
     std::string username_;
@@ -167,7 +199,7 @@ private:
     std::string filename_;
 };
 
-void Users_1_hws_2_files_3::load(dbo::Session& session, dbo::ptr<User> const& current_user)
+void Users_1_hws_2_files_3::load(dbo::ptr<User> const& current_user)
 {
 
 }
@@ -228,42 +260,46 @@ std::unique_ptr<Base> Base::parse_(std::string const& path_info)
     not_found();
 }
 
-void Base::process()
+void Base::process(Wt::Http::Request const& request,
+                   dbo::ptr<User> const& current_user)
 {
     if (method_ == "DELETE")
-        do_delete_();
+        do_delete_(current_user);
     else if (method_ == "GET")
-        do_get_();
+        do_get_(current_user);
     else if (method_ == "PATCH")
-        do_patch_();
+        do_patch_(request, current_user);
     else if (method_ == "POST")
-        do_post_();
+        do_post_(request, current_user);
     else if (method_ == "PUT")
-        do_post_();
+        do_put_(request, current_user);
     else not_supported();
 }
 
-void Base::do_delete_()
+void Base::do_delete_(dbo::ptr<User> const&)
 {
     not_supported();
 }
 
-void Base::do_get_()
+void Base::do_get_(dbo::ptr<User> const&)
 {
     not_supported();
 }
 
-void Base::do_patch_()
+void Base::do_patch_(Wt::Http::Request const&,
+                     dbo::ptr<User> const&)
 {
     not_supported();
 }
 
-void Base::do_post_()
+void Base::do_post_(Wt::Http::Request const&,
+                    dbo::ptr<User> const&)
 {
     not_supported();
 }
 
-void Base::do_put_()
+void Base::do_put_(Wt::Http::Request const&,
+                   dbo::ptr<User> const&)
 {
     not_supported();
 }

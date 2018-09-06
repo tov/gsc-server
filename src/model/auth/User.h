@@ -5,7 +5,7 @@
 #include <Wt/WDateTime.h>
 #include <Wt/Dbo/Types.h>
 #include <Wt/Dbo/WtSqlTraits.h>
-#include <Wt/JSon/Value.h>
+#include <Wt/JSon/Object.h>
 
 #include <string>
 
@@ -76,8 +76,8 @@ public:
     static dbo::ptr<User> find_by_name(dbo::Session&, const std::string&);
     static dbo::ptr<User> find_by_auth_token(dbo::Session&, const std::string&);
 
-    Wt::Json::Value to_json() const;
-    void patch_json(Wt::Json::Value const&);
+    std::string rest_uri() const;
+    Wt::Json::Object to_json() const;
 
 private:
     std::string name_;

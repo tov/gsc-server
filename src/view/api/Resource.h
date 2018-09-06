@@ -16,25 +16,39 @@ namespace Resource {
 class Base
 {
 public:
+    // Parses the URI into the resource.
     static std::unique_ptr<Base> create(std::string const& method,
                                         std::string const& path_info);
 
-    virtual void load(dbo::Session&,
-                      dbo::ptr<User> const& current_user) = 0;
+    // Loads the resource on behalf of current_user.
+    virtual void load(dbo::ptr<User> const& current_user) = 0;
 
-    void process();
+    // Processes the request, building the response.
+    void process(Wt::Http::Request const&,
+                 dbo::ptr<User> const& current_user);
 
+    // Sends the response.
     void send(Wt::Http::Response&) const;
 
     virtual ~Base() = default;
 
 protected:
     // Override these to handle specific methods.
-    virtual void do_delete_();
-    virtual void do_get_();
-    virtual void do_patch_();
-    virtual void do_post_();
-    virtual void do_put_();
+    virtual void do_delete_(dbo::ptr<User> const& current_user);
+    virtual void do_get_(dbo::ptr<User> const& current_user);
+    virtual void do_patch_(Wt::Http::Request const& request,
+                           dbo::ptr<User> const& current_user);
+    virtual void do_post_(Wt::Http::Request const& request,
+                          dbo::ptr<User> const& current_user);
+    virtual void do_put_(Wt::Http::Request const& request,
+                         dbo::ptr<User> const& current_user);
+
+    // Successful response with no data.
+    void success()
+    {
+        content_type = "application/json";
+        contents = "true";
+    }
 
     // Respond with the given JSON.
     template <typename T>

@@ -5,6 +5,10 @@
 
 #include <Wt/Dbo/Impl.h>
 
+#include <algorithm>
+#include <cctype>
+#include <regex>
+
 DBO_INSTANTIATE_TEMPLATES(File_meta)
 
 namespace {
@@ -27,12 +31,14 @@ static int count_lines(const std::string& str)
 
 }
 
-File_meta::File_meta(const std::string& name,
-                     const dbo::ptr<Submission>& submission,
-                     int line_count)
+const int File_meta::max_byte_count = 5 * 1024 * 1024;
+
+File_meta::File_meta(const std::string& name, const dbo::ptr<Submission>& submission,
+                     int line_count, int byte_count)
         : name_{name}
         , submission_{submission}
         , line_count_{line_count}
+        , byte_count_{byte_count}
         , time_stamp_{Wt::WDateTime::currentDateTime()}
 { }
 
@@ -48,7 +54,8 @@ File_meta::upload(const std::string& name, const std::string& contents,
     }
 
     dbo::ptr<File_meta> result =
-            session.addNew<File_meta>(name, submission, count_lines(contents));
+            session.addNew<File_meta>(name, submission,
+                                      count_lines(contents), contents.size());
     session.addNew<File_data>(result, contents);
 
     submission.modify()->touch();
@@ -85,4 +92,33 @@ void File_meta::re_own(const dbo::ptr <Submission>& new_owner)
     }
 
     submission_ = new_owner;
+}
+
+static std::regex out_file_re(".*\\.out");
+
+bool File_meta::is_out_file() const
+{
+    return std::regex_match(name(), out_file_re);
+}
+
+bool operator<(const File_meta& a, const File_meta& b)
+{
+    bool a_out = a.is_out_file();
+    bool b_out = b.is_out_file();
+
+    // .out files sort after all other files
+    if (a_out && !b_out) return false;
+    if (b_out && !a_out) return true;
+
+    return std::lexicographical_compare(
+            a.name().begin(), a.name().end(),
+            b.name().begin(), b.name().end(),
+            [](char c1, char c2) {
+                char C1 = std::toupper(c1);
+                char C2 = std::toupper(c2);
+                if (C1 < C2) return -1;
+                if (C1 > C2) return 1;
+                return 0;
+            }
+    );
 }

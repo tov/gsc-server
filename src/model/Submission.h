@@ -52,6 +52,7 @@ public:
     Source_file_vec source_files_sorted() const;
     const Source_files& source_files() const { return source_files_; }
     size_t file_count() const;
+    int byte_count() const;
 
     const Wt::WDateTime& last_modified() const { return last_modified_; }
 
@@ -90,7 +91,11 @@ public:
     std::string url() const;
     std::string eval_url() const;
 
-    static const dbo::ptr<Self_eval>&
+    dbo::ptr<File_meta> find_file_by_name(const std::string&) const;
+
+    bool has_sufficient_space(int bytes, const std::string& filename) const;
+
+    static dbo::ptr<Self_eval>
     get_self_eval(const dbo::ptr<Eval_item>&,
                   const dbo::ptr<Submission>&);
 
@@ -113,6 +118,8 @@ public:
     find_by_assignment_and_user(dbo::Session&,
                                 const dbo::ptr<Assignment>&,
                                 const dbo::ptr<User>&);
+
+    static const int max_byte_count;
 
 private:
     dbo::ptr<User>       user1_;

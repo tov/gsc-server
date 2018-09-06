@@ -11,14 +11,13 @@
 #include <Wt/WDateTime.h>
 #include <Wt/Dbo/Impl.h>
 
-#include <algorithm>
-#include <cctype>
 #include <functional>
 #include <locale>
-#include <regex>
 #include <sstream>
 
 DBO_INSTANTIATE_TEMPLATES(Submission)
+
+const int Submission::max_byte_count = 20 * 1024 * 1024;
 
 Submission::Submission(const dbo::ptr <User>& user,
                        const dbo::ptr <Assignment>& assignment)
@@ -30,8 +29,6 @@ Submission::Submission(const dbo::ptr <User>& user,
 
 }
 
-static std::regex out_file_re(".*\\.out");
-
 Source_file_vec Submission::source_files_sorted() const
 {
     Source_file_vec result;
@@ -39,26 +36,8 @@ Source_file_vec Submission::source_files_sorted() const
     for (const auto& ptr : source_files_)
         result.push_back(ptr);
 
-    std::sort(result.begin(), result.end(), [](const auto& a, const auto& b) {
-        bool a_out = std::regex_match(a->name(), out_file_re);
-        bool b_out = std::regex_match(b->name(), out_file_re);
-
-        // .out files sort after all other files
-        if (a_out && !b_out) return false;
-        if (b_out && !a_out) return true;
-
-        return std::lexicographical_compare(
-                a->name().begin(), a->name().end(),
-                b->name().begin(), b->name().end(),
-                [](char c1, char c2) {
-                    char C1 = std::toupper(c1);
-                    char C2 = std::toupper(c2);
-                    if (C1 < C2) return -1;
-                    if (C1 > C2) return 1;
-                    return 0;
-                }
-        );
-    });
+    std::sort(result.begin(), result.end(),
+              [](const auto& a, const auto& b) { return *a < *b; });
 
     return result;
 }
@@ -66,6 +45,17 @@ Source_file_vec Submission::source_files_sorted() const
 size_t Submission::file_count() const
 {
     return source_files().size();
+}
+
+int Submission::byte_count() const
+{
+    int result = 0;
+
+    for (const auto& meta : source_files())
+        if (! meta->is_out_file())
+            result += meta->byte_count();
+
+    return result;
 }
 
 bool Submission::extended() const
@@ -137,7 +127,7 @@ double Submission::grade() const
     ).bind(id()).resultValue();
 }
 
-const dbo::ptr<Self_eval>&
+dbo::ptr<Self_eval>
 Submission::get_self_eval(const dbo::ptr<Eval_item>& eval_item,
                           const dbo::ptr<Submission>& submission)
 {
@@ -427,3 +417,21 @@ bool Submission::join_together(dbo::ptr <Submission> keep,
     return true;
 }
 
+dbo::ptr<File_meta>
+Submission::find_file_by_name(const std::string& filename) const
+{
+    return session()->find<File_meta>()
+           .where("name = ?").bind(filename)
+           .where("submission = ?").bind(id());
+}
+
+bool Submission::has_sufficient_space(int bytes,
+                                      const std::string& filename) const
+{
+    int remaining = max_byte_count - byte_count();
+
+    auto existing_file = find_file_by_name(filename);
+    if (existing_file) remaining += existing_file->byte_count();
+
+    return remaining >= bytes;
+}

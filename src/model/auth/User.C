@@ -118,12 +118,20 @@ std::string User::hw_url() const
     return "/~" + name() + "/hw";
 }
 
-Wt::Json::Value User::to_json() const
+std::string User::rest_uri() const
+{
+    std::ostringstream os;
+    os << "/api/users/" << name();
+    return os.str();
+}
+
+Wt::Json::Object User::to_json() const
 {
     Wt::Json::Object result;
     result["name"] = J::Value(name());
     result["role"] = J::Value(role_string());
-    return J::Value(result);
+    result["uri"] = J::Value(rest_uri());
+    return result;
 }
 
 const char* User::role_to_string(User::Role role)
