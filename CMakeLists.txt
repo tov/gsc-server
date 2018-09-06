@@ -27,6 +27,11 @@ set(SOURCE_FILES
         ${MODEL_SOURCE_FILES}
         src/Application_controller.C
         src/Navigate.h
+        src/view/api/Endpoint.C
+        src/view/api/Http_status.C
+        src/view/api/Path.C
+        src/view/api/Request_handler.C
+        src/view/api/Resource.C
         src/view/Abstract_file_view.C
         src/view/Accelerator_button.C
         src/view/Accelerator_text.C
@@ -57,7 +62,6 @@ set(SOURCE_FILES
         src/view/Explanation_edit_widget.C
         src/view/Partner_notifications_widget.C
         src/view/Response_widget.C
-        src/view/REST_endpoint.C
         src/view/Submission_owner_widget.C
         src/view/Submissions_view.C
         src/view/game/HangmanWidget.C

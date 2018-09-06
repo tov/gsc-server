@@ -1,15 +1,17 @@
 #pragma once
 
-#include "../model/Session.h"
+#include "../../model/Session.h"
 
 #include <Wt/Http/Request.h>
 #include <Wt/Http/Response.h>
 #include <Wt/WResource.h>
 
-class REST_endpoint : public Wt::WResource
+namespace api {
+
+class Endpoint : public Wt::WResource
 {
 public:
-    REST_endpoint(Wt::Dbo::SqlConnectionPool& pool);
+    Endpoint(Wt::Dbo::SqlConnectionPool& pool);
 
     void handleRequest(Wt::Http::Request const&,
                        Wt::Http::Response&) override;
@@ -17,3 +19,5 @@ public:
 private:
     Db_session session_;
 };
+
+} // end namespace api
