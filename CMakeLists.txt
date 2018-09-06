@@ -57,6 +57,7 @@ set(SOURCE_FILES
         src/view/Explanation_edit_widget.C
         src/view/Partner_notifications_widget.C
         src/view/Response_widget.C
+        src/view/REST_endpoint.C
         src/view/Submission_owner_widget.C
         src/view/Submissions_view.C
         src/view/game/HangmanWidget.C

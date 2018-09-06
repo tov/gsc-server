@@ -15,7 +15,7 @@
 #include <Wt/Dbo/Types.h>
 #include <Wt/Dbo/WtSqlTraits.h>
 
-#include <Wt/Http/Response.h>
+#include <Wt/Http/Response>
 
 #include <Wt/WAnchor.h>
 #include <Wt/WApplication.h>
@@ -35,6 +35,7 @@
 #include <Wt/WMenuItem.h>
 #include <Wt/WMessageBox.h>
 #include <Wt/WPushButton.h>
+#include <Wt/WResource.h>
 #include <Wt/WServer.h>
 #include <Wt/WString.h>
 #include <Wt/WSuggestionPopup.h>
