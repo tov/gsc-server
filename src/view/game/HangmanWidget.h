@@ -23,7 +23,7 @@ class LettersWidget;
 class HangmanWidget : public Wt::WContainerWidget
 {
 public:
-    HangmanWidget(Session& session, Wt::WContainerWidget* parent = 0);
+    HangmanWidget(Session& session);
 
 private:
     Session& session_;

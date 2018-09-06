@@ -21,7 +21,7 @@ class WTable;
 class LettersWidget : public Wt::WCompositeWidget
 {
 public:
-    LettersWidget(Wt::WContainerWidget* parent = 0);
+    LettersWidget();
 
     void reset();
 

@@ -7,11 +7,8 @@
 #include <Wt/WPushButton.h>
 #include <Wt/WTemplate.h>
 
-List_eval_item_widget::List_eval_item_widget(
-        const Submission::Item& model,
-        Evaluation_view& main,
-        Session& session,
-        Wt::WContainerWidget* parent)
+List_eval_item_widget::List_eval_item_widget(const Submission::Item& model, Evaluation_view& main,
+                                             Session& session)
         : Base_eval_item_widget(model, main, session)
 {
     add_item_heading_();

@@ -18,10 +18,8 @@
 class Edit_eval_item : public Wt::WContainerWidget
 {
 public:
-    Edit_eval_item(const dbo::ptr<Eval_item>&,
-                   Edit_assignment_view& main,
-                   Session&,
-                   Wt::WContainerWidget* parent = nullptr);
+    Edit_eval_item(const dbo::ptr<Eval_item>&, Edit_assignment_view& main,
+                   Session&);
 
     void reload();
 
@@ -47,9 +45,7 @@ private:
 };
 
 Edit_eval_item::Edit_eval_item(const dbo::ptr<Eval_item>& eval_item,
-                               Edit_assignment_view& main,
-                               Session& session,
-                               Wt::WContainerWidget* parent)
+                               Edit_assignment_view& main, Session& session)
         : eval_item_(eval_item),
           main_(main),
           session_(session),
@@ -168,10 +164,8 @@ void Edit_eval_item::reload()
     if (!in_edit_mode_) view_mode_();
 }
 
-Edit_assignment_view::Edit_assignment_view(
-        const Wt::Dbo::ptr<Assignment>& assignment,
-        Session& session,
-        Wt::WContainerWidget* parent)
+Edit_assignment_view::Edit_assignment_view(const dbo::ptr<Assignment>& assignment,
+                                           Session& session)
         : assignment_(assignment),
           session_(session)
 {
@@ -203,7 +197,7 @@ void Edit_assignment_view::more_()
 
 void Edit_assignment_view::add_item_(const dbo::ptr<Eval_item>& eval_item)
 {
-    auto widget = new Edit_eval_item(eval_item, *this, session_, container_);
+    auto widget = new Edit_eval_item(eval_item, *this, session_);
     items_.push_back(widget);
 }
 
@@ -225,7 +219,7 @@ void Edit_assignment_view::fewer_()
                 << self_eval_count << " self eval(s). "
                 << "Are you sure you want to delete it?";;
 
-        auto dialog = new Confirmation_dialog(message.str(), this);
+        auto dialog = new Confirmation_dialog(message.str());
         dialog->accepted().connect(this, &Edit_assignment_view::real_fewer_);
     }
 }

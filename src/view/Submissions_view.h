@@ -61,8 +61,7 @@ private:
 class Submissions_view : public Wt::WContainerWidget
 {
 public:
-    Submissions_view(const Wt::Dbo::ptr<User>&, Session&,
-                     Wt::WContainerWidget* parent = nullptr);
+    Submissions_view(const Wt::Dbo::ptr<User>&, Session&);
 
 private:
     Session& session_;

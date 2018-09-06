@@ -8,10 +8,8 @@
 #include <Wt/WTemplate.h>
 #include <Wt/WText.h>
 
-Base_eval_item_widget::Base_eval_item_widget(const Submission::Item& model,
-                                             Evaluation_view& main,
-                                             Session& session,
-                                             Wt::WContainerWidget* parent)
+Base_eval_item_widget::Base_eval_item_widget(const Submission::Item& model, Evaluation_view& main,
+                                             Session& session)
         : model_(model),
           main_(main),
           session_(session)

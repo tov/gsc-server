@@ -10,10 +10,7 @@ class Admin_response_widget;
 class Admin_eval_item_widget : public Single_eval_item_widget
 {
 public:
-    Admin_eval_item_widget(const Submission::Item&,
-                           Evaluation_view&,
-                           Session&,
-                           Wt::WContainerWidget* parent = nullptr);
+    Admin_eval_item_widget(const Submission::Item&, Evaluation_view&, Session&);
 
     using This = Admin_eval_item_widget;
 

@@ -15,9 +15,7 @@ class Edit_eval_item;
 class Edit_assignment_view : public Wt::WContainerWidget
 {
 public:
-    Edit_assignment_view(const dbo::ptr<Assignment>&,
-                         Session&,
-                         Wt::WContainerWidget* parent = nullptr);
+    Edit_assignment_view(const dbo::ptr<Assignment>&, Session&);
 
     void reload_all();
 

@@ -4,12 +4,9 @@
 
 #include <Wt/WText.h>
 
-Review_eval_item_widget::Review_eval_item_widget(
-        const Submission::Item& model,
-        Evaluation_view& main,
-        Session& session,
-        Wt::WContainerWidget* parent)
-        : Single_eval_item_widget(model, main, session, parent)
+Review_eval_item_widget::Review_eval_item_widget(const Submission::Item& model,
+                                                 Evaluation_view& main, Session& session)
+        : Single_eval_item_widget(model, main, session)
 {
     auto& eval_item = model.eval_item;
     auto& self_eval = model.self_eval;

@@ -5,5 +5,5 @@
 class Error_view : public Wt::WContainerWidget
 {
 public:
-    Error_view(const std::string& message);
+    explicit Error_view(const std::string& message);
 };

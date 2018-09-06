@@ -10,13 +10,11 @@ class File_viewer_widget;
 // Displays a student's self-eval explanations, with links to line tags.
 class Explanation_view_widget : public Wt::WCompositeWidget {
 public:
-    Explanation_view_widget(const std::string& content,
-                            Wt::WContainerWidget* parent = nullptr);
+    explicit Explanation_view_widget(const std::string& content);
 
     Explanation_view_widget(const std::string& content,
                             File_viewer_widget* viewer,
-                            const std::string& highlight_style,
-                            Wt::WContainerWidget* parent = nullptr);
+                            const std::string& highlight_style);
 
 private:
     File_viewer_widget* const viewer_;

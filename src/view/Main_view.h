@@ -12,7 +12,7 @@ class Session;
 class Main_view : public Wt::WContainerWidget
 {
 public:
-    Main_view(Session&, Wt::WContainerWidget* parent = nullptr);
+    explicit Main_view(Session&);
 
     void set_title(const Wt::WString&);
     void set_widget(std::unique_ptr<Wt::WWidget>);

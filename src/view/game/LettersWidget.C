@@ -13,7 +13,7 @@
 
 using namespace Wt;
 
-LettersWidget::LettersWidget(WContainerWidget* parent)
+LettersWidget::LettersWidget()
 {
     impl_ = setNewImplementation<WTable>();
 

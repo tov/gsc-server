@@ -15,7 +15,7 @@ class Session;
 class HighScoresWidget : public Wt::WContainerWidget
 {
 public:
-    HighScoresWidget(Session& session, Wt::WContainerWidget* parent = 0);
+    HighScoresWidget(Session& session);
     void update();
 
 private:

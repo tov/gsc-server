@@ -8,11 +8,8 @@
 
 #include <Wt/WText.h>
 
-Admin_eval_item_widget::Admin_eval_item_widget(
-        const Submission::Item& model,
-        Evaluation_view& main,
-        Session& session,
-        Wt::WContainerWidget* parent)
+Admin_eval_item_widget::Admin_eval_item_widget(const Submission::Item& model, Evaluation_view& main,
+                                               Session& session)
         : Single_eval_item_widget(model, main, session)
 {
     load_();

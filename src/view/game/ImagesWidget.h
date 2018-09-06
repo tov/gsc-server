@@ -17,7 +17,7 @@ class ImagesWidget : public Wt::WContainerWidget
 public:
   static const int HURRAY;
 
-  ImagesWidget(int maxGuesses, Wt::WContainerWidget *parent = 0);
+  ImagesWidget(int maxGuesses);
 
   /*
    * 0 - maxGuesses: corresponds to 0 up to maxGuesses guesses

@@ -27,7 +27,7 @@ namespace {
 const int MaxGuesses = 9;
 }
 
-HangmanWidget::HangmanWidget(Session& session, WContainerWidget* parent)
+HangmanWidget::HangmanWidget(Session& session)
         : session_(session),
           badGuesses_(0)
 {

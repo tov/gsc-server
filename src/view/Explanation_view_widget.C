@@ -6,15 +6,13 @@
 #include <cctype>
 #include <cstdlib>
 
-Explanation_view_widget::Explanation_view_widget(const std::string& content,
-                                                 Wt::WContainerWidget* parent)
-        : Explanation_view_widget(content, nullptr, {}, parent)
+Explanation_view_widget::Explanation_view_widget(const std::string& content)
+        : Explanation_view_widget(content, nullptr, {})
 { }
 
 Explanation_view_widget::Explanation_view_widget(const std::string& content,
                                                  File_viewer_widget* viewer,
-                                                 const std::string& highlight_style,
-                                                 Wt::WContainerWidget* parent)
+                                                 const std::string& highlight_style)
         : viewer_(viewer),
           highlight_style_(highlight_style)
 {

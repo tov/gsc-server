@@ -28,9 +28,7 @@ private:
 class File_list_widget : public Wt::WTable
 {
 public:
-    File_list_widget(const Wt::Dbo::ptr<Submission>&,
-                     Session& session,
-                     Wt::WContainerWidget* parent = nullptr);
+    File_list_widget(const Wt::Dbo::ptr<Submission>&, Session& session);
 
     void reload();
 

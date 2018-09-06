@@ -12,7 +12,7 @@
 
 using namespace Wt;
 
-Main_view::Main_view(Session& session, WContainerWidget* parent)
+Main_view::Main_view(Session& session)
         : session_(session)
 {
     auto h1 = addNew<WTemplate>("<h1>${home} <small>${title}</small></h1>");

@@ -2,7 +2,7 @@
 
 #include <Wt/WLocalDateTime.h>
 
-Date_time_edit::Date_time_edit(Wt::WContainerWidget* parent)
+Date_time_edit::Date_time_edit()
 {
     auto impl = setNewImplementation<Wt::WContainerWidget>();
 

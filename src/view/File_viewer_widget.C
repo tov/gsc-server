@@ -18,20 +18,15 @@ class Single_file_viewer : Wt::WContainerWidget
 {
 public:
     Single_file_viewer(const Wt::Dbo::ptr<File_meta>& source_file,
-                       int file_number,
-                       int& first_line_number,
-                       std::vector<Wt::WTableRow*>& lines,
-                       const File_viewer_widget* viewer,
-                       Wt::WContainerWidget* parent = nullptr);
+                           int file_number, int& first_line_number,
+                           std::vector<Wt::WTableRow*>& lines,
+                           const File_viewer_widget* viewer);
 };
 
-Single_file_viewer::Single_file_viewer(
-        const Wt::Dbo::ptr<File_meta>& source_file,
-        int file_number,
-        int& line_number,
-        std::vector<Wt::WTableRow*>& lines,
-        const File_viewer_widget* viewer,
-        Wt::WContainerWidget* parent)
+Single_file_viewer::Single_file_viewer(const Wt::Dbo::ptr<File_meta>& source_file,
+                                       int file_number, int& line_number,
+                                       std::vector<Wt::WTableRow*>& lines,
+                                       const File_viewer_widget* viewer)
 {
     setId(viewer->file_id(file_number));
 
@@ -56,10 +51,8 @@ Single_file_viewer::Single_file_viewer(
     }
 }
 
-File_viewer_widget::File_viewer_widget(
-        const Wt::Dbo::ptr<Submission>& submission,
-        Session& session,
-        Wt::WContainerWidget* parent)
+File_viewer_widget::File_viewer_widget(const Wt::Dbo::ptr<Submission>& submission,
+                                       Session& session)
         : session_(session),
           submission_(submission)
 {
@@ -100,7 +93,7 @@ void File_viewer_widget::reload()
 
     for (const auto& file : files) {
         new Single_file_viewer(file, file_number++, line_number, lines_,
-                               this, file_contents_);
+                               this);
     }
 }
 

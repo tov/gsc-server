@@ -10,9 +10,7 @@ class Submission;
 class Submission_owner_widget : public Wt::WCompositeWidget
 {
 public:
-    Submission_owner_widget(const Wt::Dbo::ptr<Submission>&,
-                            Session&,
-                            Wt::WContainerWidget* parent = nullptr);
+    Submission_owner_widget(const Wt::Dbo::ptr<Submission>&, Session&);
 
 private:
     Session& session_;

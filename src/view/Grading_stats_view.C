@@ -21,8 +21,7 @@ struct Grader_stats_view_model_row {
 using Grader_stats_view_model
     = std::map<std::string, Grader_stats_view_model_row>;
 
-Grading_stats_view::Grading_stats_view(Session& session,
-                                     Wt::WContainerWidget* parent)
+Grading_stats_view::Grading_stats_view(Session& session)
         : session_(session)
 {
     Grader_stats_view_model model;

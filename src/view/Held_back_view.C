@@ -13,13 +13,10 @@
 class Self_eval_table : public Wt::WContainerWidget
 {
 public:
-    Self_eval_table(const dbo::collection<dbo::ptr<Self_eval>>&,
-                    Wt::WContainerWidget* parent = nullptr);
+    explicit Self_eval_table(const dbo::collection<dbo::ptr<Self_eval>>&);
 };
 
-Self_eval_table::Self_eval_table(
-        const dbo::collection<dbo::ptr<Self_eval>>& model,
-        Wt::WContainerWidget* parent)
+Self_eval_table::Self_eval_table(const dbo::collection<dbo::ptr<Self_eval>>& model)
 {
     auto table = addNew<Wt::WTable>();
 
@@ -40,7 +37,7 @@ Self_eval_table::Self_eval_table(
     }
 }
 
-Held_back_view::Held_back_view(Session& session, Wt::WContainerWidget* parent)
+Held_back_view::Held_back_view(Session& session)
         : session_(session)
 {
     auto container = setNewImplementation<Wt::WContainerWidget>();

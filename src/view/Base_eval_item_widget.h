@@ -11,10 +11,7 @@ class Session;
 class Base_eval_item_widget : public Wt::WContainerWidget
 {
 public:
-    Base_eval_item_widget(const Submission::Item&,
-                          Evaluation_view&,
-                          Session&,
-                          Wt::WContainerWidget* parent = nullptr);
+    Base_eval_item_widget(const Submission::Item&, Evaluation_view&, Session&);
 
 protected:
     const Submission::Item& model_;

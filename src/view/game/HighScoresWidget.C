@@ -19,7 +19,7 @@
 
 using namespace Wt;
 
-HighScoresWidget::HighScoresWidget(Session& session, WContainerWidget* parent)
+HighScoresWidget::HighScoresWidget(Session& session)
         : session_(session)
 {
     setContentAlignment(AlignmentFlag::Center);

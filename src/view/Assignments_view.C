@@ -211,7 +211,7 @@ void Assignments_view::fewer_()
                 << eval_item_count << " eval item(s). Are you sure you want "
                 "to delete it?";
 
-        auto dialog = new Confirmation_dialog(message.str(), this);
+        auto dialog = new Confirmation_dialog(message.str());
         dialog->accepted().connect(this, &Assignments_view::real_fewer_);
     }
 }

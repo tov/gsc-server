@@ -6,11 +6,8 @@
 #include "../model/Self_eval.h"
 #include "../model/Session.h"
 
-Self_eval_item_widget::Self_eval_item_widget(
-        const Submission::Item& model,
-        Evaluation_view& main,
-        Session& session,
-        Wt::WContainerWidget* parent)
+Self_eval_item_widget::Self_eval_item_widget(const Submission::Item& model, Evaluation_view& main,
+                                             Session& session)
         : Single_eval_item_widget(model, main, session)
 {
     auto response_widget = Response_widget::create(model.eval_item->type());

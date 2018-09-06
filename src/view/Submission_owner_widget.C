@@ -17,10 +17,8 @@
 
 #include <sstream>
 
-Submission_owner_widget::Submission_owner_widget(
-        const dbo::ptr<Submission>& submission,
-        Session& session,
-        Wt::WContainerWidget* parent)
+Submission_owner_widget::Submission_owner_widget(const Wt::Dbo::ptr<Submission>& submission,
+                                                 Session& session)
         : session_(session),
           submission_(submission)
 {

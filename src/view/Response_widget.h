@@ -9,10 +9,8 @@
 class Response_widget : public Wt::WCompositeWidget
 {
 public:
-    Response_widget(Wt::WContainerWidget* parent = nullptr);
-
     static std::unique_ptr<Response_widget>
-    create(Eval_item::Type, Wt::WContainerWidget* parent = nullptr);
+    create(Eval_item::Type);
 
     virtual bool is_ready() const = 0;
 
@@ -26,6 +24,8 @@ public:
     virtual ~Response_widget() { }
 
 protected:
+    Response_widget();
+
     Wt::WContainerWidget* container_;
     void signal_change();
 

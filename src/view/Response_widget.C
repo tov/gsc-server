@@ -5,7 +5,7 @@
 #include <Wt/WSlider.h>
 #include <Wt/WTextArea.h>
 
-Response_widget::Response_widget(Wt::WContainerWidget* parent)
+Response_widget::Response_widget()
 {
     container_ = setNewImplementation<Wt::WContainerWidget>();
 }
@@ -13,7 +13,7 @@ Response_widget::Response_widget(Wt::WContainerWidget* parent)
 class Explanation_response_widget : public Response_widget
 {
 public:
-    Explanation_response_widget(Wt::WContainerWidget* parent = nullptr);
+    Explanation_response_widget();
 
     virtual std::string explanation() const override;
     virtual void set_explanation(const std::string& string) override;
@@ -24,8 +24,8 @@ protected:
     Wt::WTextArea* explanation_;
 };
 
-Explanation_response_widget::Explanation_response_widget(
-        Wt::WContainerWidget* parent)
+Explanation_response_widget::Explanation_response_widget()
+        : Response_widget()
 {
     score_ = container_->addNew<Wt::WContainerWidget>();
     score_->setStyleClass("score");
@@ -57,7 +57,7 @@ void Explanation_response_widget::set_explanation(const std::string& s)
 class Boolean_response_widget : public Explanation_response_widget
 {
 public:
-    Boolean_response_widget(Wt::WContainerWidget* parent = nullptr);
+    Boolean_response_widget();
 
     virtual bool is_ready() const override;
     virtual double value() const override;
@@ -71,8 +71,7 @@ private:
     void toggle_explanation_();
 };
 
-Boolean_response_widget::Boolean_response_widget(Wt::WContainerWidget* parent)
-        : Explanation_response_widget(parent)
+Boolean_response_widget::Boolean_response_widget()
 {
     no_yes_ = std::make_shared<Wt::WButtonGroup>();
     no_     = score_->addNew<Wt::WRadioButton>("No");
@@ -116,7 +115,7 @@ void Boolean_response_widget::toggle_explanation_()
 class Scale_response_widget : public Explanation_response_widget
 {
 public:
-    Scale_response_widget(Wt::WContainerWidget* parent = nullptr);
+    Scale_response_widget();
 
     virtual bool is_ready() const override;
     virtual double value() const override;
@@ -129,8 +128,7 @@ private:
     void slider_change_();
 };
 
-Scale_response_widget::Scale_response_widget(Wt::WContainerWidget* parent)
-        : Explanation_response_widget(parent)
+Scale_response_widget::Scale_response_widget()
 {
     slider_ = score_->addNew<Wt::WSlider>();
     slider_->resize(200, 50);
@@ -169,7 +167,7 @@ void Scale_response_widget::slider_change_()
 class Informational_response_widget : public Response_widget
 {
 public:
-    Informational_response_widget(Wt::WContainerWidget* parent = nullptr);
+    Informational_response_widget();
 
     virtual bool is_ready() const override;
 
@@ -179,9 +177,8 @@ public:
     virtual void set_explanation(const std::string&) override;
 };
 
-Informational_response_widget::Informational_response_widget(
-        Wt::WContainerWidget* parent)
-        : Response_widget(parent)
+Informational_response_widget::Informational_response_widget()
+        : Response_widget()
 { }
 
 bool Informational_response_widget::is_ready() const
@@ -200,8 +197,7 @@ void Informational_response_widget::set_explanation(const std::string&)
 { }
 
 std::unique_ptr<Response_widget>
-Response_widget::create(Eval_item::Type type,
-                        Wt::WContainerWidget* parent)
+Response_widget::create(Eval_item::Type type)
 {
     switch (type) {
         case Eval_item::Type::Boolean:

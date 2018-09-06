@@ -28,8 +28,7 @@
 class Date_list : public Wt::WTable
 {
 public:
-    Date_list(const Wt::Dbo::ptr<Submission>&,
-              Wt::WContainerWidget* parent = nullptr);
+    explicit Date_list(const Wt::Dbo::ptr<Submission>&);
 
     void reload();
 
@@ -62,8 +61,7 @@ private:
 
 const Wt::WString Date_list::date_format_ = "ddd, MMM d 'at' h:mm AP";
 
-Date_list::Date_list(const Wt::Dbo::ptr<Submission>& submission,
-                     Wt::WContainerWidget* parent)
+Date_list::Date_list(const Wt::Dbo::ptr<Submission>& submission)
         : submission_(submission)
 {
     setStyleClass("date-list");
@@ -151,10 +149,8 @@ void File_uploader::too_large_()
     message_box->show();
 }
 
-File_manager_view::File_manager_view(
-        const Wt::Dbo::ptr<Submission>& submission,
-        Session& session,
-        Wt::WContainerWidget* parent)
+File_manager_view::File_manager_view(const Wt::Dbo::ptr<Submission>& submission,
+                                     Session& session)
         : Abstract_file_view(submission, session)
 {
     right_column_->addNew<Submission_owner_widget>(submission_, session_);

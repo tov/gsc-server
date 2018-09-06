@@ -10,9 +10,7 @@ class Submission;
 class Evaluation_view : public Abstract_file_view
 {
 public:
-    Evaluation_view(const Wt::Dbo::ptr<Submission>&,
-                    Session&,
-                    Wt::WContainerWidget* parent = nullptr);
+    Evaluation_view(const Wt::Dbo::ptr<Submission>&, Session&);
 
     void go_to(unsigned int);
     void go_default();

@@ -12,7 +12,7 @@ using namespace Wt;
 
 const int ImagesWidget::HURRAY = -1;
 
-ImagesWidget::ImagesWidget(int maxGuesses, WContainerWidget *parent)
+ImagesWidget::ImagesWidget(int maxGuesses)
 {
   for (int i = 0; i <= maxGuesses; ++i) {
     std::string fname = "/images/hangman";

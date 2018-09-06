@@ -25,16 +25,12 @@
 class Abstract_grading_widget : public Wt::WCompositeWidget
 {
 public:
-    Abstract_grading_widget(const dbo::ptr<Grader_eval>&,
-                            Session&,
-                            Wt::WContainerWidget* parent = nullptr);
+    Abstract_grading_widget(const dbo::ptr<Grader_eval>&, Session&);
 
     // Creates an object of the correct derived class as determined by the
     // Type of the Grader_eval.
     static std::unique_ptr<Abstract_grading_widget>
-    create(const dbo::ptr<Grader_eval>&,
-           Session&,
-           Wt::WContainerWidget* parent = nullptr);
+    create(const dbo::ptr<Grader_eval>&, Session&);
 
     virtual ~Abstract_grading_widget();
 
@@ -64,9 +60,7 @@ private:
 class Boolean_grading_widget : public Abstract_grading_widget
 {
 public:
-    Boolean_grading_widget(const dbo::ptr<Grader_eval>&,
-                           Session&,
-                           Wt::WContainerWidget* parent = nullptr);
+    Boolean_grading_widget(const dbo::ptr<Grader_eval>&, Session&);
 
 private:
     void yes_action_();
@@ -77,9 +71,7 @@ private:
 class Scale_grading_widget : public Abstract_grading_widget
 {
 public:
-    Scale_grading_widget(const dbo::ptr<Grader_eval>&,
-                         Session&,
-                         Wt::WContainerWidget* parent = nullptr);
+    Scale_grading_widget(const dbo::ptr<Grader_eval>&, Session&);
 
 protected:
     // Saves the Grader_eval in held-back status with current score.
@@ -100,9 +92,7 @@ private:
 };
 
 std::unique_ptr<Abstract_grading_widget>
-Abstract_grading_widget::create(const dbo::ptr <Grader_eval>& grader_eval,
-                                Session& session,
-                                Wt::WContainerWidget* parent)
+Abstract_grading_widget::create(const dbo::ptr<Grader_eval>& grader_eval, Session& session)
 {
     switch (grader_eval->self_eval()->eval_item()->type()) {
         case Eval_item::Type::Boolean:
@@ -113,10 +103,8 @@ Abstract_grading_widget::create(const dbo::ptr <Grader_eval>& grader_eval,
     }
 }
 
-Abstract_grading_widget::Abstract_grading_widget(
-        const dbo::ptr<Grader_eval>& model,
-        Session& session,
-        Wt::WContainerWidget* parent)
+Abstract_grading_widget::Abstract_grading_widget(const dbo::ptr<Grader_eval>& model,
+                                                 Session& session)
         : model_(model),
           session_(session)
 {
@@ -162,11 +150,9 @@ void Abstract_grading_widget::save_(Grader_eval::Status status, double score)
     Navigate::to("/grade");
 }
 
-Boolean_grading_widget::Boolean_grading_widget(
-        const dbo::ptr<Grader_eval>& model,
-        Session& session,
-        Wt::WContainerWidget* parent)
-        : Abstract_grading_widget(model, session, parent)
+Boolean_grading_widget::Boolean_grading_widget(const dbo::ptr<Grader_eval>& model,
+                                               Session& session)
+        : Abstract_grading_widget(model, session)
 {
     auto yes_button = buttons_->addNew<Wt::WPushButton>("Yes");
     yes_button->clicked().connect(this, &Boolean_grading_widget::yes_action_);
@@ -186,9 +172,7 @@ void Boolean_grading_widget::no_action_()
     save_(Grader_eval::Status::ready, 0);
 }
 
-Scale_grading_widget::Scale_grading_widget(const dbo::ptr<Grader_eval>& model,
-                                           Session& session,
-                                           Wt::WContainerWidget* parent)
+Scale_grading_widget::Scale_grading_widget(const dbo::ptr<Grader_eval>& model, Session& session)
         : Abstract_grading_widget(model, session)
 {
     edit_ = buttons_->addNew<Unit_line_edit>();
@@ -239,9 +223,7 @@ void Scale_grading_widget::save_(Grader_eval::Status status)
     }
 }
 
-Grading_view::Grading_view(const Wt::Dbo::ptr<Self_eval> self_eval,
-                           Session& session,
-                           Wt::WContainerWidget* parent)
+Grading_view::Grading_view(const Wt::Dbo::ptr<Self_eval> self_eval, Session& session)
         : Abstract_file_view(self_eval->submission(), session),
           model_(self_eval)
 {

@@ -10,7 +10,7 @@ class Date_time_validator;
 class Date_time_edit : public Wt::WCompositeWidget
 {
 public:
-    Date_time_edit(Wt::WContainerWidget* parent = nullptr);
+    Date_time_edit();
 
     void set_date_time(const Wt::WDateTime&);
     Wt::WDateTime date_time() const;

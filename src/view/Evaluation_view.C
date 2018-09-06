@@ -23,9 +23,8 @@
 #include <Wt/WTemplate.h>
 #include <Wt/WText.h>
 
-Evaluation_view::Evaluation_view(const dbo::ptr<Submission>& submission,
-                                 Session& session,
-                                 Wt::WContainerWidget* parent)
+Evaluation_view::Evaluation_view(const Wt::Dbo::ptr<Submission>& submission,
+                                 Session& session)
         : Abstract_file_view(submission, session)
 {
     load_();

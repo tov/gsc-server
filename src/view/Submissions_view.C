@@ -350,9 +350,7 @@ Submissions_view_row::construct(const Submissions_view_model_item& model,
     }
 }
 
-Submissions_view::Submissions_view(const Wt::Dbo::ptr<User>& user,
-                                   Session& session,
-                                   Wt::WContainerWidget* parent)
+Submissions_view::Submissions_view(const Wt::Dbo::ptr<User>& user, Session& session)
         : session_(session),
           model_(std::make_unique<Submissions_view_model>())
 {

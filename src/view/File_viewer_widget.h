@@ -18,9 +18,7 @@ class WComboBox;
 class File_viewer_widget : public Wt::WCompositeWidget
 {
 public:
-    File_viewer_widget(const Wt::Dbo::ptr<Submission>&,
-                       Session&,
-                       Wt::WContainerWidget* parent = nullptr);
+    File_viewer_widget(const Wt::Dbo::ptr<Submission>&, Session&);
 
     void reload();
 

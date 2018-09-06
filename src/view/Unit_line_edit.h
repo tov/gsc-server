@@ -1,7 +1,6 @@
 #pragma once
 
 #include <Wt/WCompositeWidget.h>
-#include <Wt/WContainerWidget.h>
 #include <Wt/WLineEdit.h>
 #include <Wt/WSignal.h>
 

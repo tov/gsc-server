@@ -1,14 +1,12 @@
 #pragma once
 
-#include <Wt/WContainerWidget.h>
 #include <Wt/WDialog.h>
 #include <Wt/WSignal.h>
 
 class Confirmation_dialog : public Wt::WDialog
 {
 public:
-    Confirmation_dialog(const std::string& message,
-                        Wt::WObject* parent = nullptr);
+    explicit Confirmation_dialog(const std::string& message);
 
     Wt::Signal<>& accepted() { return accepted_; }
     Wt::Signal<>& rejected() { return rejected_; }

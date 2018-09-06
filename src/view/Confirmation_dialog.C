@@ -4,8 +4,7 @@
 #include <Wt/WPushButton.h>
 #include <Wt/WText.h>
 
-Confirmation_dialog::Confirmation_dialog(const std::string& message,
-                                         Wt::WObject* parent)
+Confirmation_dialog::Confirmation_dialog(const std::string& message)
         : WDialog("Confirm action")
 {
     contents()->addNew<Wt::WText>(message);

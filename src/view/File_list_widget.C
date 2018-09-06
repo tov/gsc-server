@@ -16,7 +16,7 @@
 class File_resource : public Wt::WResource
 {
 public:
-    File_resource(const Wt::Dbo::ptr<File_meta>&, Wt::WObject* parent);
+    explicit File_resource(const Wt::Dbo::ptr<File_meta>&);
     ~File_resource();
 
     void handleRequest(const Wt::Http::Request&, Wt::Http::Response&) override;
@@ -26,8 +26,7 @@ private:
 };
 
 File_list_widget::File_list_widget(const Wt::Dbo::ptr<Submission>& submission,
-                                   Session& session,
-                                   Wt::WContainerWidget* parent)
+                                   Session& session)
         : submission_(submission),
           session_(session)
 {
@@ -53,7 +52,7 @@ void File_list_widget::reload()
     int row = 1;
 
     for (Wt::Dbo::ptr<File_meta> file : submission_->source_files_sorted()) {
-        auto download = std::make_shared<File_resource>(file, this);
+        auto download = std::make_shared<File_resource>(file);
 
         auto anchor = elementAt(row, 0)->addNew<Wt::WAnchor>(
                 Wt::WLink(download), file->name());
@@ -78,8 +77,7 @@ void File_list_widget::reload()
     }
 }
 
-File_resource::File_resource(const Wt::Dbo::ptr<File_meta>& source_file,
-                             Wt::WObject* parent)
+File_resource::File_resource(const Wt::Dbo::ptr<File_meta>& source_file)
         : source_file_(source_file)
 {
     suggestFileName(source_file_->name());

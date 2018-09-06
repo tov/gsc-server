@@ -8,7 +8,7 @@ class Session;
 class Admin_view : public Wt::WContainerWidget
 {
 public:
-    Admin_view(Session&);
+    explicit Admin_view(Session&);
 
 private:
     Session& session_;

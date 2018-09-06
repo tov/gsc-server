@@ -13,7 +13,7 @@
 class WordWidget : public Wt::WContainerWidget
 {
 public:
-  WordWidget(Wt::WContainerWidget *parent = 0);
+  WordWidget();
 
   std::wstring word() const { return word_; } 
 

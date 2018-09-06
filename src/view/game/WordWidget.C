@@ -10,7 +10,7 @@
 
 using namespace Wt;
 
-WordWidget::WordWidget(WContainerWidget *parent)
+WordWidget::WordWidget()
 {
   addStyleClass("wordcontainer");
 }
