@@ -85,7 +85,8 @@ void File_list_widget::reload()
 File_resource::File_resource(const Wt::Dbo::ptr<File_meta>& source_file)
         : source_file_(source_file)
 {
-    suggestFileName(source_file_->name());
+    suggestFileName(source_file_->name(),
+                    Wt::ContentDisposition::Inline);
 }
 
 File_resource::~File_resource()
