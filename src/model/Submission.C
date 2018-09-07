@@ -477,8 +477,34 @@ J::Object Submission::to_json(bool brief) const
         result["files_uri"] = J::Value(rest_files_uri());
         result["bytes_used"] = J::Value(byte_count());
         result["bytes_remaining"] = J::Value(remaining_space());
+        result["status"] = J::Value(status_to_string(status()));
+        result["eval_status"] = J::Value(eval_status_to_string(eval_status()));
     }
 
     return result;
 }
 
+char const* Submission::status_to_string(Status status)
+{
+    using S = Status;
+
+    switch (status) {
+        case S::future: return "future";
+        case S::open: return "open";
+        case S::self_eval: return "self_eval";
+        case S::extended: return "extended";
+        case S::extended_eval: return "extended_eval";
+        case S::closed: return "closed";
+    }
+}
+
+char const* Submission::eval_status_to_string(Eval_status status)
+{
+    using S = Eval_status;
+
+    switch (status) {
+        case S::empty: return "empty";
+        case S::started: return "started";
+        case S::complete: return "complete";
+    }
+}

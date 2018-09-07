@@ -73,8 +73,9 @@ Request_handler::set_cookie_(std::string const& value, int ttl_seconds) const
 
     std::ostringstream out_cookie;
     out_cookie << cookie_name << "=" << value
-               << "; Expires="
-               << expiry.toString("ddd, d MMM yyyy hh:mm:ss 'GMT'");
+            << "; Path=/api"
+            << "; Expires="
+            << expiry.toString("ddd, d MMM yyyy hh:mm:ss 'GMT'");
 
     response_.addHeader("Set-Cookie", out_cookie.str());
 }

@@ -83,6 +83,9 @@ public:
     double grade() const;
     std::string grade_string() const;
 
+    static char const* status_to_string(Status);
+    static char const* eval_status_to_string(Eval_status);
+
     bool can_view(const dbo::ptr<User>&) const;
     bool can_submit(const dbo::ptr<User>&) const;
     bool can_eval(const dbo::ptr <User>&) const;
