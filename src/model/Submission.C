@@ -6,6 +6,7 @@
 #include "File_meta.h"
 #include "Grader_eval.h"
 #include "../Session.h"
+#include "../view/api/common.h"
 #include "auth/User.h"
 
 #include <Wt/WDateTime.h>
@@ -14,6 +15,8 @@
 #include <functional>
 #include <locale>
 #include <sstream>
+
+namespace J = Wt::Json;
 
 DBO_INSTANTIATE_TEMPLATES(Submission)
 
@@ -51,13 +54,15 @@ size_t Submission::file_count() const
 
 int Submission::byte_count() const
 {
-    int result = 0;
+    if (byte_count_ == -1) {
+        byte_count_ = 0;
 
-    for (const auto& meta : source_files())
-        if (! meta->is_out_file())
-            result += meta->byte_count();
+        for (const auto& meta : source_files())
+            if (! meta->is_out_file())
+                byte_count_ += meta->byte_count();
+    }
 
-    return result;
+    return byte_count_;
 }
 
 bool Submission::extended() const
@@ -441,5 +446,39 @@ bool Submission::has_sufficient_space(int bytes,
     if (existing_file) remaining += existing_file->byte_count();
 
     return remaining >= bytes;
+}
+
+std::string Submission::rest_uri() const
+{
+    std::ostringstream os;
+    os << "/users/" << user1()->name() << "/hws/" << assignment()->number();
+    return os.str();
+}
+
+std::string Submission::rest_files_uri() const
+{
+    return rest_uri() + "/files";
+}
+
+J::Object Submission::to_json(bool brief) const
+{
+    J::Object result;
+
+    result["uri"] = J::Value(rest_uri());
+    result["owner1"] = J::Value(user1()->to_json(true));
+    if (user2())
+        result["owner2"] = J::Value(user2()->to_json(true));
+
+    result["assignment_number"] = J::Value(assignment()->number());
+    if (!brief) {
+        result["due_date"] = json_format(effective_due_date());
+        result["eval_date"] = json_format(effective_eval_date());
+        result["last_modified"] = json_format(last_modified());
+        result["files_uri"] = J::Value(rest_files_uri());
+        result["bytes_used"] = J::Value(byte_count());
+        result["bytes_remaining"] = J::Value(remaining_space());
+    }
+
+    return result;
 }
 

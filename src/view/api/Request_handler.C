@@ -1,5 +1,6 @@
 #include "Request_handler.h"
 #include "Http_status.h"
+#include "common.h"
 
 #include <Wt/Auth/AuthService.h>
 #include <Wt/Utils.h>

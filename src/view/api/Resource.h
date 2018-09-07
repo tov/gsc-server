@@ -63,6 +63,15 @@ protected:
         contents = Wt::Json::serialize(json);
     }
 
+    static Wt::Dbo::ptr<User>
+    load_user(Context const&, std::string const& username);
+
+    static Wt::Dbo::ptr<Assignment>
+    load_assignment(Context const&, int number);
+
+    static Wt::Dbo::ptr<Submission>
+    load_submission(Context const&, std::string const& username, int number);
+
     // Give up.
     static void denied [[noreturn]] (int code);
     static void not_found [[noreturn]] ();

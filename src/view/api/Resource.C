@@ -2,8 +2,10 @@
 #include "Http_status.h"
 #include "Request_body.h"
 #include "Request_handler.h"
-#include "../../model/auth/User.h"
 #include "../../Session.h"
+#include "../../model/auth/User.h"
+#include "../../model/Submission.h"
+#include "../../model/Assignment.h"
 #include "../../model/File_meta.h"
 
 #include <Wt/Json/Value.h>
@@ -96,13 +98,40 @@ private:
     dbo::ptr<User> user_;
 };
 
-void Users_1::load(Context const& context)
+dbo::ptr<User>
+Base::load_user(Context const& context, std::string const& username)
 {
-    if (context.user->name() != username_ && !context.user->can_admin())
+    if (context.user->name() != username && !context.user->can_grade())
         denied(2);
 
-    user_ = User::find_by_name(context.session, username_);
-    if (!user_) not_found();
+    auto user = User::find_by_name(context.session, username);
+    if (user) return user;
+
+    not_found();
+}
+
+Wt::Dbo::ptr<Assignment>
+Base::load_assignment(const Base::Context& context, int number)
+{
+    auto result = Assignment::find_by_number(context.session, number);
+    if (result) return result;
+    not_found();
+}
+
+Wt::Dbo::ptr<Submission>
+Base::load_submission(Context const& context,
+                      std::string const& username,
+                      int number)
+{
+    auto user = load_user(context, username);
+    auto assignment = load_assignment(context, number);
+    return Submission::find_by_assignment_and_user(
+            context.session, assignment, user);
+}
+
+void Users_1::load(Context const& context)
+{
+    user_ = load_user(context, username_);
 }
 
 void Users_1::do_get_(Context const&)
@@ -143,9 +172,6 @@ void Users_1::do_patch_(Request_body body, Context const& context)
         }
 
         else if (pair.first == "password") {
-            if (context.user != user_ && !context.user->can_admin())
-                denied(5);
-
             if (!context.user->can_admin()) {
                 Credentials creds{user_->name(), pair.second};
                 Request_handler::check_password_strength(creds);
@@ -169,13 +195,29 @@ public:
 
     void load(Context const&) override;
 
+protected:
+    void do_get_(Context const& context) override;
+
 private:
     std::string username_;
+    dbo::ptr<User> user_;
+    std::vector<dbo::ptr<Submission>> submissions_;
 };
 
-void Users_1_hws::load(Context const&)
+void Users_1_hws::load(Context const& context)
 {
+    user_ = load_user(context, username_);
+    submissions_ = user_->submissions();
+}
 
+void Users_1_hws::do_get_(const Base::Context& context)
+{
+    std::cerr << "***** HI HI HI HI **** \n\n\n";
+    J::Array result;
+    for (const auto& each : submissions_) {
+        result.push_back(each->to_json(true));
+    }
+    use_json(result);
 }
 
 class Users_1_hws_2 : public Base
@@ -185,22 +227,32 @@ public:
             : username_{std::move(username)}, hw_number_{hw_number} {}
 
     void load(Context const&) override;
-
+protected:
+    void do_get_(Context const& context) override;
 private:
     std::string username_;
     int hw_number_;
+
+    dbo::ptr<Submission> submission_;
 };
 
-void Users_1_hws_2::load(Context const&)
+void Users_1_hws_2::load(Context const& context)
 {
+    submission_ = load_submission(context, username_, hw_number_);
+}
 
+void Users_1_hws_2::do_get_(const Base::Context& context)
+{
+    use_json(submission_->to_json());
 }
 
 class Users_1_hws_2_files : public Base
 {
 public:
     Users_1_hws_2_files(std::string username, int hw_number)
-            : username_{std::move(username)}, hw_number_{hw_number} {}
+            : username_{std::move(username)}
+            , hw_number_{hw_number}
+    { }
 
     void load(Context const&) override;
 

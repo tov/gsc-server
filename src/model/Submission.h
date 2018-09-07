@@ -122,6 +122,10 @@ public:
 
     static const int max_byte_count;
 
+    std::string rest_uri() const;
+    std::string rest_files_uri() const;
+    Wt::Json::Object to_json(bool brief = false) const;
+
 private:
     dbo::ptr<User>       user1_;
     dbo::ptr<User>       user2_;
@@ -140,6 +144,9 @@ private:
     mutable Eval_status eval_status_;
     mutable bool is_graded_;
     mutable double grade_;
+
+    // cached separately
+    mutable int byte_count_ = -1;
 
 public:
     template<typename Action>
