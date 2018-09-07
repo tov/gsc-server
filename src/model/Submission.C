@@ -458,7 +458,7 @@ bool Submission::has_sufficient_space(int bytes,
 std::string Submission::rest_uri() const
 {
     std::ostringstream os;
-    os << "/submissions/" << id();
+    os << "/api/submissions/" << id();
     return os.str();
 }
 
