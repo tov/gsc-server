@@ -47,7 +47,7 @@ void Base::send(Wt::Http::Response& response) const
     if (content_type.empty()) {
         Http_status{500, "No content type"}.respond(response);
     } else {
-        response.addHeader("Content-Type", content_type);
+        response.setMimeType(content_type);
         response.out() << contents;
     }
 }

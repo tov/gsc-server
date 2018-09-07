@@ -26,6 +26,7 @@ set(SOURCE_FILES
         src/gsc.C
         ${MODEL_SOURCE_FILES}
         src/Application_controller.C
+        src/Media_type.C
         src/Navigate.h
         src/view/api/Endpoint.C
         src/view/api/Http_status.C
