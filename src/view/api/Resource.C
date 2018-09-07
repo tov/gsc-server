@@ -4,12 +4,14 @@
 #include "Request_handler.h"
 #include "../../Session.h"
 #include "../../model/auth/User.h"
-#include "../../model/Submission.h"
 #include "../../model/Assignment.h"
+#include "../../model/File_data.h"
 #include "../../model/File_meta.h"
+#include "../../model/Submission.h"
 
 #include <Wt/Json/Value.h>
 #include <Wt/Json/Serializer.h>
+#include <Wt/Utils.h>
 
 #include <cstdlib>
 #include <regex>
@@ -37,7 +39,7 @@ void Base::not_found()
 
 void Base::not_supported()
 {
-    throw Http_status{403, "The resource does not support that method"};
+    throw Http_status{405, "The resource does not support that method"};
 }
 
 void Base::send(Wt::Http::Response& response) const
@@ -185,10 +187,10 @@ void Users_1::do_patch_(Request_body body, Context const& context)
     success();
 }
 
-class Users_1_hws : public Base
+class Users_1_submissions : public Base
 {
 public:
-    Users_1_hws(std::string username)
+    Users_1_submissions(std::string username)
             : username_{std::move(username)} {}
 
     void load(Context const&) override;
@@ -202,13 +204,13 @@ private:
     std::vector<dbo::ptr<Submission>> submissions_;
 };
 
-void Users_1_hws::load(Context const& context)
+void Users_1_submissions::load(Context const& context)
 {
     user_ = load_user(context, username_);
     submissions_ = user_->submissions();
 }
 
-void Users_1_hws::do_get_(const Base::Context& context)
+void Users_1_submissions::do_get_(const Base::Context& context)
 {
     J::Array result;
     for (const auto& each : submissions_) {
@@ -297,14 +299,55 @@ public:
 
     void load(Context const&) override;
 
+protected:
+    void do_delete_(Context const& context) override;
+    void do_get_(Context const& context) override;
+    void do_put_(Request_body body, Context const& context) override;
+
 private:
     int submission_id_;
     std::string filename_;
+
+    dbo::ptr<Submission> submission_;
+    dbo::ptr<File_meta> file_meta_;
 };
 
-void Submissions_1_files_2::load(Context const&)
+void Submissions_1_files_2::load(Context const& context)
 {
+    submission_ = load_submission(context, submission_id_);
+    file_meta_ = submission_->find_file_by_name(filename_);
+}
 
+void Submissions_1_files_2::do_delete_(const Base::Context& context)
+{
+    if (file_meta_)
+        file_meta_.remove();
+    success();
+}
+
+void Submissions_1_files_2::do_get_(const Base::Context& context)
+{
+    if (!file_meta_) not_found();
+
+    content_type = "x-application/unknown";
+    contents = file_meta_->file_data().lock()->contents();
+}
+
+void Submissions_1_files_2::do_put_(
+        Request_body body, const Base::Context& context)
+{
+    if (!submission_->can_submit(context.user))
+        denied(8);
+
+    if (!submission_->has_sufficient_space(body.size(), filename_))
+        throw Http_status{403, "Upload would exceed quota"};
+
+    auto file_meta = File_meta::upload(
+            filename_,
+            std::move(body).read_string(),
+            submission_);
+
+    use_json(file_meta->to_json());
 }
 
 std::unique_ptr<Base> Base::create(std::string const& method,
@@ -333,9 +376,9 @@ std::unique_ptr<Base> Base::parse_(std::string const& path_info)
         return std::make_unique<Users_1>(std::move(username));
     }
 
-    if (std::regex_match(path_info, sm, Path::users_1_hws)) {
+    if (std::regex_match(path_info, sm, Path::users_1_submissions)) {
         std::string username(sm[1].first, sm[1].second);
-        return std::make_unique<Users_1_hws>(std::move(username));
+        return std::make_unique<Users_1_submissions>(std::move(username));
     }
 
     if (std::regex_match(path_info, sm, Path::submissions_1)) {
@@ -351,8 +394,8 @@ std::unique_ptr<Base> Base::parse_(std::string const& path_info)
     if (std::regex_match(path_info, sm, Path::submissions_1_files_2)) {
         int submission_id = get_number(sm[1]);
         std::string filename(sm[2].first, sm[2].second);
-        return std::make_unique<Submissions_1_files_2>(submission_id,
-                                                       std::move(filename));
+        return std::make_unique<Submissions_1_files_2>(
+                submission_id, Wt::Utils::urlDecode(filename));
     }
 
     not_found();
