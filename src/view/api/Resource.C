@@ -101,7 +101,7 @@ private:
 dbo::ptr<User>
 Base::load_user(Context const& context, std::string const& username)
 {
-    if (context.user->name() != username && !context.user->can_grade())
+    if (context.user->name() != username && !context.user->can_admin())
         denied(2);
 
     auto user = User::find_by_name(context.session, username);
@@ -227,8 +227,11 @@ public:
             : username_{std::move(username)}, hw_number_{hw_number} {}
 
     void load(Context const&) override;
+
 protected:
+    void do_delete_(Context const& context) override;
     void do_get_(Context const& context) override;
+
 private:
     std::string username_;
     int hw_number_;
@@ -244,6 +247,15 @@ void Users_1_hws_2::load(Context const& context)
 void Users_1_hws_2::do_get_(const Base::Context& context)
 {
     use_json(submission_->to_json());
+}
+
+void Users_1_hws_2::do_delete_(const Base::Context& context)
+{
+    if (!submission_->can_submit(context.user))
+        denied(5);
+
+    submission_.remove();
+    success();
 }
 
 class Users_1_hws_2_files : public Base
