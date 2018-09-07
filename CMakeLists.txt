@@ -30,6 +30,7 @@ set(SOURCE_FILES
         src/view/api/Endpoint.C
         src/view/api/Http_status.C
         src/view/api/Path.C
+        src/view/api/Request_body.C
         src/view/api/Request_handler.C
         src/view/api/Resource.C
         src/view/Abstract_file_view.C

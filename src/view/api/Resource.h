@@ -6,26 +6,34 @@
 #include <Wt/Dbo/Session.h>
 #include <Wt/Json/Serializer.h>
 
+#include <istream>
 #include <memory>
 #include <string>
 
 namespace api {
+
+class Request_body;
 
 namespace Resource {
 
 class Base
 {
 public:
+    struct Context
+    {
+        Db_session& session;
+        dbo::ptr<User> user;
+    };
+
     // Parses the URI into the resource.
     static std::unique_ptr<Base> create(std::string const& method,
                                         std::string const& path_info);
 
     // Loads the resource on behalf of current_user.
-    virtual void load(dbo::ptr<User> const& current_user) = 0;
+    virtual void load(Context const&) = 0;
 
     // Processes the request, building the response.
-    void process(Wt::Http::Request const&,
-                 dbo::ptr<User> const& current_user);
+    void process(Wt::Http::Request const& request, Context const&);
 
     // Sends the response.
     void send(Wt::Http::Response&) const;
@@ -34,14 +42,11 @@ public:
 
 protected:
     // Override these to handle specific methods.
-    virtual void do_delete_(dbo::ptr<User> const& current_user);
-    virtual void do_get_(dbo::ptr<User> const& current_user);
-    virtual void do_patch_(Wt::Http::Request const& request,
-                           dbo::ptr<User> const& current_user);
-    virtual void do_post_(Wt::Http::Request const& request,
-                          dbo::ptr<User> const& current_user);
-    virtual void do_put_(Wt::Http::Request const& request,
-                         dbo::ptr<User> const& current_user);
+    virtual void do_delete_(Context const&);
+    virtual void do_get_(Context const&);
+    virtual void do_patch_(Request_body body, Context const&);
+    virtual void do_post_(Request_body body, Context const&);
+    virtual void do_put_(Request_body body, Context const&);
 
     // Successful response with no data.
     void success()
@@ -59,7 +64,7 @@ protected:
     }
 
     // Give up.
-    static void denied [[noreturn]] ();
+    static void denied [[noreturn]] (int code);
     static void not_found [[noreturn]] ();
     static void not_supported [[noreturn]] ();
 

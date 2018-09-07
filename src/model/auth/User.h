@@ -41,6 +41,7 @@ public:
 
     const char* role_string() const { return role_to_string(role()); }
     static const char* role_to_string(Role);
+    static Role string_to_role(std::string const&);
 
     bool can_grade() const;
     bool can_admin() const;
@@ -77,7 +78,8 @@ public:
     static dbo::ptr<User> find_by_auth_token(dbo::Session&, const std::string&);
 
     std::string rest_uri() const;
-    Wt::Json::Object to_json() const;
+    std::string rest_hw_uri() const;
+    Wt::Json::Object to_json(bool brief = false) const;
 
 private:
     std::string name_;

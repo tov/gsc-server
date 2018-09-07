@@ -131,6 +131,12 @@ Db_session::create_user(const std::string& username,
     return user_obj;
 }
 
+void Db_session::set_password(const dbo::ptr<User>& user,
+                              const std::string& password)
+{
+    my_password_service.updatePassword(users_.find(user), password);
+}
+
 Session::Session(dbo::SqlConnectionPool& pool)
         : Db_session(pool)
 { }

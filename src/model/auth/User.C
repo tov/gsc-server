@@ -14,6 +14,8 @@
 #include <Wt/Auth/Identity.h>
 
 #include <algorithm>
+#include <regex>
+#include <stdexcept>
 
 namespace J = Wt::Json;
 
@@ -125,12 +127,22 @@ std::string User::rest_uri() const
     return os.str();
 }
 
-Wt::Json::Object User::to_json() const
+std::string User::rest_hw_uri() const
+{
+    std::ostringstream os;
+    os << "/api/users/" << name() << "/hws";
+    return os.str();
+}
+
+Wt::Json::Object User::to_json(bool brief) const
 {
     Wt::Json::Object result;
     result["name"] = J::Value(name());
-    result["role"] = J::Value(role_string());
     result["uri"] = J::Value(rest_uri());
+    if (!brief) {
+        result["role"] = J::Value(role_string());
+        result["hws"] = J::Value(rest_hw_uri());
+    }
     return result;
 }
 
@@ -142,3 +154,29 @@ const char* User::role_to_string(User::Role role)
         case User::Role::Student: return "student";
     }
 }
+
+namespace rc = std::regex_constants;
+
+static std::regex const admin_re("admin", rc::icase);
+static std::regex const grader_re("grader", rc::icase);
+static std::regex const student_re("student", rc::icase);
+
+User::Role User::string_to_role(std::string const& role)
+{
+    using namespace std;
+
+    if (regex_match(role, admin_re)) {
+        return User::Role::Admin;
+    }
+
+    if (regex_match(role, grader_re)) {
+        return User::Role::Grader;
+    }
+
+    if (regex_match(role, student_re)) {
+        return User::Role::Student;
+    }
+
+    throw invalid_argument{"Could not parse role"};
+}
+

@@ -84,7 +84,7 @@ void Request_handler::create_cookie_(Wt::Auth::User const& auth_user)
     set_cookie_(auth_token, 60 * session_.auth().authTokenValidity());
 }
 
-void Request_handler::check_password_strength_(Credentials const& cred)
+void Request_handler::check_password_strength(Credentials const& cred)
 {
     Wt::Auth::PasswordStrengthValidator psv;
     auto psv_result = psv.evaluateStrength(cred.password, cred.username, "");
@@ -131,7 +131,7 @@ dbo::ptr<User> Request_handler::authenticate_by_password_()
     if (path_info_ == Path::users && method_ == "POST") {
         if (user) throw Http_status{403, "User already exists"};
 
-        check_password_strength_(credentials);
+        check_password_strength(credentials);
         user = session_.create_user(credentials.username, credentials.password);
         create_cookie_(session_.users().find(user));
 

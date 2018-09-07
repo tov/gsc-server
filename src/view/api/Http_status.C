@@ -44,6 +44,10 @@ void Http_status::respond(Wt::Http::Response& response) const
             title = "Not found";
             break;
 
+        case 413:
+            title = "Payload too large";
+            break;
+
         default:
             title = "Error";
     }

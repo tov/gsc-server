@@ -29,6 +29,8 @@ public:
     Wt::Dbo::ptr<User> create_user(const std::string& username,
                                    const std::string& password,
                                    User::Role role = User::Role::Student);
+    void set_password(const dbo::ptr<User>& user,
+                      const std::string& password);
 
     std::vector<dbo::ptr<User_stats>> top_users(int limit);
 

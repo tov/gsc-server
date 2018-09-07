@@ -23,8 +23,9 @@ void Endpoint::handleRequest(const Wt::Http::Request& request,
         resource = handler.parse_uri();
 
         Wt::Dbo::Transaction transaction(session_);
-        resource->load(current_user);
-        resource->process(request, current_user);
+        Resource::Base::Context context{session_, current_user};
+        resource->load(context);
+        resource->process(request, context);
 
     } catch (const Http_status& status) {
         status.respond(response);

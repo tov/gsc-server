@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Path.h"
 #include "Resource.h"
 #include "../../model/auth/User.h"
 #include "../../Session.h"
@@ -26,13 +27,14 @@ public:
     dbo::ptr<User> authenticate();
     std::unique_ptr<Resource::Base> parse_uri();
 
+    static void check_password_strength(Credentials const& cred);
+
 private:
     dbo::ptr<User> authenticate_by_cookie_();
     dbo::ptr<User> authenticate_by_password_();
 
     void create_cookie_(Wt::Auth::User const&);
     void set_cookie_(std::string const& value, int ttl_seconds) const;
-    static void check_password_strength_(Credentials const& cred);
 
     Db_session& session_;
     Wt::Http::Request const& request_;
