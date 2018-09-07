@@ -1,3 +1,5 @@
+txt=text/plain
+log=text/plain
 c=text/plain
 c++=text/plain
 cpp=text/plain

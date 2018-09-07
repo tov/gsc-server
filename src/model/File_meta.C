@@ -1,5 +1,6 @@
 #include "File_meta.h"
 #include "File_data.h"
+#include "../Media_type.h"
 #include "Submission.h"
 #include "auth/User.h"
 #include "../view/api/common.h"
@@ -106,6 +107,11 @@ static std::regex out_file_re(".*\\.out");
 bool File_meta::is_out_file() const
 {
     return std::regex_match(name(), out_file_re);
+}
+
+std::string const& File_meta::media_type() const
+{
+    return Media_type_registry::instance().lookup(name());
 }
 
 bool operator<(const File_meta& a, const File_meta& b)

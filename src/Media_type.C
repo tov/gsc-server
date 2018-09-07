@@ -8,7 +8,7 @@
 #include <sstream>
 
 static std::regex const registry_entry_regex("([^=]+)=(.+)");
-static std::regex const file_extension_regex("\\.([^.]*)");
+static std::regex const file_extension_regex(".*\\.([^.]*)");
 
 struct Media_type
 {
@@ -45,22 +45,29 @@ std::istream& operator>>(std::istream& is, Media_type& media_type)
     return is;
 }
 
-std::string const*
+Media_type_registry& Media_type_registry::instance()
+{
+    static Media_type_registry instance;
+    return instance;
+}
+
+std::string const&
 Media_type_registry::lookup(std::string const& filename) const
 {
+    static std::string const unknown("application/octet-stream");
     std::smatch sm;
 
     if (!std::regex_match(filename, sm, file_extension_regex))
-        return nullptr;
+        return unknown;
 
     std::string extension;
     lcase_assign(extension, sm[1].first, sm[1].second);
 
     auto iter = media_types_.find(extension);
     if (iter == media_types_.end())
-        return nullptr;
+        return unknown;
 
-    return &iter->second;
+    return iter->second;
 }
 
 void Media_type_registry::load(std::string const& filename)
@@ -76,5 +83,10 @@ void Media_type_registry::load(std::string const& filename)
 
     throw std::runtime_error{"Could not load media type registry from file: "
                              + filename};
+}
+
+Media_type_registry::Media_type_registry()
+{
+    load("media_types.dat");
 }
 

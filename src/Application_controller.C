@@ -67,7 +67,6 @@ Application_controller::Application_controller(Wt::Dbo::SqlConnectionPool& pool,
 {
     setTitle("gsc homework server");
 
-    media_type_registry_.load(appRoot() + "media_types.dat");
     messageResourceBundle().use(appRoot() + "strings");
     messageResourceBundle().use(appRoot() + "templates");
 

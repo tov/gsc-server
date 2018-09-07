@@ -1,7 +1,7 @@
 #include "File_list_widget.h"
+#include "../Session.h"
 #include "../model/File_data.h"
 #include "../model/File_meta.h"
-#include "../Session.h"
 #include "../model/Submission.h"
 
 #include <Wt/Dbo/Transaction.h>
@@ -101,7 +101,7 @@ void File_resource::handleRequest(const Wt::Http::Request& request,
     Wt::Dbo::ptr<File_data> text = source_file_->file_data().lock();
     transaction.commit();
 
-    response.setMimeType("text/plain");
+    response.setMimeType(source_file_->media_type());
     response.out() << text->contents();
 }
 

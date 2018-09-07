@@ -329,7 +329,7 @@ void Submissions_1_files_2::do_get_(const Base::Context& context)
 {
     if (!file_meta_) not_found();
 
-    content_type = "application/octet-stream";
+    content_type = file_meta_->media_type();
     contents = file_meta_->file_data().lock()->contents();
 }
 

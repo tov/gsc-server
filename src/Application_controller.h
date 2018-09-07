@@ -30,7 +30,6 @@ public:
 private:
     Session session_;
     Main_view* main_;
-    Media_type_registry media_type_registry_;
 
     void set_title(const std::string&);
     void set_widget(std::unique_ptr<Wt::WWidget> widget);

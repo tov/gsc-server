@@ -29,6 +29,7 @@ public:
     const dbo::ptr<Submission>& submission() const { return submission_; }
 
     bool is_out_file() const;
+    std::string const& media_type() const;
 
     void rename(const std::string&);
     void re_own(const dbo::ptr<Submission>&);
