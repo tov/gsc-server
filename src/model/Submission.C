@@ -75,6 +75,11 @@ bool Submission::eval_extended() const
     return eval_date_ > assignment_->eval_date();
 }
 
+const Wt::WDateTime& Submission::open_date() const
+{
+    return assignment()->open_date();
+}
+
 const Wt::WDateTime& Submission::effective_due_date() const
 {
     return std::max(due_date_, assignment_->due_date());
@@ -267,8 +272,9 @@ bool Submission::can_submit(const dbo::ptr<User>& user) const
     auto now = Wt::WDateTime::currentDateTime();
 
     return user->can_admin() ||
-            (now <= effective_due_date() &&
-                    (user == user1_ || user == user2_));
+            (now >= open_date() &&
+                    now <= effective_due_date() &&
+             (user == user1_ || user == user2_));
 }
 
 bool Submission::can_eval(const dbo::ptr <User>& user) const
@@ -476,16 +482,17 @@ J::Object Submission::to_json(bool brief) const
     result["owner1"] = J::Value(user1()->to_json(true));
     if (user2())
         result["owner2"] = J::Value(user2()->to_json(true));
-
     result["assignment_number"] = J::Value(assignment()->number());
+    result["status"] = J::Value(status_to_string(status()));
+
     if (!brief) {
+        result["open_date"] = json_format(open_date());
         result["due_date"] = json_format(effective_due_date());
         result["eval_date"] = json_format(effective_eval_date());
         result["last_modified"] = json_format(last_modified());
         result["files_uri"] = J::Value(rest_files_uri());
         result["bytes_used"] = J::Value(byte_count());
         result["bytes_remaining"] = J::Value(remaining_space());
-        result["status"] = J::Value(status_to_string(status()));
         result["eval_status"] = J::Value(eval_status_to_string(eval_status()));
     }
 

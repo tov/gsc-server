@@ -71,6 +71,7 @@ public:
 
     bool extended() const;
     bool eval_extended() const;
+    const Wt::WDateTime& open_date() const;
     const Wt::WDateTime& effective_due_date() const;
     const Wt::WDateTime& effective_eval_date() const;
 
