@@ -397,3 +397,9 @@ tr.grader-highlight {
     text-align: center;
 }
 
+.quota-display {
+    width: 100%;
+    margin: 10px auto;
+    text-align: center;
+}
+

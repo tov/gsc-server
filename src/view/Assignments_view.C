@@ -9,7 +9,6 @@
 #include <Wt/WCheckBox.h>
 #include <Wt/WDateTime.h>
 #include <Wt/WLocalDateTime.h>
-#include <Wt/WDialog.h>
 #include <Wt/WLineEdit.h>
 #include <Wt/WPushButton.h>
 #include <Wt/WTable.h>

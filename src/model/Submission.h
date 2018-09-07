@@ -93,6 +93,7 @@ public:
 
     dbo::ptr<File_meta> find_file_by_name(const std::string&) const;
 
+    int remaining_space() const;
     bool has_sufficient_space(int bytes, const std::string& filename) const;
 
     static dbo::ptr<Self_eval>

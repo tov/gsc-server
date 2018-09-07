@@ -17,7 +17,7 @@
 
 DBO_INSTANTIATE_TEMPLATES(Submission)
 
-const int Submission::max_byte_count = 20 * 1024 * 1024;
+const int Submission::max_byte_count = 20000; // 20 * 1024 * 1024;
 
 Submission::Submission(const dbo::ptr <User>& user,
                        const dbo::ptr <Assignment>& assignment)
@@ -37,7 +37,9 @@ Source_file_vec Submission::source_files_sorted() const
         result.push_back(ptr);
 
     std::sort(result.begin(), result.end(),
-              [](const auto& a, const auto& b) { return *a < *b; });
+              [](const dbo::ptr<File_meta>& a, const dbo::ptr<File_meta>& b) {
+                  return *a < *b;
+              });
 
     return result;
 }
@@ -422,16 +424,22 @@ Submission::find_file_by_name(const std::string& filename) const
 {
     return session()->find<File_meta>()
            .where("name = ?").bind(filename)
-           .where("submission = ?").bind(id());
+           .where("submission_id = ?").bind(id());
+}
+
+int Submission::remaining_space() const
+{
+    return max_byte_count - byte_count();
 }
 
 bool Submission::has_sufficient_space(int bytes,
                                       const std::string& filename) const
 {
-    int remaining = max_byte_count - byte_count();
+    int remaining = remaining_space();
 
     auto existing_file = find_file_by_name(filename);
     if (existing_file) remaining += existing_file->byte_count();
 
     return remaining >= bytes;
 }
+

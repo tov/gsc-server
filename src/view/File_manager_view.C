@@ -25,6 +25,18 @@
 #include <streambuf>
 #include <vector>
 
+class Quota_display : public Wt::WTemplate
+{
+public:
+    Quota_display(const Wt::Dbo::ptr<Submission>&);
+
+    void reload();
+
+private:
+    Wt::Dbo::ptr<Submission> submission_;
+    Wt::WText* field_;
+};
+
 class Date_list : public Wt::WTable
 {
 public:
@@ -46,7 +58,7 @@ class File_uploader : public Wt::WContainerWidget
 {
 public:
     File_uploader(const Wt::Dbo::ptr<Submission>&,
-                      Wt::Signal<>& changed, Session& session);
+                  Wt::Signal<>& changed, Session& session);
 
 private:
     Wt::Signal<>& changed_;
@@ -58,6 +70,25 @@ private:
     void uploaded_();
     void too_large_();
 };
+
+const std::string quota_display_template =
+        "<p class=\"quota-display\">"
+          "File quota remaining: ${bytes} bytes"
+        "</p>";
+
+Quota_display::Quota_display(const Wt::Dbo::ptr<Submission>& submission)
+        : Wt::WTemplate(quota_display_template)
+        , submission_{submission}
+{
+    field_ = bindWidget("bytes", std::make_unique<Wt::WText>());
+    reload();
+}
+
+void Quota_display::reload()
+{
+    field_->setText(boost::lexical_cast<std::string>(
+            submission_->remaining_space()));
+}
 
 const Wt::WString Date_list::date_format_ = "ddd, MMM d 'at' h:mm AP";
 
@@ -116,18 +147,54 @@ void File_uploader::uploaded_()
     if (!submission_->can_submit(session_.user()))
         return;
 
+    dbo::Transaction transaction(session_);
+
     for (auto& file : upload_->uploadedFiles()) {
         std::ifstream spool(file.spoolFileName());
-        std::string   contents;
+        boost::filesystem::path filename(file.clientFileName());
 
         spool.seekg(0, std::ios::end);
-        contents.reserve((size_t) spool.tellg());
+        int file_size = spool.tellg();
+
+        auto notify = [&](std::string message) {
+            auto message_box = new Wt::WMessageBox("File Quota Exceeded",
+                                                   message,
+                                                   Wt::Icon::Critical,
+                                                   Wt::StandardButton::Ok);
+            message_box->setModal(true);
+            message_box->buttonClicked().connect(std::bind([=]() {
+                delete message_box;
+            }));
+            message_box->show();
+        };
+
+        if (file_size > File_meta::max_byte_count) {
+            std::ostringstream msg;
+            msg << "File “" << filename
+                    << "” cannot be uploaded because it is " << file_size
+                    << " bytes, which exceeds the per-file quota of "
+                    << File_meta::max_byte_count << " bytes.";
+            notify(msg.str());
+            break;
+        }
+
+        if (! submission_->has_sufficient_space(file_size,
+                                                filename.filename().string())) {
+            std::ostringstream msg;
+            msg << "File “" << filename
+                    << "” cannot be uploaded because its size of "
+                    << file_size << " bytes exceeds your remaining quota of "
+                    << submission_->remaining_space() << " bytes.";
+            notify(msg.str());
+            break;
+        }
+
+        std::string contents;
+        contents.reserve((size_t) file_size);
         spool.seekg(0, std::ios::beg);
 
         contents.assign(std::istreambuf_iterator<char>(spool),
                         std::istreambuf_iterator<char>());
-
-        boost::filesystem::path filename(file.clientFileName());
 
         File_meta::upload(filename.filename().string(),
                           contents, submission_);
@@ -138,10 +205,9 @@ void File_uploader::uploaded_()
 
 void File_uploader::too_large_()
 {
-    auto message_box = addNew<Wt::WMessageBox>("Upload Error",
-                                               "File too large",
-                                               Wt::Icon::Critical,
-                                               Wt::StandardButton::Ok);
+    auto message_box = new Wt::WMessageBox(
+            "Upload Error", "File too large",
+            Wt::Icon::Critical, Wt::StandardButton::Ok);
     message_box->setModal(true);
     message_box->buttonClicked().connect(std::bind([=]() {
         delete message_box;
@@ -163,8 +229,10 @@ File_manager_view::File_manager_view(const Wt::Dbo::ptr<Submission>& submission,
                                              session_);
 
     auto raw_file_list = right_column_->addWidget(std::move(file_list));
+    auto quota_display = right_column_->addNew<Quota_display>(submission);
     auto raw_date_list = right_column_->addNew<Date_list>(submission_);
 
     raw_file_list->changed().connect(viewer_, &File_viewer_widget::reload);
+    raw_file_list->changed().connect(quota_display, &Quota_display::reload);
     raw_file_list->changed().connect(raw_date_list, &Date_list::reload);
 }

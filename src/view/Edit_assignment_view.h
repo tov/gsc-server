@@ -4,7 +4,6 @@
 
 #include <Wt/Dbo/ptr.h>
 #include <Wt/WContainerWidget.h>
-#include <Wt/WDialog.h>
 
 #include <vector>
 

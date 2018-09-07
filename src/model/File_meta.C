@@ -31,7 +31,7 @@ static int count_lines(const std::string& str)
 
 }
 
-const int File_meta::max_byte_count = 5 * 1024 * 1024;
+const int File_meta::max_byte_count = 5000; // 5 * 1024 * 1024;
 
 File_meta::File_meta(const std::string& name, const dbo::ptr<Submission>& submission,
                      int line_count, int byte_count)
@@ -108,17 +108,14 @@ bool operator<(const File_meta& a, const File_meta& b)
 
     // .out files sort after all other files
     if (a_out && !b_out) return false;
+
     if (b_out && !a_out) return true;
 
     return std::lexicographical_compare(
             a.name().begin(), a.name().end(),
             b.name().begin(), b.name().end(),
             [](char c1, char c2) {
-                char C1 = std::toupper(c1);
-                char C2 = std::toupper(c2);
-                if (C1 < C2) return -1;
-                if (C1 > C2) return 1;
-                return 0;
+                return std::toupper(c1) < std::toupper(c2);
             }
     );
 }
