@@ -20,7 +20,7 @@ namespace J = Wt::Json;
 
 DBO_INSTANTIATE_TEMPLATES(Submission)
 
-const int Submission::max_byte_count = 20000; // 20 * 1024 * 1024;
+const int Submission::max_byte_count = 20 * 1024 * 1024;
 
 Submission::Submission(const dbo::ptr <User>& user,
                        const dbo::ptr <Assignment>& assignment)
