@@ -17,9 +17,8 @@ class File_meta
 {
 public:
     File_meta() = default;
-    File_meta(const std::string& name,
-              const dbo::ptr<Submission>& submission,
-              int line_count,
+    File_meta(const std::string& name, const std::string& media_type,
+              const dbo::ptr<Submission>& submission, int line_count,
               int byte_count);
 
     const std::string& name() const { return name_; }
@@ -50,6 +49,7 @@ private:
     int                      line_count_;
     int                      byte_count_;
     dbo::ptr<Submission>     submission_;
+    std::string              media_type_;
     dbo::weak_ptr<File_data> file_data_;
 
 public:
@@ -57,6 +57,7 @@ public:
     void persist(Action& a)
     {
         dbo::field(a, name_, "name");
+        dbo::field(a, media_type_, "media_type");
         dbo::field(a, time_stamp_, "time_stamp");
         dbo::field(a, line_count_, "line_count");
         dbo::field(a, byte_count_, "byte_count");

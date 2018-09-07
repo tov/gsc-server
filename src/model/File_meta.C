@@ -41,9 +41,11 @@ static int count_lines(const std::string& str)
 
 const int File_meta::max_byte_count = 5 * 1024 * 1024;
 
-File_meta::File_meta(const std::string& name, const dbo::ptr<Submission>& submission,
-                     int line_count, int byte_count)
+File_meta::File_meta(const std::string& name, const std::string& media_type,
+                     const dbo::ptr<Submission>& submission, int line_count,
+                     int byte_count)
         : name_{name}
+        , media_type_{media_type}
         , submission_{submission}
         , line_count_{line_count}
         , byte_count_{byte_count}
@@ -61,9 +63,12 @@ File_meta::upload(const std::string& name, const std::string& contents,
         if (file->name_ == name) file.remove();
     }
 
+    auto media_type = Media_type_registry::instance().lookup(name);
+    auto line_count = media_type == "text/string"? count_lines(contents) : -1;
+
     dbo::ptr<File_meta> result =
-            session.addNew<File_meta>(name, submission,
-                                      count_lines(contents), contents.size());
+            session.addNew<File_meta>(name, media_type, submission,
+                                      line_count, contents.size());
     session.addNew<File_data>(result, contents);
 
     submission.modify()->touch();
@@ -111,7 +116,7 @@ bool File_meta::is_out_file() const
 
 std::string const& File_meta::media_type() const
 {
-    return Media_type_registry::instance().lookup(name());
+    return media_type_;
 }
 
 bool operator<(const File_meta& a, const File_meta& b)
@@ -146,7 +151,8 @@ J::Object File_meta::to_json(bool brief) const
     J::Object result;
     result["uri"] = J::Value(rest_uri());
     result["name"] = J::Value(name());
-    result["submission"] = J::Value(submission()->to_json(true));
+    result["media_type"] = J::Value(media_type());
+//    result["submission"] = J::Value(submission()->to_json(true));
     result["byte_count"] = J::Value(byte_count());
     result["upload_time"] = J::Value(json_format(time_stamp_));
     return result;
