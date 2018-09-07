@@ -4,7 +4,7 @@
 
 #include "../model/Grader_eval.h"
 #include "../model/Self_eval.h"
-#include "../model/Session.h"
+#include "../Session.h"
 
 Self_eval_item_widget::Self_eval_item_widget(const Submission::Item& model, Evaluation_view& main,
                                              Session& session)

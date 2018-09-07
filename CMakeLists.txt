@@ -19,7 +19,7 @@ set(MODEL_SOURCE_FILES
         src/model/Partner_request.C
         src/model/Permalink.C
         src/model/Self_eval.C
-        src/model/Session.C
+        src/Session.C
         src/model/Submission.C)
 
 set(SOURCE_FILES

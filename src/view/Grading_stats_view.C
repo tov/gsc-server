@@ -2,7 +2,7 @@
 #include "Accelerator_button.h"
 #include "../Navigate.h"
 #include "../model/auth/User.h"
-#include "../model/Session.h"
+#include "../Session.h"
 
 #include <Wt/WTable.h>
 #include <Wt/WText.h>

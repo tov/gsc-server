@@ -1,7 +1,7 @@
 #include "Partner_request.h"
 #include "auth/User.h"
 #include "Assignment.h"
-#include "Session.h"
+#include "../Session.h"
 #include "Submission.h"
 
 #include <Wt/Dbo/Impl.h>

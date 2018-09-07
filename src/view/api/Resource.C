@@ -1,7 +1,7 @@
 #include "Resource.h"
 #include "Http_status.h"
 #include "../../model/auth/User.h"
-#include "../../model/Session.h"
+#include "../../Session.h"
 
 #include <Wt/Json/Value.h>
 #include <Wt/Json/Serializer.h>

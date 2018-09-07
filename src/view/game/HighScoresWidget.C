@@ -5,7 +5,7 @@
  */
 
 #include "HighScoresWidget.h"
-#include "../../model/Session.h"
+#include "../../Session.h"
 #include "../../model/auth/User.h"
 #include "../../model/game/User_stats.h"
 

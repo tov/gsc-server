@@ -1,5 +1,5 @@
 #include "Application_controller.h"
-#include "model/Session.h"
+#include "Session.h"
 #include "view/api/Endpoint.h"
 
 #include <Wt/Dbo/SqlConnectionPool.h>

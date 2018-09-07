@@ -5,7 +5,7 @@
 #include "../model/Assignment.h"
 #include "../model/Exam_grade.h"
 #include "../model/Submission.h"
-#include "../model/Session.h"
+#include "../Session.h"
 
 #include <Wt/Dbo/Dbo.h>
 #include <Wt/Dbo/Transaction.h>

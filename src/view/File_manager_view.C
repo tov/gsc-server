@@ -2,7 +2,7 @@
 #include "File_list_widget.h"
 #include "File_viewer_widget.h"
 #include "Submission_owner_widget.h"
-#include "../model/Session.h"
+#include "../Session.h"
 #include "../model/File_data.h"
 #include "../model/File_meta.h"
 #include "../model/Submission.h"

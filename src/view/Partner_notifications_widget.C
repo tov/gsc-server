@@ -1,7 +1,7 @@
 #include "Partner_notifications_widget.h"
 #include "../model/auth/User.h"
 #include "../model/Assignment.h"
-#include "../model/Session.h"
+#include "../Session.h"
 #include "../model/Partner_request.h"
 #include "../model/Submission.h"
 #include "../Navigate.h"

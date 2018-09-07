@@ -2,7 +2,7 @@
 #include "Confirmation_dialog.h"
 #include "../model/Assignment.h"
 #include "../model/Eval_item.h"
-#include "../model/Session.h"
+#include "../Session.h"
 
 #include <Wt/WBreak.h>
 #include <Wt/WButtonGroup.h>

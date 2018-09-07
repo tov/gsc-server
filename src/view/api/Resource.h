@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Path.h"
-#include "../../model/Session.h"
+#include "../../Session.h"
 
 #include <Wt/Dbo/Session.h>
 #include <Wt/Json/Serializer.h>

@@ -8,7 +8,7 @@
 
 #include "../../model/auth/User.h"
 #include "../../model/game/Dictionary.h"
-#include "../../model/Session.h"
+#include "../../Session.h"
 #include "WordWidget.h"
 #include "ImagesWidget.h"
 #include "LettersWidget.h"

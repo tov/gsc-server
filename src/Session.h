@@ -1,7 +1,7 @@
 #pragma once
 
-#include "auth/User_database.h"
-#include "auth/User.h"
+#include "model/auth/User_database.h"
+#include "model/auth/User.h"
 
 #include <Wt/Auth/Login.h>
 #include <Wt/Auth/AbstractUserDatabase.h>

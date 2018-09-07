@@ -1,6 +1,6 @@
 #pragma once
 
-#include "model/Session.h"
+#include "Session.h"
 
 #include <Wt/Dbo/ptr.h>
 #include <Wt/Dbo/SqlConnectionPool.h>

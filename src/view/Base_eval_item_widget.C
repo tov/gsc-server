@@ -2,7 +2,7 @@
 #include "Evaluation_view.h"
 #include "Explanation_view_widget.h"
 #include "../model/Eval_item.h"
-#include "../model/Session.h"
+#include "../Session.h"
 
 #include <Wt/WPushButton.h>
 #include <Wt/WTemplate.h>

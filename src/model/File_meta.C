@@ -108,7 +108,6 @@ bool operator<(const File_meta& a, const File_meta& b)
 
     // .out files sort after all other files
     if (a_out && !b_out) return false;
-
     if (b_out && !a_out) return true;
 
     return std::lexicographical_compare(

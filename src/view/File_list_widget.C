@@ -1,7 +1,7 @@
 #include "File_list_widget.h"
 #include "../model/File_data.h"
 #include "../model/File_meta.h"
-#include "../model/Session.h"
+#include "../Session.h"
 #include "../model/Submission.h"
 
 #include <Wt/Dbo/Transaction.h>

@@ -1,5 +1,5 @@
 #include "User_suggester.h"
-#include "../model/Session.h"
+#include "../Session.h"
 
 const Wt::WSuggestionPopup::Options User_suggester::options = {
         "<b>",         // highlightBeginTag

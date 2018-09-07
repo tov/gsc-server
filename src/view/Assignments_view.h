@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../model/Assignment.h"
-#include "../model/Session.h"
+#include "../Session.h"
 
 #include <Wt/Dbo/ptr.h>
 #include <Wt/WContainerWidget.h>

@@ -3,7 +3,7 @@
 #include "Evaluation_view.h"
 #include "../model/Grader_eval.h"
 #include "../model/Self_eval.h"
-#include "../model/Session.h"
+#include "../Session.h"
 #include "../model/Submission.h"
 
 #include <Wt/WText.h>

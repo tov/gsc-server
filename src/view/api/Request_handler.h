@@ -2,7 +2,7 @@
 
 #include "Resource.h"
 #include "../../model/auth/User.h"
-#include "../../model/Session.h"
+#include "../../Session.h"
 
 #include <Wt/Http/Request.h>
 #include <Wt/Http/Response.h>

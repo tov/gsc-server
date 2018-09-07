@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../model/Session.h"
+#include "../Session.h"
 #include "File_manager_view.h"
 
 #include <Wt/WContainerWidget.h>

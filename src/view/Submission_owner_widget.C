@@ -5,7 +5,7 @@
 
 #include "../model/auth/User.h"
 #include "../model/Assignment.h"
-#include "../model/Session.h"
+#include "../Session.h"
 #include "../model/Submission.h"
 #include "../model/Partner_request.h"
 
