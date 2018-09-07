@@ -20,7 +20,7 @@ using Users       = dbo::collection<dbo::ptr<User>>;
 using Auth_tokens = dbo::collection<dbo::ptr<Auth_token>>;
 using Submissions = dbo::collection<dbo::ptr<Submission>>;
 
-class User
+class User : public dbo::Dbo<User>
 {
 public:
     User(const std::string& name = "");
@@ -73,6 +73,8 @@ public:
     dbo::weak_ptr<User_stats> user_stats() const { return user_stats_; }
 
     std::string hw_url() const;
+
+    dbo::ptr<User> find_this() const;
 
     static dbo::ptr<User> find_by_name(dbo::Session&, const std::string&);
     static dbo::ptr<User> find_by_auth_token(dbo::Session&, const std::string&);

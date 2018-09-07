@@ -38,17 +38,6 @@ void load_model(const Wt::Dbo::ptr<User>& user, Session& session,
         submissions[index].eval_status = submission->eval_status();
     }
 
-    for (const auto& assignment : session.find<Assignment>().resultList()) {
-        int index = assignment->number();
-        while (index >= submissions.size())
-            submissions.emplace_back();
-
-        if (! submissions[index].submission) {
-            submissions[index].submission =
-                    session.addNew<Submission>(user, assignment);
-        }
-    }
-
     for (auto exam_grade : Exam_grade::find_by_user(user)) {
         result.exams.push_back(exam_grade);
     }

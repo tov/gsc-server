@@ -250,6 +250,13 @@ Submission::find_by_assignment_and_user(dbo::Session& session,
     return result;
 }
 
+dbo::ptr<Submission> Submission::find_by_id(dbo::Session& session,
+                                            int submission_id)
+{
+    return session.find<Submission>()
+            .where("id = ?").bind(submission_id);
+}
+
 bool Submission::can_view(const dbo::ptr<User>& user) const
 {
     return user->can_admin() || user == user1_ || user == user2_;
@@ -451,7 +458,7 @@ bool Submission::has_sufficient_space(int bytes,
 std::string Submission::rest_uri() const
 {
     std::ostringstream os;
-    os << "/users/" << user1()->name() << "/hws/" << assignment()->number();
+    os << "/submissions/" << id();
     return os.str();
 }
 
@@ -464,6 +471,7 @@ J::Object Submission::to_json(bool brief) const
 {
     J::Object result;
 
+    result["id"] = J::Value(id());
     result["uri"] = J::Value(rest_uri());
     result["owner1"] = J::Value(user1()->to_json(true));
     if (user2())
@@ -508,3 +516,4 @@ char const* Submission::eval_status_to_string(Eval_status status)
         case S::complete: return "complete";
     }
 }
+

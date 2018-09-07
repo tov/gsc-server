@@ -2,12 +2,19 @@
 #include "File_data.h"
 #include "Submission.h"
 #include "auth/User.h"
+#include "../view/api/common.h"
 
 #include <Wt/Dbo/Impl.h>
+#include <Wt/Json/Value.h>
+#include <Wt/Json/Object.h>
+#include <Wt/Utils.h>
 
 #include <algorithm>
 #include <cctype>
 #include <regex>
+#include <sstream>
+
+namespace J = Wt::Json;
 
 DBO_INSTANTIATE_TEMPLATES(File_meta)
 
@@ -117,4 +124,24 @@ bool operator<(const File_meta& a, const File_meta& b)
                 return std::toupper(c1) < std::toupper(c2);
             }
     );
+}
+
+std::string File_meta::rest_uri() const
+{
+    std::ostringstream os;
+    os << "/submissions/" << submission().id()
+            << "/files/"
+            << Wt::Utils::urlEncode(name());
+    return os.str();
+}
+
+J::Object File_meta::to_json(bool brief) const
+{
+    J::Object result;
+    result["uri"] = J::Value(rest_uri());
+    result["name"] = J::Value(name());
+    result["submission"] = J::Value(submission()->to_json(true));
+    result["byte_count"] = J::Value(byte_count());
+    result["upload_time"] = J::Value(json_format(time_stamp_));
+    return result;
 }

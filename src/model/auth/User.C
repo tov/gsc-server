@@ -99,13 +99,29 @@ int User::update_auth_token(const std::string& old, const std::string& new_)
 std::vector<dbo::ptr<Submission>> User::submissions() const
 {
     std::vector<dbo::ptr<Submission>> result;
-    result.insert(result.end(), submissions1_.begin(), submissions1_.end());
-    result.insert(result.end(), submissions2_.begin(), submissions2_.end());
 
-    std::sort(result.begin(), result.end(),
-              [&](const auto& s1, const auto& s2) {
-        return s1->assignment()->number() < s2->assignment()->number();
-    });
+    auto extend = [&](int index) {
+        while (result.size() <= index) result.emplace_back();
+    };
+
+    auto insert = [&](dbo::ptr<Submission> const& submission) {
+        auto index = submission->assignment()->number() - 1;
+        extend(index);
+        result[index] = submission;
+    };
+
+    for (const auto& each : submissions1_) insert(each);
+    for (const auto& each : submissions2_) insert(each);
+
+    for (const auto& each : session()->find<Assignment>().resultList()) {
+        auto index = each->number() - 1;
+        extend(index);
+        if (!result[index]) {
+            auto new_submission = session()->addNew<Submission>(find_this(), each);
+            new_submission.flush(); // Assigns an ID
+            insert(new_submission);
+        }
+    }
 
     return result;
 }
@@ -141,7 +157,10 @@ Wt::Json::Object User::to_json(bool brief) const
     result["uri"] = J::Value(rest_uri());
     if (!brief) {
         result["role"] = J::Value(role_string());
-        result["hws"] = J::Value(rest_hw_uri());
+        Wt::Json::Array hws;
+        for (const auto& each : submissions())
+            hws.push_back(each->to_json(true));
+        result["submissions"] = J::Value(hws);
     }
     return result;
 }
@@ -178,5 +197,10 @@ User::Role User::string_to_role(std::string const& role)
     }
 
     throw invalid_argument{"Could not parse role"};
+}
+
+dbo::ptr<User> User::find_this() const
+{
+    return session()->find<User>().where("id = ?").bind(id());
 }
 

@@ -26,7 +26,7 @@ namespace Resource {
 void Base::denied(int code)
 {
     std::ostringstream os;
-    os << "You can't access that (code " << code << ")";
+    os << "You can't do that (code " << code << ")";
     throw Http_status{403, os.str()};
 }
 
@@ -119,14 +119,12 @@ Base::load_assignment(const Base::Context& context, int number)
 }
 
 Wt::Dbo::ptr<Submission>
-Base::load_submission(Context const& context,
-                      std::string const& username,
-                      int number)
+Base::load_submission(Context const& context, int submission_id)
 {
-    auto user = load_user(context, username);
-    auto assignment = load_assignment(context, number);
-    return Submission::find_by_assignment_and_user(
-            context.session, assignment, user);
+    auto submission = Submission::find_by_id(context.session, submission_id);
+    if (!submission) not_found();
+    if (!submission->can_view(context.user)) denied(7);
+    return submission;
 }
 
 void Users_1::load(Context const& context)
@@ -212,7 +210,6 @@ void Users_1_hws::load(Context const& context)
 
 void Users_1_hws::do_get_(const Base::Context& context)
 {
-    std::cerr << "***** HI HI HI HI **** \n\n\n";
     J::Array result;
     for (const auto& each : submissions_) {
         result.push_back(each->to_json(true));
@@ -220,11 +217,12 @@ void Users_1_hws::do_get_(const Base::Context& context)
     use_json(result);
 }
 
-class Users_1_hws_2 : public Base
+class Submissions_1 : public Base
 {
 public:
-    Users_1_hws_2(std::string username, int hw_number)
-            : username_{std::move(username)}, hw_number_{hw_number} {}
+    Submissions_1(int submission_id)
+            : submission_id_{submission_id}
+    { }
 
     void load(Context const&) override;
 
@@ -233,69 +231,78 @@ protected:
     void do_get_(Context const& context) override;
 
 private:
-    std::string username_;
-    int hw_number_;
+    int submission_id_;
 
     dbo::ptr<Submission> submission_;
 };
 
-void Users_1_hws_2::load(Context const& context)
+void Submissions_1::load(const api::Resource::Base::Context& context)
 {
-    submission_ = load_submission(context, username_, hw_number_);
+    submission_ = load_submission(context, submission_id_);
 }
 
-void Users_1_hws_2::do_get_(const Base::Context& context)
-{
-    use_json(submission_->to_json());
-}
-
-void Users_1_hws_2::do_delete_(const Base::Context& context)
+void Submissions_1::do_delete_(const api::Resource::Base::Context& context)
 {
     if (!submission_->can_submit(context.user))
-        denied(5);
+        denied(6);
 
     submission_.remove();
     success();
 }
 
-class Users_1_hws_2_files : public Base
+void Submissions_1::do_get_(const api::Resource::Base::Context& context)
+{
+    use_json(submission_->to_json());
+}
+
+class Submissions_1_files : public Base
 {
 public:
-    Users_1_hws_2_files(std::string username, int hw_number)
-            : username_{std::move(username)}
-            , hw_number_{hw_number}
+    Submissions_1_files(int submission_id)
+            : submission_id_{submission_id}
     { }
 
     void load(Context const&) override;
 
+protected:
+    void do_get_(Context const& context) override;
+
 private:
-    std::string username_;
-    int hw_number_;
+    int submission_id_;
+    std::vector<dbo::ptr<File_meta>> file_metas_;
 };
 
-void Users_1_hws_2_files::load(Context const&)
+void Submissions_1_files::load(Context const& context)
 {
-
+    auto submission = load_submission(context, submission_id_);
+    auto file_metas = submission->source_files();
+    file_metas_.assign(file_metas.begin(), file_metas.end());
 }
 
-class Users_1_hws_2_files_3 : public Base
+void Submissions_1_files::do_get_(const Base::Context& context)
+{
+    J::Array json;
+    for (auto const& each : file_metas_)
+        json.push_back(each->to_json());
+    use_json(json);
+}
+
+class Submissions_1_files_2 : public Base
 {
 public:
-    Users_1_hws_2_files_3(std::string username,
-                          int hw_number,
+    Submissions_1_files_2(int submission_id,
                           std::string filename)
-            : username_{std::move(username)}, hw_number_{hw_number},
-              filename_{std::move(filename)} {}
+            : submission_id_{submission_id}
+            , filename_{std::move(filename)} {}
 
     void load(Context const&) override;
 
 private:
-    std::string username_;
-    int hw_number_;
+    int submission_id_;
     std::string filename_;
 };
 
-void Users_1_hws_2_files_3::load(Context const&)
+void Submissions_1_files_2::load(Context const&)
 {
 
 }
@@ -331,26 +338,21 @@ std::unique_ptr<Base> Base::parse_(std::string const& path_info)
         return std::make_unique<Users_1_hws>(std::move(username));
     }
 
-    if (std::regex_match(path_info, sm, Path::users_1_hws_2)) {
-        std::string username(sm[1].first, sm[1].second);
-        int hw_number = get_number(sm[2]);
-        return std::make_unique<Users_1_hws_2>(
-                std::move(username), hw_number);
+    if (std::regex_match(path_info, sm, Path::submissions_1)) {
+        int submission_id = get_number(sm[1]);
+        return std::make_unique<Submissions_1>(submission_id);
     }
 
-    if (std::regex_match(path_info, sm, Path::users_1_hws_2_files)) {
-        std::string username(sm[1].first, sm[1].second);
-        int hw_number = get_number(sm[2]);
-        return std::make_unique<Users_1_hws_2_files>(
-                std::move(username), hw_number);
+    if (std::regex_match(path_info, sm, Path::submissions_1_files)) {
+        int submission_id = get_number(sm[1]);
+        return std::make_unique<Submissions_1_files>(submission_id);
     }
 
-    if (std::regex_match(path_info, sm, Path::users_1_hws_2_files)) {
-        std::string username(sm[1].first, sm[1].second);
-        int hw_number = get_number(sm[2]);
-        std::string filename(sm[3].first, sm[3].second);
-        return std::make_unique<Users_1_hws_2_files_3>(
-                std::move(username), hw_number, std::move(filename));
+    if (std::regex_match(path_info, sm, Path::submissions_1_files_2)) {
+        int submission_id = get_number(sm[1]);
+        std::string filename(sm[2].first, sm[2].second);
+        return std::make_unique<Submissions_1_files_2>(submission_id,
+                                                       std::move(filename));
     }
 
     not_found();

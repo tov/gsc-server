@@ -70,7 +70,7 @@ protected:
     load_assignment(Context const&, int number);
 
     static Wt::Dbo::ptr<Submission>
-    load_submission(Context const&, std::string const& username, int number);
+    load_submission(Context const&, int submission_id);
 
     // Give up.
     static void denied [[noreturn]] (int code);

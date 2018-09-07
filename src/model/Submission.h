@@ -123,6 +123,9 @@ public:
                                 const dbo::ptr<Assignment>&,
                                 const dbo::ptr<User>&);
 
+    static dbo::ptr<Submission>
+    find_by_id(dbo::Session&, int session_id);
+
     static const int max_byte_count;
 
     std::string rest_uri() const;

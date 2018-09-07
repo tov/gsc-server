@@ -6,6 +6,8 @@
 #include <Wt/Dbo/WtSqlTraits.h>
 #include <Wt/WDateTime.h>
 
+#include <string>
+
 namespace dbo = Wt::Dbo;
 
 class File_data;
@@ -37,6 +39,9 @@ public:
            const dbo::ptr<Submission>&);
 
     static const int max_byte_count;
+
+    std::string rest_uri() const;
+    Wt::Json::Object to_json(bool brief = false) const;
 
 private:
     std::string              name_;
