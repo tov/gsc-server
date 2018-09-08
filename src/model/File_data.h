@@ -18,9 +18,9 @@ class Bytes : public std::vector<unsigned char>
 public:
     Bytes() = default;
     explicit Bytes(const std::string&);
+    Bytes(std::istream&, int size);
 
     void write(std::ostream&) const;
-    void read(std::istream&, int size);
 
     explicit operator std::string() const;
 };

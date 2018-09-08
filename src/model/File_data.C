@@ -12,17 +12,16 @@ Bytes::Bytes(std::string const& data)
     assign(data.begin(), data.end());
 }
 
-void Bytes::write(std::ostream& os) const
+Bytes::Bytes(std::istream& is, int size)
 {
-    os.write((char const*)data(), size());
-}
-
-void Bytes::read(std::istream& is, int size)
-{
-    clear();
     reserve(size);
     std::copy(std::istreambuf_iterator<char>(is), {},
               std::back_inserter(*this));
+}
+
+void Bytes::write(std::ostream& os) const
+{
+    os.write((char const*)data(), size());
 }
 
 Bytes::operator std::string() const

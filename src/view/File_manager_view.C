@@ -190,8 +190,7 @@ void File_uploader::uploaded_()
             break;
         }
 
-        Bytes contents;
-        contents.read(spool, file_size);
+        Bytes contents{spool, file_size};
 
         File_meta::upload(filename.filename().string(),
                           contents, submission_);
