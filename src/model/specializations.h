@@ -3,6 +3,7 @@
 #include <Wt/Dbo/Dbo.h>
 
 class Assignment;
+class Bytes;
 class File_data;
 class File_meta;
 class User;
@@ -36,6 +37,22 @@ struct dbo_traits<File_data> : public dbo_default_traits
     using IdType = ptr<File_meta>;
     static IdType invalidId() { return IdType(); }
     static const char* surrogateIdField() { return nullptr; }
+};
+
+template<>
+struct sql_value_traits<Bytes, void>
+{
+    using repr_trait = sql_value_traits<std::vector<unsigned char>, void>;
+
+    static const bool specialized = true;
+
+    static const char *type(SqlConnection *conn, int size);
+
+    static void bind(const Bytes& v,
+                     SqlStatement *statement, int column, int size);
+
+    static bool read(Bytes& v,
+                     SqlStatement *statement, int column, int size);
 };
 
 }

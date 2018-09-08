@@ -21,17 +21,17 @@ DBO_INSTANTIATE_TEMPLATES(File_meta)
 
 namespace {
 
-static int count_lines(const std::string& str)
+static int count_lines(const Bytes& bytes)
 {
     int result = 0;
 
-    for (char c : str) {
+    for (unsigned char c : bytes) {
         if (c == '\n') {
             ++result;
         }
     }
 
-    if (!str.empty() && str[str.size() - 1] != '\n')
+    if (!bytes.empty() && bytes[bytes.size() - 1] != '\n')
         ++result;
 
     return result;
@@ -53,7 +53,8 @@ File_meta::File_meta(const std::string& name, const std::string& media_type,
 { }
 
 dbo::ptr<File_meta>
-File_meta::upload(const std::string& name, const std::string& contents,
+File_meta::upload(const std::string& name,
+                  const Bytes& contents,
                   const dbo::ptr<Submission>& submission)
 {
     dbo::Session& session = *submission.session();
@@ -64,7 +65,7 @@ File_meta::upload(const std::string& name, const std::string& contents,
     }
 
     auto media_type = Media_type_registry::instance().lookup(name);
-    auto line_count = media_type == "text/string"? count_lines(contents) : -1;
+    auto line_count = media_type == "text/plain"? count_lines(contents) : 0;
 
     dbo::ptr<File_meta> result =
             session.addNew<File_meta>(name, media_type, submission,

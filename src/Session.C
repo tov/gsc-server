@@ -86,9 +86,12 @@ Db_session::Db_session(Wt::Dbo::SqlConnectionPool& pool)
 
             for (auto asst : {asst1, asst2, asst3, asst4}) {
                 auto submission = addNew<Submission>(user, asst);
-                File_meta::upload("file.h", "#pragma once\n", submission);
+                File_meta::upload("file.h",
+                                  Bytes("#pragma once\n"),
+                                  submission);
                 File_meta::upload("file.C",
-                                  "#include \"file.h\"\n\nnamespace meh {\n\n}\n",
+                                  Bytes("#include \"file.h\"\n\n"
+                                        "namespace meh {\n\n}\n"),
                                   submission);
             }
         }

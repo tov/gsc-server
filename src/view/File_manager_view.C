@@ -155,6 +155,7 @@ void File_uploader::uploaded_()
 
         spool.seekg(0, std::ios::end);
         int file_size = spool.tellg();
+        spool.seekg(0, std::ios::beg);
 
         auto notify = [&](std::string message) {
             auto message_box = new Wt::WMessageBox("File Quota Exceeded",
@@ -189,12 +190,8 @@ void File_uploader::uploaded_()
             break;
         }
 
-        std::string contents;
-        contents.reserve((size_t) file_size);
-        spool.seekg(0, std::ios::beg);
-
-        contents.assign(std::istreambuf_iterator<char>(spool),
-                        std::istreambuf_iterator<char>());
+        Bytes contents;
+        contents.read(spool, file_size);
 
         File_meta::upload(filename.filename().string(),
                           contents, submission_);

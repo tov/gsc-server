@@ -48,7 +48,7 @@ void Base::send(Wt::Http::Response& response) const
         Http_status{500, "No content type"}.respond(response);
     } else {
         response.setMimeType(content_type);
-        response.out() << contents;
+        response.out().write((const char *)contents.data(), contents.size());
     }
 }
 
@@ -344,7 +344,7 @@ void Submissions_1_files_2::do_put_(
 
     auto file_meta = File_meta::upload(
             filename_,
-            std::move(body).read_string(),
+            std::move(body).read_bytes(),
             submission_);
 
     use_json(file_meta->to_json());

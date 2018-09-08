@@ -35,7 +35,7 @@ public:
 
     static dbo::ptr<File_meta>
     upload(const std::string& name,
-           const std::string& contents,
+           const Bytes& contents,
            const dbo::ptr<Submission>&);
 
     static const int max_byte_count;

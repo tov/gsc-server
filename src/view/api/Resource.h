@@ -2,6 +2,7 @@
 
 #include "Path.h"
 #include "../../Session.h"
+#include "../../model/File_data.h"
 
 #include <Wt/Dbo/Session.h>
 #include <Wt/Json/Serializer.h>
@@ -9,6 +10,7 @@
 #include <istream>
 #include <memory>
 #include <string>
+#include <vector>
 
 namespace api {
 
@@ -52,7 +54,7 @@ protected:
     void success()
     {
         content_type = "application/json";
-        contents = "true";
+        contents = Bytes("true");
     }
 
     // Respond with the given JSON.
@@ -60,7 +62,7 @@ protected:
     void use_json(T const& json)
     {
         content_type = "application/json";
-        contents = Wt::Json::serialize(json);
+        contents = Bytes(Wt::Json::serialize(json));
     }
 
     static Wt::Dbo::ptr<User>
@@ -78,7 +80,7 @@ protected:
     static void not_supported [[noreturn]] ();
 
     std::string content_type;
-    std::string contents;
+    std::vector<unsigned char> contents;
 
 private:
     static std::unique_ptr<Base> parse_(std::string const& path_info);

@@ -1,5 +1,6 @@
 #include "Request_body.h"
 #include "Http_status.h"
+#include "../../model/File_data.h"
 
 #include <Wt/Json/Parser.h>
 
@@ -15,6 +16,17 @@ Wt::Json::Value Request_body::read_json()&&
         return result;
 
     throw Http_status{400, "Request body expected to be JSON"};
+}
+
+Bytes Request_body::read_bytes() &&
+{
+    Bytes result;
+    result.read(*in_, size_);
+
+    in_ = nullptr;
+    size_ = 0;
+
+    return result;
 }
 
 std::string Request_body::read_string()&&

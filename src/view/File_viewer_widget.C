@@ -35,7 +35,8 @@ Single_file_viewer::Single_file_viewer(const Wt::Dbo::ptr<File_meta>& source_fil
     auto file_name = addNew<Wt::WText>("<h4>" + source_file->name() + "</h4>");
 
     auto               table = addNew<Wt::WTable>();
-    std::istringstream file_stream(source_file->file_data().lock()->contents());
+    std::istringstream file_stream(
+            std::string(source_file->file_data().lock()->contents()));
     std::string        line;
     int                row   = 0;
 
@@ -87,15 +88,17 @@ void File_viewer_widget::reload()
     Source_file_vec      files = submission_->source_files_sorted();
 
     for (const auto& file : files) {
-        file_selector_->addItem(file->name());
+        if (file->line_count() > 0)
+            file_selector_->addItem(file->name());
     }
 
     int file_number = 0;
     int line_number = 1;
     for (const auto& file : files) {
-        file_contents_->addNew<Single_file_viewer>(file, file_number++,
-                                                   line_number, lines_,
-                                                   this);
+        if (file->line_count() > 0)
+            file_contents_->addNew<Single_file_viewer>(file, file_number++,
+                                                       line_number, lines_,
+                                                       this);
     }
 }
 

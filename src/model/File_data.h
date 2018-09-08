@@ -6,25 +6,41 @@
 #include <Wt/Dbo/WtSqlTraits.h>
 #include <Wt/WDateTime.h>
 
+#include <iostream>
+#include <vector>
+
 namespace dbo = Wt::Dbo;
 
 class File_meta;
 
+class Bytes : public std::vector<unsigned char>
+{
+public:
+    Bytes() = default;
+    explicit Bytes(const std::string&);
+
+    void write(std::ostream&) const;
+    void read(std::istream&, int size);
+
+    explicit operator std::string() const;
+};
+
 class File_data
 {
 public:
+
     File_data() {}
     File_data(const dbo::ptr<File_meta>& file_meta,
-              const std::string& contents)
+              Bytes const& contents)
             : file_meta_(file_meta),
               contents_(contents) {}
 
     const dbo::ptr<File_meta>& file_meta() const { return file_meta_; }
-    const std::string& contents() const { return contents_; }
+    const Bytes& contents() const { return contents_; }
 
 private:
     dbo::ptr<File_meta> file_meta_;
-    std::string         contents_;
+    Bytes contents_;
 
 public:
     template<typename Action>

@@ -5,6 +5,8 @@
 #include <istream>
 #include <string>
 
+class Bytes;
+
 namespace api {
 
 class Request_body
@@ -15,8 +17,9 @@ public:
 
     int size() const { return size_; };
 
-    std::string read_string()&&;
-    Wt::Json::Value read_json()&&;
+    std::string read_string() &&;
+    Bytes read_bytes() &&;
+    Wt::Json::Value read_json() &&;
 
 private:
     std::istream* in_;

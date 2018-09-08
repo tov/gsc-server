@@ -102,7 +102,7 @@ void File_resource::handleRequest(const Wt::Http::Request& request,
     transaction.commit();
 
     response.setMimeType(source_file_->media_type());
-    response.out() << text->contents();
+    text->contents().write(response.out());
 }
 
 File_deleter::File_deleter(const Wt::Dbo::ptr<File_meta>& source_file,
