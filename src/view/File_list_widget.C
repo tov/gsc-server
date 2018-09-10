@@ -59,7 +59,9 @@ void File_list_widget::reload()
         auto anchor = elementAt(row, 0)->addNew<Wt::WAnchor>(
                 Wt::WLink(download), file->name());
         auto loc = elementAt(row, 1)->addNew<Wt::WText>(
-                boost::lexical_cast<std::string>(file->line_count()));
+                file->media_type() == "text/plain"?
+                boost::lexical_cast<std::string>(file->line_count()) :
+                "");
         auto bytes = elementAt(row, 2)->addNew<Wt::WText>(
                 boost::lexical_cast<std::string>(file->byte_count()));
 
