@@ -88,16 +88,13 @@ void File_viewer_widget::reload()
     lines_.push_back(nullptr); // 1-based indexing
 
     Wt::Dbo::Transaction transaction(session_.dbo());
-    Source_file_vec      files = submission_->source_files_sorted();
-
-    for (const auto& file : files) {
-        if (file->line_count() > 0)
-            file_selector_->addItem(file->name());
-    }
+    Source_file_vec files = submission_->source_files_sorted();
 
     int line_number = 1;
+
     for (const auto& file : files) {
         if (file->line_count() > 0) {
+            file_selector_->addItem(file->name());
             file_contents_->addNew<Single_file_viewer>(
                     file, line_number, lines_, this);
         }
