@@ -66,7 +66,7 @@ void File_list_widget::reload()
         elementAt(row, 1)->setStyleClass("file-list-type");
         elementAt(row, 2)->setStyleClass("file-list-bytes");
 
-        anchor->setToolTip("download");
+        anchor->setToolTip("view or download");
         type->setToolTip("file purpose");
         bytes->setToolTip("file size in bytes");
 
