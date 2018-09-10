@@ -83,11 +83,11 @@ set(LIBRARIES
     wt wtdbo wtdbopostgres # wtdbosqlite3
     ${Boost_LIBRARIES})
 
-add_executable(gsc ${SOURCE_FILES})
+add_executable(gscd ${SOURCE_FILES})
 target_precompiled_header(gsc src/prefix.h)
 target_link_libraries(gsc wthttp ${LIBRARIES})
 
-add_executable(gsc-fcgi ${SOURCE_FILES})
+add_executable(gscd-fcgi ${SOURCE_FILES})
 target_link_libraries(gsc-fcgi wtfcgi ${LIBRARIES})
 
 add_executable(gscdb src/gscdb.C ${MODEL_SOURCE_FILES})
