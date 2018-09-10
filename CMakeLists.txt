@@ -23,7 +23,7 @@ set(MODEL_SOURCE_FILES
         src/model/Submission.C)
 
 set(SOURCE_FILES
-        src/gsc.C
+        src/gscd.C
         ${MODEL_SOURCE_FILES}
         src/Application_controller.C
         src/Media_type.C
