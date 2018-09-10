@@ -78,6 +78,7 @@ public:
     void set_user2(const dbo::ptr<User>& user2) { user2_ = user2; }
     void set_due_date(const Wt::WDateTime& date) { due_date_ = date; }
     void set_eval_date(const Wt::WDateTime& date) { eval_date_ = date; }
+    void clear_files();
 
     Status status() const;
     Eval_status eval_status() const;

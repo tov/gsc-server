@@ -524,3 +524,8 @@ char const* Submission::eval_status_to_string(Eval_status status)
     }
 }
 
+void Submission::clear_files()
+{
+    source_files_.clear();
+    is_loaded_ = false;
+}

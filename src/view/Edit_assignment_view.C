@@ -219,7 +219,7 @@ void Edit_assignment_view::fewer_()
                 << self_eval_count << " self eval(s). "
                 << "Are you sure you want to delete it?";;
 
-        auto dialog = new Confirmation_dialog(message.str());
+        auto dialog = addNew<Confirmation_dialog>(message.str());
         dialog->accepted().connect(this, &Edit_assignment_view::real_fewer_);
     }
 }

@@ -65,12 +65,12 @@ void Submission_owner_widget::update_admin_()
         button->setStyleClass("btn btn-danger");
         button->setToolTip("Break up partnership");
         button->clicked().connect(std::bind([=] () {
-            std::ostringstream message;
-            message << "Are you sure you want to break up this partnership? "
-                    << "<strong>" << submission_->user2()->name() << "</strong>"
-                    << " will be left with no submission.";
-
-            auto dialog = new Confirmation_dialog(message.str());
+            auto unique_dialog = std::make_unique<Confirmation_dialog>(
+                    "Are you sure you want to break up this partnership? "
+                    "Their submission will be cleared, and they will have "
+                    "to resubmit."
+            );
+            auto dialog = impl_->addChild(std::move(unique_dialog));
             dialog->accepted().connect(
                     this, &Submission_owner_widget::break_up_partnership_);
         }));
@@ -151,7 +151,9 @@ void Submission_owner_widget::update_student_()
 void Submission_owner_widget::break_up_partnership_()
 {
     dbo::Transaction transaction(session_);
-    submission_.modify()->set_user2({});
+    auto mutable_submission = submission_.modify();
+    mutable_submission->set_user2({});
+    mutable_submission->clear_files();
     transaction.commit();
 
     update_();

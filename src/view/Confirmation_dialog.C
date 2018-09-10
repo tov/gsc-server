@@ -19,8 +19,11 @@ Confirmation_dialog::Confirmation_dialog(const std::string& message)
     yes->clicked().connect(this, &Wt::WDialog::accept);
 
     rejectWhenEscapePressed();
-    finished().connect(this, &Confirmation_dialog::finished_);
+    finished().connect([&](Wt::DialogCode code){ finished_(code); });
     show();
+
+    std::cerr << "*** this (1) is " << this << "\n";
+    std::cerr << "*** parent (1) is " << parent() << "\n";
 }
 
 void Confirmation_dialog::finished_(Wt::DialogCode code)
@@ -30,5 +33,7 @@ void Confirmation_dialog::finished_(Wt::DialogCode code)
     else
         rejected_.emit();
 
-    delete this;
+    std::cerr << "*** this (2) is " << this << "\n";
+    std::cerr << "*** parent (2) is " << parent() << "\n";
+    removeFromParent();
 }
