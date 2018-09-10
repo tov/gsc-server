@@ -147,16 +147,9 @@ void Partner_requestor_widget::submit_()
 
 void Partner_requestor_widget::error_()
 {
-    std::ostringstream message;
-    message << "User “" << edit_->text()
+    Notification("Error", this)
+            << "User “" << edit_->text()
             << "” does not exist or is unavailable.";
-    auto box = addNew<Wt::WMessageBox>(
-            "Error",
-            Wt::WString::fromUTF8(message.str()),
-            Wt::Icon::Critical, Wt::StandardButton::Ok);
-    box->setModal(true);
-    box->buttonClicked().connect(std::bind([=] () { box->removeFromParent(); }));
-    box->show();
 }
 
 Partner_notification_widget::Partner_notification_widget(
