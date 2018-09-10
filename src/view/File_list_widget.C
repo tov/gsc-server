@@ -43,6 +43,10 @@ void File_list_widget::reload()
 
     Wt::Dbo::Transaction transaction(session_);
 
+    auto const source_files = submission_->source_files_sorted();
+
+    if (source_files.empty()) return;
+
     bool can_delete = submission_->can_submit(session_.user());
 
     elementAt(0, 0)->addNew<Wt::WText>("<strong>filename</strong>");
@@ -53,7 +57,7 @@ void File_list_widget::reload()
 
     int row = 1;
 
-    for (Wt::Dbo::ptr<File_meta> file : submission_->source_files_sorted()) {
+    for (auto const& file : source_files) {
         auto download = std::make_shared<File_resource>(file);
 
         auto anchor = elementAt(row, 0)->addNew<Wt::WAnchor>(
