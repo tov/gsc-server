@@ -17,21 +17,24 @@
 class Single_file_viewer : public Wt::WContainerWidget
 {
 public:
-    Single_file_viewer(const Wt::Dbo::ptr<File_meta>& source_file,
-                       int file_number,
-                       int& first_line_number,
-                       std::vector<Wt::WTableRow*>& lines,
-                       const File_viewer_widget* viewer);
+    Single_file_viewer(
+                const Wt::Dbo::ptr<File_meta>& source_file, int& first_line_number,
+                std::vector<Wt::WTableRow*>& lines,
+                const File_viewer_widget* viewer);
+
+    ~Single_file_viewer();
 };
 
-Single_file_viewer::Single_file_viewer(const Wt::Dbo::ptr<File_meta>& source_file,
-                                       int file_number,
-                                       int& line_number,
-                                       std::vector<Wt::WTableRow*>& lines,
-                                       const File_viewer_widget* viewer)
+Single_file_viewer::~Single_file_viewer()
 {
-    setId(viewer->file_id(file_number));
+//    setId("");
+}
 
+Single_file_viewer::Single_file_viewer(
+            const Wt::Dbo::ptr<File_meta>& source_file, int& line_number,
+            std::vector<Wt::WTableRow*>& lines,
+            const File_viewer_widget* viewer)
+{
     auto file_name = addNew<Wt::WText>("<h4>" + source_file->name() + "</h4>");
 
     auto               table = addNew<Wt::WTable>();
@@ -92,13 +95,12 @@ void File_viewer_widget::reload()
             file_selector_->addItem(file->name());
     }
 
-    int file_number = 0;
     int line_number = 1;
     for (const auto& file : files) {
-        if (file->line_count() > 0)
-            file_contents_->addNew<Single_file_viewer>(file, file_number++,
-                                                       line_number, lines_,
-                                                       this);
+        if (file->line_count() > 0) {
+            file_contents_->addNew<Single_file_viewer>(
+                    file, line_number, lines_, this);
+        }
     }
 }
 
@@ -109,17 +111,12 @@ void File_viewer_widget::scroll_to_line(int line_number) const
 
 void File_viewer_widget::scroll_to_file(int file_number) const
 {
-    scroll_to_id_(file_id(file_number));
+    scroll_to_id_(file_contents_->children().at(file_number)->id());
 }
 
 std::string File_viewer_widget::line_id(int line_number) const
 {
     return id() + "-L" + boost::lexical_cast<std::string>(line_number);
-}
-
-std::string File_viewer_widget::file_id(int file_number) const
-{
-    return id() + "-F" + boost::lexical_cast<std::string>(file_number);
 }
 
 void File_viewer_widget::set_line_style(int line, const Wt::WString& style)

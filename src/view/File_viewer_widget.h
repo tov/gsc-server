@@ -28,7 +28,6 @@ public:
     void scroll_to_file(int file_number) const;
 
     std::string line_id(int line_number) const;
-    std::string file_id(int file_number) const;
 
     void set_line_style(int line, const Wt::WString& style);
 
@@ -57,6 +56,8 @@ private:
     Wt::WContainerWidget* impl_;
     Wt::WComboBox* file_selector_;
     Wt::WContainerWidget* file_contents_;
+    // INVARIANT: each child of file_contents_ is a Single_file_viewer
+    // corresponding to each item in file_selector_.
 
     std::vector<Wt::WTableRow*> lines_;
 

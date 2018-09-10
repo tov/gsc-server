@@ -122,6 +122,7 @@ void File_deleter::go()
         source_file_.remove();
         transaction.commit();
 
+        std::cerr << "*** changed_: " << changed_ << " ***\n";
         if (changed_) changed_->emit();
     }
 }

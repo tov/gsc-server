@@ -215,7 +215,7 @@ File_manager_view::File_manager_view(const Wt::Dbo::ptr<Submission>& submission,
 
 void File_manager_view::reload()
 {
-    dbo::Transaction transation(session_);
+    dbo::Transaction transaction(session_);
     Abstract_file_view::reload();
     date_list_->reload();
     file_list_->reload();
