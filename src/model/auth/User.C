@@ -1,4 +1,3 @@
-#include "../game/User_stats.h"
 #include "User.h"
 #include "Auth_token.h"
 #include "../Assignment.h"
@@ -8,6 +7,7 @@
 #include "../Grader_eval.h"
 #include "../Self_eval.h"
 #include "../Submission.h"
+#include "../game/User_stats.h"
 
 #include <Wt/Auth/PasswordHash.h>
 #include <Wt/Dbo/Impl.h>

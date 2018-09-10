@@ -6,6 +6,7 @@ class Assignment;
 class Bytes;
 class File_data;
 class File_meta;
+enum class File_purpose;
 class User;
 class User_stats;
 
@@ -52,6 +53,22 @@ struct sql_value_traits<Bytes, void>
                      SqlStatement *statement, int column, int size);
 
     static bool read(Bytes& v,
+                     SqlStatement *statement, int column, int size);
+};
+
+template<>
+struct sql_value_traits<File_purpose, void>
+{
+    using repr_trait = sql_value_traits<int, void>;
+
+    static const bool specialized = true;
+
+    static const char *type(SqlConnection *conn, int size);
+
+    static void bind(const File_purpose& v,
+                     SqlStatement *statement, int column, int size);
+
+    static bool read(File_purpose& v,
                      SqlStatement *statement, int column, int size);
 };
 

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "specializations.h"
+#include "../util.h"
 
 #include <Wt/Dbo/Types.h>
 #include <Wt/Dbo/WtSqlTraits.h>
@@ -12,6 +13,20 @@ namespace dbo = Wt::Dbo;
 
 class File_data;
 class Submission;
+
+enum class File_purpose {
+    source,
+    test,
+    resource,
+    log,
+};
+
+template <>
+struct Enum<File_purpose>
+{
+    static char const* show(File_purpose);
+    static File_purpose read(char const*);
+};
 
 class File_meta
 {
@@ -29,6 +44,7 @@ public:
 
     bool is_out_file() const;
     std::string const& media_type() const;
+    File_purpose const& purpose() const;
 
     void rename(const std::string&);
     void re_own(const dbo::ptr<Submission>&);
@@ -50,6 +66,7 @@ private:
     int                      byte_count_;
     dbo::ptr<Submission>     submission_;
     std::string              media_type_;
+    File_purpose             purpose_;
     dbo::weak_ptr<File_data> file_data_;
 
 public:
@@ -58,6 +75,7 @@ public:
     {
         dbo::field(a, name_, "name");
         dbo::field(a, media_type_, "media_type");
+        dbo::field(a, purpose_, "purpose");
         dbo::field(a, time_stamp_, "time_stamp");
         dbo::field(a, line_count_, "line_count");
         dbo::field(a, byte_count_, "byte_count");

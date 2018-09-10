@@ -19,7 +19,35 @@ namespace J = Wt::Json;
 
 DBO_INSTANTIATE_TEMPLATES(File_meta)
 
-namespace {
+char const* Enum<File_purpose>::show(File_purpose purpose)
+{
+    switch (purpose) {
+        case File_purpose::log: return "log";
+        case File_purpose::resource: return "resource";
+        case File_purpose::test: return "test";
+        case File_purpose::source: return "source";
+    }
+}
+
+static std::regex const log_re("log", std::regex_constants::icase);
+static std::regex const resource_re("resource",
+                                    std::regex_constants::icase);
+static std::regex const source_re("source", std::regex_constants::icase);
+static std::regex const test_re("test", std::regex_constants::icase);
+
+File_purpose Enum<File_purpose>::read(char const* purpose)
+{
+    if (std::regex_match(purpose, log_re))
+        return File_purpose::log;
+
+    if (std::regex_match(purpose, resource_re))
+        return File_purpose::resource;
+
+    if (std::regex_match(purpose, test_re))
+        return File_purpose::test;
+
+    return File_purpose::source;
+}
 
 static int count_lines(const Bytes& bytes)
 {
@@ -37,6 +65,27 @@ static int count_lines(const Bytes& bytes)
     return result;
 }
 
+static std::regex const log_file_re(".*\\.(?:log|out)", std::regex_constants::icase);
+static std::regex const test_file_re("test.*|.*test\\.[^.]*",
+                                     std::regex_constants::icase);
+
+static File_purpose classify_file_type(std::string const& media_type,
+                                       std::string const& filename)
+{
+    std::cerr << "*** media_type: " << media_type
+            << " filename: " << filename << "\n";
+    if (media_type != "text/plain")
+        return File_purpose::resource;
+
+    if (std::regex_match(filename, log_file_re)) {
+        std::cerr << "*** Matched log_file_re\n";
+        return File_purpose::log;
+    }
+
+    if (std::regex_match(filename, test_file_re))
+        return File_purpose::test;
+
+    return File_purpose::source;
 }
 
 const int File_meta::max_byte_count = 5 * 1024 * 1024;
@@ -46,6 +95,7 @@ File_meta::File_meta(const std::string& name, const std::string& media_type,
                      int byte_count)
         : name_{name}
         , media_type_{media_type}
+        , purpose_{classify_file_type(media_type, name)}
         , submission_{submission}
         , line_count_{line_count}
         , byte_count_{byte_count}
@@ -108,16 +158,19 @@ void File_meta::re_own(const dbo::ptr <Submission>& new_owner)
     submission_ = new_owner;
 }
 
-static std::regex out_file_re(".*\\.out");
-
 bool File_meta::is_out_file() const
 {
-    return std::regex_match(name(), out_file_re);
+    return purpose() == File_purpose::log;
 }
 
 std::string const& File_meta::media_type() const
 {
     return media_type_;
+}
+
+File_purpose const& File_meta::purpose() const
+{
+    return purpose_;
 }
 
 bool operator<(const File_meta& a, const File_meta& b)
@@ -153,8 +206,39 @@ J::Object File_meta::to_json(bool brief) const
     result["uri"] = J::Value(rest_uri());
     result["name"] = J::Value(name());
     result["media_type"] = J::Value(media_type());
+    result["purpose"] = J::Value(stringify(purpose()));
 //    result["submission"] = J::Value(submission()->to_json(true));
     result["byte_count"] = J::Value(byte_count());
     result["upload_time"] = J::Value(json_format(time_stamp_));
     return result;
 }
+
+namespace Wt {
+namespace Dbo {
+
+char const* sql_value_traits<File_purpose, void>::type(
+        SqlConnection* conn, int size)
+{
+    return repr_trait::type(conn, size);
+}
+
+void sql_value_traits<File_purpose, void>::bind(
+        const File_purpose& v, SqlStatement* statement, int column, int size)
+{
+    int value = static_cast<int>(v);
+    repr_trait::bind(value, statement, column, size);
+}
+
+bool
+sql_value_traits<File_purpose, void>::read(File_purpose& v, SqlStatement* statement,
+                                        int column, int size)
+{
+    int value;
+    bool result = repr_trait::read(value, statement, column, size);
+    v = static_cast<File_purpose>(value);
+    return result;
+}
+
+
+} // end namespace Dbo
+} // end namespace Wt

@@ -274,7 +274,11 @@ input.username {
     opacity: 0;
 }
 
-.file-list-loc {
+.file-list-type {
+    text-align: center;
+}
+
+.file-list-bytes {
     text-align: right;
 }
 
