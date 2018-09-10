@@ -6,7 +6,7 @@
 Unit_line_edit::Unit_line_edit()
 {
     edit_ = setNewImplementation<Wt::WLineEdit>();
-//    edit_->setEmptyText("[0.0, 1.0]");
+    edit_->setPlaceholderText("[0.0, 1.0]");
     edit_->keyWentUp().connect(this, &Unit_line_edit::handle_change_);
 
     cached_value_ = INVALID;

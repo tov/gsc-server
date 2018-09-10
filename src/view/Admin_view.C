@@ -47,7 +47,7 @@ Submission_chooser::Submission_chooser(Session& session)
         : session_(session)
 {
     editor_ = addNew<Wt::WLineEdit>();
-//    editor_->setEmptyText("username");
+    editor_->setPlaceholderText("username");
     editor_->keyWentUp().connect(this, &This::update);
     editor_->enterPressed().connect(this, &This::go);
 
@@ -125,7 +125,7 @@ Student_chooser::Student_chooser(Session& session)
         : session_(session)
 {
     editor_ = addNew<Wt::WLineEdit>();
-//    editor_->setEmptyText("username");
+    editor_->setPlaceholderText("username");
     editor_->enterPressed().connect(this, &Student_chooser::go);
 
     auto popup = addNew<User_suggester>(session, User::Role::Student);
@@ -170,7 +170,7 @@ Role_chooser::Role_chooser(Session& session)
         : session_(session)
 {
     editor_ = addNew<Wt::WLineEdit>();
-//    editor_->setEmptyText("username");
+    editor_->setPlaceholderText("username");
     editor_->keyWentUp().connect(this, &This::update);
 
     auto popup = addNew<User_suggester>(session);
@@ -234,7 +234,7 @@ SU_widget::SU_widget(Session& session)
         : session_(session)
 {
     editor_ = addNew<Wt::WLineEdit>();
-//    editor_->setEmptyText("username");
+    editor_->setPlaceholderText("username");
     editor_->enterPressed().connect(this, &This::go);
 
     auto popup = addNew<User_suggester>(session);
