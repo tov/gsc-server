@@ -1,6 +1,7 @@
 #include "File_manager_view.h"
 #include "File_list_widget.h"
 #include "File_viewer_widget.h"
+#include "Notification.h"
 #include "Submission_owner_widget.h"
 #include "../Session.h"
 #include "../model/File_data.h"
@@ -158,36 +159,22 @@ void File_uploader::uploaded_()
         int file_size = spool.tellg();
         spool.seekg(0, std::ios::beg);
 
-        auto notify = [&](std::string message) {
-            auto message_box = new Wt::WMessageBox("File Quota Exceeded",
-                                                   message,
-                                                   Wt::Icon::Critical,
-                                                   Wt::StandardButton::Ok);
-            message_box->setModal(true);
-            message_box->buttonClicked().connect(std::bind([=]() {
-                delete message_box;
-            }));
-            message_box->show();
-        };
-
         if (file_size > File_meta::max_byte_count) {
-            std::ostringstream msg;
-            msg << "File “" << filename
+            Notification("File Too Large", parent())
+                    << "File “" << filename
                     << "” cannot be uploaded because it is " << file_size
                     << " bytes, which exceeds the per-file quota of "
                     << File_meta::max_byte_count << " bytes.";
-            notify(msg.str());
             break;
         }
 
         if (! submission_->has_sufficient_space(file_size,
                                                 filename.filename().string())) {
-            std::ostringstream msg;
-            msg << "File “" << filename
+            Notification("File Quota Exceeded", parent())
+                    << "File “" << filename
                     << "” cannot be uploaded because its size of "
                     << file_size << " bytes exceeds your remaining quota of "
                     << submission_->remaining_space() << " bytes.";
-            notify(msg.str());
             break;
         }
 
@@ -202,14 +189,9 @@ void File_uploader::uploaded_()
 
 void File_uploader::too_large_()
 {
-    auto message_box = new Wt::WMessageBox(
-            "Upload Error", "File too large",
-            Wt::Icon::Critical, Wt::StandardButton::Ok);
-    message_box->setModal(true);
-    message_box->buttonClicked().connect(std::bind([=]() {
-        delete message_box;
-    }));
-    message_box->show();
+    Notification("File Too Large", parent())
+            << "File cannot be uploaded because it exceeds the per-file "
+            << "quota of " << File_meta::max_byte_count << " bytes.";
 }
 
 File_manager_view::File_manager_view(const Wt::Dbo::ptr<Submission>& submission,

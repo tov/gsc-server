@@ -39,7 +39,7 @@ static int count_lines(const Bytes& bytes)
 
 }
 
-const int File_meta::max_byte_count = 5 * 1024 * 1024;
+const int File_meta::max_byte_count = 5; // * 1024 * 1024;
 
 File_meta::File_meta(const std::string& name, const std::string& media_type,
                      const dbo::ptr<Submission>& submission, int line_count,

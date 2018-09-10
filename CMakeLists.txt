@@ -62,6 +62,7 @@ set(SOURCE_FILES
         src/view/User_suggester.C
         src/view/Evaluation_view.C
         src/view/Explanation_edit_widget.C
+        src/view/Notification.C
         src/view/Partner_notifications_widget.C
         src/view/Response_widget.C
         src/view/Submission_owner_widget.C
