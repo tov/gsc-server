@@ -175,12 +175,12 @@ File_purpose const& File_meta::purpose() const
 
 bool operator<(const File_meta& a, const File_meta& b)
 {
-    bool a_out = a.is_out_file();
-    bool b_out = b.is_out_file();
+    auto a_type = a.purpose();
+    auto b_type = b.purpose();
 
     // .out files sort after all other files
-    if (a_out && !b_out) return false;
-    if (b_out && !a_out) return true;
+    if (a_type < b_type) return true;
+    if (a_type > b_type) return false;
 
     return std::lexicographical_compare(
             a.name().begin(), a.name().end(),
