@@ -162,7 +162,7 @@ void Partner_requestor_widget::error_()
             Wt::WString::fromUTF8(message.str()),
             Wt::Icon::Critical, Wt::StandardButton::Ok);
     box->setModal(true);
-    box->buttonClicked().connect(std::bind([=] () { delete box; }));
+    box->buttonClicked().connect(std::bind([=] () { box->removeFromParent(); }));
     box->show();
 }
 
