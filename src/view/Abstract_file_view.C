@@ -1,7 +1,9 @@
 #include "Abstract_file_view.h"
 #include "File_viewer_widget.h"
+#include "../Session.h"
 
 #include <Wt/WHBoxLayout.h>
+#include <Wt/Dbo/Transaction.h>
 
 Abstract_file_view::Abstract_file_view(const Wt::Dbo::ptr<Submission>& submission,
                                        Session& session)
@@ -19,4 +21,12 @@ Abstract_file_view::Abstract_file_view(const Wt::Dbo::ptr<Submission>& submissio
             std::make_unique<Wt::WContainerWidget>(), 1);
 
     right_column_->setStyleClass("right-column");
+
+    changed_.connect(this, &Abstract_file_view::reload);
+}
+
+void Abstract_file_view::reload()
+{
+    Wt::Dbo::Transaction transaction(session_);
+    viewer_->reload();
 }

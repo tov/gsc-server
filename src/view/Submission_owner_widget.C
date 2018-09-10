@@ -17,10 +17,13 @@
 
 #include <sstream>
 
-Submission_owner_widget::Submission_owner_widget(const Wt::Dbo::ptr<Submission>& submission,
-                                                 Session& session)
+Submission_owner_widget::Submission_owner_widget(
+        const Wt::Dbo::ptr<Submission>& submission,
+        Session& session,
+        Wt::Signal<>* changed)
         : session_(session),
-          submission_(submission)
+          submission_(submission),
+          changed_(changed)
 {
     impl_ = setNewImplementation<Wt::WContainerWidget>();
     setStyleClass("submission-owner-widget");
@@ -103,7 +106,7 @@ void Submission_owner_widget::update_admin_()
 
             transaction2.commit();
 
-            changed_.emit();
+            emit_changed_();
             update_();
         }));
     }
@@ -150,6 +153,11 @@ void Submission_owner_widget::update_student_()
     impl_->addNew<Partner_notification_widget>(self, submission_, session_);
 }
 
+void Submission_owner_widget::emit_changed_()
+{
+    if (changed_) changed_->emit();
+}
+
 void Submission_owner_widget::break_up_partnership_()
 {
     dbo::Transaction transaction(session_);
@@ -158,6 +166,6 @@ void Submission_owner_widget::break_up_partnership_()
     mutable_submission->clear_files();
     transaction.commit();
 
-    changed_.emit();
+    emit_changed_();
     update_();
 }

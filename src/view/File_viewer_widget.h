@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Reloadable.h"
+
 #include <Wt/WCompositeWidget.h>
 #include <Wt/Dbo/ptr.h>
 
@@ -15,12 +17,12 @@ class WComboBox;
 
 }
 
-class File_viewer_widget : public Wt::WCompositeWidget
+class File_viewer_widget : public Wt::WCompositeWidget, public Reloadable
 {
 public:
     File_viewer_widget(const Wt::Dbo::ptr<Submission>&, Session&);
 
-    void reload();
+    void reload() override;
 
     void scroll_to_line(int line_number) const;
     void scroll_to_file(int file_number) const;

@@ -26,12 +26,13 @@ private:
 };
 
 File_list_widget::File_list_widget(const Wt::Dbo::ptr<Submission>& submission,
-                                   Session& session)
+                                   Session& session,
+                                   Wt::Signal<>* changed)
         : submission_(submission),
-          session_(session)
+          session_(session),
+          changed_(changed)
 {
     setStyleClass("file-list");
-    changed_.connect(this, &File_list_widget::reload);
     reload();
 }
 
@@ -106,7 +107,7 @@ void File_resource::handleRequest(const Wt::Http::Request& request,
 }
 
 File_deleter::File_deleter(const Wt::Dbo::ptr<File_meta>& source_file,
-                           Wt::Signal<>& changed,
+                           Wt::Signal<>* changed,
                            Session& session)
         : changed_(changed),
           source_file_(source_file),
@@ -121,7 +122,7 @@ void File_deleter::go()
         source_file_.remove();
         transaction.commit();
 
-        changed_.emit();
+        if (changed_) changed_->emit();
     }
 }
 

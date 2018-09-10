@@ -3,6 +3,7 @@
 #include <Wt/Dbo/ptr.h>
 #include <Wt/WCompositeWidget.h>
 #include <Wt/WContainerWidget.h>
+#include <Wt/WSignal.h>
 
 class Session;
 class Submission;
@@ -10,20 +11,21 @@ class Submission;
 class Submission_owner_widget : public Wt::WCompositeWidget
 {
 public:
-    Submission_owner_widget(const Wt::Dbo::ptr<Submission>&, Session&);
-
-    Wt::Signal<>& changed() { return changed_; }
+    Submission_owner_widget(const Wt::Dbo::ptr<Submission>&, Session&,
+                            Wt::Signal<>* changed = nullptr);
 
 private:
     Session& session_;
     Wt::Dbo::ptr<Submission> submission_;
     Wt::WContainerWidget* impl_;
-    Wt::Signal<> changed_;
+    Wt::Signal<>* changed_;
 
     void update_();
     void update_admin_();
     void update_grader_();
     void update_student_();
+
+    void emit_changed_();
 
     void break_up_partnership_();
 };

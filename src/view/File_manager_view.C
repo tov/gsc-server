@@ -86,6 +86,7 @@ Quota_display::Quota_display(const Wt::Dbo::ptr<Submission>& submission)
 
 void Quota_display::reload()
 {
+    submission_.reread();
     field_->setText(boost::lexical_cast<std::string>(
             submission_->remaining_space()));
 }
@@ -144,10 +145,10 @@ File_uploader::File_uploader(const Wt::Dbo::ptr<Submission>& submission,
 
 void File_uploader::uploaded_()
 {
+    dbo::Transaction transaction(session_);
+
     if (!submission_->can_submit(session_.user()))
         return;
-
-    dbo::Transaction transaction(session_);
 
     for (auto& file : upload_->uploadedFiles()) {
         std::ifstream spool(file.spoolFileName());
@@ -216,26 +217,25 @@ File_manager_view::File_manager_view(const Wt::Dbo::ptr<Submission>& submission,
         : Abstract_file_view(submission, session)
 {
     auto submission_owner =
-            right_column_->addNew<Submission_owner_widget>(submission_, session_);
+            right_column_->addNew<Submission_owner_widget>(
+                    submission_, session_, &changed_);
 
-    auto file_list = std::make_unique<File_list_widget>(submission_, session_);
+    auto file_list = std::make_unique<File_list_widget>(
+            submission_, session_, &changed_);
 
     if (submission_->can_submit(session_.user()))
-        right_column_->addNew<File_uploader>(submission_,
-                                             file_list->changed(),
-                                             session_);
+        right_column_->addNew<File_uploader>(submission_, changed_, session_);
 
-    auto raw_file_list = right_column_->addWidget(std::move(file_list));
+    file_list_         = right_column_->addWidget(std::move(file_list));
     quota_display_     = right_column_->addNew<Quota_display>(submission);
     date_list_         = right_column_->addNew<Date_list>(submission_);
-
-    submission_owner->changed().connect(this, &File_manager_view::reload);
-    raw_file_list->changed().connect(this, &File_manager_view::reload);
 }
 
 void File_manager_view::reload()
 {
-    viewer_->reload();
-    quota_display_->reload();
+    dbo::Transaction transation(session_);
+    Abstract_file_view::reload();
     date_list_->reload();
+    file_list_->reload();
+    quota_display_->reload();
 }
