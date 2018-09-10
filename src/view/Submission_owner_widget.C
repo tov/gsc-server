@@ -102,6 +102,8 @@ void Submission_owner_widget::update_admin_()
                                              submission_->assignment());
 
             transaction2.commit();
+
+            changed_.emit();
             update_();
         }));
     }
@@ -156,5 +158,6 @@ void Submission_owner_widget::break_up_partnership_()
     mutable_submission->clear_files();
     transaction.commit();
 
+    changed_.emit();
     update_();
 }

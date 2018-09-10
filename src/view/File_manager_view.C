@@ -25,24 +25,24 @@
 #include <streambuf>
 #include <vector>
 
-class Quota_display : public Wt::WTemplate
+class Quota_display : public Wt::WTemplate, public Reloadable
 {
 public:
     Quota_display(const Wt::Dbo::ptr<Submission>&);
 
-    void reload();
+    void reload() override;
 
 private:
     Wt::Dbo::ptr<Submission> submission_;
     Wt::WText* field_;
 };
 
-class Date_list : public Wt::WTable
+class Date_list : public Wt::WTable, public Reloadable
 {
 public:
     explicit Date_list(const Wt::Dbo::ptr<Submission>&);
 
-    void reload();
+    void reload() override;
 
 private:
     Wt::Dbo::ptr<Submission> submission_;
@@ -215,7 +215,8 @@ File_manager_view::File_manager_view(const Wt::Dbo::ptr<Submission>& submission,
                                      Session& session)
         : Abstract_file_view(submission, session)
 {
-    right_column_->addNew<Submission_owner_widget>(submission_, session_);
+    auto submission_owner =
+            right_column_->addNew<Submission_owner_widget>(submission_, session_);
 
     auto file_list = std::make_unique<File_list_widget>(submission_, session_);
 
@@ -225,10 +226,16 @@ File_manager_view::File_manager_view(const Wt::Dbo::ptr<Submission>& submission,
                                              session_);
 
     auto raw_file_list = right_column_->addWidget(std::move(file_list));
-    auto quota_display = right_column_->addNew<Quota_display>(submission);
-    auto raw_date_list = right_column_->addNew<Date_list>(submission_);
+    quota_display_     = right_column_->addNew<Quota_display>(submission);
+    date_list_         = right_column_->addNew<Date_list>(submission_);
 
-    raw_file_list->changed().connect(viewer_, &File_viewer_widget::reload);
-    raw_file_list->changed().connect(quota_display, &Quota_display::reload);
-    raw_file_list->changed().connect(raw_date_list, &Date_list::reload);
+    submission_owner->changed().connect(this, &File_manager_view::reload);
+    raw_file_list->changed().connect(this, &File_manager_view::reload);
+}
+
+void File_manager_view::reload()
+{
+    viewer_->reload();
+    quota_display_->reload();
+    date_list_->reload();
 }
