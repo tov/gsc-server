@@ -1,4 +1,5 @@
 #include "Partner_notifications_widget.h"
+#include "Notification.h"
 #include "../model/auth/User.h"
 #include "../model/Assignment.h"
 #include "../Session.h"
@@ -87,17 +88,9 @@ void Partner_confirmer_widget::accept_()
         else
             main_->update_();
     } else {
-        auto box = addNew<Wt::WMessageBox>(
-                "Error",
-                Wt::WString::fromUTF8("That partner request has"
-                                              " been withdrawn :("),
-                Wt::Icon::Critical, Wt::StandardButton::Ok);
-        box->setModal(true);
-        box->buttonClicked().connect(std::bind([=] () {
-            delete box;
-            main_->update_();
-        }));
-        box->show();
+        main_->update_();
+        Notification("Error", this)
+                << "That partner request has been withdrawn :(";
     }
 }
 
@@ -106,7 +99,7 @@ void Partner_confirmer_widget::reject_()
     dbo::Transaction transaction(main_->session_);
     request_.remove();
     transaction.commit();
-    delete this;
+    removeFromParent();
 }
 
 Partner_requestor_widget::Partner_requestor_widget
