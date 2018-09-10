@@ -385,11 +385,25 @@ tr.grader-highlight {
 }
 
 .partner-notification {
-    border: 1px solid darkred;
-    background-color: #fcc;
+    border: 1px solid;
     border-radius: 5px;
     margin-bottom: 1em;
     padding: 0.5em;
+}
+
+.partner-confirmer {
+    border-color: darkred;
+    background-color: #fcc;
+}
+
+.partner-pending {
+    border-color: darkorange;
+    background-color: #ffc;
+}
+
+.partner-requestor {
+    border-color: darkgreen;
+    background-color: #cfc;
 }
 
 .partner-notification .buttons {
