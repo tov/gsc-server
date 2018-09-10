@@ -3,6 +3,7 @@
 #include <Wt/WMessageBox.h>
 #include <Wt/WWidget.h>
 
+#include <functional>
 #include <sstream>
 #include <string>
 
@@ -18,6 +19,13 @@ public:
         return *this;
     }
 
+    template <class T>
+    Notification& and_then(T callback)
+    {
+        callback_ = std::move(callback);
+        return *this;
+    }
+
     ~Notification();
 
     Notification(Notification const&) = delete;
@@ -29,5 +37,6 @@ private:
     std::string title_;
     std::ostringstream message_;
     Wt::WWidget* parent_;
+    std::function<void()> callback_;
 };
 

@@ -14,7 +14,7 @@ class Partner_notification_widget;
 class Partner_requestor_widget : public Wt::WContainerWidget
 {
 public:
-    Partner_requestor_widget(Partner_notification_widget*);
+    explicit Partner_requestor_widget(Partner_notification_widget*);
 
 private:
     Partner_notification_widget* main_;

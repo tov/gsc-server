@@ -148,6 +148,7 @@ void Partner_requestor_widget::submit_()
 void Partner_requestor_widget::error_()
 {
     Notification("Error", this)
+            .and_then([=] { edit_->setFocus(true); })
             << "User “" << edit_->text()
             << "” does not exist or is unavailable.";
 }
