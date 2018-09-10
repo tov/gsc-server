@@ -25,6 +25,22 @@ private:
     Wt::Dbo::ptr<File_meta> source_file_;
 };
 
+// Action for deleting a source file.
+class File_deleter : public Wt::WObject
+{
+public:
+    File_deleter(const Wt::Dbo::ptr<File_meta>& source_file,
+                 Wt::Signal<>* changed,
+                 Session& session);
+
+    void go();
+
+private:
+    Wt::Signal<>* changed_;
+    Wt::Dbo::ptr<File_meta> source_file_;
+    Session& session_;
+};
+
 File_list_widget::File_list_widget(const Wt::Dbo::ptr<Submission>& submission,
                                    Session& session,
                                    Wt::Signal<>* changed)
@@ -39,7 +55,6 @@ File_list_widget::File_list_widget(const Wt::Dbo::ptr<Submission>& submission,
 void File_list_widget::reload()
 {
     clear();
-    deleters_.clear();
 
     Wt::Dbo::Transaction transaction(session_);
 
@@ -78,9 +93,9 @@ void File_list_widget::reload()
             auto remove = elementAt(row, 3)->addNew<Wt::WPushButton>("X");
             remove->setToolTip("delete file");
 
-            auto deleter = std::make_unique<File_deleter>(file, changed_, session_);
-            remove->clicked().connect(&*deleter, &File_deleter::go);
-            deleters_.push_back(std::move(deleter));
+            auto deleter = remove->addChild(
+                    std::make_unique<File_deleter>(file, changed_, session_));
+            remove->clicked().connect(deleter, &File_deleter::go);
         }
 
         ++row;
