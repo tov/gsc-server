@@ -1,7 +1,8 @@
 <server>
     <application-settings location="*">
+        <max-request-size>6000</max-request-size>
+        <!-- <progressive-bootstrap>true</progressive-bootstrap> -->
 	<properties>
 	</properties>
-	<!-- <progressive-bootstrap>true</progressive-bootstrap> -->
     </application-settings>
 </server>

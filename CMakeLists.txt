@@ -84,11 +84,11 @@ set(LIBRARIES
     ${Boost_LIBRARIES})
 
 add_executable(gscd ${SOURCE_FILES})
-target_precompiled_header(gsc src/prefix.h)
-target_link_libraries(gsc wthttp ${LIBRARIES})
+target_precompiled_header(gscd src/prefix.h)
+target_link_libraries(gscd wthttp ${LIBRARIES})
 
 add_executable(gscd-fcgi ${SOURCE_FILES})
-target_link_libraries(gsc-fcgi wtfcgi ${LIBRARIES})
+target_link_libraries(gscd-fcgi wtfcgi ${LIBRARIES})
 
 add_executable(gscdb src/gscdb.C ${MODEL_SOURCE_FILES})
 target_precompiled_header(gscdb src/prefix.h)
