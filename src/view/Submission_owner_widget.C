@@ -164,6 +164,7 @@ void Submission_owner_widget::break_up_partnership_()
     auto mutable_submission = submission_.modify();
     mutable_submission->set_user2({});
     mutable_submission->clear_files();
+    mutable_submission->touch();
     transaction.commit();
 
     emit_changed_();
