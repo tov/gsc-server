@@ -162,9 +162,9 @@ void Users_1::do_patch_(Request_body body, Context const& context)
                 denied(4);
 
             try {
-                auto role = User::string_to_role(pair.second);
+                auto role = destringify<User::Role>(pair.second);
                 std::cerr << "Modifying user " << user_->name()
-                        << " to role " << User::role_to_string(role) << "\n";
+                        << " to role " << stringify(role) << "\n";
                 user_.modify()->set_role(role);
             } catch (std::invalid_argument const& e) {
                 throw Http_status{400, e.what()};

@@ -165,13 +165,9 @@ Wt::Json::Object User::to_json(bool brief) const
     return result;
 }
 
-const char* User::role_to_string(User::Role role)
+dbo::ptr<User> User::find_this() const
 {
-    switch (role) {
-        case User::Role::Admin: return "admin";
-        case User::Role::Grader: return "grader";
-        case User::Role::Student: return "student";
-    }
+    return session()->find<User>().where("id = ?").bind(id());
 }
 
 namespace rc = std::regex_constants;
@@ -180,27 +176,25 @@ static std::regex const admin_re("admin", rc::icase);
 static std::regex const grader_re("grader", rc::icase);
 static std::regex const student_re("student", rc::icase);
 
-User::Role User::string_to_role(std::string const& role)
+char const* Enum<User::Role>::show(User::Role role)
 {
-    using namespace std;
+    switch (role) {
+        case User::Role::Admin: return "admin";
+        case User::Role::Grader: return "grader";
+        case User::Role::Student: return "student";
+    }
+}
 
-    if (regex_match(role, admin_re)) {
+User::Role Enum<User::Role>::read(char const* role)
+{
+    if (std::regex_match(role, admin_re))
         return User::Role::Admin;
-    }
 
-    if (regex_match(role, grader_re)) {
+    if (std::regex_match(role, grader_re))
         return User::Role::Grader;
-    }
 
-    if (regex_match(role, student_re)) {
+    if (std::regex_match(role, student_re))
         return User::Role::Student;
-    }
 
-    throw invalid_argument{"Could not parse role"};
+    throw std::invalid_argument{"Could not parse role"};
 }
-
-dbo::ptr<User> User::find_this() const
-{
-    return session()->find<User>().where("id = ?").bind(id());
-}
-

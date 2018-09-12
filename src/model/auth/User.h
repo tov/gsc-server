@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../specializations.h"
+#include "../../common/stringify.h"
 
 #include <Wt/WDateTime.h>
 #include <Wt/Dbo/Types.h>
@@ -39,9 +40,7 @@ public:
     Role role() const { return static_cast<Role>(role_); }
     void set_role(Role r) { role_ = static_cast<int>(r); }
 
-    const char* role_string() const { return role_to_string(role()); }
-    static const char* role_to_string(Role);
-    static Role string_to_role(std::string const&);
+    const char* role_string() const { return stringify(role()); }
 
     bool can_grade() const;
     bool can_admin() const;
@@ -118,6 +117,13 @@ public:
 
         dbo::hasOne(a, user_stats_, "user");
     }
+};
+
+template <>
+struct Enum<User::Role>
+{
+    static char const* show(User::Role);
+    static User::Role read(char const*);
 };
 
 DBO_EXTERN_TEMPLATES(User)

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "specializations.h"
+#include "../common/stringify.h"
 
 #include <Wt/Dbo/Types.h>
 #include <Wt/Dbo/WtSqlTraits.h>
@@ -85,9 +86,6 @@ public:
     double grade() const;
     std::string grade_string() const;
 
-    static char const* status_to_string(Status);
-    static char const* eval_status_to_string(Eval_status);
-
     bool can_view(const dbo::ptr<User>&) const;
     bool can_submit(const dbo::ptr<User>&) const;
     bool can_eval(const dbo::ptr <User>&) const;
@@ -169,6 +167,18 @@ public:
         dbo::field(a, eval_date_, "eval_date");
         dbo::field(a, last_modified_, "last_modified");
     }
+};
+
+template <>
+struct Enum<Submission::Status>
+{
+    static char const* show(Submission::Status);
+};
+
+template <>
+struct Enum<Submission::Eval_status>
+{
+    static char const* show(Submission::Eval_status);
 };
 
 DBO_EXTERN_TEMPLATES(Submission)

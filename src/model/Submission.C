@@ -483,7 +483,7 @@ J::Object Submission::to_json(bool brief) const
     if (user2())
         result["owner2"] = J::Value(user2()->to_json(true));
     result["assignment_number"] = J::Value(assignment()->number());
-    result["status"] = J::Value(status_to_string(status()));
+    result["status"] = J::Value(stringify(status()));
 
     if (!brief) {
         result["open_date"] = J::Value(json_format(open_date()));
@@ -493,15 +493,22 @@ J::Object Submission::to_json(bool brief) const
         result["files_uri"] = J::Value(rest_files_uri());
         result["bytes_used"] = J::Value(byte_count());
         result["bytes_remaining"] = J::Value(remaining_space());
-        result["eval_status"] = J::Value(eval_status_to_string(eval_status()));
+        result["eval_status"] = J::Value(stringify(eval_status()));
     }
 
     return result;
 }
 
-char const* Submission::status_to_string(Status status)
+
+void Submission::clear_files()
 {
-    using S = Status;
+    source_files_.clear();
+    is_loaded_ = false;
+}
+
+char const* Enum<Submission::Status>::show(Submission::Status status)
+{
+    using S = Submission::Status;
 
     switch (status) {
         case S::future: return "future";
@@ -513,9 +520,9 @@ char const* Submission::status_to_string(Status status)
     }
 }
 
-char const* Submission::eval_status_to_string(Eval_status status)
+char const* Enum<Submission::Eval_status>::show(Submission::Eval_status status)
 {
-    using S = Eval_status;
+    using S = Submission::Eval_status;
 
     switch (status) {
         case S::empty: return "empty";
@@ -524,8 +531,3 @@ char const* Submission::eval_status_to_string(Eval_status status)
     }
 }
 
-void Submission::clear_files()
-{
-    source_files_.clear();
-    is_loaded_ = false;
-}
