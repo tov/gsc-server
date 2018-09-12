@@ -2,8 +2,8 @@
 #include "File_data.h"
 #include "Submission.h"
 #include "auth/User.h"
-#include "../Media_type.h"
-#include "../util.h"
+#include "../common/Media_type_registry.h"
+#include "../common/date_time.h"
 
 #include <Wt/Dbo/Impl.h>
 #include <Wt/Json/Value.h>

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Media_type.h"
+#include "common/Media_type_registry.h"
 #include "Session.h"
 
 #include <Wt/Dbo/ptr.h>

@@ -26,7 +26,7 @@ set(SOURCE_FILES
         src/gscd.C
         ${MODEL_SOURCE_FILES}
         src/Application_controller.C
-        src/Media_type.C
+        src/common/Media_type_registry.C
         src/Navigate.h
         src/view/api/Endpoint.C
         src/view/api/Http_status.C
@@ -47,6 +47,7 @@ set(SOURCE_FILES
         src/view/Self_eval_item_widget.C
         src/view/Review_eval_item_widget.C
         src/view/Confirmation_dialog.C
+        src/common/date_time.C
         src/view/Date_time_edit.C
         src/view/Edit_assignment_view.C
         src/view/Error_view.C
@@ -85,16 +86,16 @@ set(LIBRARIES
     ${Boost_LIBRARIES})
 
 add_executable(gscd ${SOURCE_FILES})
-target_precompiled_header(gscd src/prefix.h)
+target_precompiled_header(gscd src/common/prefix.h)
 target_link_libraries(gscd wthttp ${LIBRARIES})
 
 add_executable(gscd-fcgi ${SOURCE_FILES})
 target_link_libraries(gscd-fcgi wtfcgi ${LIBRARIES})
 
 add_executable(gscdb src/gscdb.C ${MODEL_SOURCE_FILES})
-target_precompiled_header(gscdb src/prefix.h)
+target_precompiled_header(gscdb src/common/prefix.h)
 target_link_libraries(gscdb ${LIBRARIES})
 
 add_executable(gsc_admin src/gsc_admin.C ${MODEL_SOURCE_FILES})
-target_precompiled_header(gsc_admin src/prefix.h)
+target_precompiled_header(gsc_admin src/common/prefix.h)
 target_link_libraries(gsc_admin ${LIBRARIES})

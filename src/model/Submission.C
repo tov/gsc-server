@@ -7,7 +7,7 @@
 #include "Grader_eval.h"
 #include "auth/User.h"
 #include "../Session.h"
-#include "../util.h"
+#include "../common/date_time.h"
 
 #include <Wt/WDateTime.h>
 #include <Wt/Dbo/Impl.h>
@@ -486,10 +486,10 @@ J::Object Submission::to_json(bool brief) const
     result["status"] = J::Value(status_to_string(status()));
 
     if (!brief) {
-        result["open_date"] = json_format(open_date());
-        result["due_date"] = json_format(effective_due_date());
-        result["eval_date"] = json_format(effective_eval_date());
-        result["last_modified"] = json_format(last_modified());
+        result["open_date"] = J::Value(json_format(open_date()));
+        result["due_date"] = J::Value(json_format(effective_due_date()));
+        result["eval_date"] = J::Value(json_format(effective_eval_date()));
+        result["last_modified"] = J::Value(json_format(last_modified()));
         result["files_uri"] = J::Value(rest_files_uri());
         result["bytes_used"] = J::Value(byte_count());
         result["bytes_remaining"] = J::Value(remaining_space());

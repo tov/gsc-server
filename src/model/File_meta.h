@@ -1,7 +1,7 @@
 #pragma once
 
 #include "specializations.h"
-#include "../util.h"
+#include "../common/stringify.h"
 
 #include <Wt/Dbo/Types.h>
 #include <Wt/Dbo/WtSqlTraits.h>

@@ -1,4 +1,4 @@
-#include "Media_type.h"
+#include "Media_type_registry.h"
 
 #include <algorithm>
 #include <cctype>
