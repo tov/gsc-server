@@ -1,9 +1,9 @@
 #include "File_meta.h"
 #include "File_data.h"
-#include "../Media_type.h"
 #include "Submission.h"
 #include "auth/User.h"
-#include "../view/api/common.h"
+#include "../Media_type.h"
+#include "../util.h"
 
 #include <Wt/Dbo/Impl.h>
 #include <Wt/Json/Value.h>
@@ -194,7 +194,7 @@ bool operator<(const File_meta& a, const File_meta& b)
 std::string File_meta::rest_uri() const
 {
     std::ostringstream os;
-    os << "/submissions/" << submission().id()
+    os << "/api/submissions/" << submission().id()
             << "/files/"
             << Wt::Utils::urlEncode(name());
     return os.str();

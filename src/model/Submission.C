@@ -5,9 +5,9 @@
 #include "File_data.h"
 #include "File_meta.h"
 #include "Grader_eval.h"
-#include "../Session.h"
-#include "../view/api/common.h"
 #include "auth/User.h"
+#include "../Session.h"
+#include "../util.h"
 
 #include <Wt/WDateTime.h>
 #include <Wt/Dbo/Impl.h>
