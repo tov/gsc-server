@@ -4,6 +4,7 @@
 
 #include <Wt/Http/Request.h>
 #include <Wt/Http/Response.h>
+#include <Wt/WLocale.h>
 #include <Wt/WResource.h>
 
 namespace api {
@@ -18,6 +19,7 @@ public:
 
 private:
     Db_session session_;
+    Wt::WLocale locale_;
 };
 
 } // end namespace api

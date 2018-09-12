@@ -1,5 +1,6 @@
 #include "Application_controller.h"
 
+#include "util.h"
 #include "model/auth/User.h"
 #include "model/Assignment.h"
 #include "model/Grader_eval.h"
@@ -18,7 +19,6 @@
 #include "view/game/HangmanWidget.h"
 #include "view/game/HighScoresWidget.h"
 
-#include <Wt/Date/tz.h>
 #include <Wt/WBootstrapTheme.h>
 #include <Wt/WWidget.h>
 
@@ -75,8 +75,7 @@ Application_controller::Application_controller(Wt::Dbo::SqlConnectionPool& pool,
 
     // There ought to be a way to pick this up from the environment.
     auto locale = this->locale();
-    auto time_zone = date::locate_zone("America/Chicago");
-    locale.setTimeZone(time_zone);
+    set_time_zone(locale);
     setLocale(locale);
 
     main_ = root()->addNew<Main_view>(session_);

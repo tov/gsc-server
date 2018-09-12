@@ -3,22 +3,28 @@
 #include "Path.h"
 #include "Request_handler.h"
 #include "Resource.h"
+#include "../../util.h"
 
 #include <memory>
 
 namespace api {
 
 Endpoint::Endpoint(Wt::Dbo::SqlConnectionPool& pool)
-        : session_{pool} {}
+        : session_{pool}
+        , locale_{Wt::WLocale::currentLocale()}
+{
+    set_time_zone(locale_);
+}
 
 void Endpoint::handleRequest(const Wt::Http::Request& request,
                              Wt::Http::Response& response)
 {
-    Request_handler handler(session_, request, response);
+    Wt::WLocale::setCurrentLocale(locale_);
 
     std::unique_ptr<Resource::Base> resource;
 
     try {
+        Request_handler handler(session_, request, response);
         auto current_user = handler.authenticate();
         resource = handler.parse_uri();
 
