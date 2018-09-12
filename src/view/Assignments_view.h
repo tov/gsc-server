@@ -24,6 +24,7 @@ public:
         NUMBER,
         NAME,
         PARTNER,
+        WEB_ALLOWED,
         OPEN_DATE,
         DUE_DATE,
         EVAL_DATE,
@@ -38,6 +39,7 @@ private:
     Session& session_;
     Wt::WTableRow* row_;
     Wt::WCheckBox* partner_;
+    Wt::WCheckBox* web_allowed_;
     Wt::WLineEdit* name_;
     Date_time_edit* open_date_;
     Date_time_edit* due_date_;

@@ -20,14 +20,15 @@ namespace J = Wt::Json;
 
 DBO_INSTANTIATE_TEMPLATES(Submission)
 
-const int Submission::max_byte_count = 20 * 1024 * 1024;
+static int const initial_bytes_quota = 20 * 1024 * 1024;
 
 Submission::Submission(const dbo::ptr <User>& user,
                        const dbo::ptr <Assignment>& assignment)
         : user1_(user), assignment_(assignment),
           due_date_(assignment->due_date()),
           eval_date_(assignment->eval_date()),
-          last_modified_(Wt::WDateTime::currentDateTime())
+          last_modified_(Wt::WDateTime::currentDateTime()),
+          bytes_quota_(initial_bytes_quota)
 {
 
 }
@@ -447,7 +448,7 @@ Submission::find_file_by_name(const std::string& filename) const
 
 int Submission::remaining_space() const
 {
-    return max_byte_count - byte_count();
+    return bytes_quota() - byte_count();
 }
 
 bool Submission::has_sufficient_space(int bytes,
@@ -492,7 +493,7 @@ J::Object Submission::to_json(bool brief) const
         result["last_modified"] = J::Value(json_format(last_modified()));
         result["files_uri"] = J::Value(rest_files_uri());
         result["bytes_used"] = J::Value(byte_count());
-        result["bytes_remaining"] = J::Value(remaining_space());
+        result["bytes_quota"] = J::Value(bytes_quota());
         result["eval_status"] = J::Value(stringify(eval_status()));
     }
 

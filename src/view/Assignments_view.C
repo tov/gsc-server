@@ -27,13 +27,14 @@ Assignments_view_row::Assignments_view_row(
 {
     row_->elementAt(NUMBER)->addNew<Wt::WText>(
             boost::lexical_cast<std::string>(assignment_->number()));
-    name_      = row_->elementAt(NAME)->addNew<Wt::WLineEdit>();
-    partner_   = row_->elementAt(PARTNER)->addNew<Wt::WCheckBox>();
-    open_date_ = row_->elementAt(OPEN_DATE)->addNew<Date_time_edit>();
-    due_date_  = row_->elementAt(DUE_DATE)->addNew<Date_time_edit>();
-    eval_date_ = row_->elementAt(EVAL_DATE)->addNew<Date_time_edit>();
-    points_    = row_->elementAt(POINTS)->addNew<Wt::WLineEdit>();
-    auto edit  = row_->elementAt(ACTION) ->addNew<Wt::WPushButton>("Edit");
+    name_        = row_->elementAt(NAME)->addNew<Wt::WLineEdit>();
+    partner_     = row_->elementAt(PARTNER)->addNew<Wt::WCheckBox>();
+    web_allowed_ = row_->elementAt(WEB_ALLOWED)->addNew<Wt::WCheckBox>();
+    open_date_   = row_->elementAt(OPEN_DATE)->addNew<Date_time_edit>();
+    due_date_    = row_->elementAt(DUE_DATE)->addNew<Date_time_edit>();
+    eval_date_   = row_->elementAt(EVAL_DATE)->addNew<Date_time_edit>();
+    points_      = row_->elementAt(POINTS)->addNew<Wt::WLineEdit>();
+    auto edit    = row_->elementAt(ACTION) ->addNew<Wt::WPushButton>("Edit");
 
     name_->setStyleClass("name");
     points_->setStyleClass("points");
@@ -51,6 +52,13 @@ Assignments_view_row::Assignments_view_row(
         transaction.commit();
         update_();
     }));
+
+    web_allowed_->changed().connect([=] {
+        dbo::Transaction transaction(session_);
+        assignment_.modify()->set_web_allowed(web_allowed_->isChecked());
+        transaction.commit();
+        update_();
+    });
 
     points_->changed().connect(std::bind([=] () {
         std::string points_s = points_->text().toUTF8();
@@ -120,6 +128,8 @@ void Assignments_view_row::add_headings(Wt::WTableRow* row)
     row->elementAt(NAME)->addNew<Wt::WText>("Name");
     row->elementAt(PARTNER)->addNew<Wt::WText>("2")
        ->setToolTip("Allow partners");
+    row->elementAt(WEB_ALLOWED) -> addNew<Wt::WText>("W")
+       ->setToolTip("Allow web submission");
     row->elementAt(OPEN_DATE)->addNew<Wt::WText>("Opens");
     row->elementAt(DUE_DATE)->addNew<Wt::WText>("Due");
     row->elementAt(EVAL_DATE)->addNew<Wt::WText>("Self-eval");
@@ -131,6 +141,7 @@ void Assignments_view_row::update_() const
 {
     name_->setText(assignment_->name());
     partner_->setChecked(assignment_->partner());
+    web_allowed_->setChecked(assignment_->web_allowed());
     open_date_->set_date_time(assignment_->open_date());
     due_date_->set_date_time(assignment_->due_date());
     eval_date_->set_date_time(assignment_->eval_date());

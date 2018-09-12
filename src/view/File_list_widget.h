@@ -14,13 +14,14 @@ class Submission;
 class File_list_widget : public Wt::WTable, public Reloadable
 {
 public:
-    File_list_widget(const Wt::Dbo::ptr<Submission>&, Session& session,
-                     Wt::Signal<>* changed = nullptr);
+    File_list_widget(const Wt::Dbo::ptr<Submission>&, bool can_modify,
+                     Session& session, Wt::Signal<>* changed = nullptr);
 
     void reload() override;
 
 private:
     Wt::Dbo::ptr<Submission> submission_;
+    bool can_modify_;
     Session& session_;
     Wt::Signal<>* changed_;
 };

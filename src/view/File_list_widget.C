@@ -42,9 +42,9 @@ private:
 };
 
 File_list_widget::File_list_widget(const Wt::Dbo::ptr<Submission>& submission,
-                                   Session& session,
-                                   Wt::Signal<>* changed)
+                                   bool can_modify, Session& session, Wt::Signal<>* changed)
         : submission_(submission),
+          can_modify_(can_modify),
           session_(session),
           changed_(changed)
 {
@@ -62,12 +62,10 @@ void File_list_widget::reload()
 
     if (source_files.empty()) return;
 
-    bool can_delete = submission_->can_submit(session_.user());
-
     elementAt(0, 0)->addNew<Wt::WText>("<strong>filename</strong>");
     elementAt(0, 1)->addNew<Wt::WText>("<strong>type</strong>");
     elementAt(0, 2)->addNew<Wt::WText>("<strong>bytes</strong>");
-    if (can_delete)
+    if (can_modify_)
         elementAt(0, 3)->addNew<Wt::WText>("<strong>rm</strong>");
 
     int row = 1;
@@ -89,7 +87,7 @@ void File_list_widget::reload()
         type->setToolTip("file purpose");
         bytes->setToolTip("file size in bytes");
 
-        if (can_delete) {
+        if (can_modify_) {
             auto remove = elementAt(row, 3)->addNew<Wt::WPushButton>("X");
             remove->setToolTip("delete file");
 

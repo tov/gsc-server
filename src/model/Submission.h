@@ -54,6 +54,7 @@ public:
     const Source_files& source_files() const { return source_files_; }
     size_t file_count() const;
     int byte_count() const;
+    int bytes_quota() const { return bytes_quota_; }
 
     const Wt::WDateTime& last_modified() const { return last_modified_; }
 
@@ -126,8 +127,6 @@ public:
     static dbo::ptr<Submission>
     find_by_id(dbo::Session&, int session_id);
 
-    static const int max_byte_count;
-
     std::string rest_uri() const;
     std::string rest_files_uri() const;
     Wt::Json::Object to_json(bool brief = false) const;
@@ -141,6 +140,7 @@ private:
     Wt::WDateTime        due_date_;
     Wt::WDateTime        eval_date_;
     Wt::WDateTime        last_modified_;
+    int                  bytes_quota_;
 
     // caching
     mutable bool is_loaded_ = false;
@@ -166,6 +166,7 @@ public:
         dbo::field(a, due_date_, "due_date");
         dbo::field(a, eval_date_, "eval_date");
         dbo::field(a, last_modified_, "last_modified");
+        dbo::field(a, bytes_quota_, "bytes_quota");
     }
 };
 

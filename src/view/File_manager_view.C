@@ -4,6 +4,7 @@
 #include "Notification.h"
 #include "Submission_owner_widget.h"
 #include "../Session.h"
+#include "../model/Assignment.h"
 #include "../model/File_data.h"
 #include "../model/File_meta.h"
 #include "../model/Submission.h"
@@ -198,14 +199,18 @@ File_manager_view::File_manager_view(const Wt::Dbo::ptr<Submission>& submission,
                                      Session& session)
         : Abstract_file_view(submission, session)
 {
+    bool can_modify =
+            submission_->can_submit(session_.user()) &&
+            submission_->assignment()->web_allowed();
+
     auto submission_owner =
             right_column_->addNew<Submission_owner_widget>(
                     submission_, session_, &changed_);
 
     auto file_list = std::make_unique<File_list_widget>(
-            submission_, session_, &changed_);
+            submission_, can_modify, session_, &changed_);
 
-    if (submission_->can_submit(session_.user()))
+    if (can_modify)
         right_column_->addNew<File_uploader>(submission_, changed_, session_);
 
     file_list_         = right_column_->addWidget(std::move(file_list));

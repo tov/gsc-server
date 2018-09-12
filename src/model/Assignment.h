@@ -42,6 +42,7 @@ public:
     const Wt::WDateTime& due_date() const { return due_date_; }
     const Wt::WDateTime& eval_date() const { return eval_date_; }
     bool partner() const { return partner_; }
+    bool web_allowed() const { return web_allowed_; }
     Eval_items eval_items() const;
     Submissions submissions() const { return submissions_; }
 
@@ -50,7 +51,8 @@ public:
     void set_open_date(const Wt::WDateTime& date) { open_date_ = date; }
     void set_due_date(const Wt::WDateTime& date) { due_date_ = date; }
     void set_eval_date(const Wt::WDateTime& date) { eval_date_ = date; }
-    void set_partner(bool p) { partner_ = p; }
+    void set_partner(bool b) { partner_ = b; }
+    void set_web_allowed(bool b) { web_allowed_ = b; }
 
     Status status() const;
 
@@ -63,6 +65,7 @@ private:
     std::string   name_;
     int           points_ = 0;
     bool          partner_ = true;
+    bool          web_allowed_ = true;
     Wt::WDateTime open_date_;
     Wt::WDateTime due_date_;
     Wt::WDateTime eval_date_;
@@ -77,6 +80,7 @@ public:
         dbo::field(a, name_, "name");
         dbo::field(a, points_, "points");
         dbo::field(a, partner_, "partner");
+        dbo::field(a, web_allowed_, "web_allowed");
         dbo::field(a, open_date_, "open_date");
         dbo::field(a, due_date_, "due_date");
         dbo::field(a, eval_date_, "eval_date");
