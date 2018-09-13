@@ -20,3 +20,4 @@ mid=audio/midi
 midi=audio/midi
 ogg=audio/ogg
 wav=audio/wav
+svg=image/svg+xml

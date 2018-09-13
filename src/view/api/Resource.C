@@ -277,7 +277,7 @@ private:
 void Submissions_1_files::load(Context const& context)
 {
     auto submission = load_submission(context, submission_id_);
-    auto file_metas = submission->source_files();
+    auto file_metas = submission->source_files_sorted(true);
     file_metas_.assign(file_metas.begin(), file_metas.end());
 }
 

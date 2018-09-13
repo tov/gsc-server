@@ -50,7 +50,7 @@ public:
     Submission() {};
     Submission(const dbo::ptr<User>&, const dbo::ptr<Assignment>&);
 
-    Source_file_vec source_files_sorted() const;
+    Source_file_vec source_files_sorted(bool name_only = false) const;
     const Source_files& source_files() const { return source_files_; }
     size_t file_count() const;
     int byte_count() const;
