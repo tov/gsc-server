@@ -72,15 +72,11 @@ static std::regex const test_file_re("test.*|.*test\\.[^.]*",
 static File_purpose classify_file_type(std::string const& media_type,
                                        std::string const& filename)
 {
-    std::cerr << "*** media_type: " << media_type
-            << " filename: " << filename << "\n";
     if (media_type != "text/plain")
         return File_purpose::resource;
 
-    if (std::regex_match(filename, log_file_re)) {
-        std::cerr << "*** Matched log_file_re\n";
+    if (std::regex_match(filename, log_file_re))
         return File_purpose::log;
-    }
 
     if (std::regex_match(filename, test_file_re))
         return File_purpose::test;
