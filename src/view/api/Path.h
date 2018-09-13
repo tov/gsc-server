@@ -7,7 +7,7 @@ namespace api {
 
 namespace Path {
 
-extern const std::string users;
+extern const std::regex users;
 extern const std::regex users_1;
 extern const std::regex users_1_submissions;
 extern const std::regex submissions_1;

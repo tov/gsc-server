@@ -367,7 +367,7 @@ std::unique_ptr<Base> Base::parse_(std::string const& path_info)
         return std::atoi(str.c_str());
     };
 
-    if (path_info == Path::users) {
+    if (std::regex_match(path_info, Path::users)) {
         return std::make_unique<Users>();
     }
 

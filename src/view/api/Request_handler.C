@@ -130,7 +130,7 @@ dbo::ptr<User> Request_handler::authenticate_by_password_()
     // Intercept user creation requests. These are POSTs to /users, and are only
     // valid if the user doesn't exist. In that case, we create the user and
     // create and set a login cookie.
-    if (path_info_ == Path::users && method_ == "POST") {
+    if (std::regex_match(path_info_, Path::users) && method_ == "POST") {
         if (user) throw Http_status{403, "User already exists"};
 
         check_password_strength(credentials);
