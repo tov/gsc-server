@@ -95,6 +95,7 @@ public:
 
     std::string url() const;
     std::string eval_url() const;
+    std::string url_for_user(const dbo::ptr<User>&) const;
 
     dbo::ptr<File_meta> find_file_by_name(const std::string&) const;
 

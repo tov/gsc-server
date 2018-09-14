@@ -84,7 +84,7 @@ void Partner_confirmer_widget::accept_()
 
     if (joint_submission) {
         if (main_->submission_)
-            Navigate::to(joint_submission->url());
+            Navigate::to(joint_submission->url_for_user(request_->requestor()));
         else
             main_->update_();
     } else {
@@ -134,6 +134,19 @@ void Partner_requestor_widget::submit_()
         message << "User ‘" << edit_->text() << "’ does not exist.";
         error_(message.str());
         return;
+    }
+
+    auto incoming = Partner_request::find_by_requestor_and_assignment(
+            main_->session_, user2, main_->submission_->assignment());
+    if (incoming && incoming->requestee() == main_->session_.user()) {
+        auto joint_submission = incoming->confirm(main_->session_);
+        if (joint_submission) {
+            if (main_->submission_)
+                Navigate::to(joint_submission->url_for_user(user2));
+            else
+                main_->update_();
+            return;
+        }
     }
 
     auto request = Partner_request::create(main_->session_,

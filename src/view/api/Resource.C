@@ -222,8 +222,8 @@ void Users_1::do_patch_(Request_body body, Context const& context)
                             auto incoming = Partner_request::find_by_requestor_and_assignment(
                                     context.session, other, hw);
                             if (incoming && incoming->requestee() == user_) {
-                                incoming->confirm(context.session);
-                                break;
+                                if (incoming->confirm(context.session))
+                                    break;
                             }
 
                             std::ostringstream reason;
