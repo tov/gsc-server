@@ -5,6 +5,7 @@
 #include "../../Session.h"
 #include "../../model/auth/User.h"
 #include "../../model/Assignment.h"
+#include "../../model/Exam_grade.h"
 #include "../../model/File_data.h"
 #include "../../model/File_meta.h"
 #include "../../model/Submission.h"
@@ -150,36 +151,53 @@ void Users_1::do_delete_(Context const& context)
 
 void Users_1::do_patch_(Request_body body, Context const& context)
 {
-    auto json = std::move(body).read_json();
+    try {
+        auto json = std::move(body).read_json();
+        
+        J::Object const& object = json;
 
-    if (json.type() != J::Type::Object)
-        throw Http_status{400, "PATCH /user/_1 expected a JSON object"};
-    J::Object const& object = json;
+        for (auto const& pair : object) {
+            if (pair.first == "role") {
+                if (!context.user->can_admin())
+                    denied(4);
 
-    for (auto const& pair : object) {
-        if (pair.first == "role") {
-            if (!context.user->can_admin())
-                denied(4);
-
-            try {
-                auto role = destringify<User::Role>(pair.second);
-                user_.modify()->set_role(role);
-            } catch (std::invalid_argument const& e) {
-                throw Http_status{400, e.what()};
-            }
-        }
-
-        else if (pair.first == "password") {
-            if (!context.user->can_admin()) {
-                Credentials creds{user_->name(), pair.second};
-                Request_handler::check_password_strength(creds);
+                try {
+                    auto role = destringify<User::Role>(pair.second);
+                    user_.modify()->set_role(role);
+                } catch (std::invalid_argument const& e) {
+                    throw Http_status{400, e.what()};
+                }
             }
 
-            context.session.set_password(user_, pair.second);
-        }
+            else if (pair.first == "password") {
+                if (!context.user->can_admin()) {
+                    Credentials creds{user_->name(), pair.second};
+                    Request_handler::check_password_strength(creds);
+                }
 
-        else if (pair.first == "partner_requests") {
-            try {
+                context.session.set_password(user_, pair.second);
+            }
+
+            else if (pair.first == "exam_grades") {
+                if (!context.user->can_admin())
+                    denied(11);
+
+                J::Array const& exams = pair.second;
+                for (J::Object const& exam : exams) {
+                    int number   = exam.get("number");
+                    int points   = exam.get("points");
+                    int possible = exam.get("possible");
+
+                    auto exam_grade = Exam_grade::find_by_user_and_number(user_, number);
+
+                    if (possible == 0)
+                        exam_grade.remove();
+                    else
+                        exam_grade.modify()->set_points_and_possible(points, possible);
+                }
+            }
+
+            else if (pair.first == "partner_requests") {
                 J::Array const& requests = pair.second;
                 for (J::Object const& request : requests) {
                     using S = Partner_request::Status;
@@ -220,7 +238,7 @@ void Users_1::do_patch_(Request_body body, Context const& context)
                             } else {
                                 Http_error{403} << "You don’t have an incoming partner "
                                                    "request from user ‘"
-                                        << user->name() << "’.";
+                                                << user->name() << "’.";
                             }
                             break;
                         }
@@ -237,15 +255,15 @@ void Users_1::do_patch_(Request_body body, Context const& context)
                         }
                     }
                 }
-
-            } catch (Wt::Json::TypeException const& e) {
-                throw Http_status{400, "PATCH /users/_1 could not parse "
-                                       "partner requests"};
             }
-        }
 
-        else
-            throw Http_status{400, "PATCH got unknown JSON key: " + pair.first};
+            else
+                throw Http_status{400, "PATCH got unknown JSON key: " + pair.first};
+        }
+    } catch (J::TypeException const& e) {
+        throw Http_status{400, "PATCH /users/_1 could not understand request"};
+    } catch (J::ParseError const& e) {
+        throw Http_status{400, "PATCH /users/_1 could not parse user request as JSON"};
     }
 
     success();

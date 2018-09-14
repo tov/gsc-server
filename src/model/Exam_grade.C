@@ -56,9 +56,8 @@ Exam_grade::find_by_user_and_number(const dbo::ptr <User>& user, int number)
                 .where("user_id = ?").bind(user.id())
                 .where("number = ?").bind(number);
 
-    if (! result)
-        return user.session()->addNew<Exam_grade>(user, number);
-    else
-        return result;
+    if (! result) result = user.session()->addNew<Exam_grade>(user, number);
+
+    return result;
 }
 
