@@ -22,21 +22,24 @@ DBO_INSTANTIATE_TEMPLATES(File_meta)
 char const* Enum<File_purpose>::show(File_purpose purpose)
 {
     switch (purpose) {
+        case File_purpose::config: return "config";
         case File_purpose::log: return "log";
         case File_purpose::resource: return "resource";
-        case File_purpose::test: return "test";
         case File_purpose::source: return "source";
+        case File_purpose::test: return "test";
     }
 }
 
+static std::regex const config_re("config", std::regex_constants::icase);
 static std::regex const log_re("log", std::regex_constants::icase);
-static std::regex const resource_re("resource",
-                                    std::regex_constants::icase);
-static std::regex const source_re("source", std::regex_constants::icase);
+static std::regex const resource_re("resource", std::regex_constants::icase);
 static std::regex const test_re("test", std::regex_constants::icase);
 
 File_purpose Enum<File_purpose>::read(char const* purpose)
 {
+    if (std::regex_match(purpose, config_re))
+        return File_purpose::config;
+
     if (std::regex_match(purpose, log_re))
         return File_purpose::log;
 
@@ -65,13 +68,16 @@ static int count_lines(const Bytes& bytes)
     return result;
 }
 
+static std::regex const config_file_re("Makefile|CMakeLists\\.txt", std::regex_constants::icase);
 static std::regex const log_file_re(".*\\.(?:log|out)", std::regex_constants::icase);
-static std::regex const test_file_re("test.*|.*test\\.[^.]*",
-                                     std::regex_constants::icase);
+static std::regex const test_file_re("test.*|.*test\\.[^.]*", std::regex_constants::icase);
 
 static File_purpose classify_file_type(std::string const& media_type,
                                        std::string const& filename)
 {
+    if (std::regex_match(filename, config_file_re))
+        return File_purpose::config;
+
     if (media_type != "text/plain")
         return File_purpose::resource;
 

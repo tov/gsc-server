@@ -17,6 +17,7 @@ class Submission;
 enum class File_purpose {
     source,
     test,
+    config,
     resource,
     log,
 };
