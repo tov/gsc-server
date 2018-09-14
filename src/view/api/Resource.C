@@ -13,6 +13,7 @@
 #include <Wt/Json/Value.h>
 #include <Wt/Json/Serializer.h>
 #include <Wt/Utils.h>
+#include <Wt/WLocalDateTime.h>
 
 #include <cstdlib>
 #include <regex>
@@ -294,6 +295,7 @@ public:
 protected:
     void do_delete_(Context const& context) override;
     void do_get_(Context const& context) override;
+    void do_patch_(Request_body body, Context const &context) override;
 
 private:
     int submission_id_;
@@ -301,12 +303,12 @@ private:
     dbo::ptr<Submission> submission_;
 };
 
-void Submissions_1::load(const api::Resource::Base::Context& context)
+void Submissions_1::load(const Context& context)
 {
     submission_ = load_submission(context, submission_id_);
 }
 
-void Submissions_1::do_delete_(const api::Resource::Base::Context& context)
+void Submissions_1::do_delete_(const Context& context)
 {
     if (!submission_->can_submit(context.user))
         denied(6);
@@ -315,9 +317,46 @@ void Submissions_1::do_delete_(const api::Resource::Base::Context& context)
     success();
 }
 
-void Submissions_1::do_get_(const api::Resource::Base::Context& context)
+void Submissions_1::do_get_(const Context& context)
 {
     use_json(submission_->to_json());
+}
+
+void Submissions_1::do_patch_(Request_body body, const Base::Context &context) {
+    if (!context.user->can_admin())
+        denied(10);
+
+    try {
+        auto json = std::move(body).read_json();
+        J::Object const& object = json;
+
+        for (auto const& pair : object) {
+            if (pair.first == "due_date") {
+                auto local_time = Wt::WLocalDateTime::fromString(pair.second);
+                submission_.modify()->set_due_date(local_time.toUTC());
+            }
+
+            else if (pair.first == "eval_date") {
+                auto local_time = Wt::WLocalDateTime::fromString(pair.second);
+                submission_.modify()->set_eval_date(local_time.toUTC());
+            }
+
+            else if (pair.first == "bytes_quota") {
+                int bytes_quota = pair.second;
+                submission_.modify()->set_bytes_quota(bytes_quota);
+            }
+
+            else {
+                Http_error{400} << "PATCH got unknown JSON key: " << pair.first;
+            }
+        }
+    } catch (Wt::Json::ParseError const& e) {
+        Http_error{400} << e.what();
+    } catch (Wt::Json::TypeException const& e) {
+        Http_error{400} << e.what();
+    }
+
+    success();
 }
 
 class Submissions_1_files : public Base
