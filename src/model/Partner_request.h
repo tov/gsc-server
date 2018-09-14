@@ -1,6 +1,8 @@
 #pragma once
 
 #include "specializations.h"
+#include "../common/stringify.h"
+#include "../Session.h"
 
 #include <Wt/Dbo/WtSqlTraits.h>
 #include <Wt/Dbo/Types.h>
@@ -15,19 +17,26 @@ class User;
 class Partner_request
 {
 public:
+    enum class Status {
+        outgoing,
+        incoming,
+        accepted,
+        canceled,
+    };
+
     Partner_request() = default;
     Partner_request(const dbo::ptr<User>& requestor,
                     const dbo::ptr<User>& requestee,
                     const dbo::ptr<Assignment>& assignment);
 
-    static dbo::ptr<Partner_request>
-    create(Session&,
-           const dbo::ptr<User>& requestor,
+    static Wt::Dbo::ptr<Partner_request>
+    create(Db_session&, const dbo::ptr<User>& requestor,
            const dbo::ptr<User>& requestee,
-           const dbo::ptr<Assignment>&);
+           const dbo::ptr<Assignment>&,
+           std::string* failure_reason);
 
     // Returns the pointer to the joint submission on success.
-    dbo::ptr<Submission> confirm(Session&) const;
+    dbo::ptr<Submission> confirm(Db_session &) const;
 
     const dbo::ptr<User>& requestor() const { return requestor_; }
     const dbo::ptr<User>& requestee() const { return requestee_; }
@@ -38,31 +47,31 @@ public:
 
     static dbo::ptr<Partner_request>
     find_by_requestor_and_requestee(
-            Session&,
-            const dbo::ptr<User>& requestor,
-            const dbo::ptr<User>& requestee,
-            const dbo::ptr<Assignment>&);
+            Db_session &,
+            const dbo::ptr<User> &requestor,
+            const dbo::ptr<User> &requestee,
+            const dbo::ptr<Assignment> &);
 
     static dbo::collection<dbo::ptr<Partner_request>>
-    find_by_requestor(Session&, const dbo::ptr<User>&);
+    find_by_requestor(Db_session &, const dbo::ptr<User> &);
 
     static dbo::collection<dbo::ptr<Partner_request>>
-    find_by_requestee(Session&, const dbo::ptr<User>&);
+    find_by_requestee(Db_session &, const dbo::ptr<User> &);
 
     static dbo::ptr<Partner_request>
-    find_by_requestor_and_assignment(Session&,
+    find_by_requestor_and_assignment(Db_session&,
                                      const dbo::ptr<User>&,
                                      const dbo::ptr<Assignment>&);
 
     static dbo::collection<dbo::ptr<Partner_request>>
-    find_by_requestee_and_assignment(Session&,
-                                     const dbo::ptr<User>&,
-                                     const dbo::ptr<Assignment>&);
+    find_by_requestee_and_assignment(Db_session &,
+                                     const dbo::ptr<User> &,
+                                     const dbo::ptr<Assignment> &);
 
     static void
-    delete_requests(Session&,
-                    const dbo::ptr<User>&,
-                    const dbo::ptr<Assignment>&);
+    delete_requests(Db_session &,
+                    const dbo::ptr<User> &,
+                    const dbo::ptr<Assignment> &);
 
 private:
     dbo::ptr<User> requestor_;
@@ -77,6 +86,13 @@ public:
         dbo::belongsTo(a, requestee_, "requestee", dbo::OnDeleteCascade);
         dbo::belongsTo(a, assignment_, "assignment", dbo::OnDeleteCascade);
     }
+};
+
+template <>
+struct Enum<Partner_request::Status>
+{
+    static char const* show(Partner_request::Status);
+    static Partner_request::Status read(char const*);
 };
 
 DBO_EXTERN_TEMPLATES(Partner_request)

@@ -2,6 +2,8 @@
 #include "Eval_item.h"
 #include "auth/User.h"
 
+namespace J = Wt::Json;
+
 DBO_INSTANTIATE_TEMPLATES(Exam_grade)
 
 Exam_grade::Exam_grade(const dbo::ptr <User>& user, int number)
@@ -27,6 +29,15 @@ std::string Exam_grade::pct_string() const
 {
     if (possible() == 0) return "N/A";
     return Eval_item::pct_string(grade(), 3);
+}
+
+J::Object Exam_grade::to_json() const
+{
+    J::Object result;
+    result["number"]   = J::Value(number());
+    result["points"]   = J::Value(points());
+    result["possible"] = J::Value(possible());
+    return result;
 }
 
 Wt::Dbo::collection<Wt::Dbo::ptr<Exam_grade>>

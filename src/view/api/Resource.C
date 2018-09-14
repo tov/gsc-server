@@ -8,6 +8,7 @@
 #include "../../model/File_data.h"
 #include "../../model/File_meta.h"
 #include "../../model/Submission.h"
+#include "../../model/Partner_request.h"
 
 #include <Wt/Json/Value.h>
 #include <Wt/Json/Serializer.h>
@@ -27,19 +28,17 @@ namespace Resource {
 
 void Base::denied(int code)
 {
-    std::ostringstream os;
-    os << "You can't do that (code " << code << ")";
-    throw Http_status{403, os.str()};
+    Http_error{403} << "You can't do that (code " << code << ")";
 }
 
 void Base::not_found()
 {
-    throw Http_status{404, "The named resource does not exist"};
+    Http_error{404} << "The named resource does not exist";
 }
 
 void Base::not_supported()
 {
-    throw Http_status{405, "The resource does not support that method"};
+    Http_error{405} << "The resource does not support that method";
 }
 
 void Base::send(Wt::Http::Response& response) const
@@ -163,8 +162,6 @@ void Users_1::do_patch_(Request_body body, Context const& context)
 
             try {
                 auto role = destringify<User::Role>(pair.second);
-                std::cerr << "Modifying user " << user_->name()
-                        << " to role " << stringify(role) << "\n";
                 user_.modify()->set_role(role);
             } catch (std::invalid_argument const& e) {
                 throw Http_status{400, e.what()};
@@ -178,6 +175,72 @@ void Users_1::do_patch_(Request_body body, Context const& context)
             }
 
             context.session.set_password(user_, pair.second);
+        }
+
+        else if (pair.first == "partner_requests") {
+            try {
+                J::Array const& requests = pair.second;
+                for (J::Object const& request : requests) {
+                    using S = Partner_request::Status;
+
+                    int hw_number = request.get("assignment_number");
+                    std::string username = request.get("user");
+                    std::string status_string = request.get("status");
+
+                    auto hw     = Assignment::find_by_number(context.session, hw_number);
+                    auto user   = User::find_by_name(context.session, username);
+                    auto status = destringify<S>(status_string);
+
+                    if (!hw)
+                        Http_error{403} << "hw" << hw_number << " does not exist.";
+
+                    if (!user)
+                        Http_error{403} << "User " << username << " does not exist.";
+
+                    switch (status) {
+                        case S::outgoing: {
+                            std::string reason;
+                            auto request_ptr = Partner_request::create(
+                                    context.session, context.user, user, hw, &reason);
+                            if (!request_ptr) throw Http_status{403, reason};
+                            break;
+                        }
+
+                        case S::incoming:
+                            Http_error{403} << "You cannot create an incoming partner request";
+
+                        case S::accepted: {
+                            auto request_ptr = Partner_request::find_by_requestor_and_requestee(
+                                    context.session, user, context.user, hw);
+                            if (request_ptr) {
+                                auto submission = request_ptr.modify()->confirm(context.session);
+                                if (!submission)
+                                    throw Http_status{403, "Could not confirm request"};
+                            } else {
+                                Http_error{403} << "You don’t have an incoming partner "
+                                                   "request from user ‘"
+                                        << user->name() << "’.";
+                            }
+                            break;
+                        }
+
+                        case S::canceled: {
+                            auto outgoing = Partner_request::find_by_requestor_and_requestee(
+                                    context.session, context.user, user, hw);
+                            if (outgoing) outgoing.remove();
+
+                            auto incoming = Partner_request::find_by_requestor_and_requestee(
+                                    context.session, user, context.user, hw);
+                            if (incoming) incoming.remove();
+                            break;
+                        }
+                    }
+                }
+
+            } catch (Wt::Json::TypeException const& e) {
+                throw Http_status{400, "PATCH /users/_1 could not parse "
+                                       "partner requests"};
+            }
         }
 
         else

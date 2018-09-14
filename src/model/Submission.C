@@ -422,14 +422,14 @@ std::string Submission::grade_string() const
     return Eval_item::pct_string(grade(), 3);
 }
 
-bool Submission::join_together(dbo::ptr <Submission> keep,
-                               dbo::ptr <Submission> kill)
+bool Submission::join_together(dbo::ptr<Submission> keep,
+                               dbo::ptr<Submission> kill)
 {
     if (keep->user2() || kill->user2()) return false;
     if (keep->user1() == kill->user1()) return false;
     if (keep->assignment() != kill->assignment()) return false;
 
-    for (dbo::ptr<File_meta> file : kill->source_files())
+    for (dbo::ptr<File_meta> file : kill->source_files_sorted())
         file.modify()->re_own(keep);
 
     keep.modify()->user2_ = kill->user1_;
@@ -480,13 +480,13 @@ J::Object Submission::to_json(bool brief) const
 
     result["id"] = J::Value(id());
     result["uri"] = J::Value(rest_uri());
-    result["owner1"] = J::Value(user1()->to_json(true));
-    if (user2())
-        result["owner2"] = J::Value(user2()->to_json(true));
     result["assignment_number"] = J::Value(assignment()->number());
     result["status"] = J::Value(stringify(status()));
+    result["grade"] = J::Value(grade());
 
     if (!brief) {
+        result["owner1"] = J::Value(user1()->to_json(true));
+        if (user2()) result["owner2"] = J::Value(user2()->to_json(true));
         result["open_date"] = J::Value(json_format(open_date()));
         result["due_date"] = J::Value(json_format(effective_due_date()));
         result["eval_date"] = J::Value(json_format(effective_eval_date()));

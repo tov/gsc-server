@@ -2,9 +2,11 @@
 #include "Auth_token.h"
 #include "../Assignment.h"
 #include "../Eval_item.h"
+#include "../Exam_grade.h"
 #include "../File_data.h"
 #include "../File_meta.h"
 #include "../Grader_eval.h"
+#include "../Partner_request.h"
 #include "../Self_eval.h"
 #include "../Submission.h"
 #include "../game/User_stats.h"
@@ -126,6 +128,16 @@ std::vector<dbo::ptr<Submission>> User::submissions() const
     return result;
 }
 
+Partner_requests User::outgoing_requests() const
+{
+    return Partner_requests(outgoing_requests_.begin(), outgoing_requests_.end());
+}
+
+Partner_requests User::incoming_requests() const
+{
+    return Partner_requests(incoming_requests_.begin(), incoming_requests_.end());
+}
+
 bool User::can_view(const dbo::ptr<User>& other) const
 {
     return can_admin() || name() == other->name();
@@ -150,17 +162,45 @@ std::string User::rest_hw_uri() const
     return os.str();
 }
 
-Wt::Json::Object User::to_json(bool brief) const
+J::Object User::to_json(bool brief) const
 {
-    Wt::Json::Object result;
+    J::Object result;
     result["name"] = J::Value(name());
-    result["uri"] = J::Value(rest_uri());
+    result["uri"]  = J::Value(rest_uri());
+    result["role"] = J::Value(role_string());
     if (!brief) {
-        result["role"] = J::Value(role_string());
-        Wt::Json::Array hws;
-        for (const auto& each : submissions())
-            hws.push_back(each->to_json(true));
-        result["submissions"] = J::Value(hws);
+        // Submissions
+        J::Array submissions;
+        for (auto const& submission : this->submissions())
+            submissions.push_back(submission->to_json(true));
+        result["submissions"] = J::Value(std::move(submissions));
+
+        // Partner requests
+        J::Array partner_requests;
+
+        for (auto const& outgoing : outgoing_requests_) {
+            J::Object request;
+            request["assignment_number"] = J::Value(outgoing->assignment()->number());
+            request["user"]              = J::Value(outgoing->requestee()->name());
+            request["status"]            = J::Value("outgoing");
+            partner_requests.push_back(std::move(request));
+        }
+
+        for (auto const& incoming : incoming_requests_) {
+            J::Object request;
+            request["assignment_number"] = J::Value(incoming->assignment()->number());
+            request["user"]              = J::Value(incoming->requestor()->name());
+            request["status"]            = J::Value("incoming");
+            partner_requests.push_back(std::move(request));
+        }
+
+        result["partner_requests"] = J::Value(std::move(partner_requests));
+
+        // Exam grades
+        J::Array exam_grades;
+        for (auto const& exam_grade : exam_grades_)
+            exam_grades.push_back(exam_grade->to_json());
+        result["exam_grades"] = J::Value(std::move(exam_grades));
     }
     return result;
 }
@@ -198,3 +238,4 @@ User::Role Enum<User::Role>::read(char const* role)
 
     throw std::invalid_argument{"Could not parse role"};
 }
+

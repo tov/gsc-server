@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Wt/Dbo/Dbo.h>
+#include <Wt/Json/Object.h>
 #include <string>
 
 namespace dbo = Wt::Dbo;
@@ -22,6 +23,8 @@ public:
 
     double grade() const;
     std::string pct_string() const;
+
+    Wt::Json::Object to_json() const;
 
     static dbo::collection<dbo::ptr<Exam_grade>>
     find_by_user(const dbo::ptr<User>&);

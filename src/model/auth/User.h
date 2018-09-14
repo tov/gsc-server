@@ -11,15 +11,19 @@
 #include <string>
 
 class Auth_token;
+class Exam_grade;
 class Submission;
+class Partner_request;
 class User;
 class User_stats;
 
 namespace dbo = Wt::Dbo;
 
-using Users       = dbo::collection<dbo::ptr<User>>;
-using Auth_tokens = dbo::collection<dbo::ptr<Auth_token>>;
-using Submissions = dbo::collection<dbo::ptr<Submission>>;
+using Exam_grades      = dbo::collection<dbo::ptr<Exam_grade>>;
+using Users            = dbo::collection<dbo::ptr<User>>;
+using Auth_tokens      = dbo::collection<dbo::ptr<Auth_token>>;
+using Submissions      = dbo::collection<dbo::ptr<Submission>>;
+using Partner_requests = std::vector<dbo::ptr<Partner_request>>;
 
 class User : public dbo::Dbo<User>
 {
@@ -69,7 +73,11 @@ public:
 
     std::vector<dbo::ptr<Submission>> submissions() const;
 
+    Partner_requests outgoing_requests() const;
+    Partner_requests incoming_requests() const;
+
     dbo::weak_ptr<User_stats> user_stats() const { return user_stats_; }
+    Exam_grades exam_grades() const { return exam_grades_; }
 
     std::string hw_url() const;
 
@@ -96,6 +104,10 @@ private:
     Submissions submissions1_;
     Submissions submissions2_;
 
+    dbo::collection<dbo::ptr<Partner_request>> outgoing_requests_;
+    dbo::collection<dbo::ptr<Partner_request>> incoming_requests_;
+
+    Exam_grades exam_grades_;
     dbo::weak_ptr<User_stats> user_stats_;
 
 public:
@@ -115,6 +127,10 @@ public:
         dbo::hasMany(a, submissions1_, dbo::ManyToOne, "user1");
         dbo::hasMany(a, submissions2_, dbo::ManyToOne, "user2");
 
+        dbo::hasMany(a, outgoing_requests_, dbo::ManyToOne, "requestor");
+        dbo::hasMany(a, incoming_requests_, dbo::ManyToOne, "requestee");
+
+        dbo::hasMany(a, exam_grades_, dbo::ManyToOne, "user");
         dbo::hasOne(a, user_stats_, "user");
     }
 };

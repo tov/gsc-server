@@ -1,5 +1,6 @@
 #pragma once
 
+#include <sstream>
 #include <stdexcept>
 #include <string>
 
@@ -23,6 +24,25 @@ private:
 
     int status_code_;
     std::string message_;
+};
+
+struct Http_error
+{
+public:
+    Http_error(int status_code);
+
+    template <class T>
+    Http_error& operator<<(T const& arg)
+    {
+        message_ << arg;
+        return *this;
+    }
+
+    ~Http_error [[noreturn]]() noexcept(false);
+
+private:
+    int status_code_;
+    std::ostringstream message_;
 };
 
 } // end namespace api

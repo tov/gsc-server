@@ -65,4 +65,12 @@ void Http_status::respond(Wt::Http::Response& response) const
     response.out() << J::serialize(json);
 }
 
+Http_error::Http_error(int status_code)
+        : status_code_{status_code}
+{ }
+
+Http_error::~Http_error() noexcept(false) {
+    throw Http_status{status_code_, message_.str()};
+}
+
 } // end namespace api
