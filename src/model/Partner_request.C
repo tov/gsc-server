@@ -50,13 +50,16 @@ Partner_request::confirm(Db_session &session) const
             session, requestor_, requestee_, assignment_);
     if (!self) return {};
 
-    auto submission1 = Submission::find_by_assignment_and_user(
-            session, assignment_, requestor_);
-    auto submission2 = Submission::find_by_assignment_and_user(
-            session, assignment_, requestee_);
+    // Alphabetical order
+    dbo::ptr<User> user1 = requestor_;
+    dbo::ptr<User> user2 = requestee_;
+    if (requestor_->name() > requestee_->name())
+        std::swap(user1, user2);
 
-    if (submission1->user2() || submission2->user2())
-        return {};
+    auto submission1 = Submission::find_by_assignment_and_user(
+            session, assignment_, user1);
+    auto submission2 = Submission::find_by_assignment_and_user(
+            session, assignment_, user2);
 
     bool success = Submission::join_together(submission1, submission2);
 

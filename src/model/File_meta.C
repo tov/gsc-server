@@ -154,11 +154,6 @@ void File_meta::re_own(const dbo::ptr <Submission>& new_owner)
     submission_ = new_owner;
 }
 
-bool File_meta::is_out_file() const
-{
-    return purpose() == File_purpose::log;
-}
-
 std::string const& File_meta::media_type() const
 {
     return media_type_;

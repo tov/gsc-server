@@ -58,9 +58,10 @@ int Submission::byte_count() const
     if (byte_count_ == -1) {
         byte_count_ = 0;
 
-        for (const auto& meta : source_files())
-            if (! meta->is_out_file())
+        for (const auto& meta : source_files()) {
+            if (meta->purpose() != File_purpose::log)
                 byte_count_ += meta->byte_count();
+        }
     }
 
     return byte_count_;

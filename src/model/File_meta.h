@@ -42,7 +42,6 @@ public:
     int byte_count() const { return byte_count_; }
     const dbo::ptr<Submission>& submission() const { return submission_; }
 
-    bool is_out_file() const;
     std::string const& media_type() const;
     File_purpose const& purpose() const;
 
