@@ -65,7 +65,7 @@ void User::set_password(const Wt::Auth::PasswordHash& password)
     password_ = password.value();
 }
 
-int const auth_token_gc_threshold = 4;
+int const auth_token_gc_threshold = 50;
 
 void User::add_auth_token(const std::string& value, const Wt::WDateTime& expires)
 {
