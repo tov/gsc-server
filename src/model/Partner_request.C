@@ -9,31 +9,56 @@
 DBO_INSTANTIATE_TEMPLATES(Partner_request)
 
 Wt::Dbo::ptr<Partner_request>
-Partner_request::create(Db_session& session,
-                        const dbo::ptr<User>& requestor,
-                        const dbo::ptr<User>& requestee,
-                        const dbo::ptr<Assignment>& assignment,
-                        std::string* failure_reason)
+Partner_request::create(Db_session &session,
+                        const dbo::ptr<User> &requestor,
+                        const dbo::ptr<User> &requestee,
+                        const dbo::ptr<Assignment> &assignment,
+                        std::ostream *failure_reason)
 {
-    auto other_submission = Submission::find_by_assignment_and_user(
-            session, assignment, requestee);
-    if (other_submission && other_submission->user2()) {
+    auto my_submission = Submission::find_by_assignment_and_user(session, assignment, requestor);
+
+    if (my_submission) {
+        if (my_submission->user2()) {
+            if (failure_reason) {
+                *failure_reason << "You already have a partner for hw" << assignment->number() << ".";
+            }
+
+            return {};
+        }
+
+        if (!my_submission->can_submit(requestor)) {
+            if (failure_reason) {
+                *failure_reason << "You cannot modify your hw" << assignment->number() << " submission.";
+            }
+
+            return {};
+        }
+    }
+
+    if (requestee->role() != User::Role::Student) {
         if (failure_reason) {
-            std::ostringstream msg;
-            msg << "User " << requestee->name() << " is not available.";
-            *failure_reason = msg.str();
+            *failure_reason << "User " << requestee->name() << " is not a student.";
         }
 
         return {};
     }
 
-    if (Partner_request::find_by_requestor_and_assignment(session, requestor,
-                                                          assignment)) {
+    auto other_submission = Submission::find_by_assignment_and_user(session, assignment, requestee);
+
+    if (other_submission) {
+        if (other_submission->user2() || !other_submission->can_submit(requestee)) {
+            if (failure_reason) {
+                *failure_reason << "User " << requestee->name() << " is not available.";
+            }
+
+            return {};
+        }
+    }
+
+    if (Partner_request::find_by_requestor_and_assignment(session, requestor, assignment)) {
         if (failure_reason) {
-            std::ostringstream msg;
-            msg << "You already have an outgoing partner request for "
+            *failure_reason << "You already have an outgoing partner request for "
                     << assignment->name() << ".";
-            *failure_reason = msg.str();
         }
 
         return {};

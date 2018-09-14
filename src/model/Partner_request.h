@@ -30,10 +30,10 @@ public:
                     const dbo::ptr<Assignment>& assignment);
 
     static Wt::Dbo::ptr<Partner_request>
-    create(Db_session&, const dbo::ptr<User>& requestor,
-           const dbo::ptr<User>& requestee,
-           const dbo::ptr<Assignment>&,
-           std::string* failure_reason);
+    create(Db_session &, const dbo::ptr<User> &requestor,
+           const dbo::ptr<User> &requestee,
+           const dbo::ptr<Assignment> &,
+           std::ostream *failure_reason);
 
     // Returns the pointer to the joint submission on success.
     dbo::ptr<Submission> confirm(Db_session &) const;

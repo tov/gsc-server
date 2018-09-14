@@ -199,10 +199,10 @@ void Users_1::do_patch_(Request_body body, Context const& context)
 
                     switch (status) {
                         case S::outgoing: {
-                            std::string reason;
+                            std::ostringstream reason;
                             auto request_ptr = Partner_request::create(
                                     context.session, context.user, user, hw, &reason);
-                            if (!request_ptr) throw Http_status{403, reason};
+                            if (!request_ptr) throw Http_status{403, reason.str()};
                             break;
                         }
 
