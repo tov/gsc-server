@@ -218,6 +218,14 @@ void Users_1::do_patch_(Request_body body, Context const& context)
 
                     switch (status) {
                         case S::outgoing: {
+                            // Check for an incoming request, and if it exists, accept it.
+                            auto incoming = Partner_request::find_by_requestor_and_assignment(
+                                    context.session, other, hw);
+                            if (incoming && incoming->requestee() == user_) {
+                                incoming->confirm(context.session);
+                                break;
+                            }
+
                             std::ostringstream reason;
                             auto request_ptr = Partner_request::create(
                                     context.session, user_, other, hw, reason);

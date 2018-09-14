@@ -138,7 +138,6 @@ void Partner_requestor_widget::submit_()
 
     auto request = Partner_request::create(main_->session_,
                                            main_->session_.user(),
-
                                            user2,
                                            main_->submission_->assignment(),
                                            message);
