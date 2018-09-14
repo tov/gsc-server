@@ -4,6 +4,7 @@
 
 #include <Wt/Dbo/Dbo.h>
 #include <Wt/WContainerWidget.h>
+#include <Wt/WSignal.h>
 
 #include <memory>
 
@@ -67,4 +68,5 @@ private:
     Session& session_;
     std::unique_ptr<Submissions_view_model> model_;
     std::vector<std::unique_ptr<Submissions_view_row>> rows_;
+    Wt::Signal<> dummy_;
 };

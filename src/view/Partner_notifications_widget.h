@@ -57,18 +57,20 @@ private:
 class Partner_notification_widget : public Wt::WCompositeWidget
 {
 public:
-    Partner_notification_widget(
-                const Wt::Dbo::ptr<User>&,
-                const Wt::Dbo::ptr<Submission>&,
-                Session& session);
+    Partner_notification_widget(const Wt::Dbo::ptr<User> &,
+                                const Wt::Dbo::ptr<Submission> &,
+                                Session &session,
+                                Wt::Signal<> &changed);
 
 private:
     Wt::Dbo::ptr<User> user_;
     Wt::Dbo::ptr<Submission> submission_;
     Session& session_;
+    Wt::Signal<>& changed_;
 
     Wt::WContainerWidget* impl_;
 
+    void load_();
     void update_();
 
     friend class Partner_requestor_widget;

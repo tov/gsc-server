@@ -345,7 +345,7 @@ Submissions_view::Submissions_view(const Wt::Dbo::ptr<User>& user, Session& sess
 {
     setStyleClass("submissions-view");
 
-    addNew<Partner_notification_widget>(user, dbo::ptr<Submission>{}, session);
+    addNew<Partner_notification_widget>(user, dbo::ptr<Submission>{}, session, dummy_);
 
     load_model(user, session, *model_);
 

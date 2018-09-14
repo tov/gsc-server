@@ -80,7 +80,7 @@ void Evaluation_view::go_default()
         right_column_->addNew<Wt::WText>(fmt.str());
     }
 
-    right_column_->addNew<Submission_owner_widget>(submission_, session_);
+    right_column_->addNew<Submission_owner_widget>(submission_, session_, dummy_);
 
     for (auto& row : submission_->items()) {
         if (!row.eval_item) continue;

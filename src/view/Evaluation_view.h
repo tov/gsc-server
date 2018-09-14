@@ -4,6 +4,7 @@
 
 #include <Wt/WContainerWidget.h>
 #include <Wt/Dbo/ptr.h>
+#include <Wt/WSignal.h>
 
 class Submission;
 
@@ -22,5 +23,7 @@ public:
     bool can_eval();
 
 private:
+    Wt::Signal<> dummy_;
+
     void load_();
 };

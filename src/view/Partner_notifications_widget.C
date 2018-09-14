@@ -5,7 +5,6 @@
 #include "../Session.h"
 #include "../model/Partner_request.h"
 #include "../model/Submission.h"
-#include "../Navigate.h"
 
 #include <Wt/Dbo/Dbo.h>
 #include <Wt/WApplication.h>
@@ -82,13 +81,9 @@ void Partner_confirmer_widget::accept_()
     auto joint_submission = request_->confirm(main_->session_);
     transaction.commit();
 
-    if (joint_submission) {
-        if (main_->submission_)
-            Navigate::to(joint_submission->url_for_user(request_->requestor()));
-        else
-            main_->update_();
-    } else {
-        main_->update_();
+    main_->update_();
+
+    if (!joint_submission) {
         Notification("Error", this)
                 << "That partner request has been withdrawn :(";
     }
@@ -141,10 +136,7 @@ void Partner_requestor_widget::submit_()
     if (incoming && incoming->requestee() == main_->session_.user()) {
         auto joint_submission = incoming->confirm(main_->session_);
         if (joint_submission) {
-            if (main_->submission_)
-                Navigate::to(joint_submission->url_for_user(user2));
-            else
-                main_->update_();
+            main_->update_();
             return;
         }
     }
@@ -168,20 +160,20 @@ void Partner_requestor_widget::error_(std::string const &message)
 }
 
 Partner_notification_widget::Partner_notification_widget(
-            const Wt::Dbo::ptr<User>& user,
-            const Wt::Dbo::ptr<Submission>& submission,
-            Session& session)
+        const Wt::Dbo::ptr<User> &user,
+        const Wt::Dbo::ptr<Submission> &submission,
+        Session &session,
+        Wt::Signal<> &changed)
         : session_(session)
         , user_(user)
         , submission_(submission)
+        , changed_(changed)
 {
     impl_ = setNewImplementation<Wt::WContainerWidget>();
-    update_();
+    load_();
 }
 
-void Partner_notification_widget::update_() {
-    impl_->clear();
-
+void Partner_notification_widget::load_() {
     dbo::Transaction transaction(session_);
 
     if (submission_) {
@@ -196,9 +188,9 @@ void Partner_notification_widget::update_() {
         if (outgoing && outgoing->is_active(session_))
             impl_->addNew<Partner_pending_widget>(this, outgoing, false);
         else
-            if (submission_->can_submit(user_) &&
-                    submission_->assignment()->partner())
-                impl_->addNew<Partner_requestor_widget>(this);
+        if (submission_->can_submit(user_) &&
+            submission_->assignment()->partner())
+            impl_->addNew<Partner_requestor_widget>(this);
     } else {
         auto incoming = Partner_request::find_by_requestee(session_, user_);
         for (const auto& each : incoming)
@@ -212,3 +204,8 @@ void Partner_notification_widget::update_() {
     }
 }
 
+void Partner_notification_widget::update_() {
+    impl_->clear();
+    load_();
+    changed_.emit();
+}

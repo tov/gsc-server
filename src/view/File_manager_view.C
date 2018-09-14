@@ -205,7 +205,7 @@ File_manager_view::File_manager_view(const Wt::Dbo::ptr<Submission>& submission,
 
     auto submission_owner =
             right_column_->addNew<Submission_owner_widget>(
-                    submission_, session_, &changed_);
+                    submission_, session_, changed_);
 
     auto file_list = std::make_unique<File_list_widget>(
             submission_, can_modify, session_, &changed_);
