@@ -34,6 +34,7 @@ set(SOURCE_FILES
         src/view/api/Request_body.C
         src/view/api/Request_handler.C
         src/view/api/Resource.C
+        src/view/api/Result_array.C
         src/view/Abstract_file_view.C
         src/view/Accelerator_button.C
         src/view/Accelerator_text.C

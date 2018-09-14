@@ -2,6 +2,7 @@
 #include "Http_status.h"
 #include "Request_body.h"
 #include "Request_handler.h"
+#include "Result_array.h"
 #include "../../Session.h"
 #include "../../model/auth/User.h"
 #include "../../model/Assignment.h"
@@ -151,6 +152,8 @@ void Users_1::do_delete_(Context const& context)
 
 void Users_1::do_patch_(Request_body body, Context const& context)
 {
+    Result_array result;
+
     try {
         auto json = std::move(body).read_json();
         
@@ -161,12 +164,9 @@ void Users_1::do_patch_(Request_body body, Context const& context)
                 if (!context.user->can_admin())
                     denied(4);
 
-                try {
-                    auto role = destringify<User::Role>(pair.second);
-                    user_.modify()->set_role(role);
-                } catch (std::invalid_argument const& e) {
-                    throw Http_status{400, e.what()};
-                }
+                auto role = destringify<User::Role>(pair.second);
+                user_.modify()->set_role(role);
+                result.success() << "Role updated to " << stringify(role) << ".";
             }
 
             else if (pair.first == "password") {
@@ -176,6 +176,7 @@ void Users_1::do_patch_(Request_body body, Context const& context)
                 }
 
                 context.session.set_password(user_, pair.second);
+                result.success() << "Updated password for user ‘" << user_->name() << "’.";
             }
 
             else if (pair.first == "exam_grades") {
@@ -195,6 +196,8 @@ void Users_1::do_patch_(Request_body body, Context const& context)
                     else
                         exam_grade.modify()->set_points_and_possible(points, possible);
                 }
+
+                result.success() << "Exam grade(s) updated.";
             }
 
             else if (pair.first == "partner_requests") {
@@ -206,8 +209,8 @@ void Users_1::do_patch_(Request_body body, Context const& context)
                     std::string username = request.get("user");
                     std::string status_string = request.get("status");
 
-                    auto hw     = Assignment::find_by_number(context.session, hw_number);
-                    auto other  = User::find_by_name(context.session, username);
+                    auto hw = Assignment::find_by_number(context.session, hw_number);
+                    auto other = User::find_by_name(context.session, username);
                     auto status = destringify<S>(status_string);
 
                     if (!hw)
@@ -221,6 +224,7 @@ void Users_1::do_patch_(Request_body body, Context const& context)
                             // Check for an incoming request, and if it exists, accept it.
                             auto incoming = Partner_request::find_by_requestor_and_assignment(
                                     context.session, other, hw);
+
                             if (incoming && incoming->requestee() == user_) {
                                 if (incoming->confirm(context.session))
                                     break;
@@ -263,18 +267,23 @@ void Users_1::do_patch_(Request_body body, Context const& context)
                         }
                     }
                 }
+
+                result.success() << "Partner request(s) processed.";
             }
 
-            else
-                throw Http_status{400, "PATCH got unknown JSON key: " + pair.first};
+            else {
+                result.failure() << "Unknown key in JSON: ‘" << pair.first << "’.";
+            }
         }
     } catch (J::TypeException const& e) {
         throw Http_status{400, "PATCH /users/_1 could not understand request"};
     } catch (J::ParseError const& e) {
         throw Http_status{400, "PATCH /users/_1 could not parse user request as JSON"};
+    } catch (std::invalid_argument const& e) {
+        throw Http_status{400, e.what()};
     }
 
-    success();
+    use_json(result);
 }
 
 class Users_1_submissions : public Base
@@ -352,7 +361,7 @@ void Submissions_1::do_patch_(Request_body body, const Base::Context &context) {
     if (!context.user->can_admin())
         denied(10);
 
-    J::Array result;
+    Result_array result;
 
     try {
         auto json = std::move(body).read_json();
@@ -361,31 +370,36 @@ void Submissions_1::do_patch_(Request_body body, const Base::Context &context) {
         for (auto const& pair : object) {
             if (pair.first == "due_date") {
                 auto local_time = Wt::WLocalDateTime::fromString(pair.second);
-                submission_.modify()->set_due_date(local_time.toUTC());
-                result.push_back("Modified due date.");
+
+                if (local_time.isValid()) {
+                    submission_.modify()->set_due_date(local_time.toUTC());
+                    result.success() << "Modified due date to " << local_time.toString() << ".";
+                } else {
+                    result.failure() << "Could not parse timespec.";
+                }
             }
 
             else if (pair.first == "eval_date") {
                 auto local_time = Wt::WLocalDateTime::fromString(pair.second);
                 submission_.modify()->set_eval_date(local_time.toUTC());
-                result.push_back("Modified eval date.");
+                result.success() << "Modified eval date to " << local_time.toString() << ".";
             }
 
             else if (pair.first == "bytes_quota") {
                 int bytes_quota = pair.second;
                 submission_.modify()->set_bytes_quota(bytes_quota);
-                result.push_back("Modified quota.");
+                result.success() << "Modified quota to " << bytes_quota << ".";
             }
 
             else if (pair.first == "owner2") {
                 if (submission_.modify()->divorce())
-                    result.push_back("Divorced succeeded.");
+                    result.success() << "Divorced succeeded.";
                 else
-                    result.push_back("Divorced failed.");
+                    result.failure() << "Divorced failed; submission is solo already.";
             }
 
             else {
-                Http_error{400} << "PATCH got unknown JSON key: " << pair.first;
+                result.failure() << "Unknown key in JSON: ‘" << pair.first << "’.";
             }
         }
     } catch (Wt::Json::ParseError const& e) {

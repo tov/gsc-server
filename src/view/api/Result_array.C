@@ -1,0 +1,32 @@
+#include "Result_array.h"
+
+#include <Wt/Json/Object.h>
+#include <Wt/Json/Value.h>
+
+namespace J = Wt::Json;
+
+namespace api {
+
+Result_proxy::Result_proxy(Result_array &array, std::string const& status)
+        : array_{array}
+        , status_{status}
+{ }
+
+Result_proxy::~Result_proxy() noexcept(false)
+{
+    J::Object object;
+    object[status_] = J::Value(message_.str());
+    array_.push_back(std::move(object));
+}
+
+Result_proxy Result_array::success()
+{
+    return Result_proxy{*this, "success"};
+}
+
+Result_proxy Result_array::failure()
+{
+    return Result_proxy{*this, "failure"};
+}
+
+} // end api
