@@ -125,19 +125,23 @@ Submission::Eval_status Submission::eval_status() const
         return Eval_status::empty;
 }
 
+static double clean_grade(double grade) {
+    return grade < 0.001? 0 : grade;
+}
+
 double Submission::grade() const
 {
     if (is_loaded_) {
         return grade_;
     }
 
-    return session()->query<double>(
+    return clean_grade(session()->query<double>(
             "SELECT SUM(relative_value * g.score) / NULLIF(SUM(relative_value), 0)"
-                    "  FROM self_evals s"
-                    " INNER JOIN eval_items e ON s.eval_item_id = e.id"
-                    " INNER JOIN grader_evals g ON g.self_eval_id = s.id"
-                    " WHERE s.submission_id = ?"
-    ).bind(id()).resultValue();
+            "  FROM self_evals s"
+            " INNER JOIN eval_items e ON s.eval_item_id = e.id"
+            " INNER JOIN grader_evals g ON g.self_eval_id = s.id"
+            " WHERE s.submission_id = ?"
+    ).bind(id()).resultValue());
 }
 
 dbo::ptr<Self_eval>
@@ -401,7 +405,7 @@ void Submission::load_cache() const
 
     is_graded_ = grader_eval_count == item_count_;
 
-    grade_ /= point_value_;
+    grade_ = clean_grade(grade_ / point_value_);
 
     is_loaded_ = true;
 }
