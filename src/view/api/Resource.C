@@ -413,7 +413,46 @@ void Submissions_1_files_2::do_put_(
     use_json(file_meta->to_json());
 }
 
-std::unique_ptr<Base> Base::create(std::string const& method,
+class Submissions_hw1 : public Base
+{
+public:
+    Submissions_hw1(int assignment_number)
+            : assignment_number_{assignment_number}
+    { }
+
+    void load(Context const&) override;
+
+protected:
+    void do_get_(Context const& context) override;
+
+private:
+    int assignment_number_;
+
+    std::vector<dbo::ptr<Submission>> submissions_;
+};
+
+void Submissions_hw1::load(Context const& context)
+{
+    if (!context.user->can_admin())
+        denied(9);
+
+    auto assignment = load_assignment(context, assignment_number_);
+    std::copy(assignment->submissions().begin(),
+              assignment->submissions().end(),
+              std::back_inserter(submissions_));
+}
+
+void Submissions_hw1::do_get_(Base::Context const& context)
+{
+    J::Array result;
+
+    for (const auto& submission : submissions_)
+        result.push_back(submission->to_json(true));
+
+    use_json(result);
+}
+
+    std::unique_ptr<Base> Base::create(std::string const& method,
                                    std::string const& path_info)
 {
     auto resource = parse_(path_info);
@@ -459,6 +498,11 @@ std::unique_ptr<Base> Base::parse_(std::string const& path_info)
         std::string filename(sm[2].first, sm[2].second);
         return std::make_unique<Submissions_1_files_2>(
                 submission_id, Wt::Utils::urlDecode(filename));
+    }
+
+    if (std::regex_match(path_info, sm, Path::submissions_hw1)) {
+        int assignment_number = get_number(sm[1]);
+        return std::make_unique<Submissions_hw1>(assignment_number);
     }
 
     not_found();

@@ -13,6 +13,7 @@ extern const std::regex users_1_submissions;
 extern const std::regex submissions_1;
 extern const std::regex submissions_1_files;
 extern const std::regex submissions_1_files_2;
+extern const std::regex submissions_hw1;
 
 } // end namespace Path
 

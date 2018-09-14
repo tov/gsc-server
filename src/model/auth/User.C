@@ -167,8 +167,9 @@ J::Object User::to_json(bool brief) const
     J::Object result;
     result["name"] = J::Value(name());
     result["uri"]  = J::Value(rest_uri());
-    result["role"] = J::Value(role_string());
     if (!brief) {
+        result["role"] = J::Value(role_string());
+
         // Submissions
         J::Array submissions;
         for (auto const& submission : this->submissions())
