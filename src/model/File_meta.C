@@ -141,17 +141,25 @@ void File_meta::re_own(const dbo::ptr <Submission>& new_owner)
 {
     Source_file_vec avoid = new_owner->source_files_sorted();
 
-    auto exists = [&](const std::string& name) {
+    auto find_by_name = [&](const std::string& name) {
         for (const auto& each : avoid) {
-            if (name == each->name()) return true;
+            if (name == each->name()) return each;
         }
-        return false;
+        return dbo::ptr<File_meta>{};
     };
 
-    if (exists(name())) {
+    auto same_name = find_by_name(name());
+
+    if (same_name) {
+        auto my_data    = file_data().lock();
+        auto other_data = same_name->file_data().lock();
+
+        if (my_data->contents() == other_data->contents())
+            return;
+
         std::string alternate = name() + "." + submission()->user1()->name();
 
-        while (exists(alternate)) {
+        while (find_by_name(alternate)) {
             alternate += "~";
         }
 
