@@ -33,14 +33,14 @@ Partner_request::create(Db_session &session,
     }
 
     if (requestee->role() != User::Role::Student) {
-        message << "User " << requestee->name() << " is not a student.";
+        message << "User ‘" << requestee->name() << "’ is not a student.";
         return {};
     }
 
     auto other_submission = Submission::find_by_assignment_and_user(session, assignment, requestee);
 
     if (other_submission->user2() || !other_submission->can_submit(requestee)) {
-        message << "User " << requestee->name() << " is not available.";
+        message << "User ‘" << requestee->name() << "’ is not available.";
         return {};
     }
 
