@@ -65,10 +65,26 @@ void User::set_password(const Wt::Auth::PasswordHash& password)
     password_ = password.value();
 }
 
+int const auth_token_gc_threshold = 4;
+
 void User::add_auth_token(const std::string& value, const Wt::WDateTime& expires)
 {
-
-    if (auth_tokens_.size() > 50) return;
+    if (auth_tokens_.size() > auth_token_gc_threshold) {
+        auto expired = session()->find<Auth_token>()
+                .where("expires < NOW()")
+                .resultList();
+        for (auto token : expired) token.remove();
+        int count = auth_tokens_.size();
+        if (count > auth_token_gc_threshold / 2) {
+            int nvictims = count - auth_token_gc_threshold / 2;
+            auto victims = session()->find<Auth_token>()
+                    .where("user_id = ?").bind(id())
+                    .orderBy("expires")
+                    .limit(nvictims)
+                    .resultList();
+            for (auto token : victims) token.remove();
+        }
+    }
 
     auth_tokens_.insert(dbo::ptr<Auth_token>(
             std::make_unique<Auth_token>(value, expires)));

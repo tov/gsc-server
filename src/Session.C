@@ -219,7 +219,7 @@ std::unique_ptr<Wt::Dbo::SqlConnectionPool>
 Db_session::createConnectionPool(const std::string& db)
 {
     auto connection = std::make_unique<dbo::backend::Postgres>(db);
-    connection->setProperty("show-queries", "true");
+//    connection->setProperty("show-queries", "true");
     return std::make_unique<dbo::FixedSqlConnectionPool>(std::move(connection),
                                                          10);
 }
