@@ -447,7 +447,8 @@ void Submissions_1_files_2::do_put_(
     auto file_meta = File_meta::upload(
             filename_,
             std::move(body).read_bytes(),
-            submission_);
+            submission_,
+            context.user);
 
     use_json(file_meta->to_json());
 }

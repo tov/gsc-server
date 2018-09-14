@@ -92,22 +92,23 @@ static File_purpose classify_file_type(std::string const& media_type,
 
 const int File_meta::max_byte_count = 5 * 1024 * 1024;
 
-File_meta::File_meta(const std::string& name, const std::string& media_type,
-                     const dbo::ptr<Submission>& submission, int line_count,
-                     int byte_count)
+File_meta::File_meta(const std::string &name, const std::string &media_type,
+                     const dbo::ptr<Submission> &submission, const dbo::ptr<User> &uploader,
+                     int line_count, int byte_count)
         : name_{name}
         , media_type_{media_type}
         , purpose_{classify_file_type(media_type, name)}
         , submission_{submission}
+        , uploader_{uploader}
         , line_count_{line_count}
         , byte_count_{byte_count}
         , time_stamp_{Wt::WDateTime::currentDateTime()}
 { }
 
-dbo::ptr<File_meta>
-File_meta::upload(const std::string& name,
-                  const Bytes& contents,
-                  const dbo::ptr<Submission>& submission)
+Wt::Dbo::ptr<File_meta>
+File_meta::upload(const std::string &name, const Bytes &contents,
+                  const dbo::ptr<Submission> &submission,
+                  const dbo::ptr<User> &uploader)
 {
     dbo::Session& session = *submission.session();
     dbo::Transaction transaction(session);
@@ -120,7 +121,7 @@ File_meta::upload(const std::string& name,
     auto line_count = media_type == "text/plain"? count_lines(contents) : 0;
 
     dbo::ptr<File_meta> result =
-            session.addNew<File_meta>(name, media_type, submission,
+            session.addNew<File_meta>(name, media_type, submission, uploader,
                                       line_count, contents.size());
     session.addNew<File_data>(result, contents);
 

@@ -182,7 +182,7 @@ void File_uploader::uploaded_()
         Bytes contents{spool, file_size};
 
         File_meta::upload(filename.filename().string(),
-                          contents, submission_);
+                          contents, submission_, session_.user());
     }
 
     changed_.emit();

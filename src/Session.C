@@ -88,11 +88,11 @@ Db_session::Db_session(Wt::Dbo::SqlConnectionPool& pool)
                 auto submission = addNew<Submission>(user, asst);
                 File_meta::upload("file.h",
                                   Bytes("#pragma once\n"),
-                                  submission);
+                                  submission, user);
                 File_meta::upload("file.C",
                                   Bytes("#include \"file.h\"\n\n"
-                                        "namespace meh {\n\n}\n"),
-                                  submission);
+                                                        "namespace meh {\n\n}\n"),
+                                  submission, user);
             }
         }
 

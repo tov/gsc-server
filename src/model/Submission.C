@@ -59,7 +59,7 @@ int Submission::byte_count() const
         byte_count_ = 0;
 
         for (const auto& meta : source_files()) {
-            if (meta->purpose() != File_purpose::log)
+            if (! meta->uploader()->can_admin())
                 byte_count_ += meta->byte_count();
         }
     }

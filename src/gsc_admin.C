@@ -153,7 +153,7 @@ void Gsc_admin::upload_file(int asst_no, const string& username, const string& f
     cout << "Uploading " << filename << "...";
     cin >> noskipws;
     string contents{istream_iterator<char>(cin), istream_iterator<char>()};
-    File_meta::upload(filename, contents, submission);
+    File_meta::upload(filename, contents, submission, <#initializer#>);
     cout << "done\n";
 }
 
