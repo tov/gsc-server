@@ -33,7 +33,7 @@ public:
     create(Db_session &, const dbo::ptr<User> &requestor,
            const dbo::ptr<User> &requestee,
            const dbo::ptr<Assignment> &,
-           std::ostream *failure_reason);
+           std::ostream &message);
 
     // Returns the pointer to the joint submission on success.
     dbo::ptr<Submission> confirm(Db_session &) const;
@@ -87,6 +87,8 @@ public:
         dbo::belongsTo(a, assignment_, "assignment", dbo::OnDeleteCascade);
     }
 };
+
+bool operator<(Partner_request const&, Partner_request const&);
 
 template <>
 struct Enum<Partner_request::Status>

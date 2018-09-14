@@ -20,6 +20,7 @@ class User_stats;
 namespace dbo = Wt::Dbo;
 
 using Exam_grades      = dbo::collection<dbo::ptr<Exam_grade>>;
+using Exam_grades_vec  = std::vector<dbo::ptr<Exam_grade>>;
 using Users            = dbo::collection<dbo::ptr<User>>;
 using Auth_tokens      = dbo::collection<dbo::ptr<Auth_token>>;
 using Submissions      = dbo::collection<dbo::ptr<Submission>>;
@@ -77,7 +78,7 @@ public:
     Partner_requests incoming_requests() const;
 
     dbo::weak_ptr<User_stats> user_stats() const { return user_stats_; }
-    Exam_grades exam_grades() const { return exam_grades_; }
+    Exam_grades_vec exam_grades() const;
 
     std::string hw_url() const;
 

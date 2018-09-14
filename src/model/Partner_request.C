@@ -13,54 +13,40 @@ Partner_request::create(Db_session &session,
                         const dbo::ptr<User> &requestor,
                         const dbo::ptr<User> &requestee,
                         const dbo::ptr<Assignment> &assignment,
-                        std::ostream *failure_reason)
+                        std::ostream& message)
 {
+    if (requestor == requestee) {
+        message << "You cannot be your own partner.";
+        return {};
+    }
+
     auto my_submission = Submission::find_by_assignment_and_user(session, assignment, requestor);
 
-    if (my_submission) {
-        if (my_submission->user2()) {
-            if (failure_reason) {
-                *failure_reason << "You already have a partner for hw" << assignment->number() << ".";
-            }
+    if (my_submission->user2()) {
+        message << "You already have a partner for hw" << assignment->number() << ".";
+        return {};
+    }
 
-            return {};
-        }
-
-        if (!my_submission->can_submit(requestor)) {
-            if (failure_reason) {
-                *failure_reason << "You cannot modify your hw" << assignment->number() << " submission.";
-            }
-
-            return {};
-        }
+    if (!my_submission->can_submit(requestor)) {
+        message << "You cannot modify your hw" << assignment->number() << " submission.";
+        return {};
     }
 
     if (requestee->role() != User::Role::Student) {
-        if (failure_reason) {
-            *failure_reason << "User " << requestee->name() << " is not a student.";
-        }
-
+        message << "User " << requestee->name() << " is not a student.";
         return {};
     }
 
     auto other_submission = Submission::find_by_assignment_and_user(session, assignment, requestee);
 
-    if (other_submission) {
-        if (other_submission->user2() || !other_submission->can_submit(requestee)) {
-            if (failure_reason) {
-                *failure_reason << "User " << requestee->name() << " is not available.";
-            }
-
-            return {};
-        }
+    if (other_submission->user2() || !other_submission->can_submit(requestee)) {
+        message << "User " << requestee->name() << " is not available.";
+        return {};
     }
 
     if (Partner_request::find_by_requestor_and_assignment(session, requestor, assignment)) {
-        if (failure_reason) {
-            *failure_reason << "You already have an outgoing partner request for "
-                    << assignment->name() << ".";
-        }
-
+        message << "You already have an outgoing partner request for "
+                << assignment->name() << ".";
         return {};
     }
 
@@ -184,6 +170,22 @@ Partner_request::Partner_request(const dbo::ptr<User>& requestor,
         , requestee_{requestee}
         , assignment_{assignment}
 { }
+
+bool operator<(Partner_request const& a, Partner_request const& b) {
+    auto a_num = a.assignment()->number();
+    auto b_num = b.assignment()->number();
+
+    if (a_num < b_num) return true;
+    if (a_num > b_num) return false;
+
+    auto const& a_name = a.requestor()->name();
+    auto const& b_name = b.requestor()->name();
+
+    if (a_name < b_name) return true;
+    if (a_name > b_name) return false;
+
+    return a.requestee()->name() < b.requestee()->name();
+}
 
 char const* Enum<Partner_request::Status>::show(Partner_request::Status status)
 {

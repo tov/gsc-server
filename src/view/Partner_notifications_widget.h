@@ -21,7 +21,7 @@ private:
     Wt::WLineEdit* edit_;
 
     void submit_();
-    void error_();
+    void error_(std::string const &message);
 };
 
 class Partner_pending_widget : public Wt::WContainerWidget

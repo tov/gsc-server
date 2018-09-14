@@ -146,12 +146,28 @@ std::vector<dbo::ptr<Submission>> User::submissions() const
 
 Partner_requests User::outgoing_requests() const
 {
-    return Partner_requests(outgoing_requests_.begin(), outgoing_requests_.end());
+    Partner_requests result(outgoing_requests_.begin(), outgoing_requests_.end());
+    std::sort(result.begin(), result.end(), [](auto const& a, auto const& b) {
+        return *a < *b;
+    });
+    return result;
 }
 
 Partner_requests User::incoming_requests() const
 {
-    return Partner_requests(incoming_requests_.begin(), incoming_requests_.end());
+    Partner_requests result(incoming_requests_.begin(), incoming_requests_.end());
+    std::sort(result.begin(), result.end(), [](auto const& a, auto const& b) {
+        return *a < *b;
+    });
+    return result;
+}
+
+Exam_grades_vec User::exam_grades() const {
+    Exam_grades_vec result(exam_grades_.begin(), exam_grades_.end());
+    std::sort(result.begin(), result.end(), [](auto const& a, auto const& b) {
+        return a->number() < b->number();
+    });
+    return result;
 }
 
 bool User::can_view(const dbo::ptr<User>& other) const
@@ -195,7 +211,7 @@ J::Object User::to_json(bool brief) const
         // Partner requests
         J::Array partner_requests;
 
-        for (auto const& outgoing : outgoing_requests_) {
+        for (auto const& outgoing : outgoing_requests()) {
             J::Object request;
             request["assignment_number"] = J::Value(outgoing->assignment()->number());
             request["user"]              = J::Value(outgoing->requestee()->name());
@@ -203,7 +219,7 @@ J::Object User::to_json(bool brief) const
             partner_requests.push_back(std::move(request));
         }
 
-        for (auto const& incoming : incoming_requests_) {
+        for (auto const& incoming : incoming_requests()) {
             J::Object request;
             request["assignment_number"] = J::Value(incoming->assignment()->number());
             request["user"]              = J::Value(incoming->requestor()->name());
@@ -214,10 +230,10 @@ J::Object User::to_json(bool brief) const
         result["partner_requests"] = J::Value(std::move(partner_requests));
 
         // Exam grades
-        J::Array exam_grades;
-        for (auto const& exam_grade : exam_grades_)
-            exam_grades.push_back(exam_grade->to_json());
-        result["exam_grades"] = J::Value(std::move(exam_grades));
+        J::Array array;
+        for (auto const& exam_grade : exam_grades())
+            array.push_back(exam_grade->to_json());
+        result["exam_grades"] = J::Value(std::move(array));
     }
     return result;
 }

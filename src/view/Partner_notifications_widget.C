@@ -126,32 +126,33 @@ void Partner_requestor_widget::submit_()
 {
     if (edit_->text().empty()) return;
 
+    std::ostringstream message;
+
     dbo::Transaction transaction(main_->session_);
     auto user2 = User::find_by_name(main_->session_, edit_->text().toUTF8());
-    if (!user2 || user2->role() != User::Role::Student ||
-        user2 == main_->session_.user())
-    {
-        error_();
+    if (!user2) {
+        message << "User ‘" << edit_->text() << "’ does not exist.";
+        error_(message.str());
         return;
     }
 
     auto request = Partner_request::create(main_->session_,
                                            main_->session_.user(),
+
                                            user2,
                                            main_->submission_->assignment(),
-                                           nullptr);
+                                           message);
     transaction.commit();
 
     if (request) main_->update_();
-    else error_();
+    else error_(message.str());
 }
 
-void Partner_requestor_widget::error_()
+void Partner_requestor_widget::error_(std::string const &message)
 {
     Notification("Error", this)
             .and_then([=] { edit_->setFocus(true); })
-            << "User “" << edit_->text()
-            << "” does not exist or is unavailable.";
+            << message;
 }
 
 Partner_notification_widget::Partner_notification_widget(

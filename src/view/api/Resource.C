@@ -207,20 +207,20 @@ void Users_1::do_patch_(Request_body body, Context const& context)
                     std::string status_string = request.get("status");
 
                     auto hw     = Assignment::find_by_number(context.session, hw_number);
-                    auto user   = User::find_by_name(context.session, username);
+                    auto other  = User::find_by_name(context.session, username);
                     auto status = destringify<S>(status_string);
 
                     if (!hw)
                         Http_error{403} << "hw" << hw_number << " does not exist.";
 
-                    if (!user)
+                    if (!other)
                         Http_error{403} << "User " << username << " does not exist.";
 
                     switch (status) {
                         case S::outgoing: {
                             std::ostringstream reason;
                             auto request_ptr = Partner_request::create(
-                                    context.session, context.user, user, hw, &reason);
+                                    context.session, user_, other, hw, reason);
                             if (!request_ptr) throw Http_status{403, reason.str()};
                             break;
                         }
@@ -230,7 +230,7 @@ void Users_1::do_patch_(Request_body body, Context const& context)
 
                         case S::accepted: {
                             auto request_ptr = Partner_request::find_by_requestor_and_requestee(
-                                    context.session, user, context.user, hw);
+                                    context.session, other, user_, hw);
                             if (request_ptr) {
                                 auto submission = request_ptr.modify()->confirm(context.session);
                                 if (!submission)
@@ -238,18 +238,18 @@ void Users_1::do_patch_(Request_body body, Context const& context)
                             } else {
                                 Http_error{403} << "You don’t have an incoming partner "
                                                    "request from user ‘"
-                                                << user->name() << "’.";
+                                                << other->name() << "’.";
                             }
                             break;
                         }
 
                         case S::canceled: {
                             auto outgoing = Partner_request::find_by_requestor_and_requestee(
-                                    context.session, context.user, user, hw);
+                                    context.session, user_, other, hw);
                             if (outgoing) outgoing.remove();
 
                             auto incoming = Partner_request::find_by_requestor_and_requestee(
-                                    context.session, user, context.user, hw);
+                                    context.session, other, user_, hw);
                             if (incoming) incoming.remove();
                             break;
                         }
