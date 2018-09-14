@@ -74,13 +74,13 @@ void User::add_auth_token(const std::string& value, const Wt::WDateTime& expires
                 .where("expires < NOW()")
                 .resultList();
         for (auto token : expired) token.remove();
+
         int count = auth_tokens_.size();
         if (count > auth_token_gc_threshold / 2) {
-            int nvictims = count - auth_token_gc_threshold / 2;
             auto victims = session()->find<Auth_token>()
                     .where("user_id = ?").bind(id())
                     .orderBy("expires")
-                    .limit(nvictims)
+                    .limit(count - auth_token_gc_threshold / 2)
                     .resultList();
             for (auto token : victims) token.remove();
         }
