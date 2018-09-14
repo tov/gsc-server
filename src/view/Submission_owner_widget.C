@@ -156,10 +156,7 @@ void Submission_owner_widget::update_student_()
 void Submission_owner_widget::break_up_partnership_()
 {
     dbo::Transaction transaction(session_);
-    auto mutable_submission = submission_.modify();
-    mutable_submission->set_user2({});
-    mutable_submission->clear_files();
-    mutable_submission->touch();
+    submission_.modify()->divorce();
     transaction.commit();
 
     changed_.emit();

@@ -517,6 +517,18 @@ void Submission::clear_files()
     is_loaded_ = false;
 }
 
+bool Submission::divorce()
+{
+    if (user2()) {
+        set_user2({});
+        clear_files();
+        touch();
+        return true;
+    } else {
+        return false;
+    }
+}
+
 char const* Enum<Submission::Status>::show(Submission::Status status)
 {
     using S = Submission::Status;

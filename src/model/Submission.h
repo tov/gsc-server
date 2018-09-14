@@ -82,6 +82,7 @@ public:
     void set_eval_date(const Wt::WDateTime& date) { eval_date_ = date; }
     void set_bytes_quota(int bytes) { bytes_quota_ = bytes; }
     void clear_files();
+    bool divorce();
 
     Status status() const;
     Eval_status eval_status() const;

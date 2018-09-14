@@ -352,6 +352,8 @@ void Submissions_1::do_patch_(Request_body body, const Base::Context &context) {
     if (!context.user->can_admin())
         denied(10);
 
+    J::Array result;
+
     try {
         auto json = std::move(body).read_json();
         J::Object const& object = json;
@@ -360,16 +362,26 @@ void Submissions_1::do_patch_(Request_body body, const Base::Context &context) {
             if (pair.first == "due_date") {
                 auto local_time = Wt::WLocalDateTime::fromString(pair.second);
                 submission_.modify()->set_due_date(local_time.toUTC());
+                result.push_back("Modified due date.");
             }
 
             else if (pair.first == "eval_date") {
                 auto local_time = Wt::WLocalDateTime::fromString(pair.second);
                 submission_.modify()->set_eval_date(local_time.toUTC());
+                result.push_back("Modified eval date.");
             }
 
             else if (pair.first == "bytes_quota") {
                 int bytes_quota = pair.second;
                 submission_.modify()->set_bytes_quota(bytes_quota);
+                result.push_back("Modified quota.");
+            }
+
+            else if (pair.first == "owner2") {
+                if (submission_.modify()->divorce())
+                    result.push_back("Divorced succeeded.");
+                else
+                    result.push_back("Divorced failed.");
             }
 
             else {
@@ -382,7 +394,7 @@ void Submissions_1::do_patch_(Request_body body, const Base::Context &context) {
         Http_error{400} << e.what();
     }
 
-    success();
+    use_json(result);
 }
 
 class Submissions_1_files : public Base
