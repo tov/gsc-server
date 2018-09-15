@@ -7,7 +7,11 @@
 #include "Permalink.h"
 
 #include <Wt/Dbo/Impl.h>
+#include <Wt/Json/Array.h>
+#include <Wt/Json/Value.h>
 #include <Wt/WDateTime.h>
+
+namespace J = Wt::Json;
 
 DBO_INSTANTIATE_TEMPLATES(Self_eval)
 
@@ -35,6 +39,13 @@ std::string Self_eval::eval_url() const
 std::string Self_eval::grade_url() const
 {
     return "/grade/" + permalink();
+}
+
+std::string Self_eval::rest_uri() const {
+    std::ostringstream fmt;
+    fmt << "/api/submissions/" << submission()->id();
+    fmt << "/evals/" << eval_item()->sequence();
+    return fmt.str();
 }
 
 void Self_eval::touch_()
@@ -129,3 +140,38 @@ std::string Self_eval::owner_string(const dbo::ptr<User>& as_seen_by) const
             return submission()->owner_string();
     }
 }
+
+static J::Value clean_grade(double grade) {
+    return grade < 0.001? 0 : grade;
+}
+
+J::Object Self_eval::to_json(bool brief, dbo::ptr<User> const& as_seen_by) const {
+    J::Object result;
+
+    result["uri"]               = J::Value(rest_uri());
+    result["sequence"]          = J::Value(eval_item()->sequence());
+    result["submission"]        = J::Value(submission()->rest_uri());
+
+    if (!brief) {
+        result["type"]              = J::Value(stringify(eval_item()->type()));
+        result["prompt"]            = J::Value(eval_item()->prompt());
+        result["value"]             = J::Value(eval_item()->relative_value());
+
+        result["self_score"]        = clean_grade(score());
+        result["self_explanation"]  = J::Value(explanation());
+
+        auto grader_eval = this->grader_eval();
+        if (grader_eval) {
+            if (grader_eval->status() == Grader_eval::Status::ready ||
+                    as_seen_by->can_grade()) {
+                result["grader"]             = J::Value(grader_eval->owner_string(as_seen_by));
+                result["grader_score"]       = clean_grade(grader_eval->score());
+                result["grader_explanation"] = J::Value(grader_eval->explanation());
+                result["grading_status"]     = J::Value(stringify(grader_eval->status()));
+            }
+        }
+    }
+
+    return result;
+}
+

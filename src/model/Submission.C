@@ -147,13 +147,33 @@ double Submission::grade() const
 
 dbo::ptr<Self_eval>
 Submission::get_self_eval(const dbo::ptr<Eval_item>& eval_item,
-                          const dbo::ptr<Submission>& submission)
+                          const dbo::ptr<Submission>& submission,
+                          bool create)
 {
     submission->load_cache();
 
     auto& result = submission->items_[eval_item->sequence()].self_eval;
 
-    if (!result) {
+    if (!result && create) {
+        result = submission.session()->addNew<Self_eval>(eval_item, submission);
+        submission.modify()->touch();
+    }
+
+    return result;
+}
+
+Wt::Dbo::ptr<Self_eval>
+Submission::get_self_eval(int sequence,
+                          const dbo::ptr<Submission> &submission,
+                          bool create = true)
+{
+    submission->load_cache();
+
+    auto& result = submission->items_.at(sequence).self_eval;
+
+    if (!result && create) {
+        auto eval_item = submission->assignment()->find_eval_item(
+                *submission.session(), sequence);
         result = submission.session()->addNew<Self_eval>(eval_item, submission);
         submission.modify()->touch();
     }
@@ -448,6 +468,11 @@ bool Submission::join_together(dbo::ptr<Submission> keep,
     return true;
 }
 
+dbo::ptr<Submission> Submission::find_this() const
+{
+    return session()->find<Submission>().where("id = ?").bind(id());
+}
+
 dbo::ptr<File_meta>
 Submission::find_file_by_name(const std::string& filename) const
 {
@@ -527,6 +552,36 @@ bool Submission::divorce()
     } else {
         return false;
     }
+}
+
+Self_eval_vec Submission::self_eval_vec() const {
+    Self_eval_vec result;
+
+    auto insert = [&](dbo::ptr<Self_eval> const& ptr) {
+        auto index = ptr->eval_item()->sequence();
+
+        while (index >= result.size())
+            result.emplace_back();
+
+        result[index] = ptr;
+    };
+
+    auto present = [&](size_t index) {
+        return index < result.size() && result[index];
+    };
+
+    for (const auto& self_eval : self_evals_)
+        insert(self_eval);
+
+    for (const auto& eval_item : assignment()->eval_item_vec()) {
+        auto index = eval_item->sequence();
+
+        if (eval_item->type() == Eval_item::Type::Informational && !present(index)) {
+            insert(Submission::get_self_eval(eval_item, find_this()));
+        }
+    }
+
+    return result;
 }
 
 char const* Enum<Submission::Status>::show(Submission::Status status)

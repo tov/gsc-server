@@ -18,6 +18,12 @@
 #include <Wt/Http/Request.h>
 #include <Wt/Http/Response.h>
 
+#include <Wt/Json/Array.h>
+#include <Wt/Json/Object.h>
+#include <Wt/Json/Parser.h>
+#include <Wt/Json/Serializer.h>
+#include <Wt/Json/Value.h>
+
 #include <Wt/WAnchor.h>
 #include <Wt/WApplication.h>
 #include <Wt/WBootstrapTheme.h>

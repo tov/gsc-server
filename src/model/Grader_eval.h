@@ -70,4 +70,11 @@ public:
     }
 };
 
+template <>
+struct Enum<Grader_eval::Status>
+{
+    static char const* show(Grader_eval::Status);
+    static Grader_eval::Status read(char const*);
+};
+
 DBO_EXTERN_TEMPLATES(Grader_eval)

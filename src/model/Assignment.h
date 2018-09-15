@@ -6,14 +6,17 @@
 #include <Wt/Dbo/WtSqlTraits.h>
 #include <Wt/WDateTime.h>
 
+#include <vector>
+
 namespace dbo = Wt::Dbo;
 
 class Assignment;
 class Eval_item;
 class Submission;
 
-using Eval_items  = dbo::collection<dbo::ptr<Eval_item>>;
-using Submissions = dbo::collection<dbo::ptr<Submission>>;
+using Eval_items    = dbo::collection<dbo::ptr<Eval_item>>;
+using Eval_item_vec = std::vector<dbo::ptr<Eval_item>>;
+using Submissions   = dbo::collection<dbo::ptr<Submission>>;
 
 class Assignment
 {
@@ -44,6 +47,7 @@ public:
     bool partner() const { return partner_; }
     bool web_allowed() const { return web_allowed_; }
     Eval_items eval_items() const;
+    Eval_item_vec eval_item_vec() const;
     Submissions submissions() const { return submissions_; }
 
     void set_name(const std::string& name) { name_ = name; }
@@ -59,6 +63,8 @@ public:
     double total_relative_value() const;
 
     static dbo::ptr<Assignment> find_by_number(dbo::Session&, int);
+
+    dbo::ptr<Eval_item> find_eval_item(dbo::Session&, int) const;
 
 private:
     int           number_ = 0;

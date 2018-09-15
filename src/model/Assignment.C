@@ -51,6 +51,11 @@ Eval_items Assignment::eval_items() const
                       .orderBy("sequence");
 }
 
+Eval_item_vec Assignment::eval_item_vec() const {
+    auto query = eval_items();
+    return Eval_item_vec(query.begin(), query.end());
+}
+
 double Assignment::total_relative_value() const
 {
     return eval_items_.session()->query<double>(
@@ -59,4 +64,12 @@ double Assignment::total_relative_value() const
             " WHERE assignment_number = ?"
     ).bind(number()).resultValue();
 }
+
+dbo::ptr<Eval_item> Assignment::find_eval_item(dbo::Session& session, int sequence) const
+{
+    return session.find<Eval_item>()
+            .where("assignment_number = ?").bind(number())
+            .where("sequence = ?").bind(sequence);
+}
+
 

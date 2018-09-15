@@ -5,6 +5,7 @@
 
 #include <Wt/Dbo/Types.h>
 #include <Wt/Dbo/WtSqlTraits.h>
+#include <Wt/Json/Object.h>
 #include <Wt/WDateTime.h>
 
 namespace dbo = Wt::Dbo;
@@ -35,6 +36,8 @@ public:
     std::string eval_url() const;
     std::string grade_url() const;
 
+    std::string rest_uri() const;
+
     std::string owner_string(const dbo::ptr<User>& as_seen_by) const override;
 
     static dbo::ptr<Self_eval> find_by_permalink(dbo::Session&,
@@ -44,6 +47,8 @@ public:
 
     static dbo::collection<dbo::ptr<Self_eval>>
     find_with_grade_status(Grader_eval::Status, dbo::Session&);
+
+    Wt::Json::Object to_json(bool brief, dbo::ptr<User> const& as_seen_by) const;
 
 private:
     dbo::ptr<Eval_item>        eval_item_;

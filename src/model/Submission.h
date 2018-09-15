@@ -20,6 +20,7 @@ class Session;
 class User;
 
 using Self_evals      = dbo::collection<dbo::ptr<Self_eval>>;
+using Self_eval_vec   = std::vector<dbo::ptr<Self_eval>>;
 using Source_files    = dbo::collection<dbo::ptr<File_meta>>;
 using Source_file_vec = std::vector<dbo::ptr<File_meta>>;
 
@@ -52,6 +53,7 @@ public:
 
     Source_file_vec source_files_sorted(bool name_only = false) const;
     const Source_files& source_files() const { return source_files_; }
+    Self_eval_vec self_eval_vec() const;
     size_t file_count() const;
     int byte_count() const;
     int bytes_quota() const { return bytes_quota_; }
@@ -98,6 +100,8 @@ public:
     std::string eval_url() const;
     std::string url_for_user(const dbo::ptr<User>&) const;
 
+    dbo::ptr<Submission> find_this() const;
+
     dbo::ptr<File_meta> find_file_by_name(const std::string&) const;
 
     int remaining_space() const;
@@ -105,7 +109,11 @@ public:
 
     static dbo::ptr<Self_eval>
     get_self_eval(const dbo::ptr<Eval_item>&,
-                  const dbo::ptr<Submission>&);
+                  const dbo::ptr<Submission>&,
+                  bool create = true);
+
+    static Wt::Dbo::ptr<Self_eval>
+    get_self_eval(int sequence_number, const dbo::ptr<Submission> &, bool create);
 
     static void retract_self_eval(const dbo::ptr<Self_eval>&);
 

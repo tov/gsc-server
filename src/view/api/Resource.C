@@ -9,6 +9,7 @@
 #include "../../model/Exam_grade.h"
 #include "../../model/File_data.h"
 #include "../../model/File_meta.h"
+#include "../../model/Self_eval.h"
 #include "../../model/Submission.h"
 #include "../../model/Partner_request.h"
 
@@ -146,11 +147,8 @@ void Grades_csv::do_get_(const Context& context)
         o << "\n";
     }
 
-    std::string buffer1 = o.str();
-    std::vector<unsigned char> buffer2(buffer1.begin(), buffer1.end());
-
     content_type = "text/csv";
-    contents = buffer2;
+    contents = Bytes(o.str());
 }
 
 class Users : public Base
@@ -663,6 +661,72 @@ void Submissions_1_files_2::do_put_(
     use_json(file_meta->to_json());
 }
 
+class Submissions_1_evals : public Base
+{
+public:
+    Submissions_1_evals(int submission_id)
+            : submission_id_{submission_id}
+    { }
+
+    void load(Context const&) override;
+
+protected:
+    void do_get_(Context const& context) override;
+
+private:
+    int submission_id_;
+    std::vector<dbo::ptr<Self_eval>> self_evals_;
+};
+
+void Submissions_1_evals::load(Context const& context)
+{
+    auto submission = load_submission(context, submission_id_);
+    auto self_evals = submission->self_eval_vec();
+    self_evals_.assign(self_evals.begin(), self_evals.end());
+}
+
+void Submissions_1_evals::do_get_(const Base::Context& context)
+{
+    J::Array json;
+    for (auto const& each : self_evals_)
+        if (each)
+            json.push_back(each->to_json(true, context.user));
+    use_json(json);
+}
+
+class Submissions_1_evals_2 : public Base
+{
+public:
+    Submissions_1_evals_2(int submission_id, int sequence)
+            : submission_id_{submission_id}
+            , sequence_{sequence}
+    { }
+
+    void load(Context const&) override;
+
+protected:
+    void do_get_(Context const& context) override;
+
+private:
+    int submission_id_;
+    int sequence_;
+
+    dbo::ptr<Self_eval> self_eval_;
+};
+
+void Submissions_1_evals_2::load(Context const& context)
+{
+    auto submission = load_submission(context, submission_id_);
+    self_eval_      = Submission::get_self_eval(sequence_, submission, false);
+}
+
+void Submissions_1_evals_2::do_get_(const Context& context)
+{
+    if (!self_eval_) not_found();
+
+    use_json(self_eval_->to_json(false, context.user));
+}
+
 class Submissions_hw1 : public Base
 {
 public:
@@ -778,6 +842,18 @@ std::unique_ptr<Base> Base::parse_(std::string const& path_info)
         std::string filename(sm[2].first, sm[2].second);
         return std::make_unique<Submissions_1_files_2>(
                 submission_id, Wt::Utils::urlDecode(filename));
+    }
+
+    if (std::regex_match(path_info, sm, Path::submissions_1_evals)) {
+        int submission_id = get_number(sm[1]);
+        return std::make_unique<Submissions_1_evals>(submission_id);
+    }
+
+    if (std::regex_match(path_info, sm, Path::submissions_1_evals_2)) {
+        int submission_id = get_number(sm[1]);
+        int sequence = get_number(sm[2]);
+        return std::make_unique<Submissions_1_evals_2>(
+                submission_id, sequence);
     }
 
     if (std::regex_match(path_info, sm, Path::submissions_hw1)) {

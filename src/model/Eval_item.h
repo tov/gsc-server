@@ -1,6 +1,7 @@
 #pragma once
 
 #include "specializations.h"
+#include "../common/stringify.h"
 
 #include <Wt/Dbo/WtSqlTraits.h>
 #include <Wt/Dbo/Types.h>
@@ -68,6 +69,13 @@ public:
         dbo::field(a, relative_value_, "relative_value");
         dbo::hasMany(a, self_evals_, dbo::ManyToOne, "eval_item");
     }
+};
+
+template <>
+struct Enum<Eval_item::Type>
+{
+    static char const* show(Eval_item::Type);
+    static Eval_item::Type read(char const*);
 };
 
 std::ostream& operator<<(std::ostream&, Eval_item::Type);
