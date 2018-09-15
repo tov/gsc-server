@@ -88,7 +88,7 @@ public:
     static dbo::ptr<User> find_by_auth_token(dbo::Session&, const std::string&);
 
     std::string rest_uri() const;
-    std::string rest_hw_uri() const;
+    std::string submissions_rest_uri() const;
     Wt::Json::Object to_json(bool brief = false) const;
 
 private:

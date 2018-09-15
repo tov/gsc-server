@@ -10,6 +10,7 @@
 #include "../Self_eval.h"
 #include "../Submission.h"
 #include "../game/User_stats.h"
+#include "../../view/api/paths.h"
 
 #include <Wt/Auth/PasswordHash.h>
 #include <Wt/Dbo/Impl.h>
@@ -182,25 +183,24 @@ std::string User::hw_url() const
 
 std::string User::rest_uri() const
 {
-    std::ostringstream os;
-    os << "/api/users/" << name();
-    return os.str();
+    return api::paths::Users_1(name());
 }
 
-std::string User::rest_hw_uri() const
+std::string User::submissions_rest_uri() const
 {
-    std::ostringstream os;
-    os << "/api/users/" << name() << "/hws";
-    return os.str();
+    return api::paths::Users_1_submissions(name());
 }
 
 J::Object User::to_json(bool brief) const
 {
     J::Object result;
-    result["name"] = J::Value(name());
-    result["uri"]  = J::Value(rest_uri());
+
+    result["name"]            = J::Value(name());
+    result["uri"]             = J::Value(rest_uri());
+
     if (!brief) {
-        result["role"] = J::Value(role_string());
+        result["submissions_uri"] = J::Value(submissions_rest_uri());
+        result["role"]            = J::Value(role_string());
 
         // Submissions
         J::Array submissions;

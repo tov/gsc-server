@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Path.h"
+#include "paths.h"
 #include "../../Session.h"
 #include "../../model/File_data.h"
 
@@ -16,9 +16,9 @@ namespace api {
 
 class Request_body;
 
-namespace Resource {
+namespace resources {
 
-class Base
+class Resource
 {
 public:
     struct Context
@@ -28,8 +28,8 @@ public:
     };
 
     // Parses the URI into the resource.
-    static std::unique_ptr<Base> create(std::string const& method,
-                                        std::string const& path_info);
+    static std::unique_ptr<Resource> create(std::string const& method,
+                                            std::string const& path_info);
 
     // Loads the resource on behalf of current_user.
     virtual void load(Context const&) = 0;
@@ -40,7 +40,7 @@ public:
     // Sends the response.
     void send(Wt::Http::Response&) const;
 
-    virtual ~Base() = default;
+    virtual ~Resource() = default;
 
 protected:
     // Override these to handle specific methods.
@@ -83,7 +83,7 @@ protected:
     std::vector<unsigned char> contents;
 
 private:
-    static std::unique_ptr<Base> parse_(std::string const& path_info);
+    static std::unique_ptr<Resource> dispatch_(std::string const& path_info);
 
     std::string method_;
 };

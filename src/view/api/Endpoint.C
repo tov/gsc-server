@@ -1,8 +1,8 @@
 #include "Endpoint.h"
 #include "Http_status.h"
-#include "Path.h"
+#include "paths.h"
 #include "Request_handler.h"
-#include "Resource.h"
+#include "resources.h"
 #include "../../common/date_time.h"
 
 #include <memory>
@@ -22,7 +22,7 @@ void Endpoint::handleRequest(const Wt::Http::Request& request,
     Wt::WLocale::setCurrentLocale(locale_);
     Db_session session(pool_);
 
-    std::unique_ptr<Resource::Base> resource;
+    std::unique_ptr<resources::Resource> resource;
 
     try {
         Request_handler handler(session, request, response);
@@ -30,7 +30,7 @@ void Endpoint::handleRequest(const Wt::Http::Request& request,
         resource = handler.parse_uri();
 
         Wt::Dbo::Transaction transaction(session);
-        Resource::Base::Context context{session, current_user};
+        resources::Resource::Context context{session, current_user};
         resource->load(context);
         resource->process(request, context);
 

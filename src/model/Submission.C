@@ -8,6 +8,7 @@
 #include "auth/User.h"
 #include "../Session.h"
 #include "../common/date_time.h"
+#include "../view/api/paths.h"
 
 #include <Wt/WDateTime.h>
 #include <Wt/Dbo/Impl.h>
@@ -497,16 +498,16 @@ bool Submission::has_sufficient_space(int bytes,
     return remaining >= bytes;
 }
 
-std::string Submission::rest_uri() const
-{
-    std::ostringstream os;
-    os << "/api/submissions/" << id();
-    return os.str();
+std::string Submission::rest_uri() const {
+    return api::paths::Submissions_1(id());
 }
 
-std::string Submission::rest_files_uri() const
-{
-    return rest_uri() + "/files";
+std::string Submission::files_rest_uri() const {
+    return api::paths::Submissions_1_files(id());
+}
+
+std::string Submission::evals_rest_uri() const {
+    return api::paths::Submissions_1_evals(id());
 }
 
 J::Object Submission::to_json(bool brief) const
@@ -526,7 +527,8 @@ J::Object Submission::to_json(bool brief) const
         result["due_date"] = J::Value(json_format(effective_due_date()));
         result["eval_date"] = J::Value(json_format(effective_eval_date()));
         result["last_modified"] = J::Value(json_format(last_modified()));
-        result["files_uri"] = J::Value(rest_files_uri());
+        result["files_uri"] = J::Value(files_rest_uri());
+        result["evals_uri"] = J::Value(evals_rest_uri());
         result["bytes_used"] = J::Value(byte_count());
         result["bytes_quota"] = J::Value(bytes_quota());
         result["eval_status"] = J::Value(stringify(eval_status()));

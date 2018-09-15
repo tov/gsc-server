@@ -59,9 +59,9 @@ dbo::ptr<User> Request_handler::authenticate()
                       "Access to this resource requires authentication"};
 }
 
-std::unique_ptr<Resource::Base> Request_handler::parse_uri()
+std::unique_ptr<resources::Resource> Request_handler::parse_uri()
 {
-    return Resource::Base::create(method_, path_info_);
+    return resources::Resource::create(method_, path_info_);
 }
 
 static std::string const cookie_name = "gsc_cookie";
@@ -104,7 +104,7 @@ dbo::ptr<User> Request_handler::authenticate_by_cookie_()
     if (!in_cookie) return {};
 
     // Intercept logouts
-    if (std::regex_match(path_info_, Path::whoami) && method_ == "DELETE") {
+    if (std::regex_match(path_info_, paths::Whoami::re) && method_ == "DELETE") {
         auto hash = session_.auth().tokenHashFunction()->compute(*in_cookie, "");
 
         dbo::Transaction transaction(session_);
@@ -145,7 +145,7 @@ dbo::ptr<User> Request_handler::authenticate_by_password_()
     // Intercept user creation requests. These are POSTs to /users, and are only
     // valid if the user doesn't exist. In that case, we create the user and
     // create and set a login cookie.
-    if (std::regex_match(path_info_, Path::users) && method_ == "POST") {
+    if (std::regex_match(path_info_, paths::Users::re) && method_ == "POST") {
         if (user) throw Http_status{403, "User already exists"};
 
         check_password_strength(credentials);

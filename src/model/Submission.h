@@ -139,7 +139,8 @@ public:
     find_by_id(dbo::Session&, int session_id);
 
     std::string rest_uri() const;
-    std::string rest_files_uri() const;
+    std::string files_rest_uri() const;
+    std::string evals_rest_uri() const;
     Wt::Json::Object to_json(bool brief = false) const;
 
 private:

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Path.h"
-#include "Resource.h"
+#include "paths.h"
+#include "resources.h"
 #include "../../model/auth/User.h"
 #include "../../Session.h"
 
@@ -25,7 +25,7 @@ public:
     Request_handler(Db_session&, Wt::Http::Request const&, Wt::Http::Response&);
 
     dbo::ptr<User> authenticate();
-    std::unique_ptr<Resource::Base> parse_uri();
+    std::unique_ptr<resources::Resource> parse_uri();
 
     static void check_password_strength(Credentials const& cred);
 

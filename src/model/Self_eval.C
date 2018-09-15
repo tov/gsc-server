@@ -3,6 +3,7 @@
 #include "Eval_item.h"
 #include "Submission.h"
 #include "Grader_eval.h"
+#include "../view/api/paths.h"
 
 #include "Permalink.h"
 
@@ -39,13 +40,6 @@ std::string Self_eval::eval_url() const
 std::string Self_eval::grade_url() const
 {
     return "/grade/" + permalink();
-}
-
-std::string Self_eval::rest_uri() const {
-    std::ostringstream fmt;
-    fmt << "/api/submissions/" << submission()->id();
-    fmt << "/evals/" << eval_item()->sequence();
-    return fmt.str();
 }
 
 void Self_eval::touch_()
@@ -145,12 +139,17 @@ static J::Value clean_grade(double grade) {
     return grade < 0.001? 0 : grade;
 }
 
+std::string Self_eval::rest_uri() const
+{
+    return api::paths::Submissions_1_evals_2(submission().id(), eval_item()->sequence());
+}
+
 J::Object Self_eval::to_json(bool brief, dbo::ptr<User> const& as_seen_by) const {
     J::Object result;
 
     result["uri"]               = J::Value(rest_uri());
     result["sequence"]          = J::Value(eval_item()->sequence());
-    result["submission"]        = J::Value(submission()->rest_uri());
+    result["submission_uri"]    = J::Value(submission()->rest_uri());
 
     if (!brief) {
         result["type"]              = J::Value(stringify(eval_item()->type()));

@@ -4,6 +4,7 @@
 #include "auth/User.h"
 #include "../common/Media_type_registry.h"
 #include "../common/date_time.h"
+#include "../view/api/paths.h"
 
 #include <Wt/Dbo/Impl.h>
 #include <Wt/Json/Value.h>
@@ -201,11 +202,7 @@ bool sorts_before(const File_meta& a, const File_meta& b, bool name_only)
 
 std::string File_meta::rest_uri() const
 {
-    std::ostringstream os;
-    os << "/api/submissions/" << submission().id()
-            << "/files/"
-            << Wt::Utils::urlEncode(name());
-    return os.str();
+    return api::paths::Submissions_1_files_2(submission().id(), name());
 }
 
 J::Object File_meta::to_json(bool brief) const

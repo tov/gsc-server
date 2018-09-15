@@ -1,5 +1,6 @@
-#include "Resource.h"
+#include "resources.h"
 #include "Http_status.h"
+#include "paths.h"
 #include "Request_body.h"
 #include "Request_handler.h"
 #include "Result_array.h"
@@ -30,24 +31,38 @@ namespace J = Wt::Json;
 
 namespace api {
 
-namespace Resource {
+namespace resources {
 
-void Base::denied(int code)
+template <class T>
+std::unique_ptr<T> match(std::string const& path_info)
+{
+    using uri_type = typename T::uri_type;
+
+    std::smatch sm;
+
+    if (std::regex_match(path_info, sm, uri_type::re)) {
+        return std::make_unique<T>(uri_type(sm));
+    } else {
+        return nullptr;
+    }
+}
+
+void Resource::denied(int code)
 {
     Http_error{403} << "You can't do that (code " << code << ")";
 }
 
-void Base::not_found()
+void Resource::not_found()
 {
     Http_error{404} << "The named resource does not exist";
 }
 
-void Base::not_supported()
+void Resource::not_supported()
 {
     Http_error{405} << "The resource does not support that method";
 }
 
-void Base::send(Wt::Http::Response& response) const
+void Resource::send(Wt::Http::Response& response) const
 {
     if (content_type.empty()) {
         Http_status{500, "No content type"}.respond(response);
@@ -57,9 +72,13 @@ void Base::send(Wt::Http::Response& response) const
     }
 }
 
-class Grades_csv : public Base
+class Grades_csv : public Resource
 {
 public:
+    using uri_type = paths::Grades_csv;
+
+    explicit Grades_csv(uri_type&&) { }
+
     void load(Context const&) override;
 
 protected:
@@ -77,7 +96,7 @@ private:
     Score_map scores_;
 };
 
-void Grades_csv::load(const Base::Context& context) {
+void Grades_csv::load(const Resource::Context& context) {
     if (!context.user->can_admin())
         denied(12);
 
@@ -151,9 +170,13 @@ void Grades_csv::do_get_(const Context& context)
     contents = Bytes(o.str());
 }
 
-class Users : public Base
+class Users : public Resource
 {
 public:
+    using uri_type = paths::Users;
+
+    explicit Users(uri_type&&) { }
+
     void load(Context const&) override;
 
 protected:
@@ -181,11 +204,14 @@ void Users::do_get_(Context const&)
     use_json(result);
 }
 
-class Users_1 : public Base
+class Users_1 : public Resource
 {
 public:
-    Users_1(std::string username)
-            : username_{std::move(username)} {}
+    using uri_type = paths::Users_1;
+
+    explicit Users_1(uri_type&& uri)
+            : uri_{std::move(uri)}
+    { }
 
     void load(Context const&) override;
 
@@ -195,12 +221,12 @@ protected:
     void do_patch_(Request_body body, Context const&) override;
 
 private:
-    std::string username_;
+    uri_type uri_;
     dbo::ptr<User> user_;
 };
 
 dbo::ptr<User>
-Base::load_user(Context const& context, std::string const& username)
+Resource::load_user(Context const& context, std::string const& username)
 {
     if (context.user->name() != username && !context.user->can_admin())
         denied(2);
@@ -212,7 +238,7 @@ Base::load_user(Context const& context, std::string const& username)
 }
 
 Wt::Dbo::ptr<Assignment>
-Base::load_assignment(const Base::Context& context, int number)
+Resource::load_assignment(const Resource::Context& context, int number)
 {
     auto result = Assignment::find_by_number(context.session, number);
     if (result) return result;
@@ -220,7 +246,7 @@ Base::load_assignment(const Base::Context& context, int number)
 }
 
 Wt::Dbo::ptr<Submission>
-Base::load_submission(Context const& context, int submission_id)
+Resource::load_submission(Context const& context, int submission_id)
 {
     auto submission = Submission::find_by_id(context.session, submission_id);
     if (!submission) not_found();
@@ -230,7 +256,7 @@ Base::load_submission(Context const& context, int submission_id)
 
 void Users_1::load(Context const& context)
 {
-    user_ = load_user(context, username_);
+    user_ = load_user(context, uri_.name);
 }
 
 void Users_1::do_get_(Context const&)
@@ -435,11 +461,14 @@ void Users_1::do_patch_(Request_body body, Context const& context)
     use_json(result);
 }
 
-class Users_1_submissions : public Base
+class Users_1_submissions : public Resource
 {
 public:
-    Users_1_submissions(std::string username)
-            : username_{std::move(username)} {}
+    using uri_type = paths::Users_1_submissions;
+
+    explicit Users_1_submissions(uri_type&& uri)
+            : uri_{std::move(uri)}
+    { }
 
     void load(Context const&) override;
 
@@ -447,18 +476,19 @@ protected:
     void do_get_(Context const& context) override;
 
 private:
-    std::string username_;
+    uri_type uri_;
+
     dbo::ptr<User> user_;
     std::vector<dbo::ptr<Submission>> submissions_;
 };
 
 void Users_1_submissions::load(Context const& context)
 {
-    user_ = load_user(context, username_);
+    user_ = load_user(context, uri_.name);
     submissions_ = user_->submissions();
 }
 
-void Users_1_submissions::do_get_(const Base::Context& context)
+void Users_1_submissions::do_get_(const Resource::Context& context)
 {
     J::Array result;
     for (const auto& each : submissions_) {
@@ -467,11 +497,13 @@ void Users_1_submissions::do_get_(const Base::Context& context)
     use_json(result);
 }
 
-class Submissions_1 : public Base
+class Submissions_1 : public Resource
 {
 public:
-    Submissions_1(int submission_id)
-            : submission_id_{submission_id}
+    using uri_type = paths::Submissions_1;
+
+    explicit Submissions_1(uri_type&& uri)
+            : uri_{std::move(uri)}
     { }
 
     void load(Context const&) override;
@@ -482,14 +514,14 @@ protected:
     void do_patch_(Request_body body, Context const &context) override;
 
 private:
-    int submission_id_;
+    uri_type uri_;
 
     dbo::ptr<Submission> submission_;
 };
 
 void Submissions_1::load(const Context& context)
 {
-    submission_ = load_submission(context, submission_id_);
+    submission_ = load_submission(context, uri_.submission_id);
 }
 
 void Submissions_1::do_delete_(const Context& context)
@@ -506,7 +538,7 @@ void Submissions_1::do_get_(const Context& context)
     use_json(submission_->to_json());
 }
 
-void Submissions_1::do_patch_(Request_body body, const Base::Context &context) {
+void Submissions_1::do_patch_(Request_body body, const Resource::Context &context) {
     if (!context.user->can_admin())
         denied(10);
 
@@ -567,11 +599,13 @@ void Submissions_1::do_patch_(Request_body body, const Base::Context &context) {
     use_json(result);
 }
 
-class Submissions_1_files : public Base
+class Submissions_1_files : public Resource
 {
 public:
-    Submissions_1_files(int submission_id)
-            : submission_id_{submission_id}
+    using uri_type = paths::Submissions_1_files;
+
+    explicit Submissions_1_files(uri_type&& uri)
+            : uri_{std::move(uri)}
     { }
 
     void load(Context const&) override;
@@ -580,18 +614,18 @@ protected:
     void do_get_(Context const& context) override;
 
 private:
-    int submission_id_;
+    uri_type uri_;
     std::vector<dbo::ptr<File_meta>> file_metas_;
 };
 
 void Submissions_1_files::load(Context const& context)
 {
-    auto submission = load_submission(context, submission_id_);
+    auto submission = load_submission(context, uri_.submission_id);
     auto file_metas = submission->source_files_sorted(true);
     file_metas_.assign(file_metas.begin(), file_metas.end());
 }
 
-void Submissions_1_files::do_get_(const Base::Context& context)
+void Submissions_1_files::do_get_(const Resource::Context& context)
 {
     J::Array json;
     for (auto const& each : file_metas_)
@@ -599,13 +633,14 @@ void Submissions_1_files::do_get_(const Base::Context& context)
     use_json(json);
 }
 
-class Submissions_1_files_2 : public Base
+class Submissions_1_files_2 : public Resource
 {
 public:
-    Submissions_1_files_2(int submission_id,
-                          std::string filename)
-            : submission_id_{submission_id}
-            , filename_{std::move(filename)} {}
+    using uri_type = paths::Submissions_1_files_2;
+
+    explicit Submissions_1_files_2(uri_type&& uri)
+            : uri_{std::move(uri)}
+    { }
 
     void load(Context const&) override;
 
@@ -615,8 +650,7 @@ protected:
     void do_put_(Request_body body, Context const& context) override;
 
 private:
-    int submission_id_;
-    std::string filename_;
+    uri_type uri_;
 
     dbo::ptr<Submission> submission_;
     dbo::ptr<File_meta> file_meta_;
@@ -624,18 +658,18 @@ private:
 
 void Submissions_1_files_2::load(Context const& context)
 {
-    submission_ = load_submission(context, submission_id_);
-    file_meta_ = submission_->find_file_by_name(filename_);
+    submission_ = load_submission(context, uri_.submission_id);
+    file_meta_ = submission_->find_file_by_name(uri_.filename);
 }
 
-void Submissions_1_files_2::do_delete_(const Base::Context& context)
+void Submissions_1_files_2::do_delete_(const Resource::Context& context)
 {
     if (file_meta_)
         file_meta_.remove();
     success();
 }
 
-void Submissions_1_files_2::do_get_(const Base::Context& context)
+void Submissions_1_files_2::do_get_(const Resource::Context& context)
 {
     if (!file_meta_) not_found();
 
@@ -644,16 +678,16 @@ void Submissions_1_files_2::do_get_(const Base::Context& context)
 }
 
 void Submissions_1_files_2::do_put_(
-        Request_body body, const Base::Context& context)
+        Request_body body, const Resource::Context& context)
 {
     if (!submission_->can_submit(context.user))
         denied(8);
 
-    if (!submission_->has_sufficient_space(body.size(), filename_))
+    if (!submission_->has_sufficient_space(body.size(), uri_.filename))
         throw Http_status{403, "Upload would exceed quota"};
 
     auto file_meta = File_meta::upload(
-            filename_,
+            uri_.filename,
             std::move(body).read_bytes(),
             submission_,
             context.user);
@@ -661,11 +695,13 @@ void Submissions_1_files_2::do_put_(
     use_json(file_meta->to_json());
 }
 
-class Submissions_1_evals : public Base
+class Submissions_1_evals : public Resource
 {
 public:
-    Submissions_1_evals(int submission_id)
-            : submission_id_{submission_id}
+    using uri_type = paths::Submissions_1_evals;
+
+    explicit Submissions_1_evals(uri_type&& uri)
+            : uri_{std::move(uri)}
     { }
 
     void load(Context const&) override;
@@ -674,18 +710,18 @@ protected:
     void do_get_(Context const& context) override;
 
 private:
-    int submission_id_;
+    uri_type uri_;
     std::vector<dbo::ptr<Self_eval>> self_evals_;
 };
 
 void Submissions_1_evals::load(Context const& context)
 {
-    auto submission = load_submission(context, submission_id_);
+    auto submission = load_submission(context, uri_.submission_id);
     auto self_evals = submission->self_eval_vec();
     self_evals_.assign(self_evals.begin(), self_evals.end());
 }
 
-void Submissions_1_evals::do_get_(const Base::Context& context)
+void Submissions_1_evals::do_get_(const Resource::Context& context)
 {
     J::Array json;
     for (auto const& each : self_evals_)
@@ -694,12 +730,13 @@ void Submissions_1_evals::do_get_(const Base::Context& context)
     use_json(json);
 }
 
-class Submissions_1_evals_2 : public Base
+class Submissions_1_evals_2 : public Resource
 {
 public:
-    Submissions_1_evals_2(int submission_id, int sequence)
-            : submission_id_{submission_id}
-            , sequence_{sequence}
+    using uri_type = paths::Submissions_1_evals_2;
+
+    explicit Submissions_1_evals_2(uri_type&& uri)
+            : uri_{std::move(uri)}
     { }
 
     void load(Context const&) override;
@@ -708,16 +745,15 @@ protected:
     void do_get_(Context const& context) override;
 
 private:
-    int submission_id_;
-    int sequence_;
+    uri_type uri_;
 
     dbo::ptr<Self_eval> self_eval_;
 };
 
 void Submissions_1_evals_2::load(Context const& context)
 {
-    auto submission = load_submission(context, submission_id_);
-    self_eval_      = Submission::get_self_eval(sequence_, submission, false);
+    auto submission = load_submission(context, uri_.submission_id);
+    self_eval_      = Submission::get_self_eval(uri_.sequence, submission, false);
 }
 
 void Submissions_1_evals_2::do_get_(const Context& context)
@@ -727,11 +763,13 @@ void Submissions_1_evals_2::do_get_(const Context& context)
     use_json(self_eval_->to_json(false, context.user));
 }
 
-class Submissions_hw1 : public Base
+class Submissions_hw1 : public Resource
 {
 public:
-    Submissions_hw1(int assignment_number)
-            : assignment_number_{assignment_number}
+    using uri_type = paths::Submissions_hw1;
+
+    explicit Submissions_hw1(uri_type&& uri)
+            : uri_{std::move(uri)}
     { }
 
     void load(Context const&) override;
@@ -740,7 +778,7 @@ protected:
     void do_get_(Context const& context) override;
 
 private:
-    int assignment_number_;
+    uri_type uri_;
 
     std::vector<dbo::ptr<Submission>> submissions_;
 };
@@ -750,13 +788,13 @@ void Submissions_hw1::load(Context const& context)
     if (!context.user->can_admin())
         denied(9);
 
-    auto assignment = load_assignment(context, assignment_number_);
+    auto assignment = load_assignment(context, uri_.assignment_number);
     std::copy(assignment->submissions().begin(),
               assignment->submissions().end(),
               std::back_inserter(submissions_));
 }
 
-void Submissions_hw1::do_get_(Base::Context const& context)
+void Submissions_hw1::do_get_(Resource::Context const& context)
 {
     J::Array result;
 
@@ -766,17 +804,21 @@ void Submissions_hw1::do_get_(Base::Context const& context)
     use_json(result);
 }
 
-    std::unique_ptr<Base> Base::create(std::string const& method,
+std::unique_ptr<Resource> Resource::create(std::string const& method,
                                    std::string const& path_info)
 {
-    auto resource = parse_(path_info);
+    auto resource = dispatch_(path_info);
     resource->method_ = method;
     return std::move(resource);
 }
 
-class Whoami : public Base
+class Whoami : public Resource
 {
 public:
+    using uri_type = paths::Whoami;
+
+    explicit Whoami(uri_type&&) { }
+
     void load(Context const&) override;
 
 protected:
@@ -787,88 +829,44 @@ private:
     dbo::ptr<User> user_;
 };
 
-void Whoami::load(const Base::Context& context) {
+void Whoami::load(const Resource::Context& context) {
     user_ = context.user;
 }
 
-void Whoami::do_get_(const Base::Context&) {
+void Whoami::do_get_(const Resource::Context&) {
     content_type = "text/plain";
     if (user_) contents = Bytes(user_->name());
 }
 
-void Whoami::do_delete_(const Base::Context&) {
+void Whoami::do_delete_(const Resource::Context&) {
     success();
 }
 
-std::unique_ptr<Base> Base::parse_(std::string const& path_info)
+#define dispatch_to(T)      do {                                        \
+                                auto resource = match<T>(path_info);    \
+                                if (resource) return resource;          \
+                            } while(false)
+
+std::unique_ptr<Resource> Resource::dispatch_(std::string const& path_info)
 {
     std::smatch sm;
 
-    auto get_number = [](const auto& sm_i) {
-        std::string str(sm_i.first, sm_i.second);
-        return std::atoi(str.c_str());
-    };
-
-    if (std::regex_match(path_info, Path::grades_csv)) {
-        return std::make_unique<Grades_csv>();
-    }
-
-    if (std::regex_match(path_info, Path::users)) {
-        return std::make_unique<Users>();
-    }
-
-    if (std::regex_match(path_info, sm, Path::users_1)) {
-        std::string username(sm[1].first, sm[1].second);
-        return std::make_unique<Users_1>(std::move(username));
-    }
-
-    if (std::regex_match(path_info, sm, Path::users_1_submissions)) {
-        std::string username(sm[1].first, sm[1].second);
-        return std::make_unique<Users_1_submissions>(std::move(username));
-    }
-
-    if (std::regex_match(path_info, sm, Path::submissions_1)) {
-        int submission_id = get_number(sm[1]);
-        return std::make_unique<Submissions_1>(submission_id);
-    }
-
-    if (std::regex_match(path_info, sm, Path::submissions_1_files)) {
-        int submission_id = get_number(sm[1]);
-        return std::make_unique<Submissions_1_files>(submission_id);
-    }
-
-    if (std::regex_match(path_info, sm, Path::submissions_1_files_2)) {
-        int submission_id = get_number(sm[1]);
-        std::string filename(sm[2].first, sm[2].second);
-        return std::make_unique<Submissions_1_files_2>(
-                submission_id, Wt::Utils::urlDecode(filename));
-    }
-
-    if (std::regex_match(path_info, sm, Path::submissions_1_evals)) {
-        int submission_id = get_number(sm[1]);
-        return std::make_unique<Submissions_1_evals>(submission_id);
-    }
-
-    if (std::regex_match(path_info, sm, Path::submissions_1_evals_2)) {
-        int submission_id = get_number(sm[1]);
-        int sequence = get_number(sm[2]);
-        return std::make_unique<Submissions_1_evals_2>(
-                submission_id, sequence);
-    }
-
-    if (std::regex_match(path_info, sm, Path::submissions_hw1)) {
-        int assignment_number = get_number(sm[1]);
-        return std::make_unique<Submissions_hw1>(assignment_number);
-    }
-
-    if (std::regex_match(path_info, Path::whoami)) {
-        return std::make_unique<Whoami>();
-    }
+    dispatch_to(Grades_csv);
+    dispatch_to(Users);
+    dispatch_to(Users_1);
+    dispatch_to(Users_1_submissions);
+    dispatch_to(Submissions_1);
+    dispatch_to(Submissions_1_files);
+    dispatch_to(Submissions_1_files_2);
+    dispatch_to(Submissions_1_evals);
+    dispatch_to(Submissions_1_evals_2);
+    dispatch_to(Submissions_hw1);
+    dispatch_to(Whoami);
 
     not_found();
 }
 
-void Base::process(Wt::Http::Request const& request,
+void Resource::process(Wt::Http::Request const& request,
                    Context const& context)
 {
     Request_body body{request};
@@ -889,27 +887,27 @@ void Base::process(Wt::Http::Request const& request,
     else not_supported();
 }
 
-void Base::do_delete_(Context const&)
+void Resource::do_delete_(Context const&)
 {
     not_supported();
 }
 
-void Base::do_get_(Context const&)
+void Resource::do_get_(Context const&)
 {
     not_supported();
 }
 
-void Base::do_patch_(Request_body, Context const&)
+void Resource::do_patch_(Request_body, Context const&)
 {
     not_supported();
 }
 
-void Base::do_post_(Request_body, Context const&)
+void Resource::do_post_(Request_body, Context const&)
 {
     not_supported();
 }
 
-void Base::do_put_(Request_body, Context const&)
+void Resource::do_put_(Request_body, Context const&)
 {
     not_supported();
 }
