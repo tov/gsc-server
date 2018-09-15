@@ -710,6 +710,32 @@ void Submissions_hw1::do_get_(Base::Context const& context)
     return std::move(resource);
 }
 
+class Whoami : public Base
+{
+public:
+    void load(Context const&) override;
+
+protected:
+    void do_get_(Context const&) override;
+    void do_delete_(Context const &context) override;
+
+private:
+    dbo::ptr<User> user_;
+};
+
+void Whoami::load(const Base::Context& context) {
+    user_ = context.user;
+}
+
+void Whoami::do_get_(const Base::Context&) {
+    content_type = "text/plain";
+    if (user_) contents = Bytes(user_->name());
+}
+
+void Whoami::do_delete_(const Base::Context&) {
+    success();
+}
+
 std::unique_ptr<Base> Base::parse_(std::string const& path_info)
 {
     std::smatch sm;
@@ -718,6 +744,10 @@ std::unique_ptr<Base> Base::parse_(std::string const& path_info)
         std::string str(sm_i.first, sm_i.second);
         return std::atoi(str.c_str());
     };
+
+    if (std::regex_match(path_info, Path::grades_csv)) {
+        return std::make_unique<Grades_csv>();
+    }
 
     if (std::regex_match(path_info, Path::users)) {
         return std::make_unique<Users>();
@@ -755,8 +785,8 @@ std::unique_ptr<Base> Base::parse_(std::string const& path_info)
         return std::make_unique<Submissions_hw1>(assignment_number);
     }
 
-    if (std::regex_match(path_info, Path::grades_csv)) {
-        return std::make_unique<Grades_csv>();
+    if (std::regex_match(path_info, Path::whoami)) {
+        return std::make_unique<Whoami>();
     }
 
     not_found();

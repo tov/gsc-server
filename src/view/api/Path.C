@@ -6,6 +6,7 @@ namespace Path {
 
 using namespace std;
 
+const regex whoami("/+whoami");
 const regex grades_csv("/+grades\\.csv");
 const regex users("/+users");
 const regex users_1("/+users/+([^/]+)");

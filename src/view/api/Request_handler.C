@@ -103,6 +103,21 @@ dbo::ptr<User> Request_handler::authenticate_by_cookie_()
     std::string const* in_cookie = request_.getCookieValue(cookie_name);
     if (!in_cookie) return {};
 
+    // Intercept logouts
+    if (std::regex_match(path_info_, Path::whoami) && method_ == "DELETE") {
+        auto hash = session_.auth().tokenHashFunction()->compute(*in_cookie, "");
+
+        dbo::Transaction transaction(session_);
+
+        auto user = User::find_by_auth_token(session_, hash);
+        if (user) {
+            user.modify()->remove_auth_token(hash);
+            return user;
+        } else {
+            return {};
+        }
+    }
+
     Wt::Auth::AuthTokenResult auth_result =
             session_.auth().processAuthToken(*in_cookie, session_.users());
     if (auth_result.state() != Wt::Auth::AuthTokenState::Valid)

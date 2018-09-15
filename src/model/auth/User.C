@@ -48,7 +48,7 @@ Wt::Dbo::ptr<User> User::find_by_auth_token(Wt::Dbo::Session& session,
                                             const std::string& hash)
 {
     return session.query<dbo::ptr<User>>(
-            "select u from users u join auth_tokens t on u.id = t.user_id")
+            "SELECT u FROM users u JOIN auth_tokens t ON u.id = t.user_id")
             .where("t.value = ?").bind(hash)
             .where("t.expires > ?").bind(Wt::WDateTime::currentDateTime());
 }
