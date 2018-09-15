@@ -805,7 +805,7 @@ void Submissions_hw1::do_get_(Resource::Context const& context)
 }
 
 std::unique_ptr<Resource> Resource::create(std::string const& method,
-                                   std::string const& path_info)
+                                           std::string const& path_info)
 {
     auto resource = dispatch_(path_info);
     resource->method_ = method;

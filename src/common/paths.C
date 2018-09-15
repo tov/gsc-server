@@ -95,7 +95,7 @@ const regex Submissions_1_files_2::re("/+submissions/+(\\d+)/+files/+([^/]+)");
 
 Submissions_1_files_2::Submissions_1_files_2(std::smatch const& sm)
         : Submissions_1_files{sm}
-        , filename{Wt::Utils::urlDecode(extract_string(sm[2]))}
+        , filename{extract_string(sm[2])}
 { }
 
 void Submissions_1_files_2::format(std::ostream& o) const

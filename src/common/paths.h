@@ -24,7 +24,7 @@ struct Uri_base
 struct Grades_csv : Uri_base
 {
     Grades_csv() = default;
-    Grades_csv(std::smatch const&) { }
+    explicit Grades_csv(std::smatch const&) { }
 
     static const std::regex re;
     void format(std::ostream&) const override;
@@ -33,7 +33,7 @@ struct Grades_csv : Uri_base
 struct Users : Uri_base
 {
     Users() = default;
-    Users(std::smatch const&) { }
+    explicit Users(std::smatch const&) { }
 
     static const std::regex re;
     void format(std::ostream&) const override;
@@ -43,8 +43,8 @@ struct Users_1 : Users
 {
     std::string name;
 
-    Users_1(std::string const name) : name{std::move(name)} { }
-    Users_1(std::smatch const&);
+    explicit Users_1(std::string const name) : name{std::move(name)} { }
+    explicit Users_1(std::smatch const&);
 
     static const std::regex re;
     void format(std::ostream&) const override;
@@ -62,8 +62,8 @@ struct Submissions_1 : Uri_base
 {
     int submission_id;
 
-    Submissions_1(int submission_id) : submission_id{submission_id} { }
-    Submissions_1(std::smatch const&);
+    explicit Submissions_1(int submission_id) : submission_id{submission_id} { }
+    explicit Submissions_1(std::smatch const&);
 
     static const std::regex re;
     void format(std::ostream&) const override;
@@ -85,7 +85,7 @@ struct Submissions_1_files_2 : Submissions_1_files
             : Submissions_1_files{submission_id}
             , filename{std::move(filename)}
     { }
-    Submissions_1_files_2(std::smatch const&);
+    explicit Submissions_1_files_2(std::smatch const&);
 
     static const std::regex re;
     void format(std::ostream&) const override;
@@ -107,7 +107,7 @@ struct Submissions_1_evals_2 : Submissions_1_evals
             : Submissions_1_evals{assignment_id}
             , sequence{sequence}
     { }
-    Submissions_1_evals_2(std::smatch const&);
+    explicit Submissions_1_evals_2(std::smatch const&);
 
     static const std::regex re;
     void format(std::ostream&) const override;
@@ -117,8 +117,10 @@ struct Submissions_hw1 : Uri_base
 {
     int assignment_number;
 
-    Submissions_hw1(int assignment_number) : assignment_number{assignment_number} { }
-    Submissions_hw1(std::smatch const&);
+    explicit Submissions_hw1(int assignment_number)
+            : assignment_number{assignment_number}
+    { }
+    explicit Submissions_hw1(std::smatch const&);
 
     static const std::regex re;
     void format(std::ostream&) const override;
@@ -127,7 +129,7 @@ struct Submissions_hw1 : Uri_base
 struct Whoami : Uri_base
 {
     Whoami() = default;
-    Whoami(std::smatch const&) { }
+    explicit Whoami(std::smatch const&) { }
 
     static const std::regex re;
     void format(std::ostream&) const override;
