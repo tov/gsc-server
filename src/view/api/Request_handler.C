@@ -148,10 +148,13 @@ dbo::ptr<User> Request_handler::authenticate_by_password_()
     if (!user) throw Http_status{401, "User does not exist"};
 
     // The user exists, so we need to validate their password.
-    auto& service = session_.passwordAuth();
-    auto auth_user = session_.users().find(user);
+    auto& service      = session_.passwordAuth();
+    auto auth_user     = session_.users().find(user);
+    auto verify_result = service.verifyPassword(auth_user, credentials.password);
 
-    switch (service.verifyPassword(auth_user, credentials.password)) {
+    transaction.commit();
+
+    switch (verify_result) {
         case PasswordResult::PasswordInvalid:
             throw Http_status{401, "Invalid password"};
 

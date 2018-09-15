@@ -18,7 +18,7 @@ public:
                        Wt::Http::Response&) override;
 
 private:
-    Db_session session_;
+    Wt::Dbo::SqlConnectionPool& pool_;
     Wt::WLocale locale_;
 };
 

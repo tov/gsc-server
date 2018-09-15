@@ -10,7 +10,7 @@
 namespace api {
 
 Endpoint::Endpoint(Wt::Dbo::SqlConnectionPool& pool)
-        : session_{pool}
+        : pool_{pool}
         , locale_{Wt::WLocale::currentLocale()}
 {
     set_time_zone(locale_);
@@ -20,16 +20,17 @@ void Endpoint::handleRequest(const Wt::Http::Request& request,
                              Wt::Http::Response& response)
 {
     Wt::WLocale::setCurrentLocale(locale_);
+    Db_session session(pool_);
 
     std::unique_ptr<Resource::Base> resource;
 
     try {
-        Request_handler handler(session_, request, response);
+        Request_handler handler(session, request, response);
         auto current_user = handler.authenticate();
         resource = handler.parse_uri();
 
-        Wt::Dbo::Transaction transaction(session_);
-        Resource::Base::Context context{session_, current_user};
+        Wt::Dbo::Transaction transaction(session);
+        Resource::Base::Context context{session, current_user};
         resource->load(context);
         resource->process(request, context);
 
