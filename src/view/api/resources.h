@@ -88,6 +88,6 @@ private:
     std::string method_;
 };
 
-} // end namespace Resource
+} // end namespace resources
 
 } // end namespace api

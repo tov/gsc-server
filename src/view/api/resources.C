@@ -912,6 +912,6 @@ void Resource::do_put_(Request_body, Context const&)
     not_supported();
 }
 
-} // end namespace Resource
+} // end namespace resources
 
 } // end namespace api

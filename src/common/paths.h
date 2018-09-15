@@ -147,6 +147,6 @@ extern const std::regex submissions_1_evals;
 extern const std::regex submissions_1_evals_2;
 extern const std::regex whoami;
 
-} // end namespace Path
+} // end namespace paths
 
 } // end namespce api
