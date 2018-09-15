@@ -1,6 +1,6 @@
 #pragma once
 
-#include "paths.h"
+#include "../../common/paths.h"
 #include "../../Session.h"
 #include "../../model/File_data.h"
 

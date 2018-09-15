@@ -8,10 +8,10 @@
 #include <Wt/WStringUtil.h>
 
 #include "Dictionary.h"
+#include <cstdlib>
+#include <ctime>
 #include <fstream>
 #include <iostream>
-#include <time.h>
-#include <stdlib.h>
 
 std::wstring RandomWord(Dictionary dictionary)
 {
@@ -25,19 +25,19 @@ std::wstring RandomWord(Dictionary dictionary)
    std::string retval;
    int numwords = 0;
    while(dict) {
-      getline(dict, retval);
+      std::getline(dict, retval);
       numwords++;
    }
    dict.clear();
    dict.seekg(0);
 
-   srand(time(0));
-   int selection = rand() % numwords; // not entirely uniform, but who cares?
+   std::srand(std::time(0));
+   int selection = std::rand() % numwords; // not entirely uniform, but who cares?
 
    while(selection--) {
       getline(dict, retval);
    }
-   getline(dict, retval);
+   std::getline(dict, retval);
    for(unsigned int i = 0; i < retval.size(); ++i)
       if(retval[i] < 'A' || retval[i] > 'Z')
 	 std::cout << "word " << retval 

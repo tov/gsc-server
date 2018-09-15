@@ -4,7 +4,7 @@
 #include "auth/User.h"
 #include "../common/Media_type_registry.h"
 #include "../common/date_time.h"
-#include "../view/api/paths.h"
+#include "../common/paths.h"
 
 #include <Wt/Dbo/Impl.h>
 #include <Wt/Json/Value.h>

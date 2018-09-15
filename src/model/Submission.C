@@ -8,7 +8,7 @@
 #include "auth/User.h"
 #include "../Session.h"
 #include "../common/date_time.h"
-#include "../view/api/paths.h"
+#include "../common/paths.h"
 
 #include <Wt/WDateTime.h>
 #include <Wt/Dbo/Impl.h>

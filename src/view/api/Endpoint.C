@@ -1,6 +1,6 @@
 #include "Endpoint.h"
 #include "Http_status.h"
-#include "paths.h"
+#include "../../common/paths.h"
 #include "Request_handler.h"
 #include "resources.h"
 #include "../../common/date_time.h"

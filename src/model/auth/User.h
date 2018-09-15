@@ -6,7 +6,7 @@
 #include <Wt/WDateTime.h>
 #include <Wt/Dbo/Types.h>
 #include <Wt/Dbo/WtSqlTraits.h>
-#include <Wt/JSon/Object.h>
+#include <Wt/Json/Object.h>
 
 #include <string>
 

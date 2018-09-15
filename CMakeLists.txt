@@ -30,7 +30,7 @@ set(SOURCE_FILES
         src/Navigate.h
         src/view/api/Endpoint.C
         src/view/api/Http_status.C
-        src/view/api/paths.C
+        src/common/paths.C
         src/view/api/Request_body.C
         src/view/api/Request_handler.C
         src/view/api/resources.C

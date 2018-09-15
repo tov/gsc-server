@@ -1,6 +1,6 @@
 #include "resources.h"
 #include "Http_status.h"
-#include "paths.h"
+#include "../../common/paths.h"
 #include "Request_body.h"
 #include "Request_handler.h"
 #include "Result_array.h"

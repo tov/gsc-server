@@ -3,7 +3,7 @@
 #include "Eval_item.h"
 #include "Submission.h"
 #include "Grader_eval.h"
-#include "../view/api/paths.h"
+#include "../common/paths.h"
 
 #include "Permalink.h"
 

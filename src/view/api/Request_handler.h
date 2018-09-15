@@ -1,6 +1,6 @@
 #pragma once
 
-#include "paths.h"
+#include "../../common/paths.h"
 #include "resources.h"
 #include "../../model/auth/User.h"
 #include "../../Session.h"
