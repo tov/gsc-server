@@ -29,4 +29,10 @@ Result_proxy Result_array::failure()
     return Result_proxy{*this, "failure"};
 }
 
+void Result_array::add_nested(Result_array nested) {
+    J::Object object;
+    object["nested"] = J::Value(std::move(nested));
+    push_back(std::move(object));
+}
+
 } // end api

@@ -43,6 +43,7 @@ public:
 
     Result_proxy success();
     Result_proxy failure();
+    void add_nested(Result_array nested);
 };
 
 } // end api

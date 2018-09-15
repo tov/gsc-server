@@ -176,12 +176,14 @@ void Users_1::do_patch_(Request_body body, Context const& context)
                 }
 
                 context.session.set_password(user_, pair.second);
-                result.success() << "Updated password for user ‘" << user_->name() << "’.";
+                result.success() << "Updated password for user " << user_->name() << ".";
             }
 
             else if (pair.first == "exam_grades") {
                 if (!context.user->can_admin())
                     denied(11);
+
+                Result_array nested;
 
                 J::Array const& exams = pair.second;
                 for (J::Object const& exam : exams) {
@@ -191,16 +193,24 @@ void Users_1::do_patch_(Request_body body, Context const& context)
 
                     auto exam_grade = Exam_grade::find_by_user_and_number(user_, number);
 
-                    if (possible == 0)
+                    if (possible == 0) {
                         exam_grade.remove();
-                    else
+                        nested.success() << "Removed exam " << number << " grade for "
+                                << user_->name() << ".";
+                    } else {
                         exam_grade.modify()->set_points_and_possible(points, possible);
+                        nested.success() << "Set exam " << number << " grade for "
+                                << user_->name() << " to "
+                                << points << " / " << possible << ".";
+                    }
                 }
 
-                result.success() << "Exam grade(s) updated.";
+                result.add_nested(std::move(nested));
             }
 
             else if (pair.first == "partner_requests") {
+                Result_array nested;
+
                 J::Array const& requests = pair.second;
                 for (J::Object const& request : requests) {
                     using S = Partner_request::Status;
@@ -219,6 +229,13 @@ void Users_1::do_patch_(Request_body body, Context const& context)
                     if (!other)
                         Http_error{403} << "User " << username << " does not exist.";
 
+                    std::string user_and_hw;
+                    {
+                        std::ostringstream o;
+                        o << "user " << other->name() << " for hw" << hw_number;
+                        user_and_hw = o.str();
+                    }
+
                     switch (status) {
                         case S::outgoing: {
                             // Check for an incoming request, and if it exists, accept it.
@@ -226,31 +243,47 @@ void Users_1::do_patch_(Request_body body, Context const& context)
                                     context.session, other, hw);
 
                             if (incoming && incoming->requestee() == user_) {
-                                if (incoming->confirm(context.session))
+                                if (incoming->confirm(context.session)) {
+                                    nested.success()
+                                            << "Requested and confirmed partnership with "
+                                            << user_and_hw << ".";
                                     break;
+                                }
                             }
 
                             std::ostringstream reason;
                             auto request_ptr = Partner_request::create(
                                     context.session, user_, other, hw, reason);
                             if (!request_ptr) throw Http_status{403, reason.str()};
+
+                            nested.success()
+                                    << "Requested partnership with "
+                                    << user_and_hw << ".";
                             break;
                         }
 
                         case S::incoming:
-                            Http_error{403} << "You cannot create an incoming partner request";
+                            nested.failure() << "You cannot create an incoming partner request.";
+                            break;
 
                         case S::accepted: {
                             auto request_ptr = Partner_request::find_by_requestor_and_requestee(
                                     context.session, other, user_, hw);
                             if (request_ptr) {
                                 auto submission = request_ptr.modify()->confirm(context.session);
-                                if (!submission)
-                                    throw Http_status{403, "Could not confirm request"};
+                                if (submission) {
+                                    nested.success()
+                                            << "Accepted partner request from "
+                                            << user_and_hw << ".";
+                                } else {
+                                    nested.failure()
+                                            << "Could not accept partner request from"
+                                            << user_and_hw << ".";
+                                }
                             } else {
-                                Http_error{403} << "You don’t have an incoming partner "
-                                                   "request from user ‘"
-                                                << other->name() << "’.";
+                                nested.failure()
+                                        << "You don’t have an incoming partner request from "
+                                        << user_and_hw << ".";
                             }
                             break;
                         }
@@ -258,17 +291,36 @@ void Users_1::do_patch_(Request_body body, Context const& context)
                         case S::canceled: {
                             auto outgoing = Partner_request::find_by_requestor_and_requestee(
                                     context.session, user_, other, hw);
-                            if (outgoing) outgoing.remove();
-
                             auto incoming = Partner_request::find_by_requestor_and_requestee(
                                     context.session, other, user_, hw);
-                            if (incoming) incoming.remove();
-                            break;
+
+                            if (incoming && outgoing) {
+                                nested.success()
+                                        << "Removed incoming partner request from "
+                                        << user_and_hw
+                                        << " and outgoing partner request to "
+                                        << user_and_hw << ".";
+                            } else if (incoming) {
+                                nested.success()
+                                        << "Removed incoming partner request from "
+                                        << user_and_hw << ".";
+                            } else if (outgoing) {
+                                nested.success()
+                                        << "Removed outgoing partner request to "
+                                        << user_and_hw << ".";
+                            } else {
+                                nested.failure()
+                                        << "No partners requests to remove from/to "
+                                        << user_and_hw << ".";
+                            }
+
+                            incoming.remove();
+                            outgoing.remove();
                         }
                     }
                 }
 
-                result.success() << "Partner request(s) processed.";
+                result.add_nested(std::move(nested));
             }
 
             else {
@@ -369,20 +421,27 @@ void Submissions_1::do_patch_(Request_body body, const Base::Context &context) {
 
         for (auto const& pair : object) {
             if (pair.first == "due_date") {
-                auto local_time = Wt::WLocalDateTime::fromString(pair.second);
+                std::string time_spec = pair.second;
+                auto local_time = Wt::WLocalDateTime::fromString(time_spec);
 
                 if (local_time.isValid()) {
                     submission_.modify()->set_due_date(local_time.toUTC());
                     result.success() << "Modified due date to " << local_time.toString() << ".";
                 } else {
-                    result.failure() << "Could not parse timespec.";
+                    result.failure() << "Could not parse timespec ‘" << time_spec << "’.";
                 }
             }
 
             else if (pair.first == "eval_date") {
-                auto local_time = Wt::WLocalDateTime::fromString(pair.second);
-                submission_.modify()->set_eval_date(local_time.toUTC());
-                result.success() << "Modified eval date to " << local_time.toString() << ".";
+                std::string time_spec = pair.second;
+                auto local_time = Wt::WLocalDateTime::fromString(time_spec);
+
+                if (local_time.isValid()) {
+                    submission_.modify()->set_eval_date(local_time.toUTC());
+                    result.success() << "Modified eval date to " << local_time.toString() << ".";
+                } else {
+                    result.failure() << "Could not parse timespec ‘" << time_spec << "’.";
+                }
             }
 
             else if (pair.first == "bytes_quota") {
