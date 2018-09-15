@@ -12,6 +12,9 @@
 #include <string>
 #include <vector>
 
+class Eval_item;
+class Self_eval;
+
 namespace api {
 
 class Request_body;
@@ -50,6 +53,8 @@ protected:
     virtual void do_post_(Request_body body, Context const&);
     virtual void do_put_(Request_body body, Context const&);
 
+    std::string const& method() const { return method_; }
+
     // Successful response with no data.
     void success()
     {
@@ -73,6 +78,12 @@ protected:
 
     static Wt::Dbo::ptr<Submission>
     load_submission(Context const&, int submission_id);
+
+    static Wt::Dbo::ptr<Eval_item>
+    load_eval_item(Context const&, Wt::Dbo::ptr<Submission> const&, int sequence);
+
+    static Wt::Dbo::ptr<Self_eval>
+    load_self_eval(Context const&, Wt::Dbo::ptr<Submission> const&, Wt::Dbo::ptr<Eval_item> const&);
 
     // Give up.
     static void denied [[noreturn]] (int code);

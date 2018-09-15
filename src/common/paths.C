@@ -125,6 +125,22 @@ void Submissions_1_evals_2::format(ostream& o) const
     o << "/" << sequence;
 }
 
+const regex Submissions_1_evals_2_self::re("/+submissions/+(\\d+)/+evals/+(\\d+)/+self");
+
+void Submissions_1_evals_2_self::format(std::ostream& o) const
+{
+    Submissions_1_evals_2::format(o);
+    o << "/self";
+}
+
+const regex Submissions_1_evals_2_grader::re("/+submissions/+(\\d+)/+evals/+(\\d+)/+grader");
+
+void Submissions_1_evals_2_grader::format(std::ostream& o) const
+{
+    Submissions_1_evals_2::format(o);
+    o << "/grader";
+}
+
 const regex Submissions_hw1::re("/+submissions/+hw(\\d+)");
 
 Submissions_hw1::Submissions_hw1(smatch const& sm)

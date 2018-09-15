@@ -113,6 +113,22 @@ struct Submissions_1_evals_2 : Submissions_1_evals
     void format(std::ostream&) const override;
 };
 
+struct Submissions_1_evals_2_self : Submissions_1_evals_2
+{
+    using Submissions_1_evals_2::Submissions_1_evals_2;
+
+    static const std::regex re;
+    void format(std::ostream&) const override;
+};
+
+struct Submissions_1_evals_2_grader : Submissions_1_evals_2
+{
+    using Submissions_1_evals_2::Submissions_1_evals_2;
+
+    static const std::regex re;
+    void format(std::ostream&) const override;
+};
+
 struct Submissions_hw1 : Uri_base
 {
     int assignment_number;

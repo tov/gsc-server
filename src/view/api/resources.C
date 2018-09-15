@@ -7,6 +7,7 @@
 #include "../../Session.h"
 #include "../../model/auth/User.h"
 #include "../../model/Assignment.h"
+#include "../../model/Eval_item.h"
 #include "../../model/Exam_grade.h"
 #include "../../model/File_data.h"
 #include "../../model/File_meta.h"
@@ -14,8 +15,10 @@
 #include "../../model/Submission.h"
 #include "../../model/Partner_request.h"
 
-#include <Wt/Json/Value.h>
+#include <Wt/Json/Object.h>
 #include <Wt/Json/Serializer.h>
+#include <Wt/Json/Value.h>
+
 #include <Wt/Utils.h>
 #include <Wt/WLocalDateTime.h>
 
@@ -252,6 +255,25 @@ Resource::load_submission(Context const& context, int submission_id)
     if (!submission) not_found();
     if (!submission->can_view(context.user)) denied(7);
     return submission;
+}
+
+Wt::Dbo::ptr<Eval_item>
+Resource::load_eval_item(Context const& context, dbo::ptr<Submission> const& as_part_of, int sequence)
+{
+    auto eval_item = as_part_of->assignment()->find_eval_item(context.session, sequence);
+    if (!eval_item) not_found();
+    return eval_item;
+}
+
+
+Wt::Dbo::ptr<Self_eval>
+Resource::load_self_eval(Context const& context,
+                         Wt::Dbo::ptr<Submission> const& submission,
+                         Wt::Dbo::ptr<Eval_item> const& eval_item)
+{
+    return Submission::get_self_eval(
+            eval_item, submission,
+            eval_item->type() == Eval_item::Type::Informational);
 }
 
 void Users_1::load(Context const& context)
@@ -711,22 +733,25 @@ protected:
 
 private:
     uri_type uri_;
-    std::vector<dbo::ptr<Self_eval>> self_evals_;
+
+    dbo::ptr<Submission> submission_;
+    std::vector<dbo::ptr<Eval_item>> eval_items_;
 };
 
 void Submissions_1_evals::load(Context const& context)
 {
-    auto submission = load_submission(context, uri_.submission_id);
-    auto self_evals = submission->self_eval_vec();
-    self_evals_.assign(self_evals.begin(), self_evals.end());
+    submission_ = load_submission(context, uri_.submission_id);
+    eval_items_ = submission_->assignment()->eval_item_vec();
 }
 
 void Submissions_1_evals::do_get_(const Resource::Context& context)
 {
     J::Array json;
-    for (auto const& each : self_evals_)
+
+    for (auto const& each : eval_items_)
         if (each)
-            json.push_back(each->to_json(true, context.user));
+            json.push_back(each->to_json(submission_, context.user, true));
+
     use_json(json);
 }
 
@@ -747,20 +772,182 @@ protected:
 private:
     uri_type uri_;
 
-    dbo::ptr<Self_eval> self_eval_;
+    dbo::ptr<Submission> submission_;
+    dbo::ptr<Eval_item> eval_item_;
 };
 
 void Submissions_1_evals_2::load(Context const& context)
 {
-    auto submission = load_submission(context, uri_.submission_id);
-    self_eval_      = Submission::get_self_eval(uri_.sequence, submission, false);
+    submission_ = load_submission(context, uri_.submission_id);
+    eval_item_  = load_eval_item(context, submission_, uri_.sequence);
 }
 
 void Submissions_1_evals_2::do_get_(const Context& context)
 {
-    if (!self_eval_) not_found();
+    use_json(eval_item_->to_json(submission_, context.user));
+}
 
-    use_json(self_eval_->to_json(false, context.user));
+class Submissions_1_evals_2_self : public Resource
+{
+public:
+    using uri_type = paths::Submissions_1_evals_2_self;
+
+    explicit Submissions_1_evals_2_self(uri_type&& uri)
+            : uri_{std::move(uri)}
+    { }
+
+    void load(Context const&) override;
+
+protected:
+    void do_delete_(Context const& context) override;
+    void do_get_(Context const& context) override;
+    void do_put_(Request_body body, Context const& context) override;
+
+private:
+    uri_type uri_;
+
+    dbo::ptr<Submission> submission_;
+    dbo::ptr<Eval_item> eval_item_;
+    dbo::ptr<Self_eval> self_eval_;
+};
+
+void Submissions_1_evals_2_self::load(Context const& context)
+{
+    submission_ = load_submission(context, uri_.submission_id);
+    eval_item_  = load_eval_item(context, submission_, uri_.sequence);
+    self_eval_  = load_self_eval(context, submission_, eval_item_);
+}
+
+void Submissions_1_evals_2_self::do_get_(Resource::Context const& context)
+{
+    if (!self_eval_)
+        not_found();
+
+    use_json(self_eval_->to_json());
+}
+
+void Submissions_1_evals_2_self::do_delete_(Resource::Context const& context)
+{
+    if (!submission_->can_eval(context.user))
+        denied(13);
+
+    self_eval_.remove();
+}
+
+void Submissions_1_evals_2_self::do_put_(Request_body body, Resource::Context const& context)
+{
+    if (!submission_->can_eval(context.user))
+        denied(16);
+
+    try {
+        auto json = std::move(body).read_json();
+        J::Object const& object = json;
+
+        std::string explanation = object.get("explanation");
+        double score            = object.get("score");
+
+        if (!self_eval_)
+            self_eval_ = Submission::get_self_eval(eval_item_, submission_, true);
+
+        auto modifiable = self_eval_.modify();
+        modifiable->set_explanation(explanation);
+        modifiable->set_score(score);
+
+    } catch (J::TypeException const& e) {
+        throw Http_status{400, "PUT /submissions/_1/evals/_2/self could not understand request"};
+    } catch (J::ParseError const& e) {
+        throw Http_status{400, "PUT /submissions/_1/evals/_2/self could not parse user request as JSON"};
+    }
+
+    use_json(self_eval_->to_json());
+}
+
+class Submissions_1_evals_2_grader : public Resource
+{
+public:
+    using uri_type = paths::Submissions_1_evals_2_grader;
+
+    explicit Submissions_1_evals_2_grader(uri_type&& uri)
+            : uri_{std::move(uri)}
+    { }
+
+    void load(Context const&) override;
+
+protected:
+    void do_delete_(Context const& context) override;
+    void do_get_(Context const& context) override;
+    void do_put_(Request_body body, Context const& context) override;
+
+
+private:
+    uri_type uri_;
+
+    dbo::ptr<Submission>  submission_;
+    dbo::ptr<Eval_item>   eval_item_;
+    dbo::ptr<Self_eval>   self_eval_;
+    dbo::ptr<Grader_eval> grader_eval_;
+};
+
+void Submissions_1_evals_2_grader::load(Context const& context)
+{
+    submission_  = load_submission(context, uri_.submission_id);
+    eval_item_   = load_eval_item(context, submission_, uri_.sequence);
+    self_eval_   = load_self_eval(context, submission_, eval_item_);
+
+    if (!self_eval_)
+        Http_error{403} << "Cannot create grader eval if self eval doesn't exist.";
+
+    grader_eval_ = self_eval_->grader_eval();
+}
+
+void Submissions_1_evals_2_grader::do_get_(Resource::Context const& context)
+{
+    if (!(grader_eval_ && grader_eval_->can_view(context.user)))
+        not_found();
+
+    use_json(grader_eval_->to_json(context.user));
+}
+
+void Submissions_1_evals_2_grader::do_delete_(Resource::Context const& context)
+{
+    if (!context.user->can_grade())
+        denied(14);
+
+    grader_eval_.remove();
+}
+
+void Submissions_1_evals_2_grader::do_put_(Request_body body, Resource::Context const& context)
+{
+    if (!context.user->can_grade())
+        denied(15);
+
+    try {
+        auto json = std::move(body).read_json();
+        J::Object const& object = json;
+
+        std::string explanation = object.get("explanation");
+        double score            = object.get("score");
+        std::string status_str  = object.get("status");
+        auto status             = destringify<Grader_eval::Status>(status_str);
+
+        if (!grader_eval_)
+            grader_eval_ = Submission::get_grader_eval(self_eval_, context.user);
+
+        auto modifiable = grader_eval_.modify();
+        modifiable->set_explanation(explanation);
+        modifiable->set_grader(context.user);
+        modifiable->set_score(score);
+        modifiable->set_status(status);
+
+    } catch (J::TypeException const& e) {
+        throw Http_status{400, "PUT /submissions/_1/evals/_2/self could not understand request"};
+    } catch (J::ParseError const& e) {
+        throw Http_status{400, "PUT /submissions/_1/evals/_2/self could not parse user request as JSON"};
+    } catch (std::invalid_argument const& e) {
+        throw Http_status{400, e.what()};
+    }
+
+    use_json(grader_eval_->to_json(context.user));
 }
 
 class Submissions_hw1 : public Resource
@@ -860,6 +1047,8 @@ std::unique_ptr<Resource> Resource::dispatch_(std::string const& path_info)
     dispatch_to(Submissions_1_files_2);
     dispatch_to(Submissions_1_evals);
     dispatch_to(Submissions_1_evals_2);
+    dispatch_to(Submissions_1_evals_2_self);
+    dispatch_to(Submissions_1_evals_2_grader);
     dispatch_to(Submissions_hw1);
     dispatch_to(Whoami);
 

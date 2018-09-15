@@ -24,16 +24,16 @@ class Request_handler
 public:
     Request_handler(Db_session&, Wt::Http::Request const&, Wt::Http::Response&);
 
-    dbo::ptr<User> authenticate();
-    std::unique_ptr<resources::Resource> parse_uri();
+    dbo::ptr<User> authenticate() const;
+    std::unique_ptr<resources::Resource> parse_uri() const;
 
     static void check_password_strength(Credentials const& cred);
 
 private:
-    dbo::ptr<User> authenticate_by_cookie_();
-    dbo::ptr<User> authenticate_by_password_();
+    dbo::ptr<User> authenticate_by_cookie_() const;
+    dbo::ptr<User> authenticate_by_password_() const;
 
-    void create_cookie_(Wt::Auth::User const&);
+    void create_cookie_(Wt::Auth::User const&) const;
     void set_cookie_(std::string const& value, int ttl_seconds) const;
 
     Db_session& session_;

@@ -27,6 +27,10 @@ void Http_status::respond(Wt::Http::Response& response) const
     response.setStatus(status_code_);
 
     switch (status_code_) {
+        case 200:
+            title = "Success";
+            break;
+
         case 400:
             title = "Bad request";
             break;

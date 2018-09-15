@@ -47,7 +47,7 @@ public:
     find_with_grade_status(Grader_eval::Status, dbo::Session&);
 
     std::string rest_uri() const;
-    Wt::Json::Object to_json(bool brief, dbo::ptr<User> const& as_seen_by) const;
+    Wt::Json::Object to_json() const;
 
 private:
     dbo::ptr<Eval_item>        eval_item_;

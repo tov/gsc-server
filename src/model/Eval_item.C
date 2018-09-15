@@ -3,12 +3,16 @@
 #include "Grader_eval.h"
 #include "Self_eval.h"
 #include "Submission.h"
+#include "../common/paths.h"
 
 #include <Wt/Dbo/Impl.h>
+#include <Wt/Json/Value.h>
 
 #include <cstdlib>
 #include <iomanip>
 #include <sstream>
+
+namespace J = Wt::Json;
 
 DBO_INSTANTIATE_TEMPLATES(Eval_item)
 
@@ -62,6 +66,43 @@ double Eval_item::absolute_value() const
 std::string Eval_item::absolute_value_str() const
 {
     return pct_string(absolute_value(), 3);
+}
+
+std::string Eval_item::rest_uri(dbo::ptr<Submission> const& as_part_of) const
+{
+    return api::paths::Submissions_1_evals_2(as_part_of.id(), sequence());
+}
+
+J::Object Eval_item::to_json(dbo::ptr<Submission> const& as_part_of,
+                             dbo::ptr<User> const& as_seen_by,
+                             bool brief) const
+{
+    J::Object result;
+
+    result["uri"]               = J::Value(rest_uri(as_part_of));
+    result["sequence"]          = J::Value(sequence());
+    result["submission_uri"]    = J::Value(as_part_of->rest_uri());
+    result["type"]              = J::Value(stringify(type()));
+
+    if (!brief) {
+        result["prompt"]            = J::Value(prompt());
+        result["value"]             = J::Value(relative_value());
+
+        // Get the self eval, creating it if the type is informational.
+        auto self_eval = Submission::get_self_eval(sequence(), as_part_of,
+                                                   type() == Type::Informational);
+        if (self_eval) {
+            result["self_eval"] = self_eval->to_json();
+
+            auto grader_eval = self_eval->grader_eval();
+            if (grader_eval && grader_eval->can_view(as_seen_by)) {
+                result["grader_eval"] = grader_eval->to_json(as_seen_by);
+            }
+        }
+    }
+
+
+    return result;
 }
 
 std::ostream& operator<<(std::ostream& o, Eval_item::Type type)

@@ -48,7 +48,7 @@ Request_handler::Request_handler(Db_session& session,
         , method_{request.method()}
 { }
 
-dbo::ptr<User> Request_handler::authenticate()
+dbo::ptr<User> Request_handler::authenticate() const
 {
     dbo::ptr<User> user;
 
@@ -59,7 +59,7 @@ dbo::ptr<User> Request_handler::authenticate()
                       "Access to this resource requires authentication"};
 }
 
-std::unique_ptr<resources::Resource> Request_handler::parse_uri()
+std::unique_ptr<resources::Resource> Request_handler::parse_uri() const
 {
     return resources::Resource::create(method_, path_info_);
 }
@@ -80,7 +80,7 @@ Request_handler::set_cookie_(std::string const& value, int ttl_seconds) const
     response_.addHeader("Set-Cookie", out_cookie.str());
 }
 
-void Request_handler::create_cookie_(Wt::Auth::User const& auth_user)
+void Request_handler::create_cookie_(Wt::Auth::User const& auth_user) const
 {
     std::string auth_token = session_.auth().createAuthToken(auth_user);
     set_cookie_(auth_token, 60 * session_.auth().authTokenValidity());
@@ -98,7 +98,7 @@ void Request_handler::check_password_strength(Credentials const& cred)
     throw Http_status{403, msg.str()};
 }
 
-dbo::ptr<User> Request_handler::authenticate_by_cookie_()
+dbo::ptr<User> Request_handler::authenticate_by_cookie_() const
 {
     std::string const* in_cookie = request_.getCookieValue(cookie_name);
     if (!in_cookie) return {};
@@ -112,9 +112,9 @@ dbo::ptr<User> Request_handler::authenticate_by_cookie_()
         auto user = User::find_by_auth_token(session_, hash);
         if (user) {
             user.modify()->remove_auth_token(hash);
-            return user;
+            throw Http_status{200, "Deauthenticated"};
         } else {
-            return {};
+            throw Http_status{401, "You are not authenticated"};
         }
     }
 
@@ -128,7 +128,7 @@ dbo::ptr<User> Request_handler::authenticate_by_cookie_()
     return session_.users().find(auth_result.user());
 }
 
-dbo::ptr<User> Request_handler::authenticate_by_password_()
+dbo::ptr<User> Request_handler::authenticate_by_password_() const
 {
     using Wt::Auth::PasswordResult;
 
@@ -152,11 +152,7 @@ dbo::ptr<User> Request_handler::authenticate_by_password_()
         user = session_.create_user(credentials.username, credentials.password);
         create_cookie_(session_.users().find(user));
 
-        // Redirect request internally to GET the new user.
-        method_    = "GET";
-        path_info_ = "/users/" + user->name();
-
-        return user;
+        throw Http_status{200, "User created"};
     }
 
     // Otherwise, the user doesn't exist.

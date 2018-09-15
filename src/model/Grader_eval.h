@@ -1,12 +1,14 @@
 #pragma once
 
 #include "specializations.h"
+#include "../common/stringify.h"
 
 #include "auth/User.h"
 #include "Abstract_evaluation.h"
 
 #include <Wt/Dbo/WtSqlTraits.h>
 #include <Wt/Dbo/Types.h>
+#include <Wt/Json/Object.h>
 #include <Wt/WDateTime.h>
 
 #include <string>
@@ -43,6 +45,11 @@ public:
     std::string owner_string(const dbo::ptr<User>& as_seen_by) const override;
     const Wt::Dbo::ptr<Eval_item>& eval_item() const override;
     const Wt::Dbo::ptr<Submission>& submission() const override;
+
+    bool can_view(dbo::ptr<User> const&) const;
+
+    std::string rest_uri() const;
+    Wt::Json::Object to_json(dbo::ptr<User> const& as_seen_by) const;
 
     static dbo::ptr<Grader_eval>
     get_for(const dbo::ptr<Self_eval>&, Session&);

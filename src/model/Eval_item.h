@@ -5,6 +5,7 @@
 
 #include <Wt/Dbo/WtSqlTraits.h>
 #include <Wt/Dbo/Types.h>
+#include <Wt/Json/Object.h>
 
 #include <iostream>
 #include <string>
@@ -12,7 +13,9 @@
 namespace dbo = Wt::Dbo;
 
 class Assignment;
+class User;
 class Self_eval;
+class Submission;
 
 using Self_evals = dbo::collection<dbo::ptr<Self_eval>>;
 
@@ -49,6 +52,12 @@ public:
     std::string format_score(double) const;
 
     static std::string pct_string(double, int precision = 2);
+
+    std::string rest_uri(dbo::ptr<Submission> const& as_part_of) const;
+    Wt::Json::Object to_json(Wt::Dbo::ptr<Submission> const& as_part_of,
+                             dbo::ptr<User> const& as_seen_by,
+                             bool brief = false) const;
+
 
 private:
     dbo::ptr<Assignment> assignment_;
