@@ -77,6 +77,9 @@ private:
 };
 
 void Grades_csv::load(const Base::Context& context) {
+    if (!context.user->can_admin())
+        denied(12);
+
     auto& dbo = context.session;
 
     const auto assigns_q = dbo.find<Assignment>()
