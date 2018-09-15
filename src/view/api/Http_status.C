@@ -69,7 +69,8 @@ Http_error::Http_error(int status_code)
         : status_code_{status_code}
 { }
 
-Http_error::~Http_error() noexcept(false) {
+Http_error::~Http_error() noexcept(false)
+{
     throw Http_status{status_code_, message_.str()};
 }
 

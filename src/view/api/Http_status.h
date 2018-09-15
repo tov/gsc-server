@@ -20,7 +20,7 @@ public:
     void respond(Wt::Http::Response&) const;
 
 private:
-    static const std::string exception_message_(int status_code);
+    static std::string exception_message_(int status_code);
 
     int status_code_;
     std::string message_;
