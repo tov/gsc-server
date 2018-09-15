@@ -17,7 +17,9 @@
 #include <Wt/Utils.h>
 #include <Wt/WLocalDateTime.h>
 
+#include <algorithm>
 #include <cstdlib>
+#include <map>
 #include <regex>
 #include <sstream>
 #include <string>
@@ -52,6 +54,100 @@ void Base::send(Wt::Http::Response& response) const
         response.setMimeType(content_type);
         response.out().write((const char *)contents.data(), contents.size());
     }
+}
+
+class Grades_csv : public Base
+{
+public:
+    void load(Context const&) override;
+
+protected:
+    void do_get_(Context const&) override;
+
+private:
+    using Exams             = std::vector<int>;
+    using Exam_scores       = std::map<int, double>;
+    using Assignments       = std::vector<dbo::ptr<Assignment>>;
+    using Assignment_scores = std::map<int, double>;
+    using Score_map         = std::map<std::string, std::pair<Exam_scores, Assignment_scores>>;
+
+    Exams exams_;
+    Assignments assigns_;
+    Score_map scores_;
+};
+
+void Grades_csv::load(const Base::Context& context) {
+    auto& dbo = context.session;
+
+    const auto assigns_q = dbo.find<Assignment>()
+            .orderBy("number")
+            .resultList();
+    const auto exams_q = dbo.query<int>("SELECT DISTINCT number FROM exam_grades")
+            .orderBy("number")
+            .resultList();
+
+    assigns_.assign(assigns_q.begin(), assigns_q.end());
+    exams_.assign(exams_q.begin(), exams_q.end());
+
+    auto users = dbo.find<User>()
+            .where("role = ?").bind(int(User::Role::Student))
+            .resultList();
+
+    for (auto const& user : users) {
+        Exam_scores user_exams;
+        Assignment_scores user_assigns;
+
+        for (const auto& assign : assigns_) {
+            auto submission = Submission::find_by_assignment_and_user(dbo, assign, user);
+            user_assigns[assign->number()] = submission? submission->grade() : 0;
+        }
+
+        for (int exam : exams_) {
+            auto exam_grade = Exam_grade::find_by_user_and_number(user, exam);
+            user_exams[exam] = exam_grade? exam_grade->grade() : 0;
+        }
+
+        scores_[user->name()] = std::make_pair(std::move(user_assigns),
+                                               std::move(user_exams));
+    }
+}
+
+static double lookup_or_0(std::map<int, double> const& map, int key) {
+    auto iter = map.find(key);
+    return iter == map.end() ? 0.0 : iter->second;
+}
+
+void Grades_csv::do_get_(const Context& context)
+{
+    std::ostringstream o;
+
+    o << "NetId";
+    for (auto const& assign : assigns_)
+        o << ",hw" << assign->number();
+    for (int exam : exams_)
+        o << ",ex" << exam;
+    o << "\n";
+
+    for (auto const& row : scores_) {
+        o << row.first;
+
+        auto const& user_assigns = row.second.first;
+        for (auto const& assign : assigns_)
+            o << "," << lookup_or_0(user_assigns, assign->number());
+
+        auto const& user_exams   = row.second.second;
+        for (int exam : exams_) {
+            o << "," << lookup_or_0(user_exams, exam);
+        }
+
+        o << "\n";
+    }
+
+    std::string buffer1 = o.str();
+    std::vector<unsigned char> buffer2(buffer1.begin(), buffer1.end());
+
+    content_type = "text/csv";
+    contents = buffer2;
 }
 
 class Users : public Base
@@ -654,6 +750,10 @@ std::unique_ptr<Base> Base::parse_(std::string const& path_info)
     if (std::regex_match(path_info, sm, Path::submissions_hw1)) {
         int assignment_number = get_number(sm[1]);
         return std::make_unique<Submissions_hw1>(assignment_number);
+    }
+
+    if (std::regex_match(path_info, Path::grades_csv)) {
+        return std::make_unique<Grades_csv>();
     }
 
     not_found();

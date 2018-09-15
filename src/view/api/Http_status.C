@@ -13,7 +13,7 @@ Http_status::Http_status(int status_code, std::string message)
         : std::runtime_error{exception_message_(status_code)},
           status_code_{status_code}, message_{std::move(message)} {}
 
-const std::string Http_status::exception_message_(int status_code)
+std::string Http_status::exception_message_(int status_code)
 {
     std::ostringstream os;
     os << "HTTP Status " << status_code;
