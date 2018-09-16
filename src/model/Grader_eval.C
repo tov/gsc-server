@@ -10,6 +10,8 @@
 #include <Wt/Dbo/Impl.h>
 #include <Wt/Json/Value.h>
 
+#include <algorithm>
+
 namespace J = Wt::Json;
 
 DBO_INSTANTIATE_TEMPLATES(Grader_eval)
@@ -31,7 +33,7 @@ void Grader_eval::set_explanation(const std::string& explanation)
 
 void Grader_eval::set_score(double score)
 {
-    score_ = score;
+    score_ = std::min(1.0, std::max(0.0, score));
     touch_();
 }
 

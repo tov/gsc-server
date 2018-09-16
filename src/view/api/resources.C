@@ -832,6 +832,7 @@ void Submissions_1_evals_2_self::do_delete_(Resource::Context const& context)
         denied(13);
 
     self_eval_.remove();
+    success();
 }
 
 void Submissions_1_evals_2_self::do_put_(Request_body body, Resource::Context const& context)
@@ -914,6 +915,7 @@ void Submissions_1_evals_2_grader::do_delete_(Resource::Context const& context)
         denied(14);
 
     grader_eval_.remove();
+    success();
 }
 
 void Submissions_1_evals_2_grader::do_put_(Request_body body, Resource::Context const& context)
