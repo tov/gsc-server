@@ -12,17 +12,16 @@
 int main(int argc, char** argv)
 {
     try {
-        Wt::WServer server(argc, argv, WTHTTP_CONFIGURATION);
-
-        Session::configureAuth();
-
         Wt::WString::setDefaultEncoding(Wt::CharEncoding::UTF8);
 
         auto env_string = std::getenv("POSTGRES_CONNINFO");
         auto db_string  = env_string? env_string : "dbname=gsc";
-        auto pool       = Session::createConnectionPool(db_string);
+        auto pool       = Db_session::createConnectionPool(db_string);
+        Db_session::initialize_db(*pool);
+        Db_session::configure_auth();
 
         api::Endpoint endpoint(*pool);
+        Wt::WServer server(argc, argv);
 
         server.addResource(&endpoint, "/api");
         server.addEntryPoint(Wt::EntryPointType::Application,

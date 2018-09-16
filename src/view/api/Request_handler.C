@@ -93,9 +93,9 @@ void Request_handler::check_password_strength(Credentials const& cred)
 
     if (psv_result.isValid()) return;
 
-    std::ostringstream msg;
-    msg << "Please try a stronger password (" << psv_result.message() << ")";
-    throw Http_status{403, msg.str()};
+    Http_error{403}
+            << "Please try a stronger password ("
+            << psv_result.message() << ")";
 }
 
 dbo::ptr<User> Request_handler::authenticate_by_cookie_() const
@@ -169,13 +169,11 @@ dbo::ptr<User> Request_handler::authenticate_by_password_() const
         case PasswordResult::PasswordInvalid:
             throw Http_status{401, "Invalid password"};
 
-        case PasswordResult::LoginThrottling: {
-            auto seconds = service.delayForNextAttempt(auth_user);
-            std::ostringstream msg;
-            msg << "Too many attempts; please wait " << seconds
-                << " seconds";
-            throw Http_status{401, msg.str()};
-        }
+        case PasswordResult::LoginThrottling:
+            Http_error{401}
+                    << "Too many attempts; please wait "
+                    << service.delayForNextAttempt(auth_user)
+                    << " seconds";
 
         case PasswordResult::PasswordValid:
             create_cookie_(auth_user);

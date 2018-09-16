@@ -41,26 +41,29 @@ Auth::PasswordService my_password_service(my_auth_service);
 
 }
 
-Db_session::Db_session(Wt::Dbo::SqlConnectionPool& pool)
+Db_session::Db_session(dbo::SqlConnectionPool& pool)
     : users_{*this}
 {
     setConnectionPool(pool);
+    map_classes();
+}
 
-    map_classes(*this);
-
+void Db_session::initialize_db_()
+{
     dbo::Transaction transaction(*this);
+
     try {
         createTables();
 
-        create_index("users", "name", false);
-        create_index("self_evals", "permalink", false);
+        create_index_("users", "name", false);
+        create_index_("self_evals", "permalink", false);
 
         auto root_password = std::getenv("ADMIN_PASSWORD");
         create_user("root", root_password? root_password : "",
                     User::Role::Admin);
         create_user("jtov", "", User::Role::Admin);
 
-        auto now = Wt::WDateTime::currentDateTime();
+        auto now = WDateTime::currentDateTime();
 
         auto asst1 = addNew<Assignment>(1, "Homework 1", 10,
                                         now.addDays(-10), now.addDays(-3),
@@ -91,23 +94,22 @@ Db_session::Db_session(Wt::Dbo::SqlConnectionPool& pool)
                                   submission, user);
                 File_meta::upload("file.C",
                                   Bytes("#include \"file.h\"\n\n"
-                                                        "namespace meh {\n\n}\n"),
+                                        "namespace meh {\n\n}\n"),
                                   submission, user);
             }
         }
 
-        Wt::log("info") << "Database created";
+        log("info") << "Database created";
     } catch (const std::exception& e) {
-        Wt::log("info") << "Using existing database: " << e.what();
+        log("info") << "Using existing database: " << e.what();
     } catch (...) {
-        Wt::log("info") << "Using existing database";
+        log("info") << "Using existing database";
     }
 
     transaction.commit();
-
 }
 
-void Db_session::configureAuth()
+void Db_session::configure_auth()
 {
     my_auth_service.setAuthTokensEnabled(true, "gsc_cookie");
 
@@ -139,10 +141,6 @@ void Db_session::set_password(const dbo::ptr<User>& user,
 {
     my_password_service.updatePassword(users_.find(user), password);
 }
-
-Session::Session(dbo::SqlConnectionPool& pool)
-        : Db_session(pool)
-{ }
 
 dbo::ptr<User> Session::user() const
 {
@@ -215,7 +213,7 @@ const Auth::AbstractPasswordService& Db_session::passwordAuth()
     return my_password_service;
 }
 
-std::unique_ptr<Wt::Dbo::SqlConnectionPool>
+std::unique_ptr<dbo::SqlConnectionPool>
 Db_session::createConnectionPool(const std::string& db)
 {
     auto connection = std::make_unique<dbo::backend::Postgres>(db);
@@ -224,7 +222,7 @@ Db_session::createConnectionPool(const std::string& db)
                                                          10);
 }
 
-void Db_session::create_index(const char* table, const char* field, bool unique)
+void Db_session::create_index_(const char* table, const char* field, bool unique)
 {
     std::ostringstream query;
     query << "CREATE ";
@@ -235,23 +233,28 @@ void Db_session::create_index(const char* table, const char* field, bool unique)
     execute(query.str());
 }
 
-void Db_session::map_classes(Wt::Dbo::Session& dbo)
+void Db_session::map_classes()
 {
-    dbo.mapClass<Assignment>("assignments");
-    dbo.mapClass<Auth_token>("auth_tokens");
-    dbo.mapClass<Eval_item>("eval_items");
-    dbo.mapClass<Exam_grade>("exam_grades");
-    dbo.mapClass<File_data>("file_data");
-    dbo.mapClass<File_meta>("file_meta");
-    dbo.mapClass<Grader_eval>("grader_evals");
-    dbo.mapClass<Partner_request>("partner_requests");
-    dbo.mapClass<Self_eval>("self_evals");
-    dbo.mapClass<Submission>("submissions");
-    dbo.mapClass<User>("users");
-    dbo.mapClass<User_stats>("user_stats");
+    mapClass<Assignment>("assignments");
+    mapClass<Auth_token>("auth_tokens");
+    mapClass<Eval_item>("eval_items");
+    mapClass<Exam_grade>("exam_grades");
+    mapClass<File_data>("file_data");
+    mapClass<File_meta>("file_meta");
+    mapClass<Grader_eval>("grader_evals");
+    mapClass<Partner_request>("partner_requests");
+    mapClass<Self_eval>("self_evals");
+    mapClass<Submission>("submissions");
+    mapClass<User>("users");
+    mapClass<User_stats>("user_stats");
 }
 
-void Session::become_user(const Wt::Dbo::ptr<User>& user)
+void Db_session::initialize_db(dbo::SqlConnectionPool& pool)
+{
+    Db_session(pool).initialize_db_();
+}
+
+void Session::become_user(const dbo::ptr<User>& user)
 {
     login_.logout();
 

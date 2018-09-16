@@ -10,6 +10,8 @@
 #include <Wt/Dbo/ptr.h>
 #include <Wt/Dbo/SqlConnectionPool.h>
 
+#include <memory>
+#include <string>
 #include <vector>
 
 class User;
@@ -34,9 +36,11 @@ public:
 
     std::vector<dbo::ptr<User_stats>> top_users(int limit);
 
-    static void map_classes(Wt::Dbo::Session&);
+    void map_classes();
 
-    static void configureAuth();
+    static void initialize_db(Wt::Dbo::SqlConnectionPool&);
+
+    static void configure_auth();
 
     static std::unique_ptr<Wt::Dbo::SqlConnectionPool>
     createConnectionPool(const std::string&);
@@ -48,13 +52,15 @@ public:
 private:
     User_database users_;
 
-    void create_index(const char* table, const char* field, bool unique = true);
+    void create_index_(const char* table, const char* field, bool unique = true);
+
+    void initialize_db_();
 };
 
 class Session : public Db_session
 {
 public:
-    Session(Wt::Dbo::SqlConnectionPool&);
+    using Db_session::Db_session;
 
     Wt::Auth::Login& login() { return login_; }
 
