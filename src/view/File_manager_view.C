@@ -8,6 +8,7 @@
 #include "../model/File_data.h"
 #include "../model/File_meta.h"
 #include "../model/Submission.h"
+#include "../common/format.h"
 
 #include <Wt/Http/Response.h>
 #include <Wt/WApplication.h>
@@ -69,8 +70,11 @@ private:
 
     Wt::WFileUpload* upload_;
 
+    void create_();
+    void start_upload_();
     void uploaded_();
     void too_large_();
+    void reset_();
 };
 
 const std::string quota_display_template =
@@ -89,8 +93,7 @@ Quota_display::Quota_display(const Wt::Dbo::ptr<Submission>& submission)
 void Quota_display::reload()
 {
     submission_.reread();
-    field_->setText(boost::lexical_cast<std::string>(
-            submission_->remaining_space()));
+    field_->setText(with_commas(submission_->remaining_space()));
 }
 
 const Wt::WString Date_list::date_format_ = "ddd, MMM d 'at' h:mm AP";
@@ -129,20 +132,34 @@ File_uploader::File_uploader(const Wt::Dbo::ptr<Submission>& submission,
           changed_(changed),
           session_(session)
 {
+    reset_();
+}
+
+void File_uploader::reset_()
+{
+    clear();
+
     upload_ = addNew<Wt::WFileUpload>();
+//    upload_->setProgressBar(std::make_unique<Wt::WProgressBar>());
     upload_->setFileTextSize(100);
     upload_->setMultiple(true);
     upload_->uploaded().connect(this, &File_uploader::uploaded_);
     upload_->fileTooLarge().connect(this, &File_uploader::too_large_);
+    upload_->changed().connect([=] { start_upload_(); });
 
     if (Wt::WApplication::instance()->environment().ajax()) {
         setStyleClass("file-uploader btn");
         auto label = addNew<Wt::WText>("Upload files...");
-        upload_->changed().connect(upload_, &Wt::WFileUpload::upload);
+        upload_->changed().connect([=] {  start_upload_(); });
     } else {
         auto button = addNew<Wt::WPushButton>("Upload");
-        button->clicked().connect(upload_, &Wt::WFileUpload::upload);
+        button->clicked().connect(upload_, [=] {  start_upload_(); });
     }
+}
+
+void File_uploader::start_upload_()
+{
+    upload_->upload();
 }
 
 void File_uploader::uploaded_()
@@ -186,6 +203,7 @@ void File_uploader::uploaded_()
     }
 
     changed_.emit();
+    reset_();
 }
 
 void File_uploader::too_large_()
@@ -193,6 +211,7 @@ void File_uploader::too_large_()
     Notification("File Too Large", parent())
             << "File cannot be uploaded because it exceeds the per-file "
             << "quota of " << File_meta::max_byte_count << " bytes.";
+    reset_();
 }
 
 File_manager_view::File_manager_view(const Wt::Dbo::ptr<Submission>& submission,

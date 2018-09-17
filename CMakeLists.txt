@@ -48,7 +48,7 @@ set(SOURCE_FILES
         src/view/Self_eval_item_widget.C
         src/view/Review_eval_item_widget.C
         src/view/Confirmation_dialog.C
-        src/common/date_time.C
+        src/common/format.C
         src/view/Date_time_edit.C
         src/view/Edit_assignment_view.C
         src/view/Error_view.C

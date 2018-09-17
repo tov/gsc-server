@@ -2,6 +2,7 @@
 
 #include <string>
 
+
 template <class T>
 class Enum;
 

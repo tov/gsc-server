@@ -1012,7 +1012,6 @@ public:
 
 protected:
     void do_get_(Context const&) override;
-    void do_delete_(Context const &context) override;
 
 private:
     dbo::ptr<User> user_;
@@ -1025,10 +1024,6 @@ void Whoami::load(const Resource::Context& context) {
 void Whoami::do_get_(const Resource::Context&) {
     content_type = "text/plain";
     if (user_) contents = Bytes(user_->name());
-}
-
-void Whoami::do_delete_(const Resource::Context&) {
-    success();
 }
 
 #define dispatch_to(T)      do {                                        \

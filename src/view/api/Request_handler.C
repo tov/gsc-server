@@ -108,12 +108,14 @@ dbo::ptr<User> Request_handler::authenticate_by_cookie_() const
         auto hash = session_.auth().tokenHashFunction()->compute(*in_cookie, "");
 
         dbo::Transaction transaction(session_);
-
         auto user = User::find_by_auth_token(session_, hash);
+
         if (user) {
             user.modify()->remove_auth_token(hash);
+            transaction.commit();
             throw Http_status{200, "Deauthenticated"};
         } else {
+            transaction.commit();
             throw Http_status{401, "You are not authenticated"};
         }
     }
@@ -152,6 +154,7 @@ dbo::ptr<User> Request_handler::authenticate_by_password_() const
         user = session_.create_user(credentials.username, credentials.password);
         create_cookie_(session_.users().find(user));
 
+        transaction.commit();
         throw Http_status{200, "User created"};
     }
 

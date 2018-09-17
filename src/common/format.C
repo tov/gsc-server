@@ -1,4 +1,4 @@
-#include "date_time.h"
+#include "format.h"
 #include <Wt/Date/tz.h>
 #include <Wt/WString.h>
 
@@ -22,3 +22,14 @@ Wt::WString json_format(Wt::WDateTime const& datetime)
     Wt::WLocalDateTime local = datetime.toLocalTime();
     return local.toString(JSON_DATE_FMT);
 }
+
+char comma_numpunct::do_thousands_sep() const
+{
+    return ',';
+}
+
+std::string comma_numpunct::do_grouping() const
+{
+    return "\003";
+}
+

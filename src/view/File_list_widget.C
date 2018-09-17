@@ -3,6 +3,7 @@
 #include "../model/File_data.h"
 #include "../model/File_meta.h"
 #include "../model/Submission.h"
+#include "../common/format.h"
 
 #include <Wt/Dbo/Transaction.h>
 #include <Wt/Http/Request.h>
@@ -78,7 +79,7 @@ void File_list_widget::reload()
         auto type = elementAt(row, 1)->addNew<Wt::WText>(
                 stringify(file->purpose()));
         auto bytes = elementAt(row, 2)->addNew<Wt::WText>(
-                boost::lexical_cast<std::string>(file->byte_count()));
+                with_commas(file->byte_count()));
 
         elementAt(row, 1)->setStyleClass("file-list-type");
         elementAt(row, 2)->setStyleClass("file-list-bytes");
