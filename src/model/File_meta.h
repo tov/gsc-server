@@ -87,6 +87,6 @@ public:
     }
 };
 
-bool sorts_before(const File_meta&, const File_meta&, bool name_only = false);
+bool operator<(const File_meta&, const File_meta&);
 
 DBO_EXTERN_TEMPLATES(File_meta)

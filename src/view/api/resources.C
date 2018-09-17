@@ -643,7 +643,7 @@ private:
 void Submissions_1_files::load(Context const& context)
 {
     auto submission = load_submission(context, uri_.submission_id);
-    auto file_metas = submission->source_files_sorted(true);
+    auto file_metas = submission->source_files_sorted(false);
     file_metas_.assign(file_metas.begin(), file_metas.end());
 }
 

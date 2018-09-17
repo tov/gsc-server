@@ -10,6 +10,7 @@ h++=text/plain
 hpp=text/plain
 hxx=text/plain
 rkt=text/plain
+rs=text/plain
 bmp=image/bmp
 jpg=image/jpeg
 jpeg=image/jpeg

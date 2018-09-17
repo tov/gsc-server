@@ -42,9 +42,7 @@ Source_file_vec Submission::source_files_sorted(bool name_only) const
         result.push_back(ptr);
 
     std::sort(result.begin(), result.end(),
-              [=](const dbo::ptr<File_meta>& a, const dbo::ptr<File_meta>& b) {
-                  return sorts_before(*a, *b, name_only);
-              });
+              [=](auto const& a, auto const& b) { return *a < *b; });
 
     return result;
 }

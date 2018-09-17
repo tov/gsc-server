@@ -180,16 +180,14 @@ File_purpose const& File_meta::purpose() const
     return purpose_;
 }
 
-bool sorts_before(const File_meta& a, const File_meta& b, bool name_only)
+bool operator<(const File_meta& a, const File_meta& b)
 {
-    if (!name_only) {
-        auto a_type = a.purpose();
-        auto b_type = b.purpose();
+    auto a_type = a.purpose();
+    auto b_type = b.purpose();
 
-        // sort by type first:
-        if (a_type < b_type) return true;
-        if (a_type > b_type) return false;
-    }
+    // sort by type first:
+    if (a_type < b_type) return true;
+    if (a_type > b_type) return false;
 
     return std::lexicographical_compare(
             a.name().begin(), a.name().end(),
