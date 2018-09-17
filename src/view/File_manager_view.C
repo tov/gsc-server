@@ -148,9 +148,9 @@ void File_uploader::reset_()
     upload_->setProgressBar(progress_bar);
     upload_->setFileTextSize(100);
     upload_->setMultiple(true);
-    upload_->uploaded().connect([=] { uploaded_(); });
-    upload_->fileTooLarge().connect([=] (long size) { too_large_(size); });
     upload_->changed().connect([=] { start_upload_(); });
+    upload_->uploaded().connect([=] { uploaded_(); });
+    upload_->fileTooLarge().connect(this, &File_uploader::too_large_);
 
     if (Wt::WApplication::instance()->environment().ajax()) {
         setStyleClass("file-uploader btn");
