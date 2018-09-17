@@ -69,12 +69,12 @@ private:
     Session& session_;
 
     Wt::WFileUpload* upload_;
+    Wt::WContainerWidget* progress_holder_;
 
-    void create_();
+    void reset_();
     void start_upload_();
     void uploaded_();
     void too_large_();
-    void reset_();
 };
 
 const std::string quota_display_template =
@@ -139,8 +139,13 @@ void File_uploader::reset_()
 {
     clear();
 
+    progress_holder_ = addNew<Wt::WContainerWidget>();
+    progress_holder_->setStyleClass("progress-holder");
+    progress_holder_->hide();
+    auto progress_bar = progress_holder_->addNew<Wt::WProgressBar>();
+
     upload_ = addNew<Wt::WFileUpload>();
-//    upload_->setProgressBar(std::make_unique<Wt::WProgressBar>());
+    upload_->setProgressBar(progress_bar);
     upload_->setFileTextSize(100);
     upload_->setMultiple(true);
     upload_->uploaded().connect(this, &File_uploader::uploaded_);
@@ -159,6 +164,7 @@ void File_uploader::reset_()
 
 void File_uploader::start_upload_()
 {
+    progress_holder_->show();
     upload_->upload();
 }
 

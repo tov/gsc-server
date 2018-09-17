@@ -274,6 +274,15 @@ input.username {
     opacity: 0;
 }
 
+.progress-holder > * {
+    visibility: visible;
+    position: fixed;
+    top: 40%;
+    left: 25%;
+    right: 25%;
+    width: 50%;
+}
+
 .file-list-type {
     text-align: center;
 }
@@ -420,4 +429,3 @@ tr.grader-highlight {
     margin: 10px auto;
     text-align: center;
 }
-
