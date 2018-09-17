@@ -74,7 +74,7 @@ private:
     void reset_();
     void start_upload_();
     void uploaded_();
-    void too_large_();
+    void too_large_(long size);
 };
 
 const std::string quota_display_template =
@@ -148,17 +148,17 @@ void File_uploader::reset_()
     upload_->setProgressBar(progress_bar);
     upload_->setFileTextSize(100);
     upload_->setMultiple(true);
-    upload_->uploaded().connect(this, &File_uploader::uploaded_);
-    upload_->fileTooLarge().connect(this, &File_uploader::too_large_);
+    upload_->uploaded().connect([=] { uploaded_(); });
+    upload_->fileTooLarge().connect([=] (long size) { too_large_(size); });
     upload_->changed().connect([=] { start_upload_(); });
 
     if (Wt::WApplication::instance()->environment().ajax()) {
         setStyleClass("file-uploader btn");
         auto label = addNew<Wt::WText>("Upload files...");
-        upload_->changed().connect([=] {  start_upload_(); });
+        upload_->changed().connect([=] { start_upload_(); });
     } else {
         auto button = addNew<Wt::WPushButton>("Upload");
-        button->clicked().connect(upload_, [=] {  start_upload_(); });
+        button->clicked().connect([=] { start_upload_(); });
     }
 }
 
@@ -177,7 +177,8 @@ void File_uploader::uploaded_()
 
     for (auto& file : upload_->uploadedFiles()) {
         std::ifstream spool(file.spoolFileName());
-        boost::filesystem::path filename(file.clientFileName());
+        boost::filesystem::path filepath(file.clientFileName());
+        std::string filename = filepath.filename().string();
 
         spool.seekg(0, std::ios::end);
         int file_size = spool.tellg();
@@ -185,38 +186,38 @@ void File_uploader::uploaded_()
 
         if (file_size > File_meta::max_byte_count) {
             Notification("File Too Large", parent())
-                    << "File “" << filename
-                    << "” cannot be uploaded because it is " << file_size
-                    << " bytes, which exceeds the per-file quota of "
-                    << File_meta::max_byte_count << " bytes.";
+                    << "File ‘" << filename << "’ cannot be uploaded because it is "
+                    << with_commas(file_size) << " bytes, which exceeds the per-file quota of "
+                    << with_commas(File_meta::max_byte_count) << " bytes.";
             break;
         }
 
-        if (! submission_->has_sufficient_space(file_size,
-                                                filename.filename().string())) {
+        if (! submission_->has_sufficient_space(file_size, filename)) {
             Notification("File Quota Exceeded", parent())
-                    << "File “" << filename
-                    << "” cannot be uploaded because its size of "
-                    << file_size << " bytes exceeds your remaining quota of "
-                    << submission_->remaining_space() << " bytes.";
+                    << "File ‘" << filename << "’ cannot be uploaded because its size of "
+                    << with_commas(file_size) << " bytes exceeds your remaining quota of "
+                    << with_commas(submission_->remaining_space()) << " bytes.";
             break;
         }
 
         Bytes contents{spool, file_size};
 
-        File_meta::upload(filename.filename().string(),
-                          contents, submission_, session_.user());
+        File_meta::upload(filename, contents, submission_, session_.user());
     }
 
     changed_.emit();
     reset_();
 }
 
-void File_uploader::too_large_()
+void File_uploader::too_large_(long size)
 {
-    Notification("File Too Large", parent())
-            << "File cannot be uploaded because it exceeds the per-file "
-            << "quota of " << File_meta::max_byte_count << " bytes.";
+    auto max_size = Wt::WApplication::instance()->maximumRequestSize();
+    Notification("Files Too Large", parent())
+            << "Files cannot be uploaded because their total size ("
+            << with_commas(size)
+            << " bytes) exceeds the per-upload quota of "
+            << with_commas(max_size)
+            << " bytes.";
     reset_();
 }
 
