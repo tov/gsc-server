@@ -4,6 +4,7 @@
 #include "Submission.h"
 #include "Grader_eval.h"
 #include "../common/paths.h"
+#include "../common/format.h"
 
 #include "Permalink.h"
 
@@ -137,10 +138,6 @@ std::string Self_eval::owner_string(const dbo::ptr<User>& as_seen_by) const
     }
 }
 
-static J::Value clean_grade(double grade) {
-    return grade < 0.001? 0 : grade;
-}
-
 std::string Self_eval::rest_uri() const {
     return api::paths::Submissions_1_evals_2_self(submission()->id(),
                                                   eval_item()->sequence());
@@ -149,7 +146,7 @@ std::string Self_eval::rest_uri() const {
 J::Object Self_eval::to_json() const {
     J::Object result;
     result["uri"]               = J::Value(rest_uri());
-    result["score"]             = clean_grade(score());
+    result["score"]             = J::Value(clean_grade(score()));
     result["explanation"]       = J::Value(explanation());
     return result;
 }

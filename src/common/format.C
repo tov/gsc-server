@@ -33,3 +33,6 @@ std::string comma_numpunct::do_grouping() const
     return "\003";
 }
 
+double clean_grade(double grade) {
+    return grade < 0.001? 0 : grade;
+}

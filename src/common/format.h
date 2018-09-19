@@ -73,3 +73,5 @@ WithCommas<T> with_commas(T const& value)
     return WithCommas<T>(value);
 }
 
+double clean_grade(double);
+

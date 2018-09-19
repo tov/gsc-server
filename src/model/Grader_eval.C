@@ -4,6 +4,7 @@
 #include "auth/User.h"
 #include "Eval_item.h"
 #include "Submission.h"
+#include "../common/format.h"
 #include "../common/stringify.h"
 #include "../common/paths.h"
 
@@ -84,10 +85,6 @@ std::string Grader_eval::score_string() const
     }
 }
 
-static J::Value clean_grade(double grade) {
-    return grade < 0.001? 0 : grade;
-}
-
 bool Grader_eval::can_view(dbo::ptr<User> const& user) const {
     return user->can_grade() ||
             (self_eval()->submission()->can_view(user) && status() == Status::ready);
@@ -104,7 +101,7 @@ Wt::Json::Object Grader_eval::to_json(dbo::ptr<User> const& as_seen_by) const {
 
     result["uri"]           = J::Value(rest_uri());
     result["grader"]        = J::Value(owner_string(as_seen_by));
-    result["score"]         = clean_grade(score());
+    result["score"]         = J::Value(clean_grade(score()));
     result["explanation"]   = J::Value(explanation());
     result["status"]        = J::Value(stringify(status()));
 

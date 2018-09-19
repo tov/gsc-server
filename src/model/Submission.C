@@ -125,10 +125,6 @@ Submission::Eval_status Submission::eval_status() const
         return Eval_status::empty;
 }
 
-static double clean_grade(double grade) {
-    return grade < 0.001? 0 : grade;
-}
-
 double Submission::grade() const
 {
     if (is_loaded_) {
