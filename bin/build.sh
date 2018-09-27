@@ -28,4 +28,4 @@ if [ ! -d $build_dir ]; then
 fi
 
 make -j 4 -C $build_dir $target
-
+chmod a+rx $build_dir/$target
