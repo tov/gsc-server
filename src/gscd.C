@@ -17,8 +17,8 @@ int main(int argc, char** argv)
         auto env_string = std::getenv("POSTGRES_CONNINFO");
         auto db_string  = env_string? env_string : "dbname=gsc";
         auto pool       = Db_session::createConnectionPool(db_string);
-        Db_session::initialize_db(*pool);
         Db_session::configure_auth();
+        Db_session::initialize_db(*pool);
 
         api::Endpoint endpoint(*pool);
         Wt::WServer server(argc, argv);
