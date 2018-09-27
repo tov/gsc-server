@@ -7,5 +7,5 @@ sudo true
 
 bin/build.sh release
 
-sudo install -o gsc -m 4555 build.release/gsc-fcgi server_root/gsc
+sudo install -o gsc -m 4555 build.release/gscd-fcgi server_root/gscd
 sudo service apache2 restart

@@ -11,4 +11,4 @@ resources
 # Databases
 server_root/var/
 
-server_root/gsc
+server_root/gscd
