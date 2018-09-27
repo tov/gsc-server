@@ -12,6 +12,8 @@
 #include <Wt/WTable.h>
 #include <Wt/WText.h>
 
+#include <boost/lexical_cast.hpp>
+
 #include <sstream>
 
 class Single_file_viewer : public Wt::WContainerWidget

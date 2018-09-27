@@ -15,6 +15,8 @@
 #include <Wt/WText.h>
 #include <Wt/WTime.h>
 
+#include <boost/lexical_cast.hpp>
+
 #include <sstream>
 
 Assignments_view_row::Assignments_view_row(

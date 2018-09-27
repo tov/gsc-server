@@ -19,6 +19,8 @@
 #include <Wt/WTemplate.h>
 #include <Wt/WText.h>
 
+#include <boost/lexical_cast.hpp>
+
 // Abstract base class for grading self evaluations. Derived classes specialize
 // for boolean-type evaluations and scale-type evaluations (including
 // informational).

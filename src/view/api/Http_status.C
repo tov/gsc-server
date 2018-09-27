@@ -1,5 +1,8 @@
 #include "Http_status.h"
 
+#include <Wt/Http/Response.h>
+
+#include <Wt/Json/Object.h>
 #include <Wt/Json/Value.h>
 #include <Wt/Json/Serializer.h>
 

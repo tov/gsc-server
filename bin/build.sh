@@ -6,12 +6,12 @@ case "$1" in
     debug)
         cmake_type=Debug
         build_dir=build.debug
-        target=gsc
+        target=gscd
         ;;
     release)
         cmake_type=Release
         build_dir=build.release
-        target=gsc-fcgi
+        target=gscd-fcgi
         ;;
     *)
         echo >&2 "Usage: $0 [ debug | release ]"

@@ -21,6 +21,8 @@
 #include <Wt/WSuggestionPopup.h>
 #include <Wt/WTable.h>
 
+#include <boost/lexical_cast.hpp>
+
 #include <sstream>
 #include <vector>
 

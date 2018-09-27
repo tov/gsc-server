@@ -8,6 +8,8 @@
 
 #include <Wt/WImage.h>
 
+#include <boost/lexical_cast.hpp>
+
 using namespace Wt;
 
 const int ImagesWidget::HURRAY = -1;

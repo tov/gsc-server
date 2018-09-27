@@ -13,6 +13,8 @@
 #include <Wt/WText.h>
 #include <Wt/WTextArea.h>
 
+#include <boost/lexical_cast.hpp>
+
 #include <cstdlib>
 
 class Edit_eval_item : public Wt::WContainerWidget

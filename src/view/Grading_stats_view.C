@@ -7,6 +7,8 @@
 #include <Wt/WTable.h>
 #include <Wt/WText.h>
 
+#include <boost/lexical_cast.hpp>
+
 #include <map>
 #include <set>
 #include <string>

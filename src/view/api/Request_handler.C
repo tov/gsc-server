@@ -3,6 +3,9 @@
 #include "../../common/stringify.h"
 
 #include <Wt/Auth/AuthService.h>
+#include <Wt/Auth/HashFunction.h>
+#include <Wt/Auth/PasswordStrengthValidator.h>
+#include <Wt/Http/Response.h>
 #include <Wt/Utils.h>
 #include <Wt/WDateTime.h>
 

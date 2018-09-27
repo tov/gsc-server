@@ -6,6 +6,8 @@
 
 #include <Wt/Dbo/Impl.h>
 
+#include <regex>
+
 DBO_INSTANTIATE_TEMPLATES(Partner_request)
 
 Wt::Dbo::ptr<Partner_request>

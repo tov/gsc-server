@@ -29,6 +29,8 @@
 #include <Wt/WEnvironment.h>
 #include <Wt/WLogger.h>
 
+#include <boost/lexical_cast.hpp>
+
 #include <cstdlib>
 
 using namespace Wt;

@@ -20,6 +20,7 @@
 #include <Wt/WProgressBar.h>
 #include <Wt/WPushButton.h>
 #include <Wt/WTable.h>
+#include <Wt/WTemplate.h>
 
 #include <boost/filesystem.hpp>
 

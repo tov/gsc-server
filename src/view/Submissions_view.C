@@ -16,6 +16,8 @@
 #include <Wt/WTable.h>
 #include <Wt/WText.h>
 
+#include <boost/lexical_cast.hpp>
+
 #include <vector>
 
 void load_model(const Wt::Dbo::ptr<User>& user, Session& session,

@@ -38,7 +38,7 @@ public:
         return *this;
     }
 
-    ~Http_error [[noreturn]]() noexcept(false);
+    [[noreturn]] ~Http_error() noexcept(false);
 
 private:
     int status_code_;

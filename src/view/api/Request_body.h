@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Wt/Http/Request.h>
 #include <Wt/Json/Value.h>
 
 #include <istream>

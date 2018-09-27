@@ -6,6 +6,8 @@
 
 #include <Wt/Auth/Identity.h>
 
+#include <boost/lexical_cast.hpp>
+
 #include <cstdlib>
 #include <string>
 
