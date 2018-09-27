@@ -11,4 +11,5 @@ resources
 # Databases
 server_root/var/
 
-server_root/gscd
+# FCGI executable
+server_root/gscd.fcgi
