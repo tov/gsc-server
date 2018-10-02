@@ -49,7 +49,11 @@ Request_handler::Request_handler(Db_session& session,
         , response_{response}
         , path_info_{request_.pathInfo()}
         , method_{request.method()}
-{ }
+{
+    if (path_info_.substr(0, 4) == "/api") {
+        path_info_ = path_info_.substr(4);
+    }
+}
 
 dbo::ptr<User> Request_handler::authenticate() const
 {

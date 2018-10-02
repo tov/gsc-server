@@ -1035,10 +1035,6 @@ std::unique_ptr<Resource> Resource::dispatch_(std::string path_info)
 {
     std::smatch sm;
 
-    if (path_info.substr(0, 4) == "/api") {
-        path_info = path_info.substr(4);
-    }
-
     dispatch_to(Grades_csv);
     dispatch_to(Users);
     dispatch_to(Users_1);
