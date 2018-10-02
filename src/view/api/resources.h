@@ -94,7 +94,7 @@ protected:
     std::vector<unsigned char> contents;
 
 private:
-    static std::unique_ptr<Resource> dispatch_(std::string const& path_info);
+    static std::unique_ptr<Resource> dispatch_(std::string path_info);
 
     std::string method_;
 };

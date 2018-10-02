@@ -1031,9 +1031,13 @@ void Whoami::do_get_(const Resource::Context&) {
                                 if (resource) return resource;          \
                             } while(false)
 
-std::unique_ptr<Resource> Resource::dispatch_(std::string const& path_info)
+std::unique_ptr<Resource> Resource::dispatch_(std::string path_info)
 {
     std::smatch sm;
+
+    if (path_info.substr(0, 4) == "/api") {
+        path_info = path_info.substr(4);
+    }
 
     dispatch_to(Grades_csv);
     dispatch_to(Users);

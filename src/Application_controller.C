@@ -154,6 +154,10 @@ void Application_controller::handle_internal_path(
         internal_path = internal_path.substr(4);
     }
 
+    if (internal_path.empty()) {
+        internal_path = "/";
+    }
+
     try {
         std::smatch sm;
 
