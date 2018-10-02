@@ -40,7 +40,7 @@ private:
         set_widget(std::make_unique<T>(std::forward<Arg>(arg)...));
     }
 
-    void handle_internal_path(const std::string&);
+    void handle_internal_path(std::string);
     void on_auth_event();
 
     Wt::Dbo::ptr<User> find_user(const std::string&);

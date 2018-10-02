@@ -143,11 +143,15 @@ user_hw_N_eval(const dbo::ptr<Submission>& submission)
 }
 
 void Application_controller::handle_internal_path(
-        const std::string& internal_path)
+        std::string internal_path)
 {
     if (!session_.login().loggedIn()) {
         set_widget(nullptr);
         return;
+    }
+
+    if (internal_path.substr(0, 4) == "/gsc") {
+        internal_path = internal_path.substr(4);
     }
 
     try {
