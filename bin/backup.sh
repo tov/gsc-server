@@ -2,7 +2,7 @@
 
 filename=$(date +%Y%m%d-%H%M%S).bz2
 host=login.eecs.northwestern.edu
-dir=eecs211-wi17-backup
+dir=gsc-backup
 
 rm -f $filename
 sudo -u gsc pg_dump gsc | bzip2 > $filename
