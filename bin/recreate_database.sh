@@ -25,13 +25,9 @@ sudo -u postgres createdb gsc
 
 # Start GSC to create tables and set password
 sudo -u gsc ADMIN_PASSWORD="$ADMIN_PASSWORD" bin/gsc-http.sh &
-sleep 1
-echo
-echo "Just started gsc/http on http://eecs211.cs.northwestern.edu:9090/gsc"
-echo "Browse there to start a session and create the database, then press"
-echo "enter to kill this gsc instance and continue."
-read WAIT
-sudo killall gsc
+echo "Started gscd, waiting 5 seconds"
+sleep 5
+sudo killall gscd
 
 # Restart apache
 sudo service apache2 start
