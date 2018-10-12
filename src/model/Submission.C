@@ -513,10 +513,10 @@ J::Object Submission::to_json(bool brief) const
     result["assignment_number"] = J::Value(assignment()->number());
     result["status"] = J::Value(stringify(status()));
     result["grade"] = J::Value(grade());
+    result["owner1"] = J::Value(user1()->to_json(true));
+    if (user2()) result["owner2"] = J::Value(user2()->to_json(true));
 
     if (!brief) {
-        result["owner1"] = J::Value(user1()->to_json(true));
-        if (user2()) result["owner2"] = J::Value(user2()->to_json(true));
         result["open_date"] = J::Value(json_format(open_date()));
         result["due_date"] = J::Value(json_format(effective_due_date()));
         result["eval_date"] = J::Value(json_format(effective_eval_date()));
