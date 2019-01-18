@@ -47,7 +47,7 @@ void Base_eval_item_widget::add_item_heading_()
 
 void Base_eval_item_widget::add_question_()
 {
-    auto p = addNew<Wt::WTemplate>("<p class='question'>${question}</p>");
+    auto p = addNew<Wt::WTemplate>("<div class='question'>${question}</div>");
     p->bindWidget("question",
                   std::make_unique<Wt::WText>(model_.eval_item->prompt()));
 }
