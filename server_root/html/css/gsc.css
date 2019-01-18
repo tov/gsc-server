@@ -217,6 +217,18 @@ input.username {
     margin-left: 1em;
 }
 
+.question table {
+  margin: 1em auto;
+}
+
+.question th {
+  border: none;
+}
+
+.question td {
+  text-align: center;
+}
+
 .code-line {
     font-family: monospace;
     white-space: pre;
