@@ -70,7 +70,8 @@ void Edit_eval_item::view_mode_()
             "<div class='question'>"
             "<h5>Question ${sequence} <small>(${type}, ${value})</small></h5>"
             "<p>${prompt}</p>"
-            "</div>");
+            "</div>"
+            );
 
     std::string sequence =
             boost::lexical_cast<std::string>(eval_item_->sequence());

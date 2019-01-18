@@ -232,7 +232,7 @@ Grading_view::Grading_view(const Wt::Dbo::ptr<Self_eval> self_eval, Session& ses
     auto widget = right_column_->addNew<Wt::WTemplate>(
         "<div class='grading-view'>"
           "<h4>Question ${sequence} <small>${homework}</small></h4>"
-          "<p class='question'>${question}</p>"
+          "<div class='question'>${question}</div>"
           "<h5>Self evaluation</h5>"
           "<p class='answer'><strong>${self_grade}.</strong> "
             "<span>${self_explanation}</span></p>"
