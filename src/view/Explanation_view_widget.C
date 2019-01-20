@@ -42,7 +42,8 @@ void Explanation_view_widget::initialize_viewer_(const std::string& content)
         auto link = impl->addNew<Wt::WText>(buf);
         buf.clear();
 
-        if (jump_line == 0) jump_line = line_no;
+        if (jump_line == 0)
+            jump_line = std::max(1, line_no - 2);
 
         link->setStyleClass("line-link");
         link->clicked().connect(viewer_->scroller(line_no));
