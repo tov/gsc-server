@@ -455,7 +455,10 @@ bool Submission::join_together(dbo::ptr<Submission> keep,
     if (keep->assignment() != kill->assignment()) return false;
 
     for (dbo::ptr<File_meta> file : kill->source_files_sorted())
-        file.modify()->re_own(keep);
+        file.remove();
+
+    for (dbo::ptr<File_meta> file : keep->source_files_sorted())
+        file.remove();
 
     keep.modify()->user2_ = kill->user1_;
     kill.remove();
