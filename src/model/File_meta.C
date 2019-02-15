@@ -63,7 +63,7 @@ static int count_lines(const Bytes& bytes)
         }
     }
 
-    if (!bytes.empty() && bytes[bytes.size() - 1] != '\n')
+    if (!bytes.empty() && bytes.back() != '\n')
         ++result;
 
     return result;
