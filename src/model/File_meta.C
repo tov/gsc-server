@@ -70,8 +70,9 @@ static int count_lines(const Bytes& bytes)
 }
 
 static std::regex const config_file_re("Makefile|CMakeLists\\.txt", std::regex_constants::icase);
-static std::regex const log_file_re(".*\\.(?:log|out)", std::regex_constants::icase);
+static std::regex const log_file_re(".*\\.log", std::regex_constants::icase);
 static std::regex const test_file_re("test.*|.*test\\.[^.]*", std::regex_constants::icase);
+static std::regex const resource_file_re(".*\\.(?:in|out|err)");
 
 static File_purpose classify_file_type(std::string const& media_type,
                                        std::string const& filename)
@@ -79,7 +80,8 @@ static File_purpose classify_file_type(std::string const& media_type,
     if (std::regex_match(filename, config_file_re))
         return File_purpose::config;
 
-    if (media_type != "text/plain")
+    if (media_type != "text/plain" ||
+            std::regex_match(filename, resource_file_re))
         return File_purpose::resource;
 
     if (std::regex_match(filename, log_file_re))
