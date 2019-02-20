@@ -129,7 +129,7 @@ void File_viewer_widget::scroll_to_id_(const std::string& target) const
     std::ostringstream code;
 
     code << "var target = $('#" << target << "');";
-    code << "if (target) {";
+    code << "if (target && target.position() && target.position().top) {";
     code << "$('#" << id() << "-area').scrollTop(0);";
     code << "$('#" << id() << "-area').scrollTop(target.position().top)";
     code << "}";
