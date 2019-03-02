@@ -69,7 +69,7 @@ static int count_lines(const Bytes& bytes)
     return result;
 }
 
-static std::regex const config_file_re("Makefile|CMakeLists\\.txt", std::regex_constants::icase);
+static std::regex const config_file_re("Makefile|CMakeLists\\.txt|.*\\.md", std::regex_constants::icase);
 static std::regex const log_file_re(".*\\.log", std::regex_constants::icase);
 static std::regex const test_file_re("test.*|.*test\\.[^.]*", std::regex_constants::icase);
 static std::regex const resource_file_re(".*\\.(?:in|out|err)");

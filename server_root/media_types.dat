@@ -1,5 +1,6 @@
 txt=text/plain
 log=text/plain
+md=text/plain
 in=text/plain
 out=text/plain
 err=text/plain
