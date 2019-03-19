@@ -89,7 +89,7 @@ bool Gscauth::check_user(User::Role role, const string& username, const string& 
     auto auth_user     = session_.users().find(user);
     auto verify_result = service.verifyPassword(auth_user, password);
 
-    transaction.commit();
+    transaction.rollback();
 
     switch (verify_result) {
         case Wt::Auth::PasswordResult::PasswordValid:
