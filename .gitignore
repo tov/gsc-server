@@ -13,3 +13,4 @@ server_root/var/
 
 # FCGI executable
 server_root/gscd.fcgi
+server_root/gscauth
