@@ -21,6 +21,7 @@ class Db_session : public Wt::Dbo::Session
 {
 public:
     Db_session(Wt::Dbo::SqlConnectionPool&);
+    Db_session(std::unique_ptr<Wt::Dbo::SqlConnection>);
 
     Wt::Dbo::Session& dbo() { return *this; };
 

@@ -3,6 +3,15 @@ list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/CMake/CMakePCHCompiler)
 project(gsc CXX CXXPCH)
 
 set(MODEL_SOURCE_FILES
+        src/view/api/Endpoint.C
+        src/view/api/Http_status.C
+        src/common/format.C
+        src/common/paths.C
+        src/common/Media_type_registry.C
+        src/view/api/Request_body.C
+        src/view/api/Request_handler.C
+        src/view/api/resources.C
+        src/view/api/Result_array.C
         src/model/specializations.h
         src/model/auth/Auth_token.C
         src/model/auth/User.C
@@ -26,15 +35,7 @@ set(SOURCE_FILES
         src/gscd.C
         ${MODEL_SOURCE_FILES}
         src/Application_controller.C
-        src/common/Media_type_registry.C
         src/Navigate.h
-        src/view/api/Endpoint.C
-        src/view/api/Http_status.C
-        src/common/paths.C
-        src/view/api/Request_body.C
-        src/view/api/Request_handler.C
-        src/view/api/resources.C
-        src/view/api/Result_array.C
         src/view/Abstract_file_view.C
         src/view/Accelerator_button.C
         src/view/Accelerator_text.C
@@ -48,7 +49,6 @@ set(SOURCE_FILES
         src/view/Self_eval_item_widget.C
         src/view/Review_eval_item_widget.C
         src/view/Confirmation_dialog.C
-        src/common/format.C
         src/view/Date_time_edit.C
         src/view/Edit_assignment_view.C
         src/view/Error_view.C
@@ -75,9 +75,6 @@ set(SOURCE_FILES
         src/view/game/LettersWidget.C
         src/view/game/WordWidget.C)
 
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -std=gnu++14")
-set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -std=gnu++14")
-
 find_package(Boost REQUIRED COMPONENTS system filesystem)
 include_directories(${Boost_INCLUDE_DIRS})
 link_directories(${Boost_LIBRARY_DIRS})
@@ -93,10 +90,11 @@ target_link_libraries(gscd wthttp ${LIBRARIES})
 add_executable(gscd-fcgi ${SOURCE_FILES})
 target_link_libraries(gscd-fcgi wtfcgi ${LIBRARIES})
 
-add_executable(gscdb src/gscdb.C ${MODEL_SOURCE_FILES})
-target_precompiled_header(gscdb src/common/prefix.h)
-target_link_libraries(gscdb ${LIBRARIES})
+add_executable(gscauth src/gscauth.C ${MODEL_SOURCE_FILES})
+target_link_libraries(gscauth ${LIBRARIES})
 
-add_executable(gsc_admin src/gsc_admin.C ${MODEL_SOURCE_FILES})
-target_precompiled_header(gsc_admin src/common/prefix.h)
-target_link_libraries(gsc_admin ${LIBRARIES})
+set_target_properties(gscd gscd-fcgi gscauth PROPERTIES
+        CXX_STANDARD            14
+        CXX_STANDARD_REQUIRED   On
+        CXX_EXTENSIONS          Off)
+

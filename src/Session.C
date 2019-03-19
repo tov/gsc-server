@@ -50,6 +50,13 @@ Db_session::Db_session(dbo::SqlConnectionPool& pool)
     map_classes();
 }
 
+Db_session::Db_session(std::unique_ptr<Wt::Dbo::SqlConnection> conn)
+        : users_{*this}
+{
+    setConnection(std::move(conn));
+    map_classes();
+}
+
 void Db_session::initialize_db_()
 {
     dbo::Transaction transaction(*this);

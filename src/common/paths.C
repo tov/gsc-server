@@ -3,6 +3,7 @@
 #include <Wt/Utils.h>
 
 #include <cstdlib>
+#include <sstream>
 
 namespace api {
 
