@@ -21,6 +21,8 @@ using namespace std;
 class Gscauth
 {
 public:
+    Gscauth();
+
     bool check_user(User::Role role, const string& username, const string& password);
 
     dbo::Session& session() { return session_; }
@@ -72,14 +74,14 @@ int main(int argc, const char* argv[])
         return 1;
 }
 
+Gscauth::Gscauth()
+{
+    Db_session::configure_auth();
+}
+
 bool Gscauth::check_user(User::Role role, const string& username, const string& password)
 {
     auto user = find_user_(username);
-
-    if (role > user->role()) {
-        cerr << "User does not have required role\n";
-        return false;
-    }
 
     dbo::Transaction transaction(session_);
 
@@ -91,22 +93,27 @@ bool Gscauth::check_user(User::Role role, const string& username, const string& 
 
     switch (verify_result) {
         case Wt::Auth::PasswordResult::PasswordValid:
-            return true;
+            break;
 
         case Wt::Auth::PasswordResult::PasswordInvalid:
             cerr << "Password invalid\n";
-            break;
+            return false;
 
         case Wt::Auth::PasswordResult::LoginThrottling:
             cerr << "Too many attempts in too little time\n";
-            break;
+            return false;
 
         default:
             cerr << "No good!\n";
-            break;
+            return false;
     }
 
-    return false;
+    if (role > user->role()) {
+        cerr << "User does not have required role\n";
+        return false;
+    }
+
+    return true;
 }
 
 dbo::ptr<User> Gscauth::find_user_(const string& username)
