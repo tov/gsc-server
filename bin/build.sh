@@ -27,6 +27,4 @@ if [ ! -d $build_dir ]; then
     )
 fi
 
-make -j 4 -C $build_dir $target
-chmod a+rx $build_dir/$target
-git ls-files server_root | xargs chmod a+r
+make -j 4 -C $build_dir $target gscauth
