@@ -148,6 +148,7 @@ J::Object Self_eval::to_json() const {
     result["uri"]               = J::Value(rest_uri());
     result["score"]             = J::Value(clean_grade(score()));
     result["explanation"]       = J::Value(explanation());
+    result["permalink"]         = J::Value(permalink());
     return result;
 }
 
