@@ -147,7 +147,7 @@ void Grades_csv::do_get_(const Context& context)
 {
     std::ostringstream o;
 
-    o << "NetId";
+    o << "username";
     for (auto const& assign : assigns_)
         o << ",hw" << assign->number();
     for (int exam : exams_)

@@ -107,7 +107,7 @@ Partner_requestor_widget::Partner_requestor_widget
 
     edit_ = addNew<Wt::WLineEdit>();
     edit_->setStyleClass("username");
-    edit_->setPlaceholderText("NetID");
+    edit_->setPlaceholderText("(ask them)");
 
     auto buttons = addNew<Wt::WContainerWidget>();
     buttons->setStyleClass("buttons");
