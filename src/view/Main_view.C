@@ -35,7 +35,7 @@ Main_view::Main_view(Session& session)
 
     auto authWidget = addNew<Auth::AuthWidget>(session_.login());
     authWidget->setModel(std::move(authModel));
-    authWidget->setRegistrationEnabled(true);
+    authWidget->setRegistrationEnabled(false);
     authWidget->processEnvironment();
 }
 
