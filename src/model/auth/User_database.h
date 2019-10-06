@@ -10,7 +10,7 @@ class User;
 class User_database : public Wt::Auth::AbstractUserDatabase
 {
 public:
-    User_database(dbo::Session&);
+    explicit User_database(dbo::Session&);
 
     static User_database* make(dbo::Session& session) {
         return new User_database(session);
