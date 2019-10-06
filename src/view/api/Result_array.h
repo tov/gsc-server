@@ -31,7 +31,7 @@ private:
     Result_proxy(Result_array& array, std::string const& status);
 
     std::string status_;
-    Result_array& array_;
+    Result_array* array_;
     std::ostringstream message_;
 
     friend Result_array;
