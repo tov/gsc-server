@@ -5,9 +5,6 @@ cmake-build-*/
 .idea/
 *.iml
 
-# Wt resources
-resources
-
 # Databases
 server_root/var/
 

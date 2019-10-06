@@ -1,0 +1,1 @@
+LoadModule amagent_module /usr/local/lib/mod_openam.so
