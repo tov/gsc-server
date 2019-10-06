@@ -39,7 +39,7 @@ void User_database::load_user_(const std::string& id_string) const
 Auth::User User_database::cached_user_() const
 {
     if (user_cache_)
-        return Auth::User(boost::lexical_cast<std::string>(user_cache_.id()),
+        return Auth::User(std::to_string(user_cache_.id()),
                           *this);
     else
         return Auth::User();
