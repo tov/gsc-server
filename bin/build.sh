@@ -1,16 +1,16 @@
 #!/bin/sh
 
-cd "$(dirname $0)"/..
+cd "${0%/*}"
+. ./setup-build-env.sh
+cd ..
 
 case "$1" in
     debug)
         cmake_type=Debug
-        build_dir=build.debug
-        target=gscd
+        target=
         ;;
     release)
         cmake_type=Release
-        build_dir=build.release
         target=gscd-fcgi
         ;;
     *)
@@ -18,6 +18,8 @@ case "$1" in
         exit 1
         ;;
 esac
+
+build_dir=build.$1
 
 if [ ! -d $build_dir ]; then
     mkdir $build_dir
