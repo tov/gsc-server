@@ -1,39 +1,146 @@
 #pragma once
 
-#include "model/auth/User_database.h"
+#include "model/auth/Environment.h"
 #include "model/auth/User.h"
 
-#include <Wt/Auth/Login.h>
 #include <Wt/Auth/AbstractUserDatabase.h>
+#include <Wt/Auth/Identity.h>
+#include <Wt/Auth/Login.h>
+#include <Wt/Auth/Dbo/UserDatabase.h>
 
+#include <Wt/Dbo/Dbo.h>
 #include <Wt/Dbo/Session.h>
 #include <Wt/Dbo/ptr.h>
 #include <Wt/Dbo/SqlConnectionPool.h>
 
 #include <memory>
 #include <string>
+#include <utility>
 #include <vector>
 
 class User;
 class User_stats;
 
-class Db_session : public Wt::Dbo::Session
+using User_database = Wt::Auth::Dbo::UserDatabase<Auth_info>;
+
+#define FORWARD_TO(NAME, RCVR)  \
+    template<typename T, typename ...Args> \
+    auto NAME(Args&& ...args) \
+    { \
+        return (RCVR).NAME<T>(std::forward<Args>(args)...); \
+    }
+
+class Db_session;
+
+template <typename T>
+struct authn_result;
+
+template <typename T>
+using authn_result_t = typename authn_result<T>::type;
+
+template <typename T>
+authn_result_t<T> lift_authn_result(Wt::Auth::User const& wt_user,
+                                    Db_session const& session_)
+{
+    return authn_result<T>::lift(wt_user, session_);
+}
+
+template <>
+struct authn_result<Wt::Auth::User>
+{
+    using type = Wt::Auth::User;
+    static type lift(Wt::Auth::User const&, Db_session const&);
+};
+
+template <>
+struct authn_result<Auth_info>
+{
+    using type = Wt::Dbo::ptr<Auth_info>;
+    static type lift(Wt::Auth::User const&, Db_session const&);
+};
+
+template <>
+struct authn_result<User>
+{
+    using type = Wt::Dbo::ptr<User>;
+    static type lift(Wt::Auth::User const&, Db_session const&);
+};
+
+class Db_session
 {
 public:
-    Db_session(Wt::Dbo::SqlConnectionPool&);
-    Db_session(std::unique_ptr<Wt::Dbo::SqlConnection>);
+    using dbo_t = Wt::Dbo::Session;
+    using wt_user_t = Wt::Auth::User;
 
-    Wt::Dbo::Session& dbo() { return *this; };
+    explicit Db_session(Wt::Dbo::SqlConnectionPool&);
+    explicit Db_session(std::unique_ptr<Wt::Dbo::SqlConnection>);
 
-    User_database& users() { return users_; }
+    dbo_t& dbo() const { return dbo_; };
+    operator dbo_t&() const { return dbo(); }
 
-    const User_database& users() const { return users_; }
+    FORWARD_TO(addNew, dbo())
+    FORWARD_TO(find, dbo())
+    FORWARD_TO(query, dbo())
+    FORWARD_TO(mapClass, dbo())
 
-    Wt::Dbo::ptr<User> create_user(const std::string& username,
-                                   const std::string& password,
-                                   User::Role role = User::Role::Student);
+    User_database& users() { return *users_; }
+
+    const User_database& users() const { return *users_; }
+
+    std::pair<
+            Wt::Dbo::ptr<User>,
+            Wt::Auth::User>
+    create_user(const std::string& username,
+                const std::string& password = "",
+                User::Role role = User::Role::Student);
+
+    template <typename T>
+    authn_result_t<T>
+    find_by_identity(const std::string& provider,
+                     const std::string& identity) const
+    {
+        Wt::Dbo::Transaction transaction(*this);
+        auto wt_user = users().findWithIdentity(provider, identity);
+        return lift_authn_result<T>(wt_user, *this);
+    }
+
+    template <typename T>
+    authn_result_t<T>
+    find_by_auth_token(const std::string& token) const
+    {
+        auto wt_user = users().findWithAuthToken(token);
+        return lift_authn_result<T>(wt_user, *this);
+    }
+
+    template <typename T>
+    authn_result_t<T>
+    find_by_login(const std::string& username,
+                  bool create = true)
+    {
+        auto provider = Wt::Auth::Identity::LoginName;
+        auto wt_user = find_by_identity<wt_user_t>(provider, username);
+
+        if (!wt_user.isValid() && create)
+            wt_user = create_user(username).second;
+
+        return lift_authn_result<T>(wt_user, *this);
+    }
+
+    template <typename T>
+    authn_result_t<T>
+    find_from_environment(bool create = true)
+    {
+        if (auto remote_user = env_remote_user()) {
+            return find_by_login<T>(*remote_user, create);
+        } else {
+            return {};
+        }
+    }
+
+#ifdef GSC_AUTH_PASSWORD
     void set_password(const dbo::ptr<User>& user,
                       const std::string& password);
+#endif // GSC_AUTH_PASSWORD
 
     std::vector<dbo::ptr<User_stats>> top_users(int limit);
 
@@ -47,15 +154,18 @@ public:
     createConnectionPool(const std::string&);
 
     static const Wt::Auth::AuthService& auth();
-
     static const Wt::Auth::AbstractPasswordService& passwordAuth();
 
 private:
-    User_database users_;
+    std::unique_ptr<User_database> users_;
+    mutable dbo_t dbo_;
 
     void create_index_(const char* table, const char* field, bool unique = true);
 
-    void initialize_db_();
+    void initialize_session_();
+    void initialize_db_(std::string const& root_password,
+                        bool test_data = true);
+    void populate_test_data_();
 };
 
 class Session : public Db_session
@@ -74,9 +184,11 @@ public:
     int find_ranking();
     void add_to_score(int s);
 
+    bool authenticate_from_environment();
+
 private:
     Wt::Auth::Login login_;
 
-    mutable Wt::Dbo::ptr<User> user_;
+    // `mutable` means cache (may be nullptr):
+    mutable Wt::Dbo::ptr<Auth_info> auth_info_;
 };
-

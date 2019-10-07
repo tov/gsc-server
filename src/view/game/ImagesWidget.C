@@ -8,8 +8,6 @@
 
 #include <Wt/WImage.h>
 
-#include <boost/lexical_cast.hpp>
-
 using namespace Wt;
 
 const int ImagesWidget::HURRAY = -1;
@@ -18,7 +16,7 @@ ImagesWidget::ImagesWidget(int maxGuesses)
 {
   for (int i = 0; i <= maxGuesses; ++i) {
     std::string fname = "/images/hangman";
-    fname += boost::lexical_cast<std::string>(i) + ".jpg";
+    fname += std::to_string(i) + ".jpg";
     WImage *theImage = addNew<WImage>(fname);
     images_.push_back(theImage);
 

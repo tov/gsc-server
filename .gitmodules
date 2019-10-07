@@ -1,6 +1,3 @@
-[submodule "CMake/CMakePCHCompiler"]
-	path = CMake/CMakePCHCompiler
-	url = https://github.com/nanoant/CMakePCHCompiler.git
 [submodule "client"]
 	path = client
 	url = https://github.com/tov/gsc-client.git

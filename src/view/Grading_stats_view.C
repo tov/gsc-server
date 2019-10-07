@@ -7,8 +7,6 @@
 #include <Wt/WTable.h>
 #include <Wt/WText.h>
 
-#include <boost/lexical_cast.hpp>
-
 #include <map>
 #include <set>
 #include <string>
@@ -70,10 +68,10 @@ Grading_stats_view::Grading_stats_view(Session& session)
     int row = 1;
     for (const auto& p : model) {
         table->elementAt(row, 0)->addNew<Wt::WText>(p.first);
-        table->elementAt(row, 1)->addNew<Wt::WText>(boost::lexical_cast<std::string>(p.second.total_count));
+        table->elementAt(row, 1)->addNew<Wt::WText>(std::to_string(p.second.total_count));
 
         for (const auto& q : p.second.counts) {
-            table->elementAt(row, q.first + 1)->addNew<Wt::WText>(boost::lexical_cast<std::string>(q.second));
+            table->elementAt(row, q.first + 1)->addNew<Wt::WText>(std::to_string(q.second));
             assignments.insert(q.first);
         }
 
@@ -83,7 +81,7 @@ Grading_stats_view::Grading_stats_view(Session& session)
     table->elementAt(0, 1)->addNew<Wt::WText>("Total");
     for (int asst : assignments) {
         table->elementAt(0, asst + 1)->addNew<Wt::WText>(
-                "hw" + boost::lexical_cast<std::string>(asst));
+                "hw" + std::to_string(asst));
     }
 
     auto buttons = impl->addNew<Wt::WContainerWidget>();

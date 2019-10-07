@@ -15,8 +15,6 @@
 #include <Wt/WText.h>
 #include <Wt/WTime.h>
 
-#include <boost/lexical_cast.hpp>
-
 #include <sstream>
 
 Assignments_view_row::Assignments_view_row(
@@ -28,7 +26,7 @@ Assignments_view_row::Assignments_view_row(
           row_(row)
 {
     row_->elementAt(NUMBER)->addNew<Wt::WText>(
-            boost::lexical_cast<std::string>(assignment_->number()));
+            std::to_string(assignment_->number()));
     name_        = row_->elementAt(NAME)->addNew<Wt::WLineEdit>();
     partner_     = row_->elementAt(PARTNER)->addNew<Wt::WCheckBox>();
     web_allowed_ = row_->elementAt(WEB_ALLOWED)->addNew<Wt::WCheckBox>();
@@ -147,7 +145,7 @@ void Assignments_view_row::update_() const
     open_date_->set_date_time(assignment_->open_date());
     due_date_->set_date_time(assignment_->due_date());
     eval_date_->set_date_time(assignment_->eval_date());
-    points_->setText(boost::lexical_cast<std::string>(assignment_->points()));
+    points_->setText(std::to_string(assignment_->points()));
 
 //    open_date_->set_top(due_date_->date_time());
 //    due_date_->set_bottom(open_date_->date_time());
@@ -189,7 +187,7 @@ Assignments_view::Assignments_view(Session& session)
 void Assignments_view::more_()
 {
     int number = (int)rows_.size() + 1;
-    std::string name = "Homework " + boost::lexical_cast<std::string>(number);
+    std::string name = "Homework " + std::to_string(number);
     auto local_date = Wt::WLocalDateTime::currentDateTime();
     local_date.setTime(Wt::WTime(23, 59));
     auto date = local_date.toUTC();

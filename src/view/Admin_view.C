@@ -21,8 +21,6 @@
 #include <Wt/WSuggestionPopup.h>
 #include <Wt/WTable.h>
 
-#include <boost/lexical_cast.hpp>
-
 #include <sstream>
 #include <vector>
 
@@ -75,7 +73,7 @@ void Submission_chooser::update()
 
         for (const auto& submission : submissions_) {
             auto number = submission->assignment()->number();
-            combo_->addItem(boost::lexical_cast<std::string>(number));
+            combo_->addItem(std::to_string(number));
         }
     }
 }

@@ -15,8 +15,6 @@
 #include <Wt/WTable.h>
 #include <Wt/Dbo/Dbo.h>
 
-#include <boost/lexical_cast.hpp>
-
 using namespace Wt;
 
 HighScoresWidget::HighScoresWidget(Session& session)
@@ -38,7 +36,7 @@ void HighScoresWidget::update()
         yourScore = "Congratulations! You are currently leading the pack.";
     else {
         yourScore = "You are currently ranked number "
-                    + boost::lexical_cast<std::string>(ranking)
+                    + std::to_string(ranking)
                     + ". Almost there !";
     }
 
@@ -66,10 +64,10 @@ void HighScoresWidget::update()
 
         int row = table->rowCount();
         table->elementAt(row, 0)->addNew<WText>(
-                boost::lexical_cast<std::string>(rank));
+                std::to_string(rank));
         table->elementAt(row, 1)->addNew<WText>(stats->user()->name());
-        table->elementAt(row, 2)->addNew<WText>(boost::lexical_cast<std::string>(stats->games_played()));
-        table->elementAt(row, 3)->addNew<WText>(boost::lexical_cast<std::string>(stats->score()));
+        table->elementAt(row, 2)->addNew<WText>(std::to_string(stats->games_played()));
+        table->elementAt(row, 3)->addNew<WText>(std::to_string(stats->score()));
         if (!stats->last_game().isNull())
             table->elementAt(row, 4)->addNew<WText>(stats->last_game().timeTo(WDateTime::currentDateTime())
                       + " ago");

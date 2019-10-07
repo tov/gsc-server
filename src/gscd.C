@@ -1,5 +1,6 @@
 #include "Application_controller.h"
 #include "Session.h"
+#include "common/env_var.h"
 #include "view/api/Endpoint.h"
 
 #include <Wt/Dbo/SqlConnectionPool.h>
@@ -7,15 +8,12 @@
 #include <Wt/WServer.h>
 #include <Wt/WString.h>
 
-#include <cstdlib>
-
 int main(int argc, char** argv)
 {
     try {
         Wt::WString::setDefaultEncoding(Wt::CharEncoding::UTF8);
 
-        auto env_string = std::getenv("POSTGRES_CONNINFO");
-        auto db_string  = env_string? env_string : "dbname=gsc";
+        auto db_string  = get_env_var("POSTGRES_CONNINFO", "dbname=gsc");
         auto pool       = Db_session::createConnectionPool(db_string);
         Db_session::configure_auth();
         Db_session::initialize_db(*pool);

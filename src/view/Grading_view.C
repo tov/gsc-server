@@ -19,8 +19,6 @@
 #include <Wt/WTemplate.h>
 #include <Wt/WText.h>
 
-#include <boost/lexical_cast.hpp>
-
 // Abstract base class for grading self evaluations. Derived classes specialize
 // for boolean-type evaluations and scale-type evaluations (including
 // informational).
@@ -248,7 +246,7 @@ Grading_view::Grading_view(const Wt::Dbo::ptr<Self_eval> self_eval, Session& ses
     auto grader_eval = Grader_eval::get_for(self_eval, session_);
 
     std::string sequence =
-            boost::lexical_cast<std::string>(eval_item->sequence());
+            std::to_string(eval_item->sequence());
     auto grading_widget = Abstract_grading_widget::create(grader_eval,
                                                           session_);
 

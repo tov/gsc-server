@@ -9,7 +9,7 @@
 #include <Wt/WLocale.h>
 
 #include <memory>
-#include <string>
+#include <regex>
 
 class Main_view;
 
@@ -43,7 +43,11 @@ private:
     void handle_internal_path(std::string);
     void on_auth_event();
 
-    Wt::Dbo::ptr<User> find_user(const std::string&);
+    using smatch = std::smatch;
+    using ssubmatch = std::ssub_match;
+
+    Wt::Dbo::ptr<User> find_user(ssubmatch const&,
+                                 Wt::Dbo::ptr<User> const& current = nullptr);
     Wt::Dbo::ptr<Assignment> find_assignment(const char*);
     int find_eval_item(const dbo::ptr <Assignment>&, const char*);
 

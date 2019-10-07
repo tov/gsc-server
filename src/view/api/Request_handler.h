@@ -32,6 +32,7 @@ public:
 private:
     dbo::ptr<User> authenticate_by_cookie_() const;
     dbo::ptr<User> authenticate_by_password_() const;
+    dbo::ptr<User> authenticate_by_open_am_() const;
 
     void create_cookie_(Wt::Auth::User const&) const;
     void set_cookie_(std::string const& value, int ttl_seconds) const;

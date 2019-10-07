@@ -8,8 +8,6 @@
 #include <Wt/WTemplate.h>
 #include <Wt/WText.h>
 
-#include <boost/lexical_cast.hpp>
-
 Base_eval_item_widget::Base_eval_item_widget(const Submission::Item& model, Evaluation_view& main,
                                              Session& session)
         : model_(model),
@@ -35,7 +33,7 @@ void Base_eval_item_widget::add_item_heading_()
     auto h4 = addNew<Wt::WTemplate>("<h4>Question ${number} "
                                     "<small>(${value})</small></h4>");
 
-    std::string number = boost::lexical_cast<std::string>(
+    std::string number = std::to_string(
             model_.eval_item->sequence());
     std::string value = Eval_item::pct_string(
             model_.eval_item->relative_value()

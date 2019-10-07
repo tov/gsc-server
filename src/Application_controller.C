@@ -23,7 +23,6 @@
 #include <Wt/WWidget.h>
 
 #include <cstdlib>
-#include <regex>
 #include <stdexcept>
 #include <string>
 
@@ -39,7 +38,8 @@ struct Load_error : std::exception
     std::string message;
 };
 
-void not_found(const std::string& message)
+
+void not_found [[noreturn]] (const std::string& message)
 {
     throw Load_error("Not found", message);
 }
@@ -47,7 +47,7 @@ void not_found(const std::string& message)
 const std::string denied_message =
         "You aren't allowed to access that.";
 
-void permission_denied(const std::string& message = denied_message)
+void permission_denied [[noreturn]] (const std::string& message = denied_message)
 {
     throw Load_error("Permission denied", message);
 }
@@ -77,6 +77,9 @@ Application_controller::Application_controller(Wt::Dbo::SqlConnectionPool& pool,
     auto locale = this->locale();
     set_time_zone(locale);
     setLocale(locale);
+
+    // Try to use OpenAM login info.
+    session_.authenticate_from_environment();
 
     main_ = root()->addNew<Main_view>(session_);
 
@@ -236,7 +239,7 @@ void Application_controller::handle_internal_path(
 
             // /~:user/hw
         } else if (std::regex_match(internal_path, sm, Path::user_hw)) {
-            auto user = find_user({sm[1].first, sm[1].second});
+            auto user = find_user(sm[1], current_user);
             transaction.commit();
 
             if (!current_user->can_view(user))
@@ -247,8 +250,8 @@ void Application_controller::handle_internal_path(
 
         // ~:user/hw/:n
         } else if (std::regex_match(internal_path, sm, Path::user_hw_N)) {
-            auto user = find_user({sm[1].first, sm[1].second});
             auto assignment = find_assignment(&*sm[2].first);
+            auto user = find_user(sm[1], current_user);
             auto submission = Submission::find_by_assignment_and_user(
                     session_, assignment, user);
 
@@ -260,8 +263,8 @@ void Application_controller::handle_internal_path(
 
             // ~:user/hw/:n/eval
         } else if (std::regex_match(internal_path, sm, Path::user_hw_N_eval)) {
-            auto user = find_user({sm[1].first, sm[1].second});
             auto assignment = find_assignment(&*sm[2].first);
+            auto user = find_user(sm[1], current_user);
             auto submission = Submission::find_by_assignment_and_user(
                     session_, assignment, user);
 
@@ -277,8 +280,8 @@ void Application_controller::handle_internal_path(
         } else if (std::regex_match(internal_path, sm,
                                     Path::user_hw_N_eval_M))
         {
-            auto user = find_user({sm[1].first, sm[1].second});
             auto assignment = find_assignment(&*sm[2].first);
+            auto user = find_user(sm[1], current_user);
             auto submission = Submission::find_by_assignment_and_user(
                     session_, assignment, user);
             auto m = find_eval_item(assignment, &*sm[3].first);
@@ -358,11 +361,18 @@ void Application_controller::set_widget(std::unique_ptr<Wt::WWidget> widget)
 }
 
 Wt::Dbo::ptr<User>
-Application_controller::find_user(const std::string& user_name)
+Application_controller::find_user(ssubmatch const& sub,
+                                  Wt::Dbo::ptr<User> const& current)
 {
-    auto user = User::find_by_name(session_, user_name);
-    if (!user) not_found("No such user: " + user_name);
-    return user;
+    std::string user_name(sub.first, sub.second);
+
+    if (auto user = User::find_by_name(session_, user_name))
+        return user;
+
+    if (current && current->can_admin())
+        not_found("No such user: " + user_name);
+    else
+        permission_denied();
 }
 
 Wt::Dbo::ptr<Assignment>

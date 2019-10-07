@@ -1,4 +1,5 @@
 #include "model/auth/User.h"
+#include "common/env_var.h"
 #include "Session.h"
 
 #include <Wt/Dbo/Dbo.h>
@@ -28,10 +29,12 @@ public:
     dbo::Session& session() { return session_; }
 
 private:
-    Db_session session_{make_unique<dbo::backend::Postgres>(get_db_string_())};
+    Db_session session_{get_db_conn_()};
 
     dbo::ptr<User> find_user_(const string&);
-    const char* get_db_string_();
+
+    static const char* get_db_string_();
+    static std::unique_ptr<dbo::SqlConnection> get_db_conn_();
 };
 
 void assert_argc(bool okay, const char* argv[], const char* message)
@@ -128,7 +131,11 @@ dbo::ptr<User> Gscauth::find_user_(const string& username)
 
 const char* Gscauth::get_db_string_()
 {
-    auto db_string = getenv("POSTGRES_CONNINFO");
-    return db_string ? db_string : "dbname=gsc";
+    return get_env_var("POSTGRES_CONNINFO", "dbname=gsc");
+}
+
+std::unique_ptr<dbo::SqlConnection> Gscauth::get_db_conn_()
+{
+    return make_unique<dbo::backend::Postgres>(get_db_string_());
 }
 

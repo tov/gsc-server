@@ -12,8 +12,6 @@
 #include <Wt/WTable.h>
 #include <Wt/WText.h>
 
-#include <boost/lexical_cast.hpp>
-
 #include <sstream>
 
 class Single_file_viewer : public Wt::WContainerWidget
@@ -47,7 +45,7 @@ Single_file_viewer::Single_file_viewer(
 
     while (std::getline(file_stream, line)) {
         table->elementAt(row, 0)->addNew<Wt::WText>(
-                boost::lexical_cast<std::string>(line_number));
+                std::to_string(line_number));
         table->elementAt(row, 0)->setStyleClass("code-number");
         table->elementAt(row, 1)->addNew<Wt::WText>(
                 Wt::WString::fromUTF8(line), Wt::TextFormat::Plain);
@@ -115,7 +113,7 @@ void File_viewer_widget::scroll_to_file(int file_number) const
 
 std::string File_viewer_widget::line_id(int line_number) const
 {
-    return id() + "-L" + boost::lexical_cast<std::string>(line_number);
+    return id() + "-L" + std::to_string(line_number);
 }
 
 void File_viewer_widget::set_line_style(int line, const Wt::WString& style)

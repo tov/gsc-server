@@ -19,8 +19,6 @@
 #include <Wt/WPushButton.h>
 #include <Wt/WText.h>
 
-#include <boost/lexical_cast.hpp>
-
 using namespace Wt;
 
 namespace {

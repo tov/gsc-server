@@ -22,8 +22,7 @@
 #include <Wt/WTable.h>
 #include <Wt/WTemplate.h>
 
-#include <boost/filesystem.hpp>
-
+#include <filesystem>
 #include <fstream>
 #include <sstream>
 #include <streambuf>
@@ -178,7 +177,7 @@ void File_uploader::uploaded_()
 
     for (auto& file : upload_->uploadedFiles()) {
         std::ifstream spool(file.spoolFileName());
-        boost::filesystem::path filepath(file.clientFileName());
+        std::filesystem::path filepath(file.clientFileName());
         std::string filename = filepath.filename().string();
 
         spool.seekg(0, std::ios::end);

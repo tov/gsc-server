@@ -24,8 +24,10 @@ namespace J = Wt::Json;
 
 DBO_INSTANTIATE_TEMPLATES(User)
 
-User::User(const std::string& name)
-        : name_(name) {}
+User::User(const std::string& name, Role role)
+        : name_(name)
+        , role_(static_cast<int>(role))
+{}
 
 bool User::can_grade() const
 {
@@ -43,76 +45,6 @@ dbo::ptr<User> User::find_by_name(dbo::Session& dbo,
     return dbo.find<User>()
               .where("name = ?")
               .bind(name);
-}
-
-Wt::Dbo::ptr<User> User::find_by_auth_token(Wt::Dbo::Session& session,
-                                            const std::string& hash)
-{
-    return session.query<dbo::ptr<User>>(
-            "SELECT u FROM users u JOIN auth_tokens t ON u.id = t.user_id")
-            .where("t.value = ?").bind(hash)
-            .where("t.expires > ?").bind(Wt::WDateTime::currentDateTime());
-}
-
-Wt::Auth::PasswordHash User::password() const
-{
-    return Wt::Auth::PasswordHash(password_method_, password_salt_, password_);
-}
-
-void User::set_password(const Wt::Auth::PasswordHash& password)
-{
-    password_method_ = password.function();
-    password_salt_ = password.salt();
-    password_ = password.value();
-}
-
-int const auth_token_gc_threshold = 50;
-
-void User::add_auth_token(const std::string& value, const Wt::WDateTime& expires)
-{
-    if (auth_tokens_.size() > auth_token_gc_threshold) {
-        auto expired = session()->find<Auth_token>()
-                .where("expires < NOW()")
-                .resultList();
-        for (auto token : expired) token.remove();
-
-        int count = auth_tokens_.size();
-        if (count > auth_token_gc_threshold / 2) {
-            auto victims = session()->find<Auth_token>()
-                    .where("user_id = ?").bind(id())
-                    .orderBy("expires")
-                    .limit(count - auth_token_gc_threshold / 2)
-                    .resultList();
-            for (auto token : victims) token.remove();
-        }
-    }
-
-    auth_tokens_.insert(dbo::ptr<Auth_token>(
-            std::make_unique<Auth_token>(value, expires)));
-}
-
-void User::remove_auth_token(const std::string& value)
-{
-    for (auto& token : auth_tokens()) {
-        if (token->value == value) {
-            token.remove();
-            break;
-        }
-    }
-}
-
-int User::update_auth_token(const std::string& old, const std::string& new_)
-{
-    for (const auto& token : auth_tokens()) {
-        if (token->value == old) {
-            token.modify()->value = new_;
-            return std::max(Wt::WDateTime::currentDateTime()
-                                    .secsTo(token->expires),
-                            0);
-        }
-    }
-
-    return 0;
 }
 
 std::vector<dbo::ptr<Submission>> User::submissions() const

@@ -1,6 +1,8 @@
 #include "Request_handler.h"
 #include "Http_status.h"
+#include "../../common/env_var.h"
 #include "../../common/stringify.h"
+#include "../../model/auth/Environment.h"
 
 #include <Wt/Auth/AuthService.h>
 #include <Wt/Auth/HashFunction.h>
@@ -60,6 +62,7 @@ dbo::ptr<User> Request_handler::authenticate() const
     dbo::ptr<User> user;
 
     if ((user = authenticate_by_cookie_())) return user;
+    if ((user = authenticate_by_open_am_())) return user;
     if ((user = authenticate_by_password_())) return user;
 
     throw Http_status{401,
@@ -107,6 +110,7 @@ void Request_handler::check_password_strength(Credentials const& cred)
 
 dbo::ptr<User> Request_handler::authenticate_by_cookie_() const
 {
+#ifdef GSC_AUTH_COOKIE
     std::string const* in_cookie = request_.getCookieValue(cookie_name);
     if (!in_cookie) return {};
 
@@ -135,10 +139,14 @@ dbo::ptr<User> Request_handler::authenticate_by_cookie_() const
     set_cookie_(auth_result.newToken(), auth_result.newTokenValidity());
 
     return session_.users().find(auth_result.user());
+#else // GSC_AUTH_COOKIE
+    return nullptr;
+#endif // GSC_AUTH_COOKIE
 }
 
 dbo::ptr<User> Request_handler::authenticate_by_password_() const
 {
+#ifdef GSC_AUTH_PASSWORD
     using Wt::Auth::PasswordResult;
 
     // If no authorization header is provided, give up; otherwise, parse it.
@@ -189,6 +197,17 @@ dbo::ptr<User> Request_handler::authenticate_by_password_() const
             create_cookie_(auth_user);
             return user;
     }
+#else // GSC_AUTH_PASSWORD
+    return nullptr;
+#endif // GSC_AUTH_PASSWORD
+}
+
+dbo::ptr<User> Request_handler::authenticate_by_open_am_() const
+{
+    if (auto auth_info = session_.find_from_environment<Auth_info>(false))
+        return auth_info->user();
+    else
+        return nullptr;
 }
 
 } // end namespace api

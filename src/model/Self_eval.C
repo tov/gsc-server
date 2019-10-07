@@ -73,7 +73,7 @@ Self_eval::find_by_permalink(dbo::Session& dbo,
 std::string Self_eval::find_ungraded_permalink(dbo::Session& dbo,
                                                const dbo::ptr<User>& user)
 {
-    dbo.execute("DELETE FROM grader_evals"
+    dbo.execute("DELETE FROM grader_eval"
                 " WHERE status = ?"
                 "   AND time_stamp < NOW() AT TIME ZONE 'UTC' - INTERVAL '1 hr'")
             .bind((int) Grader_eval::Status::editing);
@@ -81,8 +81,8 @@ std::string Self_eval::find_ungraded_permalink(dbo::Session& dbo,
     std::string current =
             dbo.query<std::string>(
                     "SELECT s.permalink"
-                    "  FROM self_evals s"
-                    " INNER JOIN grader_evals g ON g.self_eval_id = s.id"
+                    "  FROM self_eval s"
+                    " INNER JOIN grader_eval g ON g.self_eval_id = s.id"
                     " WHERE g.grader_id = ?"
                     "   AND g.status = ?"
                     " LIMIT 1"
@@ -94,11 +94,11 @@ std::string Self_eval::find_ungraded_permalink(dbo::Session& dbo,
 
     return dbo.query<std::string>(
             "SELECT s.permalink"
-            " FROM self_evals s"
-            " INNER JOIN submissions b ON b.id = s.submission_id"
-            " INNER JOIN eval_items e ON s.eval_item_id = e.id"
-            " INNER JOIN assignments a ON e.assignment_number = a.number"
-            " LEFT OUTER JOIN grader_evals g ON g.self_eval_id = s.id"
+            " FROM self_eval s"
+            " INNER JOIN submission b ON b.id = s.submission_id"
+            " INNER JOIN eval_item e ON s.eval_item_id = e.id"
+            " INNER JOIN assignment a ON e.assignment_number = a.number"
+            " LEFT OUTER JOIN grader_eval g ON g.self_eval_id = s.id"
             " WHERE g.self_eval_id IS NULL"
             "   AND a.eval_date < NOW() AT TIME ZONE 'UTC'"
             "   AND b.eval_date < NOW() AT TIME ZONE 'UTC'"
@@ -113,10 +113,10 @@ Self_eval::find_with_grade_status(Grader_eval::Status status,
 {
     return dbo.query<dbo::ptr<Self_eval>>(
             "SELECT s"
-            " FROM self_evals s"
-            " INNER JOIN eval_items e ON s.eval_item_id = e.id"
-            " INNER JOIN assignments a ON e.assignment_number = a.number"
-            " INNER JOIN grader_evals g ON s.id = g.self_eval_id"
+            " FROM self_eval s"
+            " INNER JOIN eval_item e ON s.eval_item_id = e.id"
+            " INNER JOIN assignment a ON e.assignment_number = a.number"
+            " INNER JOIN grader_eval g ON s.id = g.self_eval_id"
             " WHERE g.status = ?"
             " ORDER BY a.number, e.sequence"
     ).bind((int) status).resultList();

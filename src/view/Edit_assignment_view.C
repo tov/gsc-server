@@ -13,8 +13,6 @@
 #include <Wt/WText.h>
 #include <Wt/WTextArea.h>
 
-#include <boost/lexical_cast.hpp>
-
 #include <cstdlib>
 
 class Edit_eval_item : public Wt::WContainerWidget
@@ -74,10 +72,10 @@ void Edit_eval_item::view_mode_()
             );
 
     std::string sequence =
-            boost::lexical_cast<std::string>(eval_item_->sequence());
+            std::to_string(eval_item_->sequence());
     templ->bindWidget("sequence", std::make_unique<Wt::WText>(sequence));
 
-    std::string type = boost::lexical_cast<std::string>(eval_item_->type());
+    std::string type = stringify(eval_item_->type());
     templ->bindWidget("type", std::make_unique<Wt::WText>(type));
 
     templ->bindWidget("value", std::make_unique<Wt::WText>(eval_item_->absolute_value_str()));

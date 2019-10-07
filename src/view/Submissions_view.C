@@ -16,8 +16,6 @@
 #include <Wt/WTable.h>
 #include <Wt/WText.h>
 
-#include <boost/lexical_cast.hpp>
-
 #include <vector>
 
 void load_model(const Wt::Dbo::ptr<User>& user, Session& session,
@@ -121,7 +119,7 @@ void Submissions_view_row::update()
             } else {
                 row_->setStyleClass("open");
                 status += "Submitted ";
-                status += boost::lexical_cast<std::string>(model_.file_count);
+                status += std::to_string(model_.file_count);
                 status += " file";
                 if (model_.file_count > 1) status += "s";
                 set_action_style_class("btn");

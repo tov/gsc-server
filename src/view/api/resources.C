@@ -103,7 +103,7 @@ void Grades_csv::load(const Resource::Context& context) {
     if (!context.user->can_admin())
         denied(12);
 
-    auto& dbo = context.session;
+    auto& dbo = context.session.dbo();
 
     const auto assigns_q = dbo.find<Assignment>()
             .orderBy("number")
@@ -314,6 +314,7 @@ void Users_1::do_patch_(Request_body body, Context const& context)
                 result.success() << "Role updated to " << stringify(role) << ".";
             }
 
+#ifdef GSC_AUTH_PASSWORD
             else if (pair.first == "password") {
                 if (!context.user->can_admin()) {
                     Credentials creds{user_->name(), pair.second};
@@ -323,6 +324,7 @@ void Users_1::do_patch_(Request_body body, Context const& context)
                 context.session.set_password(user_, pair.second);
                 result.success() << "Updated password for user " << user_->name() << ".";
             }
+#endif // GSC_AUTH_PASSWORD
 
             else if (pair.first == "exam_grades") {
                 if (!context.user->can_admin())

@@ -133,9 +133,9 @@ double Submission::grade() const
 
     return clean_grade(session()->query<double>(
             "SELECT SUM(relative_value * g.score) / NULLIF(SUM(relative_value), 0)"
-            "  FROM self_evals s"
-            " INNER JOIN eval_items e ON s.eval_item_id = e.id"
-            " INNER JOIN grader_evals g ON g.self_eval_id = s.id"
+            "  FROM self_eval s"
+            " INNER JOIN eval_item e ON s.eval_item_id = e.id"
+            " INNER JOIN grader_eval g ON g.self_eval_id = s.id"
             " WHERE s.submission_id = ?"
     ).bind(id()).resultValue());
 }
@@ -357,7 +357,7 @@ double Submission::point_value() const
 
     return session()->query<double>(
             "SELECT SUM(relative_value)"
-            "  FROM eval_items"
+            "  FROM eval_item"
             " WHERE assignment_number = ?"
     ).bind(assignment()->number()).resultValue();
 }
@@ -375,8 +375,8 @@ bool Submission::is_graded() const
 
     auto grader_eval_count = session()->query<int>(
             "SELECT COUNT(*)"
-            "  FROM self_evals s"
-            " INNER JOIN grader_evals g ON g.self_eval_id = s.id"
+            "  FROM self_eval s"
+            " INNER JOIN grader_eval g ON g.self_eval_id = s.id"
             " WHERE s.submission_id = ?"
             "   AND g.status = ?"
     ).bind(id()).bind((int) Grader_eval::Status::ready).resultValue();

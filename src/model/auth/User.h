@@ -7,6 +7,7 @@
 #include <Wt/Dbo/Types.h>
 #include <Wt/Dbo/WtSqlTraits.h>
 #include <Wt/Json/Object.h>
+#include <Wt/WGlobal.h>
 
 #include <string>
 
@@ -19,6 +20,7 @@ class User_stats;
 
 namespace dbo = Wt::Dbo;
 
+using Auth_info        = Wt::Auth::Dbo::AuthInfo<User>;
 using Exam_grades      = dbo::collection<dbo::ptr<Exam_grade>>;
 using Exam_grades_vec  = std::vector<dbo::ptr<Exam_grade>>;
 using Users            = dbo::collection<dbo::ptr<User>>;
@@ -29,14 +31,15 @@ using Partner_requests = std::vector<dbo::ptr<Partner_request>>;
 class User : public dbo::Dbo<User>
 {
 public:
-    User(const std::string& name = "");
-
     enum class Role : int
     {
         Student,
         Grader,
         Admin,
     };
+
+    explicit User(const std::string& name = "",
+                  Role role = Role::Student);
 
     const std::string& name() const { return name_; }
 
@@ -51,27 +54,6 @@ public:
     bool can_admin() const;
     bool can_view(const dbo::ptr<User>&) const;
 
-    Wt::Auth::PasswordHash password() const;
-    void set_password(const Wt::Auth::PasswordHash&);
-
-    Auth_tokens auth_tokens() const { return auth_tokens_; }
-
-    void add_auth_token(const std::string&, const Wt::WDateTime&);
-    void remove_auth_token(const std::string&);
-    int update_auth_token(const std::string& old, const std::string& new_);
-
-    int failed_login_attempts() const { return failed_login_attempts_; }
-
-    void set_failed_login_attempts(int n) { failed_login_attempts_ = n; }
-
-    const Wt::WDateTime&
-    last_login_attempt() const { return last_login_attempt_; };
-
-    void set_last_login_attempt(const Wt::WDateTime& date)
-    {
-        last_login_attempt_ = date;
-    }
-
     std::vector<dbo::ptr<Submission>> submissions() const;
 
     Partner_requests outgoing_requests() const;
@@ -85,7 +67,6 @@ public:
     dbo::ptr<User> find_this() const;
 
     static dbo::ptr<User> find_by_name(dbo::Session&, const std::string&);
-    static dbo::ptr<User> find_by_auth_token(dbo::Session&, const std::string&);
 
     std::string rest_uri() const;
     std::string submissions_rest_uri() const;
@@ -94,13 +75,6 @@ public:
 private:
     std::string name_;
     int role_ = static_cast<int>(Role::Student);
-
-    std::string password_;
-    std::string password_method_;
-    std::string password_salt_;
-    int failed_login_attempts_ = 0;
-    Wt::WDateTime last_login_attempt_;
-    Auth_tokens auth_tokens_;
 
     Submissions submissions1_;
     Submissions submissions2_;
@@ -117,13 +91,6 @@ public:
     {
         dbo::field(a, name_, "name", 16);
         dbo::field(a, role_, "role");
-
-        dbo::field(a, password_, "password", 60);
-        dbo::field(a, password_method_, "password_method", 6);
-        dbo::field(a, password_salt_, "password_salt", 16);
-        dbo::field(a, failed_login_attempts_, "failed_login_attempts");
-        dbo::field(a, last_login_attempt_, "last_login_attempt");
-        dbo::hasMany(a, auth_tokens_, dbo::ManyToOne, "user");
 
         dbo::hasMany(a, submissions1_, dbo::ManyToOne, "user1");
         dbo::hasMany(a, submissions2_, dbo::ManyToOne, "user2");
