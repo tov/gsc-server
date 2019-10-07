@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.5)
 project(gsc CXX)
 
-set(MODEL_SOURCE_FILES
+set(MODEL_SRC_FILES
         src/view/api/Endpoint.C
         src/view/api/Http_status.C
         src/common/env_var.C
@@ -31,9 +31,13 @@ set(MODEL_SOURCE_FILES
         src/Session.C
         src/model/Submission.C)
 
-set(SOURCE_FILES
+set(CLI_SRC_FILES
+        ${MODEL_SRC_FILES}
+        src/view/cli/Cli_base.C)
+
+set(WWW_SRC_FILES
         src/gscd.C
-        ${MODEL_SOURCE_FILES}
+        ${MODEL_SRC_FILES}
         src/Application_controller.C
         src/Navigate.h
         src/view/Abstract_file_view.C
@@ -93,15 +97,17 @@ macro(add_program target)
 endmacro(add_program)
 
 if(TARGET Wt::HTTP)
-    add_program(gscd ${SOURCE_FILES})
+    add_program(gscd ${WWW_SRC_FILES})
     target_link_libraries(gscd Wt::HTTP ${LIBRARIES})
 endif(TARGET Wt::HTTP)
 
 if(TARGET Wt::FCGI)
-    add_program(gscd-fcgi ${SOURCE_FILES})
+    add_program(gscd-fcgi ${WWW_SRC_FILES})
     target_link_libraries(gscd-fcgi Wt::FCGI ${LIBRARIES})
 endif(TARGET Wt::FCGI)
 
-add_program(gscauth src/gscauth.C ${MODEL_SOURCE_FILES})
-target_link_libraries(gscauth ${LIBRARIES})
+add_program(gsc-auth src/gsc-auth.C ${CLI_SRC_FILES})
+target_link_libraries(gsc-auth ${LIBRARIES})
 
+add_program(gsc-createdb src/gsc-createdb.C ${CLI_SRC_FILES})
+target_link_libraries(gsc-createdb ${LIBRARIES})

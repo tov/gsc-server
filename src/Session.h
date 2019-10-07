@@ -146,7 +146,10 @@ public:
 
     void map_classes();
 
-    static void initialize_db(Wt::Dbo::SqlConnectionPool&);
+    static void initialize_db(Wt::Dbo::SqlConnectionPool&,
+                              bool test_data = true);
+
+    void initialize_db(bool test_data = true);
 
     static void configure_auth();
 
@@ -163,8 +166,6 @@ private:
     void create_index_(const char* table, const char* field, bool unique = true);
 
     void initialize_session_();
-    void initialize_db_(std::string const& root_password,
-                        bool test_data = true);
     void populate_test_data_();
 };
 

@@ -62,7 +62,7 @@ void Db_session::initialize_session_()
     users_ = std::make_unique<User_database>(*this);
 }
 
-void Db_session::initialize_db_(std::string const& root_password, bool test_data)
+void Db_session::initialize_db(bool test_data)
 {
     dbo::Transaction transaction(*this);
 
@@ -72,7 +72,8 @@ void Db_session::initialize_db_(std::string const& root_password, bool test_data
         create_index_("gsc_user", "name", false);
         create_index_("self_eval", "permalink", false);
 
-        create_user("root", root_password, User::Role::Admin);
+        auto root_pw = get_env_var("ADMIN_PASSWORD");
+        create_user("root", root_pw, User::Role::Admin);
 
         if (test_data) populate_test_data_();
 
@@ -273,10 +274,10 @@ void Db_session::map_classes()
     mapClass<User_stats>("user_stats");
 }
 
-void Db_session::initialize_db(dbo::SqlConnectionPool& pool)
+void Db_session::initialize_db(dbo::SqlConnectionPool& pool,
+                               bool test_data)
 {
-    auto root_pw = get_env_var("ADMIN_PASSWORD");
-    Db_session(pool).initialize_db_(root_pw);
+    Db_session(pool).initialize_db(test_data);
 }
 
 bool Session::authenticate_from_environment()
