@@ -1,8 +1,5 @@
 #include "format.h"
-
-#define HAS_STRING_VIEW 1
 #include <Wt/Date/tz.h>
-
 #include <Wt/WString.h>
 
 #define CLIENT_TIME_ZONE "America/Chicago"
