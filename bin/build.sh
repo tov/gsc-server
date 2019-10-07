@@ -7,7 +7,7 @@ cd ..
 case "$1" in
     debug)
         cmake_type=Debug
-        target=
+        target=gscd
         ;;
     release)
         cmake_type=Release
