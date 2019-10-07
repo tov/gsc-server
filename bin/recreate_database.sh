@@ -2,14 +2,15 @@
 
 cd "$(dirname $0)"/..
 
-if [ -z "$1" -o -n "$2" ]; then
-    echo >&2 Usage: $0 ADMIN_PASSWORD
+if [ $# != 1 ]; then
+    echo >&2 "Usage: $0 ADMIN_PASSWORD"
     exit 1
 fi
 
-ADMIN_PASSWORD="$1"
+ADMIN_PASSWORD=$1
 
 # Require password up front
+echo >&2 "Running sudo..."
 sudo true
 
 # Need a debug (WtHTTP) version of gsc to create the tables and set the
