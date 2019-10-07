@@ -39,10 +39,10 @@ template <typename T>
 using authn_result_t = typename authn_result<T>::type;
 
 template <typename T>
-authn_result_t<T> lift_authn_result(Wt::Auth::User const& wt_user,
+authn_result_t<T> lift_authn_result(Wt::Auth::User const& auth_user,
                                     Db_session const& session_)
 {
-    return authn_result<T>::lift(wt_user, session_);
+    return authn_result<T>::lift(auth_user, session_);
 }
 
 template <>
@@ -70,7 +70,7 @@ class Db_session
 {
 public:
     using dbo_t = Wt::Dbo::Session;
-    using wt_user_t = Wt::Auth::User;
+    using auth_user_t = Wt::Auth::User;
 
     explicit Db_session(Wt::Dbo::SqlConnectionPool&);
     explicit Db_session(std::unique_ptr<Wt::Dbo::SqlConnection>);
@@ -100,16 +100,16 @@ public:
                      const std::string& identity) const
     {
         Wt::Dbo::Transaction transaction(*this);
-        auto wt_user = users().findWithIdentity(provider, identity);
-        return lift_authn_result<T>(wt_user, *this);
+        auto auth_user = users().findWithIdentity(provider, identity);
+        return lift_authn_result<T>(auth_user, *this);
     }
 
     template <typename T>
     authn_result_t<T>
     find_by_auth_token(const std::string& token) const
     {
-        auto wt_user = users().findWithAuthToken(token);
-        return lift_authn_result<T>(wt_user, *this);
+        auto auth_user = users().findWithAuthToken(token);
+        return lift_authn_result<T>(auth_user, *this);
     }
 
     template <typename T>
@@ -118,12 +118,12 @@ public:
                   bool create = true)
     {
         auto provider = Wt::Auth::Identity::LoginName;
-        auto wt_user = find_by_identity<wt_user_t>(provider, username);
+        auto auth_user = find_by_identity<auth_user_t>(provider, username);
 
-        if (!wt_user.isValid() && create)
-            wt_user = create_user(username).second;
+        if (!auth_user.isValid() && create)
+            auth_user = create_user(username).second;
 
-        return lift_authn_result<T>(wt_user, *this);
+        return lift_authn_result<T>(auth_user, *this);
     }
 
     template <typename T>

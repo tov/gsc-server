@@ -31,7 +31,7 @@ public:
 private:
     Db_session session_{get_db_conn_()};
 
-    dbo::ptr<User> find_user_(const string&);
+    dbo::ptr<Auth_info> find_user_(const string&);
 
     static const char* get_db_string_();
     static std::unique_ptr<dbo::SqlConnection> get_db_conn_();
@@ -84,13 +84,14 @@ Gscauth::Gscauth()
 
 bool Gscauth::check_user(User::Role role, const string& username, const string& password)
 {
-    auto user = find_user_(username);
-
     dbo::Transaction transaction(session_);
 
-    auto& service      = Db_session::passwordAuth();
-    auto auth_user     = session_.users().find(user);
-    auto verify_result = service.verifyPassword(auth_user, password);
+    auto auth_info = find_user_(username);
+    auto auth_user = session_.users().find(auth_info);
+    auto user      = auth_info->user();
+
+    auto verify_result = Db_session::passwordAuth()
+            .verifyPassword(auth_user, password);
 
     transaction.rollback();
 
@@ -119,14 +120,13 @@ bool Gscauth::check_user(User::Role role, const string& username, const string& 
     return true;
 }
 
-dbo::ptr<User> Gscauth::find_user_(const string& username)
+dbo::ptr<Auth_info> Gscauth::find_user_(const string& username)
 {
-    auto user = User::find_by_name(session(), username);
-    if (!user) {
-        cerr << "User not found: " << username << '\n';
-        exit(1);
-    }
-    return user;
+    if (auto user = session_.find_by_login<Auth_info>(username))
+        return user;
+
+    cerr << "User not found: " << username << '\n';
+    exit(1);
 }
 
 const char* Gscauth::get_db_string_()

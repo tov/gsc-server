@@ -283,7 +283,7 @@ bool Session::authenticate_from_environment()
 {
     dbo::Transaction transaction(dbo());
 
-    if (auto wt_user = find_from_environment<wt_user_t>();
+    if (auto wt_user = find_from_environment<auth_user_t>();
             wt_user.isValid())
     {
         login().login(wt_user);
