@@ -76,7 +76,7 @@ set(SOURCE_FILES
         src/view/game/LettersWidget.C
         src/view/game/WordWidget.C)
 
-add_compile_definitions(GSC_AUTH_OPEN_AM)
+add_definitions(-DGSC_AUTH_OPEN_AM)
 
 find_package(Wt REQUIRED
         COMPONENTS wt dbo dbopostgres
@@ -84,21 +84,24 @@ find_package(Wt REQUIRED
 
 set(LIBRARIES Wt::Wt Wt::Dbo Wt::DboPostgres)
 
+macro(add_program target)
+    add_executable(${ARGV})
+    set_target_properties(${target} PROPERTIES
+        CXX_STANDARD            17
+        CXX_STANDARD_REQUIRED   On
+        CXX_EXTENSIONS          Off)
+endmacro(add_program)
+
 if(TARGET Wt::HTTP)
-    add_executable(gscd ${SOURCE_FILES})
+    add_program(gscd ${SOURCE_FILES})
     target_link_libraries(gscd Wt::HTTP ${LIBRARIES})
 endif(TARGET Wt::HTTP)
 
 if(TARGET Wt::FCGI)
-    add_executable(gscd-fcgi ${SOURCE_FILES})
+    add_program(gscd-fcgi ${SOURCE_FILES})
     target_link_libraries(gscd-fcgi Wt::FCGI ${LIBRARIES})
 endif(TARGET Wt::FCGI)
 
-add_executable(gscauth src/gscauth.C ${MODEL_SOURCE_FILES})
+add_program(gscauth src/gscauth.C ${MODEL_SOURCE_FILES})
 target_link_libraries(gscauth ${LIBRARIES})
-
-set_target_properties(gscd gscauth PROPERTIES
-        CXX_STANDARD            17
-        CXX_STANDARD_REQUIRED   On
-        CXX_EXTENSIONS          Off)
 
