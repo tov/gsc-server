@@ -13,9 +13,9 @@ ADMIN_PASSWORD=$1
 echo >&2 "Running sudo..."
 sudo true
 
-# Need a debug (WtHTTP) version of gsc to create the tables and set the
+# Need gsc-createdb to create the tables and set the
 # password.
-bin/build.sh debug
+bin/build.sh debug gsc-createdb
 
 # Stop Apache, which stops access to the database
 sudo service apache2 stop
@@ -25,10 +25,7 @@ sudo -u postgres dropdb gsc
 sudo -u postgres createdb gsc
 
 # Start GSC to create tables and set password
-sudo -u gsc ADMIN_PASSWORD="$ADMIN_PASSWORD" bin/gsc-http.sh &
-echo "Started gscd, waiting 5 seconds"
-sleep 5
-sudo killall gscd
+sudo -u gsc ADMIN_PASSWORD="$ADMIN_PASSWORD" build.debug/gsc-createdb
 
 # Restart apache
 sudo service apache2 start
