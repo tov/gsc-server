@@ -73,7 +73,7 @@ void Db_session::initialize_db(bool test_data)
         create_index_("self_eval", "permalink", false);
 
         auto root_pw = get_env_var("ADMIN_PASSWORD");
-        create_user("root", root_pw, User::Role::Admin);
+        create_user("jat489", root_pw, User::Role::Admin);
 
         if (test_data) populate_test_data_();
 
