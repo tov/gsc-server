@@ -80,7 +80,7 @@ set(WWW_SRC_FILES
         src/view/game/LettersWidget.C
         src/view/game/WordWidget.C)
 
-add_definitions(-DGSC_AUTH_OPEN_AM)
+add_compile_definitions(GSC_AUTH_OPEN_AM)
 
 find_package(Wt REQUIRED
         COMPONENTS wt dbo dbopostgres
@@ -99,6 +99,7 @@ endmacro(add_program)
 if(TARGET Wt::HTTP)
     add_program(gscd ${WWW_SRC_FILES})
     target_link_libraries(gscd Wt::HTTP ${LIBRARIES})
+    target_compile_definitions(gscd PRIVATE GSC_AUTH_DEBUG)
 endif(TARGET Wt::HTTP)
 
 if(TARGET Wt::FCGI)
