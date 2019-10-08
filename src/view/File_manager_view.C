@@ -106,7 +106,7 @@ Date_list::Date_list(const Wt::Dbo::ptr<Submission>& submission)
 {
     setStyleClass("date-list");
 
-    elementAt(0, 0)->addNew<Wt::WText>("Due:");
+    elementAt(0, 0)->addNew<Wt::WText>("Code due:");
     elementAt(1, 0)->addNew<Wt::WText>("Eval due:");
     elementAt(2, 0)->addNew<Wt::WText>("Last modified:");
 
@@ -251,7 +251,9 @@ File_manager_view::File_manager_view(const Wt::Dbo::ptr<Submission>& submission,
         right_column_->addNew<File_uploader>(submission_, changed_, session_);
 
     file_list_         = right_column_->addWidget(std::move(file_list));
+#ifdef GSC_SHOW_QUOTA
     quota_display_     = right_column_->addNew<Quota_display>(submission);
+#endif // GSC_SHOW_QUOTA
     date_list_         = right_column_->addNew<Date_list>(submission_);
 }
 
@@ -261,5 +263,7 @@ void File_manager_view::reload()
     Abstract_file_view::reload();
     date_list_->reload();
     file_list_->reload();
+#ifdef GSC_SHOW_QUOTA
     quota_display_->reload();
+#endif // GSC_SHOW_QUOTA
 }

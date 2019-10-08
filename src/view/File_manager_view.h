@@ -17,5 +17,7 @@ public:
 private:
     Date_list* date_list_;
     File_list_widget* file_list_;
+#ifdef GSC_SHOW_QUOTA
     Quota_display* quota_display_;
+#endif // GSC_SHOW_QUOTA
 };
