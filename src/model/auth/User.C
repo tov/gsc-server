@@ -17,7 +17,6 @@
 #include <Wt/Auth/Identity.h>
 
 #include <algorithm>
-#include <regex>
 #include <stdexcept>
 
 namespace J = Wt::Json;
@@ -175,32 +174,45 @@ dbo::ptr<User> User::find_this() const
     return session()->find<User>().where("id = ?").bind(id());
 }
 
-namespace rc = std::regex_constants;
+User::Role_info::info_t const
+User::Role_info::info {
+        Enumerator_info{Role::Student, "student"},
+        Enumerator_info{Role::Grader, "grader"},
+        Enumerator_info{Role::Admin, "admin"},
+};
 
-static std::regex const admin_re("admin", rc::icase);
-static std::regex const grader_re("grader", rc::icase);
-static std::regex const student_re("student", rc::icase);
-
-char const* Enum<User::Role>::show(User::Role role)
+char const* User::Role_info::show(Role role)
 {
-    switch (role) {
-        case User::Role::Admin: return "admin";
-        case User::Role::Grader: return "grader";
-        case User::Role::Student: return "student";
-    }
+    return info[to_repr(role)].name;
 }
 
-User::Role Enum<User::Role>::read(char const* role)
+User::Role User::Role_info::read(char const* role)
 {
-    if (std::regex_match(role, admin_re))
-        return User::Role::Admin;
-
-    if (std::regex_match(role, grader_re))
-        return User::Role::Grader;
-
-    if (std::regex_match(role, student_re))
-        return User::Role::Student;
+    for (auto const& each : info)
+        if (std::strcmp(role, each.name) == 0)
+            return each.value;
 
     throw std::invalid_argument{"Could not parse role"};
+}
+
+int User::Role_info::to_repr(Role role)
+{
+    return static_cast<int>(role);
+}
+
+User::Role User::Role_info::from_repr(int n, Role otherwise)
+{
+    if (n < N)
+        return static_cast<Role>(n);
+    else
+        return Role::Student;
+}
+
+std::optional<User::Role> User::Role_info::from_repr(int n)
+{
+    if (n < N)
+        return std::make_optional(static_cast<Role>(n));
+    else
+        return std::nullopt;
 }
 

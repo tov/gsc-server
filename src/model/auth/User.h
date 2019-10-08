@@ -9,6 +9,7 @@
 #include <Wt/Json/Object.h>
 #include <Wt/WGlobal.h>
 
+#include <optional>
 #include <string>
 
 class Auth_token;
@@ -38,6 +39,21 @@ public:
         Admin,
     };
 
+    struct Role_info
+    {
+        static constexpr size_t N = 3;
+        using info_t = Enum_info<Role, N>;
+
+        static info_t const info;
+
+        static char const* show(Role);
+        static Role read(char const*);
+
+        static int to_repr(Role);
+        static Role from_repr(int, Role);
+        static std::optional<Role> from_repr(int);
+    };
+
     explicit User(const std::string& name = "",
                   Role role = Role::Student);
 
@@ -45,8 +61,8 @@ public:
 
     void set_name(const std::string& name) { name_ = name; }
 
-    Role role() const { return static_cast<Role>(role_); }
-    void set_role(Role r) { role_ = static_cast<int>(r); }
+    Role role() const { return Role_info::from_repr(role_, Role::Student); }
+    void set_role(Role r) { role_ = Role_info::to_repr(r); }
 
     const char* role_string() const { return stringify(role()); }
 
@@ -74,7 +90,7 @@ public:
 
 private:
     std::string name_;
-    int role_ = static_cast<int>(Role::Student);
+    int role_ = Role_info::to_repr(Role::Student);
 
     Submissions submissions1_;
     Submissions submissions2_;
@@ -104,11 +120,7 @@ public:
 };
 
 template <>
-struct Enum<User::Role>
-{
-    static char const* show(User::Role);
-    static User::Role read(char const*);
-};
+struct Enum<User::Role> : User::Role_info { };
 
 DBO_EXTERN_TEMPLATES(User)
 

@@ -14,6 +14,8 @@
 
 #include <Wt/WApplication.h>
 #include <Wt/WComboBox.h>
+#include <Wt/WCompositeWidget.h>
+#include <Wt/WEvent.h>
 #include <Wt/WLineEdit.h>
 #include <Wt/WMenuItem.h>
 #include <Wt/WMessageBox.h>
@@ -148,12 +150,31 @@ void Student_chooser::setFocus(bool b)
     editor_->setFocus(b);
 }
 
-class Role_chooser : public Wt::WContainerWidget
+class Role_chooser : public Wt::WCompositeWidget {
+public:
+    explicit Role_chooser(Session&,
+                          std::optional<User::Role> = std::nullopt);
+
+    using Role = User::Role;
+    using This = Role_chooser;
+
+    std::optional<Role> role();
+    void setRole(std::optional<Role>);
+
+    Wt::EventSignal<>& changed() { return combo_->changed(); }
+    Wt::EventSignal<>& enterPressed() { return combo_->enterPressed(); }
+
+private:
+    Session& session_;
+    Wt::WComboBox* combo_;
+};
+
+class Role_updater : public Wt::WContainerWidget
 {
 public:
-    Role_chooser(Session& session);
+    explicit Role_updater(Session& session);
 
-    using This = Role_chooser;
+    using This = Role_updater;
 
     virtual void setFocus(bool) override;
 
@@ -163,10 +184,39 @@ private:
 
     Session& session_;
     Wt::WLineEdit* editor_;
-    Wt::WComboBox* combo_;
+    Role_chooser* chooser_;
 };
 
-Role_chooser::Role_chooser(Session& session)
+Role_chooser::Role_chooser(Session& session, std::optional<Role> role)
+        : Wt::WCompositeWidget(std::make_unique<Wt::WComboBox>())
+        , session_(session)
+        , combo_(dynamic_cast<Wt::WComboBox*>(implementation()))
+{
+    combo_->setNoSelectionEnabled(true);
+    
+    for (auto const& each : Enum<Role>::info)
+        combo_->addItem(each.name);
+
+    setRole(role);
+}
+
+std::optional<User::Role> Role_chooser::role()
+{
+    return Enum<Role>::from_repr(combo_->currentIndex());
+}
+
+void Role_chooser::setRole(std::optional<Role> role)
+{
+    if (role) {
+        combo_->setDisabled(false);
+        combo_->setCurrentIndex(Enum<Role>::to_repr(*role));
+    } else {
+        combo_->setCurrentIndex(-1);
+        combo_->setDisabled(true);
+    }
+}
+
+Role_updater::Role_updater(Session& session)
         : session_(session)
 {
     editor_ = addNew<Wt::WLineEdit>();
@@ -176,40 +226,37 @@ Role_chooser::Role_chooser(Session& session)
     auto popup = addNew<User_suggester>(session);
     popup->forEdit(editor_);
 
-    combo_  = addNew<Wt::WComboBox>();
-    combo_->enterPressed().connect(this, &This::go);
-    combo_->changed().connect(this, &This::go);
+    chooser_ = addNew<Role_chooser>(session);
+    chooser_->enterPressed().connect(this, &This::go);
 }
 
-void Role_chooser::update()
+void Role_updater::update()
 {
-    combo_->clear();
-
     Wt::Dbo::Transaction transaction(session_);
     auto user = User::find_by_name(session_, editor_->text().toUTF8());
     transaction.commit();
 
-    if (user) {
-        // This order of items must match the order in the User::Role enum:
-        combo_->addItem("Student");
-        combo_->addItem("Grader");
-        combo_->addItem("Admin");
-        combo_->setCurrentIndex((int) user->role());
-    }
+    if (user)
+        chooser_->setRole(user->role());
+    else
+        chooser_->setRole(std::nullopt);
 }
 
-void Role_chooser::go()
+void Role_updater::go()
 {
-    // magic number must match number of User::Role enum values:
-    if (combo_->currentIndex() < 3) {
+    if (auto choice = chooser_->role()) {
         Wt::Dbo::Transaction transaction(session_);
         auto user = User::find_by_name(session_, editor_->text().toUTF8());
-        user.modify()->set_role((User::Role) combo_->currentIndex());
+        user.modify()->set_role(*choice);
         transaction.commit();
+
+        chooser_->setRole(std::nullopt);
+        editor_->setText("");
+        editor_->setFocus(true);
     }
 }
 
-void Role_chooser::setFocus(bool b)
+void Role_updater::setFocus(bool b)
 {
     editor_->setFocus(b);
 }
@@ -256,6 +303,42 @@ void SU_widget::setFocus(bool b)
     editor_->setFocus(b);
 }
 
+class New_user_widget : public Wt::WContainerWidget
+{
+public:
+    New_user_widget(Session& session);
+
+    using This = New_user_widget;
+
+    virtual void setFocus(bool) override;
+
+private:
+    Session& session_;
+    Wt::WLineEdit* editor_;
+
+    void go();
+};
+
+New_user_widget::New_user_widget(Session& session)
+        : session_(session)
+{
+    editor_ = addNew<Wt::WLineEdit>();
+    editor_->setPlaceholderText("username");
+    editor_->enterPressed().connect(this, &This::go);
+}
+
+void New_user_widget::go()
+{
+    dbo::Transaction transaction(session_);
+    session_.create_user(editor_->text().toUTF8());
+    editor_->setText("");
+}
+
+void New_user_widget::setFocus(bool b)
+{
+    editor_->setFocus(b);
+}
+
 Admin_view::Admin_view(Session& session)
         : session_(session)
 {
@@ -271,10 +354,13 @@ Admin_view::Admin_view(Session& session)
     js->set_target(table->elementAt(row, 1)->addNew<Student_chooser>(session_));
 
     auto cr = table->elementAt(++row, 0)->addNew<Accelerator_text>("Change &role:");
-    cr->set_target(table->elementAt(row, 1)->addNew<Role_chooser>(session_));
+    cr->set_target(table->elementAt(row, 1)->addNew<Role_updater>(session_));
 
     auto su = table->elementAt(++row, 0)->addNew<Accelerator_text>("S&witch users:");
     su->set_target(table->elementAt(row, 1)->addNew<SU_widget>(session_));
+
+    auto nu = table->elementAt(++row, 0)->addNew<Accelerator_text>("&New user:");
+    nu->set_target(table->elementAt(row, 1)->addNew<New_user_widget>(session_));
 
     auto gr = table->elementAt(++row, 0)->addNew<Accelerator_button>("&Grade");
     gr->clicked().connect(Navigate("/grade"));
