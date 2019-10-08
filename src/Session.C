@@ -288,9 +288,11 @@ bool Session::authenticate_from_environment()
             wt_user.isValid())
     {
         login().login(wt_user);
+        Wt::log("info") << "authed!";
         return true;
     }
 
+    Wt::log("info") << "didn't auth?";
     return false;
 }
 
