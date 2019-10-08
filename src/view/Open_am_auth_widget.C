@@ -34,7 +34,7 @@ std::string const LOGIN_URL_BASE {
 };
 
 std::string const BASE_URL {
-        "https://cs124.cs.northwestern.edu/"
+        "https://cs214.cs.northwestern.edu/"
 };
 
 void redirect_login()
