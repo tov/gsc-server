@@ -21,5 +21,5 @@ build_dir=build.$1
 shift
 
 cmake -S . -B $build_dir -DCMAKE_BUILD_TYPE=$cmake_type
-
 cmake --build $build_dir --target "$@" -- -j 4
+chmod -R a+rX $build_dir
