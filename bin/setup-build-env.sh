@@ -10,8 +10,8 @@ case "$(hostname)" in
     stewie)
         CC=clang-8
         CXX=clang++-8
-        CXXFLAGS=-stdlib=libc++
-        LDFLAGS=-lc++abi
+        CXXFLAGS=-stdlib=libstdc++
+        LDFLAGS="-lstdc++ -lstdc++fs"
         ;;
 esac
 
