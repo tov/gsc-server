@@ -22,7 +22,10 @@
 #include <Wt/WTable.h>
 #include <Wt/WTemplate.h>
 
+#ifdef GSC_USE_FILESYSTEM
 #include <filesystem>
+#endif // GSC_USE_FILESYSTEM
+
 #include <fstream>
 #include <sstream>
 #include <streambuf>
@@ -177,8 +180,16 @@ void File_uploader::uploaded_()
 
     for (auto& file : upload_->uploadedFiles()) {
         std::ifstream spool(file.spoolFileName());
-        std::filesystem::path filepath(file.clientFileName());
+
+        std::string const& client_file_name = file.clientFileName();
+#ifdef GSC_USE_FILESYSTEM
+        std::filesystem::path filepath(client_file_name);
         std::string filename = filepath.filename().string();
+#else // GSC_USE_FILESYSTEM
+        size_t slash_pos = client_file_name.rfind('/');
+        size_t start_pos = slash_pos == std::string::npos ? 0 : slash_pos + 1;
+        std::string filename = client_file_name.substr(start_pos);
+#endif // GSC_USE_FILESYSTEM
 
         spool.seekg(0, std::ios::end);
         int file_size = spool.tellg();
