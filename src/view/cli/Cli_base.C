@@ -10,6 +10,11 @@ namespace dbo = Wt::Dbo;
 
 namespace cli {
 
+Cli_base::Cli_base()
+{
+    Db_session::configure_auth();
+}
+
 dbo::ptr<Auth_info> Cli_base::find_user(std::string const& username)
 {
     if (auto user = session_.find_by_login<Auth_info>(username))

@@ -23,6 +23,9 @@ private:
 
 class Cli_base
 {
+public:
+    Cli_base();
+
 protected:
     Db_session& session() { return session_; }
 
