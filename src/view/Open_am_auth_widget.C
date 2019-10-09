@@ -1,5 +1,6 @@
 #include "Open_am_auth_widget.h"
 #include "../Session.h"
+#include "../Navigate.h"
 
 #include <Wt/Dbo/Transaction.h>
 #include <Wt/Utils.h>
@@ -17,63 +18,51 @@ namespace dbo = Wt::Dbo;
 
 namespace {
 
-WString const LOGGED_IN_TEMPLATE {
-        "<p>Logged in as <strong>${name}</strong> | ${logout}</p>"
-};
-
-WString const LOGGED_OUT_TEMPLATE {
-        "<p>Not logged in | ${login}</p>"
-};
-
-std::string const LOGOUT_URL {
-        "https://websso.it.northwestern.edu/amserver/UI/Logout"
-};
-
-std::string const LOGIN_URL_BASE {
-        "https://websso.it.northwestern.edu/amserver/UI/Logout"
-};
-
 std::string const BASE_URL {
         "https://cs214.cs.northwestern.edu/"
 };
 
-void redirect_login()
+char const* const LOGOUT_URL =
+        "https://websso.it.northwestern.edu/amserver/UI/Logout";
+char const* const LOGIN_URL_BASE =
+        "https://websso.it.northwestern.edu/amserver/UI/Login";
+
+Navigate const redirect_logout { LOGOUT_URL, true };
+
+Navigate redirect_login()
 {
-    auto app = WApplication::instance();
     auto buf = std::ostringstream();
-
     buf << LOGIN_URL_BASE << "?goto=";
-    buf << Utils::urlEncode(BASE_URL + app->bookmarkUrl());
-
-    app->redirect(buf.str());
+    buf << Utils::urlEncode(BASE_URL);
+    buf << Utils::urlEncode(WApplication::instance()->bookmarkUrl());
+    return Navigate(buf.str(), true);
 }
 
 }
 
 void Open_am_auth_widget::reload()
 {
-    clear();
+    impl_->clear();
 
     dbo::Transaction transaction(session_);
 
     if (session_.authenticate_from_environment()) {
-        auto div = addNew<WTemplate>(LOGGED_IN_TEMPLATE);
-        div->bindNew<WText>("name", session_.user_name());
-        div->bindNew<WPushButton>("logout", "Logout")->clicked().connect([&]() {
-            WApplication::instance()->redirect(LOGOUT_URL);
-        });
+        impl_->setTemplateText(tr("Wt.Auth.template.logged-in"));
+        impl_->bindString("user-name", session_.user_name());
+        impl_->bindNew<WPushButton>("logout", "Logout")
+                ->clicked().connect(redirect_logout);
     } else {
-        auto div = addNew<WTemplate>(LOGGED_OUT_TEMPLATE);
-        div->bindNew<WPushButton>("login", "Login")->clicked().connect([&]() {
-            redirect_login();
-        });
+        impl_->setTemplateText(tr("Wt.Auth.template.not-logged-in"));
+        impl_->bindNew<WPushButton>("login", "Login")
+                ->clicked().connect(redirect_login());
     }
 }
 
 Open_am_auth_widget::Open_am_auth_widget(Session& session)
-        : session_{session}
+        : WCompositeWidget{std::make_unique<WTemplate>()}
+        , impl_{dynamic_cast<WTemplate*>(implementation())}
+        , session_{session}
 {
-    setStyleClass("Wt-auth-logged-in");
     reload();
 }
 

@@ -33,7 +33,6 @@ Main_view::Main_view(Session& session)
 #if defined(GSC_AUTH_OPEN_AM)
     addNew<Open_am_auth_widget>(session_);
 #elif defined(GSC_AUTH_PASSWORD)
-
     auto authModel = std::make_unique<Auth::AuthModel>(
             Session::auth(), session_.users());
     authModel->addPasswordAuth(&Session::passwordAuth());

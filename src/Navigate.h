@@ -5,22 +5,29 @@
 class Navigate
 {
 public:
-    Navigate(const std::string& uri) : uri_(uri) {}
-    Navigate(const std::string&& uri) : uri_(std::move(uri)) {}
+    explicit Navigate(std::string uri, bool external = false)
+            : uri_(std::move(uri))
+            , external_(external)
+    { }
 
-    static void to(const std::string& uri)
+    static void to(const std::string& uri, bool external = false)
     {
-        Wt::WApplication::instance()->setInternalPath(uri, true);
+        if (external) {
+            Wt::WApplication::instance()->redirect(uri);
+        } else {
+            Wt::WApplication::instance()->setInternalPath(uri, true);
+        }
     }
 
     template<typename... T>
     void operator()(T&&...)
     {
-        to(uri_);
+        to(uri_, external_);
     }
 
 private:
     std::string uri_;
+    bool external_;
 };
 
 template <>
