@@ -3,6 +3,7 @@
 #include <Wt/Http/Request.h>
 #include <Wt/Json/Value.h>
 
+#include <functional>
 #include <istream>
 #include <string>
 
@@ -14,7 +15,7 @@ class Request_body
 {
 public:
     explicit Request_body(Wt::Http::Request const& request)
-            : in_{&request.in()}, size_{request.contentLength()} {}
+            : in_{request.in()}, size_{request.contentLength()} {}
 
     int size() const { return size_; };
 
@@ -23,7 +24,7 @@ public:
     Wt::Json::Value read_json() &&;
 
 private:
-    std::istream* in_;
+    std::reference_wrapper<std::istream> in_;
     int size_;
 };
 

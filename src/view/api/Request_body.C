@@ -20,11 +20,8 @@ Wt::Json::Value Request_body::read_json()&&
 
 Bytes Request_body::read_bytes() &&
 {
-    Bytes result{*in_, size_};
-
-    in_ = nullptr;
+    Bytes result{in_, size_};
     size_ = 0;
-
     return result;
 }
 
@@ -32,9 +29,8 @@ std::string Request_body::read_string()&&
 {
     std::string result;
     result.reserve(size_);
-    result.assign(std::istreambuf_iterator<char>(*in_), {});
+    result.assign(std::istreambuf_iterator<char>(in_), {});
 
-    in_ = nullptr;
     size_ = 0;
 
     return result;
