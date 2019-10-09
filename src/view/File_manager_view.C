@@ -107,7 +107,7 @@ Date_list::Date_list(const Wt::Dbo::ptr<Submission>& submission)
     setStyleClass("date-list");
 
     elementAt(0, 0)->addNew<Wt::WText>("Code due:");
-    elementAt(1, 0)->addNew<Wt::WText>("Eval due:");
+    elementAt(1, 0)->addNew<Wt::WText>("Self-eval due:");
     elementAt(2, 0)->addNew<Wt::WText>("Last modified:");
 
     due_date_ = elementAt(0, 1)->addNew<Wt::WText>();
