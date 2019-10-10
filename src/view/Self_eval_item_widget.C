@@ -31,9 +31,7 @@ Self_eval_item_widget::Self_eval_item_widget(const Submission::Item& model, Eval
         save_button_->clicked().connect(this,
                                         &Self_eval_item_widget::back_action_);
     } else {
-        auto label = model.eval_item->type() == Eval_item::Type::Informational
-                     ? "Continue"
-                     : "Save";
+        auto label = model.eval_item->is_informational()? "Continue" : "Save";
         save_button_ = buttons->addNew<Wt::WPushButton>(label);
         save_button_->clicked().connect(this,
                                         &Self_eval_item_widget::save_action_);

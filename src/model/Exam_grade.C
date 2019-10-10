@@ -1,6 +1,7 @@
 #include "Exam_grade.h"
 #include "Eval_item.h"
 #include "auth/User.h"
+#include "../common/format.h"
 
 namespace J = Wt::Json;
 
@@ -28,7 +29,7 @@ double Exam_grade::grade() const
 std::string Exam_grade::pct_string() const
 {
     if (possible() == 0) return "N/A";
-    return Eval_item::pct_string(grade(), 3);
+    return ::pct_string(grade(), 3);
 }
 
 J::Object Exam_grade::to_json() const

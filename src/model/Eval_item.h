@@ -43,15 +43,15 @@ public:
     void set_prompt(const std::string& p) { prompt_ = p; }
     void set_relative_value(double d) { relative_value_ = d; }
 
-    std::string relative_value_str() const;
+    std::string relative_value_str(int precision = 3) const;
     void set_relative_value(const std::string&);
 
     double absolute_value() const;
-    std::string absolute_value_str() const;
+    std::string absolute_value_str(int precision = 3) const;
 
     std::string format_score(double) const;
 
-    static std::string pct_string(double, int precision = 2);
+    bool is_informational() const;
 
     std::string rest_uri(dbo::ptr<Submission> const& as_part_of) const;
     Wt::Json::Object to_json(Wt::Dbo::ptr<Submission> const& as_part_of,

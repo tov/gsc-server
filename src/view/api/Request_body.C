@@ -1,18 +1,19 @@
 #include "Request_body.h"
 #include "Http_status.h"
 #include "../../model/File_data.h"
+#include "../../common/util.h"
 
 #include <Wt/Json/Parser.h>
 
 namespace api {
 
-Wt::Json::Value Request_body::read_json()&&
+J::Value Request_body::read_json()&&
 {
-    std::string buffer{std::move(*this).read_string()};
-    Wt::Json::ParseError error;
-    Wt::Json::Value result;
+    string buffer{move(*this).read_string()};
+    J::ParseError error;
+    J::Value result;
 
-    if (Wt::Json::parse(buffer, result, error))
+    if (J::parse(buffer, result, error))
         return result;
 
     throw Http_status{400, "Request body expected to be JSON"};
@@ -25,11 +26,11 @@ Bytes Request_body::read_bytes() &&
     return result;
 }
 
-std::string Request_body::read_string()&&
+string Request_body::read_string()&&
 {
-    std::string result;
+    string result;
     result.reserve(size_);
-    result.assign(std::istreambuf_iterator<char>(in_), {});
+    result.assign(istreambuf_iterator<char>(in_), {});
 
     size_ = 0;
 

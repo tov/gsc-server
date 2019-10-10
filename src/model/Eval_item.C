@@ -3,6 +3,7 @@
 #include "Grader_eval.h"
 #include "Self_eval.h"
 #include "Submission.h"
+#include "../common/format.h"
 #include "../common/paths.h"
 
 #include <Wt/Dbo/Impl.h>
@@ -22,10 +23,10 @@ Eval_item::Eval_item(const dbo::ptr<Assignment>& assignment, int sequence)
 
 }
 
-std::string Eval_item::relative_value_str() const
+std::string Eval_item::relative_value_str(int precision) const
 {
     std::ostringstream os;
-    os << std::setprecision(3) << relative_value_;
+    os << std::setprecision(precision) << relative_value_;
     return os.str();
 }
 
@@ -47,14 +48,9 @@ std::string Eval_item::format_score(double score) const
     return pct_string(score);
 }
 
-std::string Eval_item::pct_string(double ratio, int precision)
+bool Eval_item::is_informational() const
 {
-    if (ratio == 1.0) return "100%";
-    if (ratio < 0.0001) return "0%";
-
-    std::ostringstream fmt;
-    fmt << std::setprecision(precision) << 100 * ratio << '%';
-    return fmt.str();
+    return type() == Type::Informational;
 }
 
 double Eval_item::absolute_value() const
@@ -63,9 +59,9 @@ double Eval_item::absolute_value() const
     return denominator == 0 ? 0 : relative_value() / denominator;
 }
 
-std::string Eval_item::absolute_value_str() const
+std::string Eval_item::absolute_value_str(int precision) const
 {
-    return pct_string(absolute_value(), 3);
+    return pct_string(absolute_value(), precision);
 }
 
 std::string Eval_item::rest_uri(dbo::ptr<Submission> const& as_part_of) const

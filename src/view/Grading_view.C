@@ -7,6 +7,7 @@
 #include "../model/Eval_item.h"
 #include "../model/Grader_eval.h"
 #include "../model/Assignment.h"
+#include "../common/format.h"
 #include "../Session.h"
 
 #include <Wt/Dbo/ptr.h>
@@ -260,7 +261,7 @@ Grading_view::Grading_view(const Wt::Dbo::ptr<Self_eval> self_eval, Session& ses
             break;
         case Grader_eval::Status::ready:
             status += "saved (";
-            status += Eval_item::pct_string(grader_eval->score());
+            status += pct_string(grader_eval->score());
             status += ")";
             break;
     }

@@ -355,11 +355,7 @@ double Submission::point_value() const
 {
     if (is_loaded_) return point_value_;
 
-    return session()->query<double>(
-            "SELECT SUM(relative_value)"
-            "  FROM eval_item"
-            " WHERE assignment_number = ?"
-    ).bind(assignment()->number()).resultValue();
+    return assignment()->total_relative_value();
 }
 
 bool Submission::is_evaluated() const
@@ -444,7 +440,7 @@ std::string Submission::owner_string() const
 
 std::string Submission::grade_string() const
 {
-    return Eval_item::pct_string(grade(), 3);
+    return pct_string(grade(), 3);
 }
 
 bool Submission::join_together(dbo::ptr<Submission> keep,
