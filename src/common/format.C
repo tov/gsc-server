@@ -75,7 +75,9 @@ std::locale make_comma_locale(std::locale const& old)
 
 percentage::operator std::string() const
 {
-    return (std::ostringstream() << *this).str();
+    std::ostringstream oss;
+    oss << *this;
+    return oss.str();
 }
 
 percentage::operator Wt::WString() const
