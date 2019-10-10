@@ -61,6 +61,7 @@ dbo::ptr<User> Request_handler::authenticate() const
 {
     dbo::ptr<User> user;
 
+    if ((user = authenticate_by_api_key_())) return user;
     if ((user = authenticate_by_cookie_())) return user;
     if ((user = authenticate_by_open_am_())) return user;
     if ((user = authenticate_by_password_())) return user;
@@ -75,6 +76,7 @@ std::unique_ptr<resources::Resource> Request_handler::parse_uri() const
 }
 
 static std::string const cookie_name = "gsc_cookie";
+static std::string const api_key_name = "gsc_api_key";
 
 void
 Request_handler::set_cookie_(std::string const& value, int ttl_seconds) const
@@ -106,6 +108,16 @@ void Request_handler::check_password_strength(Credentials const& cred)
     Http_error{403}
             << "Please try a stronger password ("
             << psv_result.message() << ")";
+}
+
+dbo::ptr<User> Request_handler::authenticate_by_api_key_() const
+{
+#ifdef GSC_AUTH_API_KEY
+    if (auto* cookie_val = request_.getCookieValue(api_key_name))
+        return session_.find_by_identity<User>("apikey", *cookie_val);
+#endif // GSC_AUTH_API_KEY
+
+    return nullptr;
 }
 
 dbo::ptr<User> Request_handler::authenticate_by_cookie_() const

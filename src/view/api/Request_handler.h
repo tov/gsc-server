@@ -30,6 +30,7 @@ public:
     static void check_password_strength(Credentials const& cred);
 
 private:
+    dbo::ptr<User> authenticate_by_api_key_() const;
     dbo::ptr<User> authenticate_by_cookie_() const;
     dbo::ptr<User> authenticate_by_password_() const;
     dbo::ptr<User> authenticate_by_open_am_() const;
