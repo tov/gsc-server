@@ -39,6 +39,8 @@ void Evaluation_view::load_()
 
 void Evaluation_view::go_to(unsigned int index)
 {
+    dbo::Transaction transaction(session_);
+
     std::ostringstream eval_url;
     eval_url << submission_->eval_url();
     eval_url << '/' << index;

@@ -59,8 +59,6 @@ Eval_item_vec Assignment::eval_item_vec() const {
 
 double Assignment::total_relative_value() const
 {
-    Wt::Dbo::Transaction trans(*eval_items_.session());
-
     return eval_items_.session()->query<double>(
             "SELECT SUM(relative_value)"
             "  FROM eval_item"
