@@ -440,7 +440,7 @@ std::string Submission::owner_string() const
 
 std::string Submission::grade_string() const
 {
-    return pct_string(grade(), 3);
+    return percentage(grade());
 }
 
 bool Submission::join_together(dbo::ptr<Submission> keep,

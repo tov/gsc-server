@@ -29,7 +29,7 @@ double Exam_grade::grade() const
 std::string Exam_grade::pct_string() const
 {
     if (possible() == 0) return "N/A";
-    return ::pct_string(grade(), 3);
+    return percentage(grade());
 }
 
 J::Object Exam_grade::to_json() const

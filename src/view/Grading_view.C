@@ -261,7 +261,7 @@ Grading_view::Grading_view(const Wt::Dbo::ptr<Self_eval> self_eval, Session& ses
             break;
         case Grader_eval::Status::ready:
             status += "saved (";
-            status += pct_string(grader_eval->score());
+            status += percentage(grader_eval->score());
             status += ")";
             break;
     }

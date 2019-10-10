@@ -8,6 +8,10 @@
 #define HTTP_DATE_FMT "ddd, d MMM yyyy hh:mm:ss 'GMT'"
 #define JSON_DATE_FMT "yyyy-MM-dd'T'hh:mm:ss.zzzZ"
 
+double clean_grade(double grade) {
+    return grade < 0.001? 0 : grade;
+}
+
 void set_time_zone(Wt::WLocale& locale)
 {
     auto time_zone = date::locate_zone(CLIENT_TIME_ZONE);
@@ -25,16 +29,34 @@ Wt::WString json_format(Wt::WDateTime const& datetime)
     return local.toString(JSON_DATE_FMT);
 }
 
-std::string pct_string(double ratio, int precision)
-{
-    if (ratio == 1.0) return "100%";
-    if (ratio < 0.0001) return "0%";
-    if (std::isnan(ratio)) return "—";
+using Precision_guard = Basic_guard<
+        std::ios_base,
+        std::streamsize,
+        std::streamsize,
+        &std::ios_base::precision
+>;
 
-    std::ostringstream fmt;
-    fmt << std::setprecision(precision) << 100 * ratio << '%';
-    return fmt.str();
+std::ostream& percentage::format(std::ostream& o, double ratio, int precision)
+{
+    if (ratio == 1.0) return o << "100%";
+    if (ratio < 0.0001) return o << "0%";
+    if (std::isnan(ratio)) return o << "—";
+
+    Precision_guard guard{o, precision};
+    return o << 100 * ratio << '%';
 }
+
+std::ostream& operator<<(std::ostream& o, percentage pct)
+{
+    return percentage::format(o, pct.value, pct.precision);
+}
+
+class comma_numpunct : public std::numpunct<char>
+{
+protected:
+    char do_thousands_sep() const override;
+    std::string do_grouping() const override;
+};
 
 char comma_numpunct::do_thousands_sep() const
 {
@@ -46,6 +68,17 @@ std::string comma_numpunct::do_grouping() const
     return "\003";
 }
 
-double clean_grade(double grade) {
-    return grade < 0.001? 0 : grade;
+std::locale make_comma_locale(std::locale const& old)
+{
+    return std::locale{old, new comma_numpunct};
+}
+
+percentage::operator std::string() const
+{
+    return (std::ostringstream() << *this).str();
+}
+
+percentage::operator Wt::WString() const
+{
+    return operator std::string();
 }

@@ -45,7 +45,7 @@ std::string Eval_item::format_score(double score) const
     if (type() == Type::Informational && relative_value() == 0)
         return "Okay";
 
-    return pct_string(score);
+    return percentage(score);
 }
 
 bool Eval_item::is_informational() const
@@ -61,7 +61,7 @@ double Eval_item::absolute_value() const
 
 std::string Eval_item::absolute_value_str(int precision) const
 {
-    return pct_string(absolute_value(), precision);
+    return percentage(absolute_value(), precision);
 }
 
 std::string Eval_item::rest_uri(dbo::ptr<Submission> const& as_part_of) const

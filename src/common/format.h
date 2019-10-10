@@ -1,5 +1,7 @@
 #pragma once
 
+#include "guard.h"
+
 #include <Wt/WDateTime.h>
 #include <Wt/WLocalDateTime.h>
 #include <Wt/WLocale.h>
@@ -19,64 +21,95 @@ Wt::WString http_format(Wt::WDateTime const& datetime);
 
 Wt::WString json_format(Wt::WDateTime const& datetime);
 
-std::string pct_string(double ratio, int precision = 3);
+///
+/// Percentages
+///
 
-class comma_numpunct : public std::numpunct<char>
+struct percentage
 {
-protected:
-    char do_thousands_sep() const override;
-    std::string do_grouping() const override;
-};
+    static int constexpr default_precision = 3;
 
-template <class T>
-class with_commas
-{
-public:
-    explicit with_commas(T const& value) : ptr_(&value) { }
-
-    std::ostream& format(std::ostream&) const;
+    explicit percentage(double value, int precision = default_precision)
+            : value(value), precision(precision)
+    { }
 
     operator std::string() const;
     operator Wt::WString() const;
 
-private:
-    T const* ptr_;
+    static std::ostream&
+    format(std::ostream&, double ratio, int precision = default_precision);
+
+    double value;
+    int precision;
 };
+
+std::ostream& operator<<(std::ostream&, percentage);
+
+///
+/// Thousands commas
+///
+
+using Imbue_guard = Basic_guard<
+        std::ios_base,
+        std::locale,
+        std::locale const&,
+        &std::ios_base::imbue
+>;
+
+std::locale make_comma_locale(std::locale const& old = std::locale());
+
+template <typename T>
+struct with_commas
+{
+    explicit with_commas(T const& value) : ptr(&value) { }
+
+    operator std::string() const;
+    operator Wt::WString() const;
+
+    static std::ostream&
+    format(std::ostream&, T const&);
+
+    T const* ptr;
+};
+
+template <typename T>
+std::ostream& format_with_commas(std::ostream& o, T const& value)
+{
+    return with_commas<T>::format(o, value);
+}
 
 template<typename T>
 with_commas(T const&) -> with_commas<T>;
 
-template <class T>
-std::ostream& operator<<(std::ostream& o, with_commas<T> wc)
+template <typename T>
+std::ostream& with_commas<T>::format(std::ostream& o, T const& value)
 {
-    return wc.format(o);
-}
-
-template <class T>
-std::ostream& with_commas<T>::format(std::ostream& o) const
-{
-    std::locale old_locale = o.getloc();
-    std::locale new_locale(old_locale, new comma_numpunct);
-    o.imbue(new_locale);
-    o << ptr_;
-    o.imbue(old_locale);
+    Imbue_guard guard{o, make_comma_locale(o.getloc())};
+    o << value;
     return o;
 }
 
-template <class T>
+template <typename T>
+std::ostream& operator<<(std::ostream& o, with_commas<T> wc)
+{
+    return with_commas<T>::format(o, *wc.ptr);
+}
+
+template <typename T>
 with_commas<T>::operator std::string() const
 {
-    static std::locale comma_locale(std::locale(), new comma_numpunct);
+    static std::locale const comma_locale = make_comma_locale();
 
     std::ostringstream o;
     o.imbue(comma_locale);
-    o << *ptr_;
+    o << *ptr;
     return o.str();
 }
 
-template <class T>
+template <typename T>
 with_commas<T>::operator Wt::WString() const
 {
     return operator std::string();
 }
+
 
