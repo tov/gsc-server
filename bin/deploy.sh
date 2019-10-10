@@ -4,13 +4,9 @@ cd "$(dirname $0)"/..
 
 for_dirs_upward () (
     local dir
-    dir=$1; shift
+    dir=$(cd "$1"; pwd); shift
 
-    dir=$(cd "$dir"; pwd)
-
-    while true; do
-        "$@" "$dir" || break
-        test "$dir" = / && break
+    while "$@" "$dir" && [ "$dir" != / ]; do
         dir=$(dirname "$dir")
     done
 )
@@ -19,8 +15,8 @@ publish_dirs () {
     local dir
 
     for dir; do
-        find "$dir" | xargs chmod -f a+rX
-        for_dirs_upward "$dir" chmod -f a+x
+        sudo chmod -R a+rX "$dir"
+        for_dirs_upward "$dir" sudo chmod -f a+x
     done
 }
 
