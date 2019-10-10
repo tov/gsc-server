@@ -27,7 +27,10 @@ std::string Param::lookup(Wt::WEnvironment const& env) const
 
 std::optional<std::string> env_remote_user()
 {
-    auto const& env = Wt::WApplication::instance()->environment();
+    auto app = Wt::WApplication::instance();
+    if (!app) return {};
+
+    auto const& env = app->environment();
 
 #ifdef GSC_AUTH_DEBUG
     if (auto whoami = env.getParameter("whoami"))
