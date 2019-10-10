@@ -24,6 +24,8 @@ publish_dirs () {
     done
 }
 
+set -e
+
 # Require password up front
 sudo true
 
