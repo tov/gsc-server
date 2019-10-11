@@ -8,8 +8,10 @@
 #define HTTP_DATE_FMT "ddd, d MMM yyyy hh:mm:ss 'GMT'"
 #define JSON_DATE_FMT "yyyy-MM-dd'T'hh:mm:ss.zzzZ"
 
+double constexpr grade_epsilon = 1E-3;
+
 double clean_grade(double grade) {
-    return grade < 0.001? 0 : grade;
+    return (std::isnan(grade) || grade < grade_epsilon) ? 0 : grade;
 }
 
 void set_time_zone(Wt::WLocale& locale)
@@ -39,7 +41,7 @@ using Precision_guard = Basic_guard<
 std::ostream& percentage::format(std::ostream& o, double ratio, int precision)
 {
     if (ratio == 1.0) return o << "100%";
-    if (ratio < 0.0001) return o << "0%";
+    if (ratio < grade_epsilon) return o << "0%";
     if (std::isnan(ratio)) return o << "—";
 
     Precision_guard guard{o, precision};
