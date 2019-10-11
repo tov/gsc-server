@@ -23,6 +23,7 @@
 #include <Wt/WWidget.h>
 
 #include <cstdlib>
+#include <sstream>
 #include <stdexcept>
 #include <string>
 
@@ -101,6 +102,8 @@ namespace Path {
 using namespace std;
 
 static const regex hw_N("/hw/(\\d+)");
+static const regex hw_N_eval("/hw/(\\d+)/eval");
+static const regex hw_N_eval_M("/hw/(\\d+)/eval/(\\d+)");
 static const regex grade_N("/grade/([[:alnum:]]+)");
 static const regex user("/~([^/]+)");
 static const regex user_hw("/~([^/]+)/hw");
@@ -168,6 +171,12 @@ void Application_controller::handle_internal_path(
 
         auto current_user = session_.user();
 
+        auto add_tilde_user = [&]() {
+            std::ostringstream url;
+            url << "~" << current_user->name() << internal_path;
+            setInternalPath(url.str(), true);
+        };
+
         if (false)
         { }
 
@@ -176,6 +185,9 @@ void Application_controller::handle_internal_path(
             transaction.commit();
             switch (current_user->role()) {
                 case User::Role::Student:
+                    add_tilde_user();
+                    break;
+
                 case User::Role::Grader:
                     permission_denied("There's nothing for you here.");
                     break;
@@ -248,7 +260,7 @@ void Application_controller::handle_internal_path(
             set_title(Title::user_hw(user));
             set_new_widget<Submissions_view>(user, session_);
 
-        // ~:user/hw/:n
+            // /~:user/hw/:n
         } else if (std::regex_match(internal_path, sm, Path::user_hw_N)) {
             auto assignment = find_assignment(&*sm[2].first);
             auto user = find_user(sm[1], current_user);
@@ -261,7 +273,7 @@ void Application_controller::handle_internal_path(
             set_title(Title::user_hw_N(submission));
             set_new_widget<File_manager_view>(submission, session_);
 
-            // ~:user/hw/:n/eval
+            // /~:user/hw/:n/eval
         } else if (std::regex_match(internal_path, sm, Path::user_hw_N_eval)) {
             auto assignment = find_assignment(&*sm[2].first);
             auto user = find_user(sm[1], current_user);
@@ -276,7 +288,7 @@ void Application_controller::handle_internal_path(
             set_title(Title::user_hw_N_eval(submission));
             set_widget(std::move(view));
 
-            // ~:user/hw/:n/eval/:m
+            // /~:user/hw/:n/eval/:m
         } else if (std::regex_match(internal_path, sm,
                                     Path::user_hw_N_eval_M))
         {
@@ -308,13 +320,21 @@ void Application_controller::handle_internal_path(
 
             // /hw/:n
         } else if (std::regex_match(internal_path, sm, Path::hw_N)) {
-            if (!current_user->can_admin()) permission_denied();
+            if (current_user->can_admin()) {
+                auto assignment = find_assignment(&*sm[1].first);
+                set_title("Edit " + assignment->name());
+                set_new_widget<Edit_assignment_view>(assignment, session_);
+            } else {
+                add_tilde_user();
+            }
 
-            auto assignment = find_assignment(&*sm[1].first);
-            transaction.commit();
+            // /hw/:n/eval
+        } else if (std::regex_match(internal_path, sm, Path::hw_N_eval)) {
+            add_tilde_user();
 
-            set_title("Edit " + assignment->name());
-            set_new_widget<Edit_assignment_view>(assignment, session_);
+            // /hw/:n/eval/:m
+        } else if (std::regex_match(internal_path, sm, Path::hw_N_eval_M)) {
+            add_tilde_user();
 
             // /admin
         } else if (internal_path == Path::admin) {
