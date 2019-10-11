@@ -1,17 +1,17 @@
 #include "User_suggester.h"
 #include "../Session.h"
 
-const Wt::WSuggestionPopup::Options User_suggester::options = {
+static Wt::WSuggestionPopup::Options const popup_options = {
         "<b>",         // highlightBeginTag
         "</b>",        // highlightEndTag
-        ',',           // listSeparator      (for multiple addresses)
+        '\0',          // listSeparator      (for multiple addresses)
         " ",           // whitespace
-        "-., \"@;",    // wordSeparators     (within an address)
+        "",            // wordSeparators     (within an address)
         ""             // appendReplacedText (prepare next email address)
 };
 
 User_suggester::User_suggester(Session& session, User::Role role)
-        : WSuggestionPopup(options)
+        : WSuggestionPopup(popup_options)
 {
     Wt::Dbo::Transaction transaction(session);
 
@@ -23,7 +23,7 @@ User_suggester::User_suggester(Session& session, User::Role role)
 }
 
 User_suggester::User_suggester(Session& session)
-        : WSuggestionPopup(options)
+        : WSuggestionPopup(popup_options)
 {
     Wt::Dbo::Transaction transaction(session);
 
