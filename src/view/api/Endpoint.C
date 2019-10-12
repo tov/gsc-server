@@ -33,9 +33,12 @@ void Endpoint::handleRequest(const Wt::Http::Request& request,
         resources::Resource::Context context{session, current_user};
         resource->load(context);
         resource->process(request, context);
-
     } catch (const Http_status& status) {
         status.respond(response);
+        return;
+    } catch (std::exception& e) {
+        // TODO: Make this say more?
+        Http_status(500, e.what()).respond(response);
         return;
     }
 
