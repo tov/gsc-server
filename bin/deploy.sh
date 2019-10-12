@@ -22,16 +22,24 @@ publish_dirs () {
 
 set -e
 
+if [ "$1" = "-d" ]; then
+    build_type=debug
+else
+    build_type=release
+fi
+
 # Require password up front
 sudo true
 
-bin/build.sh release gscd-fcgi gsc-auth
+echo >&2 Not building gsc-auth today
+bin/build.sh $build_type gscd-fcgi
 
 publish_dirs server_root 3rdparty/wt/resources
 
 sudo install -v -o gsc -m 4555 \
-    build.release/gscd-fcgi server_root/gscd.fcgi
-sudo install -v -o gsc -m 4555 \
-    build.release/gsc-auth server_root/gsc-auth
+    build.debug/gscd-fcgi server_root/gscd.fcgi
+echo >&2 Not installing gsc-auth today
+# sudo install -v -o gsc -m 4555 \
+#     build.debug/gsc-auth server_root/gsc-auth
 
 sudo service apache2 restart
