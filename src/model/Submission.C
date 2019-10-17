@@ -17,7 +17,8 @@
 #include <locale>
 #include <sstream>
 
-namespace J = Wt::Json;
+namespace dbo = Wt::Dbo;
+namespace J   = Wt::Json;
 
 DBO_INSTANTIATE_TEMPLATES(Submission)
 

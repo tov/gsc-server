@@ -19,14 +19,21 @@ namespace J = Wt::Json;
 
 DBO_INSTANTIATE_TEMPLATES(Self_eval)
 
+static double default_score(Eval_item::Type type)
+{
+    if (type == Eval_item::Type::Boolean)
+        return 0;
+    else
+        return 1;
+}
+
 Self_eval::Self_eval(const dbo::ptr<Eval_item>& eval_item,
                      const dbo::ptr<Submission>& submission)
-        : eval_item_(eval_item),
+        : Abstract_evaluation(default_score(eval_item->type())),
+          eval_item_(eval_item),
           submission_(submission),
           permalink_(create_permalink(permalink_size))
-{
-
-}
+{ }
 
 std::string Self_eval::eval_url() const
 {
@@ -126,11 +133,11 @@ std::string Self_eval::rest_uri() const {
 }
 
 J::Object Self_eval::to_json() const {
-    J::Object result;
+    J::Object result = Abstract_evaluation::to_json();
+
     result["uri"]               = J::Value(rest_uri());
-    result["score"]             = J::Value(clean_grade(score()));
-    result["explanation"]       = J::Value(explanation());
     result["permalink"]         = J::Value(permalink());
+
     return result;
 }
 

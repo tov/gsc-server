@@ -2,6 +2,7 @@
 
 #include <string>
 
+#include <Wt/Json/Object.h>
 #include <Wt/WDateTime.h>
 #include <Wt/Dbo/Field.h>
 #include <Wt/Dbo/ptr.h>
@@ -17,6 +18,10 @@ class Submission;
 class Abstract_evaluation
 {
 public:
+    explicit Abstract_evaluation(double score = 0)
+        : score_(normalize_score(score))
+    { }
+
     const std::string& explanation() const { return explanation_; }
     virtual void set_explanation(const std::string&);
 
@@ -32,10 +37,14 @@ public:
     const dbo::ptr<Assignment>& assignment() const;
     virtual std::string score_string() const;
 
+    Wt::Json::Object to_json() const;
+
     virtual ~Abstract_evaluation() = default;
 
 protected:
     virtual void touch_();
+
+    static double normalize_score(double score);
 
     template<typename Action>
     void persist_(Action& a)

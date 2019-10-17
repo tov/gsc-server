@@ -1,9 +1,9 @@
 #include "Grader_eval.h"
 #include "Self_eval.h"
-#include "../Session.h"
-#include "auth/User.h"
 #include "Eval_item.h"
 #include "Submission.h"
+#include "auth/User.h"
+#include "../Session.h"
 #include "../common/format.h"
 #include "../common/stringify.h"
 #include "../common/paths.h"
@@ -21,9 +21,7 @@ Grader_eval::Grader_eval(const dbo::ptr<Self_eval>& self_eval,
                          const dbo::ptr<User>& grader)
         : self_eval_(self_eval),
           grader_(grader),
-          time_stamp_(Wt::WDateTime::currentDateTime()),
-          status_(static_cast<int>(Status::editing)),
-          score_(1)
+          status_(static_cast<int>(Status::editing))
 { }
 
 dbo::ptr<Grader_eval> Grader_eval::get_for(
@@ -36,6 +34,18 @@ dbo::ptr<Grader_eval> Grader_eval::get_for(
         return result;
     else
         return session.addNew<Grader_eval>(self_eval, session.user());
+}
+
+std::string Grader_eval::score_string() const
+{
+    switch (status()) {
+        case Status::ready:
+            return Abstract_evaluation::score_string();
+        case Status::held_back:
+            return "[held back]";
+        case Status::editing:
+            return "[editing]";
+    }
 }
 
 std::string Grader_eval::owner_string(const dbo::ptr<User>& as_seen_by) const
@@ -56,18 +66,6 @@ const Wt::Dbo::ptr<Submission>& Grader_eval::submission() const
     return self_eval()->submission();
 }
 
-std::string Grader_eval::score_string() const
-{
-    switch (status()) {
-        case Status::ready:
-            return Abstract_evaluation::score_string();
-        case Status::held_back:
-            return "[held back]";
-        case Status::editing:
-            return "[editing]";
-    }
-}
-
 bool Grader_eval::can_view(dbo::ptr<User> const& user) const {
     return user->can_grade() ||
             (self_eval()->submission()->can_view(user) && status() == Status::ready);
@@ -80,12 +78,10 @@ std::string Grader_eval::rest_uri() const {
 }
 
 Wt::Json::Object Grader_eval::to_json(dbo::ptr<User> const& as_seen_by) const {
-    J::Object result;
+    J::Object result = Abstract_evaluation::to_json();
 
     result["uri"]           = J::Value(rest_uri());
     result["grader"]        = J::Value(owner_string(as_seen_by));
-    result["score"]         = J::Value(clean_grade(score()));
-    result["explanation"]   = J::Value(explanation());
     result["status"]        = J::Value(stringify(status()));
 
     return result;

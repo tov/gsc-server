@@ -37,7 +37,9 @@ public:
     const dbo::ptr<Self_eval>& self_eval() const { return self_eval_; }
     const dbo::ptr<User>& grader() const { return grader_; }
     void set_grader(const dbo::ptr<User>& grader) { grader_ = grader; }
+
     std::string score_string() const override;
+
     std::string owner_string(const dbo::ptr<User>& as_seen_by) const override;
     const Wt::Dbo::ptr<Eval_item>& eval_item() const override;
     const Wt::Dbo::ptr<Submission>& submission() const override;
@@ -53,8 +55,6 @@ public:
 private:
     dbo::ptr<Self_eval> self_eval_;
     dbo::ptr<User>      grader_;
-    double              score_;
-    Wt::WDateTime       time_stamp_;
     int                 status_;
 
 public:
