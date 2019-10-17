@@ -37,10 +37,6 @@ public:
     const dbo::ptr<Self_eval>& self_eval() const { return self_eval_; }
     const dbo::ptr<User>& grader() const { return grader_; }
     void set_grader(const dbo::ptr<User>& grader) { grader_ = grader; }
-    const std::string& explanation() const override { return content_; }
-    void set_explanation(const std::string&) override;
-    double score() const override { return score_; }
-    void set_score(double) override ;
     std::string score_string() const override;
     std::string owner_string(const dbo::ptr<User>& as_seen_by) const override;
     const Wt::Dbo::ptr<Eval_item>& eval_item() const override;
@@ -57,12 +53,9 @@ public:
 private:
     dbo::ptr<Self_eval> self_eval_;
     dbo::ptr<User>      grader_;
-    std::string         content_;
     double              score_;
     Wt::WDateTime       time_stamp_;
     int                 status_;
-
-    void touch_();
 
 public:
     template<typename Action>
@@ -70,10 +63,8 @@ public:
     {
         dbo::belongsTo(a, self_eval_, "self_eval", dbo::OnDeleteCascade);
         dbo::belongsTo(a, grader_, "grader", dbo::OnDeleteSetNull);
-        dbo::field(a, content_, "content");
-        dbo::field(a, score_, "score");
-        dbo::field(a, time_stamp_, "time_stamp");
         dbo::field(a, status_, "status");
+        Abstract_evaluation::persist_(a);
     }
 };
 

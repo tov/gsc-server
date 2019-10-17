@@ -23,7 +23,6 @@ Self_eval::Self_eval(const dbo::ptr<Eval_item>& eval_item,
                      const dbo::ptr<Submission>& submission)
         : eval_item_(eval_item),
           submission_(submission),
-          time_stamp_(Wt::WDateTime::currentDateTime()),
           permalink_(create_permalink(permalink_size))
 {
 
@@ -43,23 +42,6 @@ std::string Self_eval::eval_url() const
 std::string Self_eval::grade_url() const
 {
     return "/grade/" + permalink();
-}
-
-void Self_eval::touch_()
-{
-    time_stamp_ = Wt::WDateTime::currentDateTime();
-}
-
-void Self_eval::set_explanation(const std::string& explanation)
-{
-    explanation_ = explanation;
-    touch_();
-}
-
-void Self_eval::set_score(double score)
-{
-    score_ = std::min(1.0, std::max(0.0, score));
-    touch_();
 }
 
 dbo::ptr<Self_eval>

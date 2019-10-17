@@ -24,11 +24,6 @@ public:
 
     const dbo::ptr<Eval_item>& eval_item() const override { return eval_item_; }
     const dbo::ptr<Submission>& submission() const override { return submission_; }
-    const std::string& explanation() const override { return explanation_; }
-    double score() const override { return score_; }
-
-    void set_explanation(const std::string&) override;
-    void set_score(double) override;
 
     dbo::ptr<Grader_eval> grader_eval() const { return grader_eval_.lock(); }
     const std::string& permalink() const { return permalink_; }
@@ -53,12 +48,7 @@ private:
     dbo::ptr<Eval_item>        eval_item_;
     dbo::ptr<Submission>       submission_;
     dbo::weak_ptr<Grader_eval> grader_eval_;
-    std::string                explanation_;
-    double                     score_;
     std::string                permalink_;
-    Wt::WDateTime              time_stamp_;
-
-    void touch_();
 
 public:
     static const int permalink_size = 16;
@@ -69,10 +59,8 @@ public:
         dbo::belongsTo(a, eval_item_, "eval_item", dbo::OnDeleteCascade);
         dbo::belongsTo(a, submission_, "submission", dbo::OnDeleteCascade);
         dbo::hasOne(a, grader_eval_, "self_eval");
-        dbo::field(a, explanation_, "explanation");
-        dbo::field(a, score_, "score");
         dbo::field(a, permalink_, "permalink", permalink_size);
-        dbo::field(a, time_stamp_, "time_stamp");
+        Abstract_evaluation::persist_(a);
     }
 };
 
