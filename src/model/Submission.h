@@ -37,6 +37,8 @@ public:
 
     enum class Eval_status { empty, started, complete };
 
+    enum class Grading_status { incomplete, complete, regrade };
+
     struct Item
     {
         Wt::Dbo::ptr<Eval_item> eval_item;
@@ -68,6 +70,7 @@ public:
     double point_value() const;
     bool is_evaluated() const;
     bool is_graded() const;
+    Grading_status grading_status() const;
 
     void load_cache() const;
 
@@ -76,6 +79,9 @@ public:
     const Wt::WDateTime& open_date() const;
     const Wt::WDateTime& effective_due_date() const;
     const Wt::WDateTime& effective_eval_date() const;
+
+    bool in_submit_period() const;
+    bool in_eval_period() const;
 
     void set_user2(const Wt::Dbo::ptr<User>& user2) { user2_ = user2; }
     void set_due_date(const Wt::WDateTime& date) { due_date_ = date; }
@@ -158,7 +164,7 @@ private:
     mutable Items items_;
     mutable double point_value_;
     mutable Eval_status eval_status_;
-    mutable bool is_graded_;
+    mutable Grading_status grading_status_;
     mutable double grade_;
 
     // cached separately
@@ -178,6 +184,11 @@ public:
         Wt::Dbo::field(a, last_modified_, "last_modified");
         Wt::Dbo::field(a, bytes_quota_, "bytes_quota");
     }
+};
+
+struct Viewing_context
+{
+    Wt::Dbo::ptr<User> viewer;
 };
 
 template <>

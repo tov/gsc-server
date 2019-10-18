@@ -14,6 +14,7 @@ class Eval_item;
 class User;
 class Self_eval;
 class Submission;
+class Viewing_context;
 
 class Abstract_evaluation
 {
@@ -28,22 +29,23 @@ public:
     double score() const { return score_; }
     virtual void set_score(double);
 
-    virtual std::string owner_string(
-            const dbo::ptr<User>& as_seen_by) const = 0;
+    virtual std::string owner_string(Viewing_context const&) const = 0;
+    virtual std::string score_string(Viewing_context const&) const = 0;
 
     virtual const dbo::ptr<Eval_item>& eval_item() const = 0;
     virtual const dbo::ptr<Submission>& submission() const = 0;
 
     const dbo::ptr<Assignment>& assignment() const;
-    virtual std::string score_string() const;
 
     Wt::Json::Object to_json() const;
 
     virtual ~Abstract_evaluation() = default;
 
+
 protected:
     virtual void touch_();
 
+    virtual std::string plain_score_string() const;
     static double normalize_score(double score);
 
     template<typename Action>

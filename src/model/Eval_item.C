@@ -42,7 +42,7 @@ std::string Eval_item::format_score(double score) const
         if (score == 1) return "Yes";
     }
 
-    if (type() == Type::Informational && relative_value() == 0)
+    if (is_informational() && relative_value() == 0)
         return "Okay";
 
     return percentage(score);
@@ -88,11 +88,11 @@ J::Object Eval_item::to_json(dbo::ptr<Submission> const& as_part_of,
         auto self_eval = Submission::get_self_eval(sequence(), as_part_of,
                                                    type() == Type::Informational);
         if (self_eval) {
-            result["self_eval"] = self_eval->to_json();
+            result["self_eval"] = self_eval->to_json({as_seen_by});
 
             auto grader_eval = self_eval->grader_eval();
             if (grader_eval && grader_eval->can_view(as_seen_by)) {
-                result["grader_eval"] = grader_eval->to_json(as_seen_by);
+                result["grader_eval"] = grader_eval->to_json({as_seen_by});
             }
         }
     }

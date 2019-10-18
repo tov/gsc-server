@@ -36,11 +36,11 @@ dbo::ptr<Grader_eval> Grader_eval::get_for(
         return session.addNew<Grader_eval>(self_eval, session.user());
 }
 
-std::string Grader_eval::score_string() const
+std::string Grader_eval::plain_score_string() const
 {
     switch (status()) {
         case Status::ready:
-            return Abstract_evaluation::score_string();
+            return Abstract_evaluation::plain_score_string();
         case Status::held_back:
             return "[held back]";
         case Status::editing:
@@ -48,12 +48,35 @@ std::string Grader_eval::score_string() const
     }
 }
 
-std::string Grader_eval::owner_string(const dbo::ptr<User>& as_seen_by) const
+std::string Grader_eval::score_string(Viewing_context const& cxt) const
 {
-    if (grader()->role() == User::Role::Student && as_seen_by->role() == User::Role::Student)
+    if (can_see_score(cxt))
+        return plain_score_string();
+    else
+        return "";
+}
+
+std::string Grader_eval::owner_string(Viewing_context const& cxt) const
+{
+    if (! grader()->can_grade())
         return "Auto";
 
+    if (! cxt.viewer->can_grade())
+        return "Grader";
+
     return grader()->name();
+}
+
+bool Grader_eval::can_see_score(Viewing_context const& cxt) const
+{
+    auto grading_status = submission()->grading_status();
+
+    return grading_status == Submission::Grading_status::complete
+           || cxt.viewer->can_grade()
+           || ! grader()->can_grade()
+           || eval_item()->is_informational()
+           || (grading_status == Submission::Grading_status::regrade &&
+               status() == Status::ready);
 }
 
 const Wt::Dbo::ptr<Eval_item>& Grader_eval::eval_item() const
@@ -77,11 +100,11 @@ std::string Grader_eval::rest_uri() const {
                                                     self_eval()->eval_item()->sequence());
 }
 
-Wt::Json::Object Grader_eval::to_json(dbo::ptr<User> const& as_seen_by) const {
+Wt::Json::Object Grader_eval::to_json(Viewing_context const& cxt) const {
     J::Object result = Abstract_evaluation::to_json();
 
     result["uri"]           = J::Value(rest_uri());
-    result["grader"]        = J::Value(owner_string(as_seen_by));
+    result["grader"]        = J::Value(owner_string(cxt));
     result["status"]        = J::Value(stringify(status()));
 
     return result;

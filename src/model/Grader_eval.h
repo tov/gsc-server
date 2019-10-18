@@ -3,8 +3,8 @@
 #include "specializations.h"
 #include "../common/stringify.h"
 
-#include "auth/User.h"
 #include "Abstract_evaluation.h"
+#include "auth/User.h"
 
 #include <Wt/Dbo/WtSqlTraits.h>
 #include <Wt/Dbo/Types.h>
@@ -18,6 +18,7 @@ namespace dbo = Wt::Dbo;
 class User;
 class Self_eval;
 class Session;
+class Submission;
 
 class Grader_eval : public Abstract_evaluation
 {
@@ -38,19 +39,23 @@ public:
     const dbo::ptr<User>& grader() const { return grader_; }
     void set_grader(const dbo::ptr<User>& grader) { grader_ = grader; }
 
-    std::string score_string() const override;
+    bool can_see_score(Viewing_context const&) const;
+    std::string score_string(Viewing_context const&) const override;
+    std::string owner_string(Viewing_context const&) const override;
 
-    std::string owner_string(const dbo::ptr<User>& as_seen_by) const override;
     const Wt::Dbo::ptr<Eval_item>& eval_item() const override;
     const Wt::Dbo::ptr<Submission>& submission() const override;
 
     bool can_view(dbo::ptr<User> const&) const;
 
     std::string rest_uri() const;
-    Wt::Json::Object to_json(dbo::ptr<User> const& as_seen_by) const;
+    Wt::Json::Object to_json(Viewing_context const& cxt) const;
 
     static dbo::ptr<Grader_eval>
     get_for(const dbo::ptr<Self_eval>&, Session&);
+
+protected:
+    std::string plain_score_string() const override;
 
 private:
     dbo::ptr<Self_eval> self_eval_;

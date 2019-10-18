@@ -92,6 +92,18 @@ const Wt::WDateTime& Submission::effective_eval_date() const
     return std::max(eval_date_, assignment_->eval_date());
 }
 
+bool Submission::in_submit_period() const
+{
+    auto stat = status();
+    return stat == Status::open || stat == Status::extended;
+}
+
+bool Submission::in_eval_period() const
+{
+    auto stat = status();
+    return stat == Status::self_eval || stat == Status::extended_eval;
+}
+
 Submission::Status Submission::status() const
 {
     auto now = Wt::WDateTime::currentDateTime();
@@ -291,12 +303,10 @@ bool Submission::can_view(const dbo::ptr<User>& user) const
 
 bool Submission::can_submit(const dbo::ptr<User>& user) const
 {
-    auto now = Wt::WDateTime::currentDateTime();
+    if (user->can_admin()) return true;
+    if (user != user1_ && user != user2_) return false;
 
-    return user->can_admin() ||
-            (now >= open_date() &&
-                    now <= effective_due_date() &&
-             (user == user1_ || user == user2_));
+    return in_submit_period();
 }
 
 bool Submission::can_eval(const dbo::ptr <User>& user) const
@@ -304,11 +314,7 @@ bool Submission::can_eval(const dbo::ptr <User>& user) const
     if (user->can_admin()) return true;
     if (user != user1_ && user != user2_) return false;
 
-    auto now = Wt::WDateTime::currentDateTime();
-    if (now < effective_due_date() || effective_eval_date() < now)
-        return false;
-
-    return true;
+    return in_eval_period();
 }
 
 bool Submission::can_view_eval(const dbo::ptr<User>& user) const
@@ -366,8 +372,13 @@ bool Submission::is_evaluated() const
 
 bool Submission::is_graded() const
 {
+    return grading_status() == Grading_status::complete;
+}
+
+Submission::Grading_status Submission::grading_status() const
+{
     if (is_loaded_) {
-        return is_graded_;
+        return grading_status_;
     }
 
     auto grader_eval_count = session()->query<int>(
@@ -378,7 +389,14 @@ bool Submission::is_graded() const
             "   AND g.status = ?"
     ).bind(id()).bind((int) Grader_eval::Status::ready).resultValue();
 
-    return grader_eval_count == self_evals_.size();
+    if (grader_eval_count == self_evals_.size())
+        return Grading_status::complete;
+
+    if (grader_eval_count > 2 && in_eval_period()) {
+        return Grading_status::regrade;
+    }
+
+    return Grading_status::incomplete;
 }
 
 void Submission::load_cache() const
@@ -421,7 +439,11 @@ void Submission::load_cache() const
                  : self_eval_count == 0           ? Eval_status::empty
                  /* otherwise */                  : Eval_status::started;
 
-    is_graded_ = grader_eval_count == item_count_;
+
+    grading_status_ = grader_eval_count == item_count_ ? Grading_status::complete
+                    : grader_eval_count > 2 && in_eval_period()
+                                                       ? Grading_status::regrade
+                    /* otherwise */                    : Grading_status::incomplete;
 
     grade_ = clean_grade(grade_ / point_value_);
 

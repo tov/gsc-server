@@ -8,6 +8,7 @@
 #include <Wt/Json/Object.h>
 
 #include <iostream>
+#include <optional>
 #include <string>
 
 namespace dbo = Wt::Dbo;

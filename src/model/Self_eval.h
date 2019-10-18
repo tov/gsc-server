@@ -31,7 +31,8 @@ public:
     std::string eval_url() const;
     std::string grade_url() const;
 
-    std::string owner_string(const dbo::ptr<User>& as_seen_by) const override;
+    std::string score_string(Viewing_context const&) const override;
+    std::string owner_string(Viewing_context const&) const override;
 
     static dbo::ptr<Self_eval> find_by_permalink(dbo::Session&,
                                                  const std::string&);
@@ -42,7 +43,7 @@ public:
     find_with_grade_status(Grader_eval::Status, dbo::Session&);
 
     std::string rest_uri() const;
-    Wt::Json::Object to_json() const;
+    Wt::Json::Object to_json(Viewing_context const&) const;
 
 private:
     dbo::ptr<Eval_item>        eval_item_;

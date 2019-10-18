@@ -113,13 +113,21 @@ Self_eval::find_with_grade_status(Grader_eval::Status status,
     ).bind((int) status).resultList();
 }
 
-std::string Self_eval::owner_string(const dbo::ptr<User>& as_seen_by) const
+std::string Self_eval::score_string(Viewing_context const& cxt) const
 {
-    if (as_seen_by == submission()->user1() ||
-            as_seen_by == submission()->user2())
+    if (cxt.viewer->role() != User::Role::Grader)
+        return plain_score_string();
+    else
+        return "[***]";
+}
+
+std::string Self_eval::owner_string(Viewing_context const& cxt) const
+{
+    if (cxt.viewer == submission()->user1() ||
+        cxt.viewer == submission()->user2())
         return "You";
 
-    switch (as_seen_by->role()) {
+    switch (cxt.viewer->role()) {
         case User::Role::Student:
             return "Other student";
         case User::Role::Grader:
@@ -134,7 +142,7 @@ std::string Self_eval::rest_uri() const {
                                                   eval_item()->sequence());
 }
 
-J::Object Self_eval::to_json() const {
+J::Object Self_eval::to_json(Viewing_context const&) const {
     J::Object result = Abstract_evaluation::to_json();
 
     result["uri"]               = J::Value(rest_uri());
@@ -142,4 +150,5 @@ J::Object Self_eval::to_json() const {
 
     return result;
 }
+
 

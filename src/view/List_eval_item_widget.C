@@ -38,6 +38,8 @@ void List_eval_item_widget::add_scores_()
     auto current_user = session_.user();
     auto role = current_user->role();
 
+    Viewing_context cxt {current_user};
+
     Wt::WString self;
     Wt::WString self_score;
     Wt::WString grader;
@@ -45,38 +47,22 @@ void List_eval_item_widget::add_scores_()
 
     Wt::WString attention_class = "list-eval-item";
 
-    switch (role) {
-        case User::Role::Student:
-            self = "You";
-            break;
-        case User::Role::Grader:
-            self = "Student";
-            break;
-        case User::Role::Admin:
-            self = main_.submission()->owner_string();
+    if (model_.self_eval) {
+        self = model_.self_eval->owner_string(cxt);
+        self_score = model_.self_eval->score_string(cxt);
+    } else {
+        self_score = "[not set]";
     }
 
-    self_score = model_.self_eval
-                 ? model_.self_eval->score_string()
-                 : "[not set]";
-
-    if (main_.submission()->is_graded() ||
-        (model_.grader_eval &&
-                (role == User::Role::Admin ||
-                 main_.submission()->can_eval(current_user))))
-    {
-        auto grader_user = model_.grader_eval->grader();
-        grader = grader_user->can_grade() ? grader_user->name() : "Auto";
-        grader_score = model_.grader_eval->score_string();
+    if (model_.grader_eval && model_.grader_eval->can_see_score(cxt)) {
+        grader_score = model_.grader_eval->score_string(cxt);
+        if (!grader_score.empty())
+            grader = model_.grader_eval->owner_string(cxt);
 
         if (model_.grader_eval->score() < model_.self_eval->score())
             attention_class = "list-eval-item has-been-docked";
         else if (!model_.grader_eval->explanation().empty())
             attention_class = "list-eval-item has-explanation";
-
-    } else {
-        grader = "Grader";
-        grader_score = "[not set]";
     }
 
     setStyleClass(attention_class);
@@ -88,10 +74,10 @@ void List_eval_item_widget::add_scores_()
                     "</table>"
     );
 
-    table->bindWidget("self", std::make_unique<Wt::WText>(self));
-    table->bindWidget("self-score", std::make_unique<Wt::WText>(self_score));
-    table->bindWidget("grader", std::make_unique<Wt::WText>(grader));
-    table->bindWidget("grader-score", std::make_unique<Wt::WText>(grader_score));
+    table->bindString("self", self);
+    table->bindString("self-score", self_score);
+    table->bindString("grader", grader);
+    table->bindString("grader-score", grader_score);
 }
 
 void List_eval_item_widget::focus_action_()

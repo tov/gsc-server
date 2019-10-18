@@ -825,7 +825,7 @@ void Submissions_1_evals_2_self::do_get_(Resource::Context const& context)
     if (!self_eval_)
         not_found();
 
-    use_json(self_eval_->to_json());
+    use_json(self_eval_->to_json({context.user}));
 }
 
 void Submissions_1_evals_2_self::do_delete_(Resource::Context const& context)
@@ -862,7 +862,7 @@ void Submissions_1_evals_2_self::do_put_(Request_body body, Resource::Context co
         throw Http_status{400, "PUT /submissions/_1/evals/_2/self could not parse user request as JSON"};
     }
 
-    use_json(self_eval_->to_json());
+    use_json(self_eval_->to_json({context.user}));
 }
 
 class Submissions_1_evals_2_grader : public Resource
@@ -908,7 +908,7 @@ void Submissions_1_evals_2_grader::do_get_(Resource::Context const& context)
     if (!(grader_eval_ && grader_eval_->can_view(context.user)))
         not_found();
 
-    use_json(grader_eval_->to_json(context.user));
+    use_json(grader_eval_->to_json({context.user}));
 }
 
 void Submissions_1_evals_2_grader::do_delete_(Resource::Context const& context)
@@ -951,7 +951,7 @@ void Submissions_1_evals_2_grader::do_put_(Request_body body, Resource::Context 
         throw Http_status{400, e.what()};
     }
 
-    use_json(grader_eval_->to_json(context.user));
+    use_json(grader_eval_->to_json({context.user}));
 }
 
 class Submissions_hw1 : public Resource
