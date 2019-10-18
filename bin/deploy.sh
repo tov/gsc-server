@@ -37,9 +37,9 @@ bin/build.sh $build_type gscd-fcgi
 publish_dirs server_root 3rdparty/wt/resources
 
 sudo install -v -o gsc -m 4555 \
-    build.debug/gscd-fcgi server_root/gscd.fcgi
+    build.$build_type/gscd-fcgi server_root/gscd.fcgi
 echo >&2 Not installing gsc-auth today
 # sudo install -v -o gsc -m 4555 \
-#     build.debug/gsc-auth server_root/gsc-auth
+#     build.$build_type/gsc-auth server_root/gsc-auth
 
 sudo service apache2 restart
