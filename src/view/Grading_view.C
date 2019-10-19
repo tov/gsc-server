@@ -266,18 +266,14 @@ Grading_view::Grading_view(const Wt::Dbo::ptr<Self_eval> self_eval, Session& ses
             break;
     }
 
-    widget->bindWidget("sequence", std::make_unique<Wt::WText>(sequence));
-    widget->bindWidget("homework", std::make_unique<Wt::WText>(assignment->name()));
-    widget->bindWidget("question", std::make_unique<Wt::WText>(eval_item->prompt()));
-    widget->bindWidget("self_grade",
-                       std::make_unique<Wt::WText>(
-                               eval_item->format_score(self_eval->score())));
-    widget->bindWidget("self_explanation",
-                       std::make_unique<Explanation_view_widget>(
-                               self_eval->explanation(),
-                               file_viewer(),
-                               "student-highlight"));
+    widget->bindString("sequence", sequence);
+    widget->bindString("homework", assignment->name());
+    widget->bindString("question", eval_item->prompt());
+    widget->bindString("self_grade", eval_item->format_score(self_eval->score()));
+    widget->bindNew<Explanation_view_widget>(
+            "self_explanation", self_eval->explanation(),
+            file_viewer(), "student-highlight");
     widget->bindWidget("grading_widget", std::move(grading_widget));
-    widget->bindWidget("status", std::make_unique<Wt::WText>(status));
+    widget->bindString("status", status);
 }
 
