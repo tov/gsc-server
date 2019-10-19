@@ -16,7 +16,8 @@ int main(int argc, char** argv)
         auto db_string  = get_env_var("POSTGRES_CONNINFO", "dbname=gsc");
         auto pool       = Db_session::createConnectionPool(db_string);
         Db_session::configure_auth();
-        Db_session::initialize_db(*pool);
+        // Maybe we don't need to do this every time:
+//        Db_session(*pool).initialize_db();
 
         api::Endpoint endpoint(*pool);
         Wt::WServer server(argc, argv);

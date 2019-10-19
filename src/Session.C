@@ -274,12 +274,6 @@ void Db_session::map_classes()
     mapClass<User_stats>("user_stats");
 }
 
-void Db_session::initialize_db(dbo::SqlConnectionPool& pool,
-                               bool test_data)
-{
-    Db_session(pool).initialize_db(test_data);
-}
-
 bool Session::authenticate_from_environment()
 {
     dbo::Transaction transaction(dbo());

@@ -146,9 +146,6 @@ public:
 
     void map_classes();
 
-    static void initialize_db(Wt::Dbo::SqlConnectionPool&,
-                              bool test_data = true);
-
     void initialize_db(bool test_data = true);
 
     static void configure_auth();
