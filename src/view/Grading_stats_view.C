@@ -36,10 +36,10 @@ Grading_stats_view::Grading_stats_view(Session& session)
 
     static const std::string query =
             "SELECT u.name, e.assignment_number, COUNT(*)"
-                    " FROM users u"
-                    " INNER JOIN grader_evals g ON g.grader_id = u.id"
-                    " INNER JOIN self_evals s ON g.self_eval_id = s.id"
-                    " INNER JOIN eval_items e ON s.eval_item_id = e.id"
+                    " FROM gsc_user u"
+                    " INNER JOIN grader_eval g ON g.grader_id = u.id"
+                    " INNER JOIN self_eval s ON g.self_eval_id = s.id"
+                    " INNER JOIN eval_item e ON s.eval_item_id = e.id"
                     " WHERE u.role <> ?"
                     " GROUP BY u.name, e.assignment_number";
     auto results =
