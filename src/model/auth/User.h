@@ -92,6 +92,8 @@ private:
     std::string name_;
     int role_ = Role_info::to_repr(Role::Student);
 
+//    std::string realname_;
+
     Submissions submissions1_;
     Submissions submissions2_;
 
@@ -107,6 +109,8 @@ public:
     {
         dbo::field(a, name_, "name", 16);
         dbo::field(a, role_, "role");
+
+//        dbo::field(a, realname_, "realname");
 
         dbo::hasMany(a, submissions1_, dbo::ManyToOne, "user1");
         dbo::hasMany(a, submissions2_, dbo::ManyToOne, "user2");

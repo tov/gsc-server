@@ -56,9 +56,11 @@ void Admin_eval_item_widget::load_() {
 
     if (!model_.grader_eval) return;
 
-    auto grader_retract_button = grader_buttons->addNew<Wt::WPushButton>("Retract");
-    grader_retract_button->clicked().connect(
-            this, &This::grader_retract_action_);
+    if (! model_.eval_item->is_informational()) {
+        auto grader_retract_button = grader_buttons->addNew<Wt::WPushButton>("Retract");
+        grader_retract_button->clicked().connect(
+                this, &This::grader_retract_action_);
+    }
 
     grader_response_->load(&*model_.grader_eval);
 }

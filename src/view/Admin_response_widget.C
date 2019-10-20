@@ -41,6 +41,7 @@ bool Admin_response_widget::save(Abstract_evaluation* model)
     auto score = grade_->value();
     if (score == Unit_line_edit::INVALID) return false;
 
+    // TODO: This doesn't give 10% for Boolean = 0.
     model->set_explanation(explanation_->text().toUTF8());
     model->set_score(score);
 
