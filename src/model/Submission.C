@@ -163,8 +163,7 @@ Submission::get_self_eval(const dbo::ptr<Eval_item>& eval_item,
     auto& result = submission->items_[eval_item->sequence()].self_eval;
 
     if (!result && create) {
-        result = submission.session()->addNew<Self_eval>(eval_item, submission);
-        submission.modify()->touch();
+        result = Self_eval::create(eval_item, submission);
     }
 
     return result;
@@ -173,20 +172,11 @@ Submission::get_self_eval(const dbo::ptr<Eval_item>& eval_item,
 Wt::Dbo::ptr<Self_eval>
 Submission::get_self_eval(int sequence,
                           const dbo::ptr<Submission> &submission,
-                          bool create = true)
+                          bool create)
 {
     submission->load_cache();
-
-    auto& result = submission->items_.at(sequence).self_eval;
-
-    if (!result && create) {
-        auto eval_item = submission->assignment()->find_eval_item(
-                *submission.session(), sequence);
-        result = submission.session()->addNew<Self_eval>(eval_item, submission);
-        submission.modify()->touch();
-    }
-
-    return result;
+    auto eval_item = submission->items_.at(sequence).eval_item;
+    return get_self_eval(eval_item, submission, create);
 }
 
 void Submission::retract_self_eval(const dbo::ptr<Self_eval>& self_eval)
@@ -196,9 +186,10 @@ void Submission::retract_self_eval(const dbo::ptr<Self_eval>& self_eval)
 
     submission->load_cache();
 
+    submission->items_[sequence].grader_eval.remove();
+    submission->items_[sequence].grader_eval = {};
     submission->items_[sequence].self_eval.remove();
     submission->items_[sequence].self_eval = {};
-    submission->items_[sequence].grader_eval = {};
 
     submission.modify()->touch();
 }
@@ -209,53 +200,76 @@ Submission::save_self_eval(const dbo::ptr<Self_eval>& self_eval,
                            double score,
                            const std::string& explanation)
 {
-    auto self_eval_m = self_eval.modify();
-    self_eval_m->set_score(score);
-    self_eval_m->set_explanation(explanation);
+    {
+        auto self_eval_m = self_eval.modify();
+        self_eval_m->set_score(score);
+        self_eval_m->set_explanation(explanation);
+        score = self_eval_m->score();
+    }
 
+    if (score == 0.0 &&
+            self_eval->eval_item()->type() == Eval_item::Type::Boolean) {
+        set_grader_eval(self_eval, session.user(), 0.1, "You chose no.");
+    } else if (! self_eval->eval_item()->is_informational()) {
+        retract_grader_eval(self_eval->grader_eval());
+    }
+
+    self_eval->submission().modify()->touch();
+}
+
+dbo::ptr<Grader_eval>&
+Submission::find_grader_eval_(const dbo::ptr<Self_eval>& self_eval)
+{
     auto submission = self_eval->submission();
     auto sequence = self_eval->eval_item()->sequence();
 
     submission->load_cache();
 
-    if (score == 0.0 &&
-            self_eval->eval_item()->type() == Eval_item::Type::Boolean) {
-        auto grader_eval = get_grader_eval(self_eval, session.user());
-        auto grader_eval_m = grader_eval.modify();
-        grader_eval_m->set_score(0.1);
-        grader_eval_m->set_explanation("You chose no.");
-        grader_eval_m->set_status(Grader_eval::Status::ready);
-        submission->items_[sequence].grader_eval = grader_eval;
-    } else if (self_eval->eval_item()->type() !=
-                   Eval_item::Type::Informational) {
-        self_eval->grader_eval().remove();
-        submission->items_[sequence].grader_eval = {};
-    }
-
-    submission.modify()->touch();
+    return submission->items_[sequence].grader_eval;
 }
 
 dbo::ptr<Grader_eval>
 Submission::get_grader_eval(const dbo::ptr<Self_eval>& self_eval,
                             const dbo::ptr<User>& grader)
 {
-    auto submission = self_eval->submission();
-    auto sequence = self_eval->eval_item()->sequence();
+    auto& result = find_grader_eval_(self_eval);
 
-    submission->load_cache();
-
-    auto& result = submission->items_[sequence].grader_eval;
-
-    if (!result) {
+    if (!result && grader) {
         result = self_eval.session()->addNew<Grader_eval>(self_eval, grader);
-        submission.modify()->touch();
+        self_eval->submission().modify()->touch();
     }
+
+    return result;
+}
+
+dbo::ptr<Grader_eval>
+Submission::set_grader_eval(const Wt::Dbo::ptr<Self_eval>& self_eval,
+                            const Wt::Dbo::ptr<User>& grader,
+                            double score,
+                            std::string const& explanation)
+{
+    auto& result = find_grader_eval_(self_eval);
+
+    if (result) {
+        auto result_m = result.modify();
+        result_m->set_grader(grader);
+        result_m->set_score(score);
+        result_m->set_explanation(explanation);
+    } else {
+        result = self_eval.session()->addNew<Grader_eval>(
+                self_eval, grader, score, explanation);
+    }
+
+    self_eval->submission().modify()->touch();
 
     return result;
 }
 
 void Submission::retract_grader_eval(const dbo::ptr<Grader_eval>& grader_eval)
 {
+    if (grader_eval->eval_item()->is_graded_automatically())
+        return;
+
     auto submission = grader_eval->submission();
     auto sequence = grader_eval->eval_item()->sequence();
 

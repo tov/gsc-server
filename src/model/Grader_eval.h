@@ -24,8 +24,14 @@ class Grader_eval : public Abstract_evaluation
 {
 public:
     Grader_eval() {}
-    Grader_eval(const dbo::ptr<Self_eval>& self_eval,
+
+    Grader_eval(const dbo::ptr<Self_eval>&,
                 const dbo::ptr<User>& grader);
+
+    Grader_eval(const dbo::ptr<Self_eval>&,
+                const dbo::ptr<User>& grader,
+                double score,
+                const std::string& explanation = "");
 
     enum class Status : int {
         editing,

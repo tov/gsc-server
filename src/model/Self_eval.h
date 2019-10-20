@@ -8,8 +8,6 @@
 #include <Wt/Json/Object.h>
 #include <Wt/WDateTime.h>
 
-namespace dbo = Wt::Dbo;
-
 class Eval_item;
 class Grader_eval;
 class Submission;
@@ -18,9 +16,10 @@ class User;
 class Self_eval : public Abstract_evaluation
 {
 public:
-    Self_eval() {}
-    Self_eval(const dbo::ptr<Eval_item>&,
-              const dbo::ptr<Submission>&);
+    Self_eval() { }
+
+    static dbo::ptr<Self_eval> create(const dbo::ptr<Eval_item>&,
+                                      const dbo::ptr<Submission>&);
 
     const dbo::ptr<Eval_item>& eval_item() const override { return eval_item_; }
     const dbo::ptr<Submission>& submission() const override { return submission_; }
@@ -46,6 +45,9 @@ public:
     Wt::Json::Object to_json(Viewing_context const&) const;
 
 private:
+    Self_eval(const dbo::ptr<Eval_item>&,
+              const dbo::ptr<Submission>&);
+
     dbo::ptr<Eval_item>        eval_item_;
     dbo::ptr<Submission>       submission_;
     dbo::weak_ptr<Grader_eval> grader_eval_;

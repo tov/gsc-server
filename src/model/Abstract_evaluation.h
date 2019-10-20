@@ -19,8 +19,10 @@ class Viewing_context;
 class Abstract_evaluation
 {
 public:
-    explicit Abstract_evaluation(double score = 0)
-        : score_(normalize_score(score))
+    explicit Abstract_evaluation(double score = 0,
+                                 const std::string& explanation = "")
+        : score_(normalize_score(score)),
+          explanation_(explanation)
     { }
 
     const std::string& explanation() const { return explanation_; }

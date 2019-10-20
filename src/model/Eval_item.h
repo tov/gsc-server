@@ -53,6 +53,7 @@ public:
     std::string format_score(double) const;
 
     bool is_informational() const;
+    bool is_graded_automatically() const;
 
     std::string rest_uri(dbo::ptr<Submission> const& as_part_of) const;
     Wt::Json::Object to_json(Wt::Dbo::ptr<Submission> const& as_part_of,

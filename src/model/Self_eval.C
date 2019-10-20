@@ -17,6 +17,8 @@
 
 namespace J = Wt::Json;
 
+using namespace std;
+
 DBO_INSTANTIATE_TEMPLATES(Self_eval)
 
 static double default_score(Eval_item::Type type)
@@ -25,6 +27,24 @@ static double default_score(Eval_item::Type type)
         return 0;
     else
         return 1;
+}
+
+dbo::ptr<Self_eval>
+Self_eval::create(const dbo::ptr<Eval_item>& eval_item,
+                  const dbo::ptr<Submission>& submission)
+{
+    auto& session = *eval_item.session();
+
+    auto result = session.add(unique_ptr<Self_eval>{
+            new Self_eval{eval_item, submission}});
+
+    if (eval_item->is_graded_automatically()) {
+        session.addNew<Grader_eval>(result, submission->user1(), 1);
+    }
+
+    submission.modify()->touch();
+
+    return result;
 }
 
 Self_eval::Self_eval(const dbo::ptr<Eval_item>& eval_item,

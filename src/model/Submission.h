@@ -117,15 +117,26 @@ public:
                   bool create = true);
 
     static Wt::Dbo::ptr<Self_eval>
-    get_self_eval(int sequence_number, const Wt::Dbo::ptr<Submission> &, bool create);
+    get_self_eval(int sequence_number,
+                  const Wt::Dbo::ptr<Submission>&,
+                  bool create = true);
+
+    static void save_self_eval(const Wt::Dbo::ptr<Self_eval>&,
+                               Session&,
+                               double score,
+                               const std::string& explanation);
 
     static void retract_self_eval(const Wt::Dbo::ptr<Self_eval>&);
 
-    static void save_self_eval(const Wt::Dbo::ptr<Self_eval>&, Session&,
-                               double score, const std::string& explanation);
+    static Wt::Dbo::ptr<Grader_eval>
+    get_grader_eval(const Wt::Dbo::ptr<Self_eval>&,
+                    const Wt::Dbo::ptr<User>& create_grader = nullptr);
 
     static Wt::Dbo::ptr<Grader_eval>
-    get_grader_eval(const Wt::Dbo::ptr<Self_eval>&, const Wt::Dbo::ptr<User>&);
+    set_grader_eval(const Wt::Dbo::ptr<Self_eval>&,
+                    const Wt::Dbo::ptr<User>& grader,
+                    double score,
+                    const std::string& explanation = "");
 
     static void retract_grader_eval(const Wt::Dbo::ptr<Grader_eval>&);
 
@@ -169,6 +180,9 @@ private:
 
     // cached separately
     mutable int byte_count_ = -1;
+
+    static Wt::Dbo::ptr<Grader_eval>&
+    find_grader_eval_(const Wt::Dbo::ptr<Self_eval>&);
 
 public:
     template<typename Action>

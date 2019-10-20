@@ -24,6 +24,16 @@ Grader_eval::Grader_eval(const dbo::ptr<Self_eval>& self_eval,
           status_(static_cast<int>(Status::editing))
 { }
 
+Grader_eval::Grader_eval(const dbo::ptr<Self_eval>& self_eval,
+                         const dbo::ptr<User>& grader,
+                         double score,
+                         const std::string& explanation)
+        : Abstract_evaluation(score, explanation),
+          self_eval_(self_eval),
+          grader_(grader),
+          status_(static_cast<int>(Status::ready))
+{ }
+
 dbo::ptr<Grader_eval> Grader_eval::get_for(
         const dbo::ptr<Self_eval>& self_eval,
         Session& session)

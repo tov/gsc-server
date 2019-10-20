@@ -97,8 +97,12 @@ J::Object Eval_item::to_json(dbo::ptr<Submission> const& as_part_of,
         }
     }
 
-
     return result;
+}
+
+bool Eval_item::is_graded_automatically() const
+{
+    return is_informational() && relative_value() == 0;
 }
 
 std::ostream& operator<<(std::ostream& o, Eval_item::Type type)
