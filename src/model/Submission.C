@@ -210,7 +210,8 @@ Submission::save_self_eval(const dbo::ptr<Self_eval>& self_eval,
     if (score == 0.0 &&
             self_eval->eval_item()->type() == Eval_item::Type::Boolean) {
         set_grader_eval(self_eval, session.user(), 0.1, "You chose no.");
-    } else if (! self_eval->eval_item()->is_informational()) {
+    } else if (self_eval->grader_eval()
+               && ! self_eval->eval_item()->is_informational()) {
         retract_grader_eval(self_eval->grader_eval());
     }
 
