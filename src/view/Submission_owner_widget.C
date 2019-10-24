@@ -85,7 +85,7 @@ void Submission_owner_widget::update_admin_()
         impl_->addNew<Wt::WText>("Partner with: ");
         auto edit = impl_->addNew<Wt::WLineEdit>();
         edit->setStyleClass("username");
-        edit->setPlaceholderText("(ask them)");
+        edit->setPlaceholderText("(make it so)");
         edit->enterPressed().connect(std::bind([=] () {
             dbo::Transaction transaction2(session_);
 
