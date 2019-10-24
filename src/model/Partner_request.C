@@ -34,6 +34,11 @@ Partner_request::create(Db_session &session,
         return {};
     }
 
+    if (requestee->role() == User::Role::Admin) {
+        message << "You should be so lucky.";
+        return {};
+    }
+
     if (requestee->role() != User::Role::Student) {
         message << "User ‘" << requestee->name() << "’ is not a student.";
         return {};
