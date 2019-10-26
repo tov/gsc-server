@@ -60,6 +60,7 @@ public:
 
     const Wt::WDateTime& last_modified() const { return last_modified_; }
 
+    int assignment_number() const;
     const Wt::Dbo::ptr<Assignment>& assignment() const { return assignment_; }
     const Wt::Dbo::ptr<User>& user1() const { return user1_; }
     const Wt::Dbo::ptr<User>& user2() const { return user2_; }
@@ -145,10 +146,17 @@ public:
 
     void touch();
 
+    // Creates the submission if it doesn't exist.
     static Wt::Dbo::ptr<Submission>
     find_by_assignment_and_user(Wt::Dbo::Session&,
                                 const Wt::Dbo::ptr<Assignment>&,
                                 const Wt::Dbo::ptr<User>&);
+
+    // DOESN'T create the submission if it doesn't exist.
+    static Wt::Dbo::ptr<Submission>
+    find_by_assignment_number_and_user(Wt::Dbo::Session&,
+                                       int assignment_number,
+                                       const Wt::Dbo::ptr<User>&);
 
     static Wt::Dbo::ptr<Submission>
     find_by_id(Wt::Dbo::Session&, int session_id);

@@ -1,6 +1,7 @@
 #include "resources.h"
 #include "Http_status.h"
 #include "../../common/paths.h"
+#include "../../common/util.h"
 #include "Request_body.h"
 #include "Request_handler.h"
 #include "Result_array.h"
@@ -24,17 +25,31 @@
 
 #include <algorithm>
 #include <cstdlib>
+#include <functional>
 #include <map>
 #include <regex>
 #include <sstream>
 #include <string>
 
-namespace dbo = Wt::Dbo;
-namespace J = Wt::Json;
-
 namespace api {
 
 namespace resources {
+
+// Helper struct for consuming JSON in the order of our choice.
+struct Key_eater
+{
+    J::Object& json;
+
+    template <class F>
+    void take(std::string const& key, F f) {
+
+        if (auto iter = json.find(key); iter != json.end()) {
+            f(iter->second);
+            json.erase(iter);
+        }
+    }
+};
+
 
 template <class T>
 std::unique_ptr<T> match(std::string const& path_info)
@@ -309,7 +324,7 @@ void Users_1::do_patch_(Request_body body, Context const& context)
                 if (!context.user->can_admin())
                     denied(4);
 
-                auto role = destringify<User::Role>(pair.second);
+                User::Role role = destringify(pair.second);
                 user_.modify()->set_role(role);
                 result.success() << "Role updated to " << stringify(role) << ".";
             }
@@ -368,7 +383,7 @@ void Users_1::do_patch_(Request_body body, Context const& context)
 
                     auto hw = Assignment::find_by_number(context.session, hw_number);
                     auto other = User::find_by_name(context.session, username);
-                    auto status = destringify<S>(status_string);
+                    S status = destringify(status_string);
 
                     if (!hw)
                         Http_error{403} << "hw" << hw_number << " does not exist.";
@@ -671,6 +686,7 @@ public:
 protected:
     void do_delete_(Context const& context) override;
     void do_get_(Context const& context) override;
+    void do_patch_(Request_body body, Context const& context) override;
     void do_put_(Request_body body, Context const& context) override;
 
 private:
@@ -699,6 +715,82 @@ void Submissions_1_files_2::do_get_(const Resource::Context& context)
 
     content_type = file_meta_->media_type();
     contents = file_meta_->file_data().lock()->contents();
+}
+
+void Submissions_1_files_2::do_patch_(Request_body body, Context const& context)
+{
+    if (!file_meta_) not_found();
+
+    try {
+        J::Object json = move(body).read_json();
+
+        dbo::ptr<Submission> owner = submission_;
+        optional<string> opt_name;
+        optional<string> opt_media_type;
+        optional<File_purpose> opt_purpose;
+
+        auto overwrite = false;
+
+        Key_eater processor{json};
+
+        processor.take("overwrite", [&](bool value) {
+            overwrite = value;
+        });
+
+        processor.take("name", [&](std::string const& value) {
+            opt_name = value;
+        });
+
+        processor.take("assignment_number", [&](int value) {
+            if (submission_->assignment_number() != value) {
+                owner = Submission::find_by_assignment_number_and_user(
+                        context.session, value, context.user);
+                if (!owner->can_submit(context.user))
+                    denied(17);
+            }
+        });
+
+        processor.take("media_type", [&](std::string const& value) {
+            opt_media_type = value;
+        });
+
+        processor.take("purpose", [&](std::string const& value) {
+            opt_purpose = destringify(value);
+        });
+
+        if (! json.empty()) {
+            Result_array result;
+            for (auto const& pair : json)
+                result.failure() << "Unknown key in JSON: ‘" << pair.first << "’.";
+            return use_json(result);
+        }
+
+        auto file_meta_m = file_meta_.modify();
+
+        if (opt_media_type)
+            file_meta_m->set_media_type(*opt_media_type);
+
+        if (opt_name || owner != submission_) {
+            string name = opt_name? *opt_name : file_meta_m->name();
+            bool success = file_meta_m->move(owner, name, overwrite);
+            if (!success)
+                throw std::invalid_argument{"Destination file already exists"};
+        }
+
+        if (opt_purpose)
+            file_meta_m->reclassify(*opt_purpose);
+        else if (opt_name || opt_media_type)
+            file_meta_m->reclassify();
+
+    } catch (J::TypeException const& e) {
+        throw Http_status{400, "PATCH /submissions/_1/files/_2 could not understand request"};
+    } catch (J::ParseError const& e) {
+        throw Http_status{400, "PATCH /submissions/_1/files/_2 could not parse user request as JSON"};
+    } catch (std::invalid_argument const& e) {
+        throw Http_status{400, e.what()};
+    }
+
+    use_json(file_meta_->to_json(true));
 }
 
 void Submissions_1_files_2::do_put_(
@@ -929,10 +1021,10 @@ void Submissions_1_evals_2_grader::do_put_(Request_body body, Resource::Context 
         auto json = std::move(body).read_json();
         J::Object const& object = json;
 
-        std::string explanation = object.get("explanation");
-        double score            = object.get("score");
-        std::string status_str  = object.get("status");
-        auto status             = destringify<Grader_eval::Status>(status_str);
+        std::string explanation    = object.get("explanation");
+        double score               = object.get("score");
+        std::string status_str     = object.get("status");
+        Grader_eval::Status status = destringify(status_str);
 
         if (!grader_eval_)
             grader_eval_ = Submission::get_grader_eval(self_eval_, context.user);

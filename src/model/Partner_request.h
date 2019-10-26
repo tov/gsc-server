@@ -7,6 +7,9 @@
 #include <Wt/Dbo/WtSqlTraits.h>
 #include <Wt/Dbo/Types.h>
 
+#include <stdexcept>
+#include <string_view>
+
 namespace dbo = Wt::Dbo;
 
 class Assignment;
@@ -94,7 +97,7 @@ template <>
 struct Enum<Partner_request::Status>
 {
     static char const* show(Partner_request::Status);
-    static Partner_request::Status read(char const*);
+    static Partner_request::Status read(const char*);
 };
 
 DBO_EXTERN_TEMPLATES(Partner_request)

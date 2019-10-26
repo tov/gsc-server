@@ -86,7 +86,7 @@ template <>
 struct Enum<Eval_item::Type>
 {
     static char const* show(Eval_item::Type);
-    static Eval_item::Type read(char const*);
+    static Eval_item::Type read(const char*);
 };
 
 std::ostream& operator<<(std::ostream&, Eval_item::Type);

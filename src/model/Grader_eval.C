@@ -135,16 +135,15 @@ char const* Enum<Grader_eval::Status>::show(Grader_eval::Status role)
     }
 }
 
-Grader_eval::Status Enum<Grader_eval::Status>::read(char const* role)
+Grader_eval::Status Enum<Grader_eval::Status>::read(std::string_view role)
 {
-    if (std::regex_match(role, editing_re))
-        return Grader_eval::Status::editing;
+    auto match = [=] (auto re) {
+        return std::regex_match(role.begin(), role.end(), re);
+    };
 
-    if (std::regex_match(role, held_back_re))
-        return Grader_eval::Status::held_back;
-
-    if (std::regex_match(role, ready_re))
-        return Grader_eval::Status::ready;
+    if (match(editing_re))   return Grader_eval::Status::editing;
+    if (match(held_back_re)) return Grader_eval::Status::held_back;
+    if (match(ready_re))     return Grader_eval::Status::ready;
 
     throw std::invalid_argument{"Could not parse role"};
 }

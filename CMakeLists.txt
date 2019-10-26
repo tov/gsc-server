@@ -40,40 +40,40 @@ set(WWW_SRC_FILES
         ${MODEL_SRC_FILES}
         src/Application_controller.C
         src/Navigate.h
-        src/view/Abstract_file_view.C
-        src/view/Accelerator_button.C
-        src/view/Accelerator_text.C
-        src/view/Admin_eval_item_widget.C
-        src/view/Admin_response_widget.C
-        src/view/Admin_view.C
-        src/view/Assignments_view.C
-        src/view/Base_eval_item_widget.C
-        src/view/Confirmation_dialog.C
-        src/view/Date_time_edit.C
-        src/view/Edit_assignment_view.C
-        src/view/Error_view.C
-        src/view/Evaluation_view.C
-        src/view/Explanation_edit_widget.C
-        src/view/Explanation_view_widget.C
-        src/view/File_list_widget.C
-        src/view/File_manager_view.C
-        src/view/File_viewer_widget.C
-        src/view/Grading_stats_view.C
-        src/view/Grading_view.C
-        src/view/Held_back_view.C
-        src/view/List_eval_item_widget.C
-        src/view/Main_view.C
-        src/view/Notification.C
-        src/view/Open_am_auth_widget.C
-        src/view/Partner_notifications_widget.C
-        src/view/Response_widget.C
-        src/view/Review_eval_item_widget.C
-        src/view/Self_eval_item_widget.C
-        src/view/Single_eval_item_widget.C
-        src/view/Submission_owner_widget.C
-        src/view/Submissions_view.C
-        src/view/Unit_line_edit.C
-        src/view/User_suggester.C
+        src/web/Abstract_file_view.C
+        src/web/Accelerator_button.C
+        src/web/Accelerator_text.C
+        src/web/Admin_eval_item_widget.C
+        src/web/Admin_response_widget.C
+        src/web/Admin_view.C
+        src/web/Assignments_view.C
+        src/web/Base_eval_item_widget.C
+        src/web/Confirmation_dialog.C
+        src/web/Date_time_edit.C
+        src/web/Edit_assignment_view.C
+        src/web/Error_view.C
+        src/web/Evaluation_view.C
+        src/web/Explanation_edit_widget.C
+        src/web/Explanation_view_widget.C
+        src/web/File_list_widget.C
+        src/web/File_manager_view.C
+        src/web/File_viewer_widget.C
+        src/web/Grading_stats_view.C
+        src/web/Grading_view.C
+        src/web/Held_back_view.C
+        src/web/List_eval_item_widget.C
+        src/web/Main_view.C
+        src/web/Notification.C
+        src/web/Open_am_auth_widget.C
+        src/web/Partner_notifications_widget.C
+        src/web/Response_widget.C
+        src/web/Review_eval_item_widget.C
+        src/web/Self_eval_item_widget.C
+        src/web/Single_eval_item_widget.C
+        src/web/Submission_owner_widget.C
+        src/web/Submissions_view.C
+        src/web/Unit_line_edit.C
+        src/web/User_suggester.C
         src/view/game/HangmanWidget.C
         src/view/game/HighScoresWidget.C
         src/view/game/ImagesWidget.C

@@ -83,7 +83,7 @@ template <>
 struct Enum<Grader_eval::Status>
 {
     static char const* show(Grader_eval::Status);
-    static Grader_eval::Status read(char const*);
+    static Grader_eval::Status read(std::string_view);
 };
 
 DBO_EXTERN_TEMPLATES(Grader_eval)

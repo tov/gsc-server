@@ -292,16 +292,25 @@ Submission::find_by_assignment_and_user(dbo::Session& session,
                                         const dbo::ptr<Assignment>& assignment,
                                         const dbo::ptr<User>& user)
 {
-    dbo::ptr<Submission> result =
-            session.find<Submission>()
-                   .where("user1_id = ? OR user2_id = ?")
-                   .bind(user.id()).bind(user.id())
-                   .where("assignment_number = ?")
-                   .bind(assignment->number());
-    if (!result)
-        result = session.addNew<Submission>(user, assignment);
+    if (dbo::ptr<Submission> result = find_by_assignment_number_and_user(
+            session, assignment->number(), user))
+    {
+        return result;
+    } else {
+        return session.addNew<Submission>(user, assignment);
+    }
+}
 
-    return result;
+dbo::ptr<Submission>
+Submission::find_by_assignment_number_and_user(Wt::Dbo::Session& session,
+                                               int assignment_number,
+                                               const Wt::Dbo::ptr<User>& user)
+{
+    return session.find<Submission>()
+            .where("user1_id = ? OR user2_id = ?")
+            .bind(user.id()).bind(user.id())
+            .where("assignment_number = ?")
+            .bind(assignment_number);
 }
 
 dbo::ptr<Submission> Submission::find_by_id(dbo::Session& session,
@@ -463,6 +472,11 @@ void Submission::load_cache() const
     grade_ = clean_grade(grade_ / point_value_);
 
     is_loaded_ = true;
+}
+
+int Submission::assignment_number() const
+{
+    return assignment()->number();
 }
 
 std::string Submission::owner_string() const

@@ -217,21 +217,18 @@ static std::regex const incoming_re("incoming", rc::icase);
 static std::regex const accepted_re("accepted", rc::icase);
 static std::regex const canceled_re("canceled", rc::icase);
 
-Partner_request::Status Enum<Partner_request::Status>::read(char const* status)
+Partner_request::Status Enum<Partner_request::Status>::read(const char* status)
 {
     using S = Partner_request::Status;
 
-    if (std::regex_match(status, outgoing_re))
-        return S::outgoing;
+    auto match = [=](auto re) {
+        return std::regex_match(status, re);
+    };
 
-    if (std::regex_match(status, incoming_re))
-        return S::incoming;
-
-    if (std::regex_match(status, accepted_re))
-        return S::accepted;
-
-    if (std::regex_match(status, canceled_re))
-        return S::canceled;
+    if (match(outgoing_re)) return S::outgoing;
+    if (match(incoming_re)) return S::incoming;
+    if (match(accepted_re)) return S::accepted;
+    if (match(canceled_re)) return S::canceled;
 
     throw std::invalid_argument{"Could not parse partner request status"};
 }

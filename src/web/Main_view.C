@@ -1,7 +1,7 @@
 #include "Main_view.h"
 #include "Open_am_auth_widget.h"
-#include "game/HangmanWidget.h"
-#include "game/HighScoresWidget.h"
+#include "../view/game/HangmanWidget.h"
+#include "../view/game/HighScoresWidget.h"
 #include "Admin_view.h"
 
 #include <Wt/Auth/AuthWidget.h>

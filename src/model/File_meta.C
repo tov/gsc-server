@@ -36,18 +36,22 @@ static std::regex const log_re("log", std::regex_constants::icase);
 static std::regex const resource_re("resource", std::regex_constants::icase);
 static std::regex const test_re("test", std::regex_constants::icase);
 
-File_purpose Enum<File_purpose>::read(char const* purpose)
+File_purpose Enum<File_purpose>::read(const char* purpose)
 {
-    if (std::regex_match(purpose, config_re))
+    auto match = [=] (auto re) {
+        return std::regex_match(purpose, re);
+    };
+
+    if (match(config_re))
         return File_purpose::config;
 
-    if (std::regex_match(purpose, log_re))
+    if (match(log_re))
         return File_purpose::log;
 
-    if (std::regex_match(purpose, resource_re))
+    if (match(resource_re))
         return File_purpose::resource;
 
-    if (std::regex_match(purpose, test_re))
+    if (match(test_re))
         return File_purpose::test;
 
     return File_purpose::source;
@@ -135,51 +139,38 @@ File_meta::upload(const std::string &name, const Bytes &contents,
     return result;
 }
 
-void File_meta::rename(const std::string& new_name)
+bool File_meta::move(const dbo::ptr<Submission>& dst_owner,
+                     const std::string& dst_name,
+                     bool overwrite)
 {
-    name_ = new_name;
-}
+    if (submission() == dst_owner && name() == dst_name)
+        return true;
 
-void File_meta::re_own(const dbo::ptr <Submission>& new_owner)
-{
-    Source_file_vec avoid = new_owner->source_files_sorted();
-
-    auto find_by_name = [&](const std::string& name) {
-        for (const auto& each : avoid) {
-            if (name == each->name()) return each;
-        }
-        return dbo::ptr<File_meta>{};
-    };
-
-    auto same_name = find_by_name(name());
-
-    if (same_name) {
-        auto my_data    = file_data().lock();
-        auto other_data = same_name->file_data().lock();
-
-        if (my_data->contents() == other_data->contents())
-            return;
-
-        std::string alternate = name() + "." + submission()->user1()->name();
-
-        while (find_by_name(alternate)) {
-            alternate += "~";
-        }
-
-        rename(alternate);
+    if (auto file = dst_owner->find_file_by_name(dst_name)) {
+        if (overwrite)
+            file.remove();
+        else
+            return false;
     }
 
-    submission_ = new_owner;
+    submission_ = dst_owner;
+    name_       = dst_name;
+    return true;
 }
 
-std::string const& File_meta::media_type() const
+void File_meta::set_media_type(const std::string& media_type)
 {
-    return media_type_;
+    media_type_ = media_type;
 }
 
-File_purpose const& File_meta::purpose() const
+void File_meta::reclassify()
 {
-    return purpose_;
+    reclassify(classify_file_type(media_type(), name()));
+}
+
+void File_meta::reclassify(File_purpose purpose)
+{
+    purpose_ = purpose;
 }
 
 bool operator<(const File_meta& a, const File_meta& b)
@@ -212,7 +203,7 @@ J::Object File_meta::to_json(bool brief) const
     result["name"] = J::Value(name());
     result["media_type"] = J::Value(media_type());
     result["purpose"] = J::Value(stringify(purpose()));
-//    result["submission"] = J::Value(submission()->to_json(true));
+    result["assignment_number"] = J::Value(submission()->assignment_number());
     result["byte_count"] = J::Value(byte_count());
     result["upload_time"] = J::Value(json_format(time_stamp_));
     return result;

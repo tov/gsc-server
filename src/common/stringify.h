@@ -14,16 +14,32 @@ char const* stringify(T value)
     return Enum<T>::show(value);
 }
 
-template <class T>
-T destringify(char const* value)
+class destringify_result
 {
-    return Enum<T>::read(value);
+public:
+    friend auto destringify(char const*);
+
+    template <class T>
+    operator T() const
+    {
+        return Enum<T>::read(c_str_);
+    }
+
+private:
+    explicit destringify_result(char const *c_str)
+            : c_str_{c_str} { }
+
+    const char* c_str_;
+};
+
+inline auto destringify(char const* value)
+{
+    return destringify_result(value);
 }
 
-template <class T>
-T destringify(std::string const& value)
+inline auto destringify(std::string const& value)
 {
-    return Enum<T>::read(value.c_str());
+    return destringify(value.c_str());
 }
 
 template <class T>

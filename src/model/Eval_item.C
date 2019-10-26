@@ -133,17 +133,18 @@ static std::regex const boolean_re("boolean", rc::icase);
 static std::regex const scale_re("scale", rc::icase);
 static std::regex const informational_re("informational", rc::icase);
 
-Eval_item::Type Enum<Eval_item::Type>::read(char const* type) {
+Eval_item::Type Enum<Eval_item::Type>::read(const char* type) {
     using T = Eval_item::Type;
 
-    if (std::regex_match(type, boolean_re))
-        return T::Boolean;
+    auto match = [=] (auto re) {
+        return std::regex_match(type, re);
+    };
 
-    if (std::regex_match(type, scale_re))
-        return T::Scale;
+    if (match(boolean_re)) return T::Boolean;
 
-    if (std::regex_match(type, informational_re))
-        return T::Informational;
+    if (match(scale_re)) return T::Scale;
+
+    if (match(informational_re)) return T::Informational;
 
     throw std::invalid_argument{"Could not parse eval item type"};
 }
