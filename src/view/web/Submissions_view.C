@@ -338,6 +338,7 @@ Submissions_view::Submissions_view(const dbo::ptr<User>& user, Session& session)
         , model_{user, session}
 {
     setStyleClass("submissions-view");
+    changed_.connect(this, &Submissions_view::on_change_);
     reload_();
 }
 

@@ -50,12 +50,13 @@ void Submission_context::notify(Submission_change_message submission)
 
 void Submission_context::notify()
 {
-    changed_.emit(submission_);
+    changed_.emit(nullptr);
 }
 
 void Submission_context::on_change_(Submission_change_message submission)
 {
-    if (submission_) submission_ = submission;
+    if (submission_ && submission)
+        submission_ = submission;
 
     on_change();
 }

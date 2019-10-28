@@ -718,13 +718,14 @@ std::ostream& Submission::Join_collision::write_html(std::ostream& note) const
     else
         note << "Some files";
 
-    note << " would be lost:</p><ul>";
+    note << " you both have would be lost:</p><ul>";
 
     for (auto const& name : filenames())
-        note << "<li><pre>" << Wt::Utils::htmlEncode(name) << "</pre></li>";
+        note << "<li><tt>" << Wt::Utils::htmlEncode(name) << "</tt></li>";
 
-    note << "</ul><p>Before this partnership can be registered, your or your ";
-    note << "prospective partner must delete or rename the files in question.</p>";
+    note << "</ul><p>Before this partnership can be registered, your and your ";
+    note << "prospective partner must ensure that your submissions do not have ";
+    note << "any filenames in common.</p>";
 
     return note;
 }
