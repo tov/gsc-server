@@ -17,6 +17,14 @@
 #include <Wt/WTable.h>
 #include <Wt/WText.h>
 
+
+Submissions_view_model::Item::Item(
+        dbo::ptr<Submission> const& submission)
+        : submission(submission)
+        , file_count(submission->file_count())
+        , eval_status(submission->eval_status())
+{ }
+
 Submissions_view_model::Submissions_view_model(
         Wt::Dbo::ptr<User> const& principal,
         Session& session)
@@ -28,10 +36,7 @@ Submissions_view_model::Submissions_view_model(
         // Make sure this is loaded now.
         submission->user1()->name();
 
-        auto& item = submissions[submission->assignment()->number()];
-        item.submission  = submission;
-        item.file_count  = submission->file_count();
-        item.eval_status = submission->eval_status();
+        submissions[submission->assignment()->number()] = submission;
     }
 
     for (auto exam_grade : Exam_grade::find_by_user(principal)) {
@@ -40,7 +45,7 @@ Submissions_view_model::Submissions_view_model(
 }
 
 Submissions_view_row::Submissions_view_row(
-        const Submissions_view_model_item& model,
+        const Submissions_view_model::Item& model,
         Session& session,
         Wt::WTableRow* row)
         : model_(model),
@@ -189,13 +194,13 @@ class Student_submissions_view_row : public Submissions_view_row
 {
 public:
     Student_submissions_view_row(
-            const Submissions_view_model_item& model,
+            const View_model& model,
             Session& session,
             Wt::WTableRow* row);
 };
 
 Student_submissions_view_row::Student_submissions_view_row(
-        const Submissions_view_model_item& model, Session& session,
+        const View_model& model, Session& session,
         Wt::WTableRow* row)
         : Submissions_view_row(model, session, row)
 {
@@ -211,7 +216,7 @@ class Admin_submissions_view_row : public Submissions_view_row
 {
 public:
     Admin_submissions_view_row(
-            const Submissions_view_model_item& model,
+            const View_model& model,
             Session& session,
             Wt::WTableRow* row);
 
@@ -230,7 +235,7 @@ protected:
 };
 
 Admin_submissions_view_row::Admin_submissions_view_row(
-        const Submissions_view_model_item& model,
+        const View_model& model,
         Session& session,
         Wt::WTableRow* row)
         : Submissions_view_row(model, session, row)
@@ -317,7 +322,7 @@ void Admin_submissions_view_row::set_action_style_class(const char*)
 }
 
 unique_ptr<Submissions_view_row>
-Submissions_view_row::construct(const Submissions_view_model_item& model,
+Submissions_view_row::construct(const View_model& model,
                                 Session& session, Wt::WTableRow* row)
 {
     if (session.user()->can_admin()) {
@@ -381,7 +386,8 @@ void Submissions_view::reload_()
 void Submissions_view::on_change_(Submission_change_message submission)
 {
     if (submission) {
-        model_.submissions[submission->assignment_number()].submission = submission;
+        dbo::Transaction trans(session_);
+        model_.submissions[submission->assignment_number()] = submission;
     }
 
     reload_();
