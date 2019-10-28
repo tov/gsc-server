@@ -7,6 +7,10 @@
 #include <Wt/Dbo/WtSqlTraits.h>
 #include <Wt/WDateTime.h>
 
+#include <array>
+#include <set>
+#include <stdexcept>
+#include <string>
 #include <vector>
 
 class Assignment;
@@ -46,12 +50,15 @@ public:
         Wt::Dbo::ptr<Grader_eval> grader_eval;
     };
 
+    class Join_collision;
+    class Move_collision;
+
     using Items = std::vector<Item>;
 
     Submission() {};
     Submission(const Wt::Dbo::ptr<User>&, const Wt::Dbo::ptr<Assignment>&);
 
-    Source_file_vec source_files_sorted(bool name_only = false) const;
+    Source_file_vec source_files_sorted() const;
     const Source_files& source_files() const { return source_files_; }
     Self_eval_vec self_eval_vec() const;
     size_t file_count() const;
@@ -144,6 +151,10 @@ public:
     static bool join_together(Wt::Dbo::ptr<Submission> keep,
                               Wt::Dbo::ptr<Submission> kill);
 
+    static std::set<std::string> intersection(Wt::Dbo::ptr<Submission>,
+                                              Wt::Dbo::ptr<Submission>);
+
+
     void touch();
 
     // Creates the submission if it doesn't exist.
@@ -206,6 +217,34 @@ public:
         Wt::Dbo::field(a, last_modified_, "last_modified");
         Wt::Dbo::field(a, bytes_quota_, "bytes_quota");
     }
+};
+
+class Submission::Join_collision : public std::runtime_error {
+public:
+    using submission_t = Wt::Dbo::ptr<Submission>;
+    using filenames_t  = std::set<std::string>;
+
+    Join_collision(submission_t, submission_t, filenames_t);
+
+    filenames_t const& filenames() const { return filenames_; }
+
+    std::ostream& write_html(std::ostream&) const;
+
+private:
+    std::array<submission_t, 2> submissions_;
+    filenames_t filenames_;
+};
+
+class Submission::Move_collision : public std::runtime_error {
+public:
+    using submission_t = Wt::Dbo::ptr<Submission>;
+    using filename_t = std::string;
+
+    Move_collision(submission_t, filename_t, submission_t, filename_t);
+
+private:
+    std::array<submission_t, 2> submissions_;
+    std::array<filename_t, 2> filenames_;
 };
 
 struct Viewing_context

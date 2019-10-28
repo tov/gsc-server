@@ -660,7 +660,7 @@ private:
 void Submissions_1_files::load(Context const& context)
 {
     auto submission = load_submission(context, uri_.submission_id);
-    auto file_metas = submission->source_files_sorted(false);
+    auto file_metas = submission->source_files_sorted();
     file_metas_.assign(file_metas.begin(), file_metas.end());
 }
 
@@ -772,9 +772,7 @@ void Submissions_1_files_2::do_patch_(Request_body body, Context const& context)
 
         if (opt_name || owner != submission_) {
             string name = opt_name? *opt_name : file_meta_m->name();
-            bool success = file_meta_m->move(owner, name, overwrite);
-            if (!success)
-                throw std::invalid_argument{"Destination file already exists"};
+            file_meta_m->move(owner, name, overwrite);
         }
 
         if (opt_purpose)

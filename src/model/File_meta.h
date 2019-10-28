@@ -47,7 +47,7 @@ public:
     const dbo::ptr<Submission>& submission() const { return submission_; }
     const dbo::ptr<User>& uploader() const { return uploader_; }
 
-    bool move(const dbo::ptr<Submission>&,
+    void move(const dbo::ptr<Submission>&,
               const std::string&,
               bool overwrite = false);
 

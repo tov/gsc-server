@@ -139,23 +139,23 @@ File_meta::upload(const std::string &name, const Bytes &contents,
     return result;
 }
 
-bool File_meta::move(const dbo::ptr<Submission>& dst_owner,
+void File_meta::move(const dbo::ptr<Submission>& dst_owner,
                      const std::string& dst_name,
                      bool overwrite)
 {
     if (submission() == dst_owner && name() == dst_name)
-        return true;
+        return;
 
     if (auto file = dst_owner->find_file_by_name(dst_name)) {
-        if (overwrite)
-            file.remove();
-        else
-            return false;
+        if (!overwrite)
+            throw Submission::Move_collision(submission(), name(),
+                                             dst_owner, dst_name);
+
+        file.remove();
     }
 
     submission_ = dst_owner;
     name_       = dst_name;
-    return true;
 }
 
 void File_meta::set_media_type(const std::string& media_type)

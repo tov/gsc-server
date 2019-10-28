@@ -2,7 +2,6 @@
 
 #include "specializations.h"
 #include "../common/stringify.h"
-#include "../Session.h"
 
 #include <Wt/Dbo/WtSqlTraits.h>
 #include <Wt/Dbo/Types.h>
@@ -13,7 +12,6 @@
 namespace dbo = Wt::Dbo;
 
 class Assignment;
-class Session;
 class Submission;
 class User;
 
@@ -33,48 +31,54 @@ public:
                     const dbo::ptr<Assignment>& assignment);
 
     static Wt::Dbo::ptr<Partner_request>
-    create(Db_session &, const dbo::ptr<User> &requestor,
+    create(Wt::Dbo::Session& session, const dbo::ptr<User> &requestor,
            const dbo::ptr<User> &requestee,
-           const dbo::ptr<Assignment> &,
+           const dbo::ptr<Assignment>& assignment,
            std::ostream &message);
 
+    static Wt::Dbo::ptr<Submission>
+            confirm(Wt::Dbo::Session&,
+                    Wt::Dbo::ptr<User>,
+                    Wt::Dbo::ptr<User>,
+                    Wt::Dbo::ptr<Assignment> const&);
+
     // Returns the pointer to the joint submission on success.
-    dbo::ptr<Submission> confirm(Db_session &) const;
+    dbo::ptr<Submission> confirm(Wt::Dbo::Session& session) const;
 
     const dbo::ptr<User>& requestor() const { return requestor_; }
     const dbo::ptr<User>& requestee() const { return requestee_; }
     const dbo::ptr<Assignment>& assignment() const { return assignment_; }
 
     // Can this Partner_request still be acted on?
-    bool is_active(Session&) const;
+    bool is_active(Wt::Dbo::Session&) const;
 
     static dbo::ptr<Partner_request>
     find_by_requestor_and_requestee(
-            Db_session &,
+            Wt::Dbo::Session& session,
             const dbo::ptr<User> &requestor,
             const dbo::ptr<User> &requestee,
-            const dbo::ptr<Assignment> &);
+            const dbo::ptr<Assignment>& assignment);
 
     static dbo::collection<dbo::ptr<Partner_request>>
-    find_by_requestor(Db_session &, const dbo::ptr<User> &);
+    find_by_requestor(Wt::Dbo::Session& session, const dbo::ptr<User>& requestor);
 
     static dbo::collection<dbo::ptr<Partner_request>>
-    find_by_requestee(Db_session &, const dbo::ptr<User> &);
+    find_by_requestee(Wt::Dbo::Session& session, const dbo::ptr<User>& requestee);
 
     static dbo::ptr<Partner_request>
-    find_by_requestor_and_assignment(Db_session&,
+    find_by_requestor_and_assignment(Wt::Dbo::Session&,
                                      const dbo::ptr<User>&,
                                      const dbo::ptr<Assignment>&);
 
     static dbo::collection<dbo::ptr<Partner_request>>
-    find_by_requestee_and_assignment(Db_session &,
+    find_by_requestee_and_assignment(Wt::Dbo::Session&,
                                      const dbo::ptr<User> &,
                                      const dbo::ptr<Assignment> &);
 
     static void
-    delete_requests(Db_session &,
-                    const dbo::ptr<User> &,
-                    const dbo::ptr<Assignment> &);
+    delete_requests(Wt::Dbo::Session& session,
+                    const dbo::ptr<User>& user,
+                    const dbo::ptr<Assignment>& assignment);
 
 private:
     dbo::ptr<User> requestor_;

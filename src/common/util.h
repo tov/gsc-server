@@ -10,6 +10,7 @@ namespace Json { }
 namespace dbo = Wt::Dbo;
 namespace J = Wt::Json;
 
+using namespace Wt;
 using namespace std;
 
 template <class T>

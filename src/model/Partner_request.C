@@ -1,7 +1,6 @@
 #include "Partner_request.h"
 #include "auth/User.h"
 #include "Assignment.h"
-#include "../Session.h"
 #include "Submission.h"
 
 #include <Wt/Dbo/Impl.h>
@@ -10,11 +9,11 @@
 
 DBO_INSTANTIATE_TEMPLATES(Partner_request)
 
-Wt::Dbo::ptr<Partner_request>
-Partner_request::create(Db_session &session,
-                        const dbo::ptr<User> &requestor,
-                        const dbo::ptr<User> &requestee,
-                        const dbo::ptr<Assignment> &assignment,
+dbo::ptr<Partner_request>
+Partner_request::create(dbo::Session& session,
+                        const dbo::ptr<User>& requestor,
+                        const dbo::ptr<User>& requestee,
+                        const dbo::ptr<Assignment>& assignment,
                         std::ostream& message)
 {
     if (requestor == requestee) {
@@ -61,41 +60,22 @@ Partner_request::create(Db_session &session,
 }
 
 dbo::ptr<Submission>
-Partner_request::confirm(Db_session &session) const
+Partner_request::confirm(dbo::Session& session) const
 {
     // Confirm that the request hasn't been cancelled
     auto self = Partner_request::find_by_requestor_and_requestee(
             session, requestor_, requestee_, assignment_);
     if (!self) return {};
 
-    // Alphabetical order
-    dbo::ptr<User> user1 = requestor_;
-    dbo::ptr<User> user2 = requestee_;
-    if (requestor_->name() > requestee_->name())
-        std::swap(user1, user2);
-
-    auto submission1 = Submission::find_by_assignment_and_user(
-            session, assignment_, user1);
-    auto submission2 = Submission::find_by_assignment_and_user(
-            session, assignment_, user2);
-
-    bool success = Submission::join_together(submission1, submission2);
-
-    if (success) {
-        delete_requests(session, requestor_, assignment_);
-        delete_requests(session, requestee_, assignment_);
-        return submission1;
-    } else {
-        return {};
-    }
+    return confirm(session, requestor_, requestee_, assignment_);
 }
 
-Wt::Dbo::ptr<Partner_request>
+dbo::ptr<Partner_request>
 Partner_request::find_by_requestor_and_requestee(
-        Db_session &session,
-        const Wt::Dbo::ptr<User> &requestor,
-        const Wt::Dbo::ptr<User> &requestee,
-        const Wt::Dbo::ptr<Assignment> &assignment)
+        dbo::Session& session,
+        const dbo::ptr<User>& requestor,
+        const dbo::ptr<User>& requestee,
+        const dbo::ptr<Assignment>& assignment)
 {
     return session
             .find<Partner_request>()
@@ -104,18 +84,18 @@ Partner_request::find_by_requestor_and_requestee(
             .where("assignment_number = ?").bind(assignment.id());
 }
 
-Wt::Dbo::collection<Wt::Dbo::ptr<Partner_request>>
-Partner_request::find_by_requestor(Db_session &session,
-                                   const dbo::ptr<User> &requestor)
+dbo::collection<dbo::ptr<Partner_request>>
+Partner_request::find_by_requestor(dbo::Session& session,
+                                   const dbo::ptr<User>& requestor)
 {
     return session
             .find<Partner_request>()
             .where("requestor_id = ?").bind(requestor.id());
 }
 
-Wt::Dbo::collection<Wt::Dbo::ptr<Partner_request>>
-Partner_request::find_by_requestee(Db_session &session,
-                                   const dbo::ptr<User> &requestee)
+dbo::collection<dbo::ptr<Partner_request>>
+Partner_request::find_by_requestee(dbo::Session& session,
+                                   const dbo::ptr<User>& requestee)
 {
     return session
             .find<Partner_request>()
@@ -123,10 +103,11 @@ Partner_request::find_by_requestee(Db_session &session,
 }
 
 
-Wt::Dbo::ptr<Partner_request>
-Partner_request::find_by_requestor_and_assignment(Db_session& session,
-                                                  const Wt::Dbo::ptr<User>& requestor,
-                                                  const Wt::Dbo::ptr<Assignment>& assignment)
+dbo::ptr<Partner_request>
+Partner_request::find_by_requestor_and_assignment(
+        dbo::Session& session,
+        const dbo::ptr<User>& requestor,
+        const dbo::ptr<Assignment>& assignment)
 {
     return session
             .find<Partner_request>()
@@ -134,10 +115,11 @@ Partner_request::find_by_requestor_and_assignment(Db_session& session,
             .where("assignment_number = ?").bind(assignment.id());
 }
 
-Wt::Dbo::collection<Wt::Dbo::ptr<Partner_request>>
-Partner_request::find_by_requestee_and_assignment(Db_session &session,
-                                                  const Wt::Dbo::ptr<User> &requestee,
-                                                  const Wt::Dbo::ptr<Assignment> &assignment)
+dbo::collection<dbo::ptr<Partner_request>>
+Partner_request::find_by_requestee_and_assignment(
+        dbo::Session& session,
+        const dbo::ptr<User>& requestee,
+        const dbo::ptr<Assignment>& assignment)
 {
     return session
             .find<Partner_request>()
@@ -145,9 +127,9 @@ Partner_request::find_by_requestee_and_assignment(Db_session &session,
             .where("assignment_number = ?").bind(assignment.id());
 }
 
-void Partner_request::delete_requests(Db_session &session,
-                                      const dbo::ptr<User> &user,
-                                      const dbo::ptr<Assignment> &assignment)
+void Partner_request::delete_requests(dbo::Session& session,
+                                      const dbo::ptr<User>& user,
+                                      const dbo::ptr<Assignment>& assignment)
 {
     auto outgoing = Partner_request::find_by_requestor_and_assignment(session, user, assignment);
     if (outgoing) outgoing.remove();
@@ -158,7 +140,7 @@ void Partner_request::delete_requests(Db_session &session,
     }
 }
 
-bool Partner_request::is_active(Session& session) const
+bool Partner_request::is_active(dbo::Session& session) const
 {
     auto submission1 = Submission::find_by_assignment_and_user(
             session, assignment_, requestor_);
@@ -182,6 +164,32 @@ Partner_request::Partner_request(const dbo::ptr<User>& requestor,
         , requestee_{requestee}
         , assignment_{assignment}
 { }
+
+dbo::ptr<Submission>
+Partner_request::confirm(dbo::Session& session,
+                         dbo::ptr<User> user1,
+                         dbo::ptr<User> user2,
+                         dbo::ptr<Assignment> const& assignment)
+{
+    // Alphabetical order
+    if (user1->name() > user2->name())
+        std::swap(user1, user2);
+
+    auto submission1 = Submission::find_by_assignment_and_user(
+            session, assignment, user1);
+    auto submission2 = Submission::find_by_assignment_and_user(
+            session, assignment, user2);
+
+    bool success = Submission::join_together(submission1, submission2);
+
+    if (success) {
+        delete_requests(session, user1, assignment);
+        delete_requests(session, user2, assignment);
+        return submission1;
+    } else {
+        return {};
+    }
+}
 
 bool operator<(Partner_request const& a, Partner_request const& b) {
     auto a_num = a.assignment()->number();

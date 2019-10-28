@@ -8,17 +8,17 @@
 #include "auth/User.h"
 #include "../Session.h"
 #include "../common/format.h"
+#include "../common/util.h"
 #include "../common/paths.h"
 
 #include <Wt/WDateTime.h>
 #include <Wt/Dbo/Impl.h>
+#include <Wt/Utils.h>
 
+#include <algorithm>
 #include <functional>
 #include <locale>
 #include <sstream>
-
-namespace dbo = Wt::Dbo;
-namespace J   = Wt::Json;
 
 DBO_INSTANTIATE_TEMPLATES(Submission)
 
@@ -35,12 +35,10 @@ Submission::Submission(const dbo::ptr <User>& user,
 
 }
 
-Source_file_vec Submission::source_files_sorted(bool name_only) const
+Source_file_vec Submission::source_files_sorted() const
 {
-    Source_file_vec result;
-
-    for (const auto& ptr : source_files_)
-        result.push_back(ptr);
+    Source_file_vec result(source_files().begin(),
+                           source_files().end());
 
     std::sort(result.begin(), result.end(),
               [=](auto const& a, auto const& b) { return *a < *b; });
@@ -495,6 +493,32 @@ std::string Submission::grade_string() const
     return percentage(grade());
 }
 
+set<string> Submission::intersection(dbo::ptr<Submission> sub1,
+                                     dbo::ptr<Submission> sub2)
+{
+    set<string> set1, result;
+
+    transform(sub1->source_files().begin(),
+              sub1->source_files().end(),
+              inserter(set1, set1.end()),
+              mem_fn(&File_meta::name));
+
+    for (const auto& file2 : sub2->source_files())
+        if (set1.count(file2->name()))
+            result.insert(file2->name());
+
+    return result;
+}
+
+static void check_disjoint(dbo::ptr<Submission> const& sub1,
+                           dbo::ptr<Submission> const& sub2)
+{
+    if (auto intersection = Submission::intersection(sub1, sub2);
+            intersection.size() > 0) {
+        throw Submission::Join_collision(sub1, sub2, move(intersection));
+    }
+}
+
 bool Submission::join_together(dbo::ptr<Submission> keep,
                                dbo::ptr<Submission> kill)
 {
@@ -502,11 +526,11 @@ bool Submission::join_together(dbo::ptr<Submission> keep,
     if (keep->user1() == kill->user1()) return false;
     if (keep->assignment() != kill->assignment()) return false;
 
-    for (dbo::ptr<File_meta> file : kill->source_files_sorted())
-        file.remove();
+    check_disjoint(keep, kill);
 
-    for (dbo::ptr<File_meta> file : keep->source_files_sorted())
-        file.remove();
+    for (auto file : kill->source_files()) {
+        file.modify()->move(keep, file->name());
+    }
 
     keep.modify()->user2_ = kill->user1_;
     kill.remove();
@@ -656,3 +680,79 @@ char const* Enum<Submission::Eval_status>::show(Submission::Eval_status status)
     }
 }
 
+static std::string join_error_message_(dbo::ptr<Submission> const& o1,
+                                       dbo::ptr<Submission> const& o2,
+                                       set<string> const& names) {
+    ostringstream oss;
+
+    auto fmt = [&](auto const& o) {
+        oss << " - " << o->owner_string() << " hw" << o->assignment_number() << "\n";
+    };
+
+    oss << "Submission Collision Error\n\n";
+    oss << "Problem: These submissions can’t be unified:\n";
+    fmt(o1);
+    fmt(o2);
+    oss << "Reason:  These file names are common to both submissions:\n";
+    for (auto const& name : names) {
+        oss << " - " << name << "\n";
+    }
+
+    return oss.str();
+}
+
+Submission::Join_collision::Join_collision(submission_t o1,
+                                           submission_t o2,
+                                           filenames_t filenames)
+        : std::runtime_error{join_error_message_(o1, o2, filenames)}
+        , submissions_{move(o1), move(o2)}
+        , filenames_{move(filenames)}
+{ }
+
+std::ostream& Submission::Join_collision::write_html(std::ostream& note) const
+{
+    note << "<p>";
+
+    if (filenames().size() == 1)
+        note << "A file";
+    else
+        note << "Some files";
+
+    note << " would be lost:</p><ul>";
+
+    for (auto const& name : filenames())
+        note << "<li><pre>" << Wt::Utils::htmlEncode(name) << "</pre></li>";
+
+    note << "</ul><p>Before this partnership can be registered, your or your ";
+    note << "prospective partner must delete or rename the files in question.</p>";
+
+    return note;
+}
+
+static std::string move_error_message_(dbo::ptr<Submission> const& o1,
+                                       string const& s1,
+                                       dbo::ptr<Submission> const& o2,
+                                       string const& s2) {
+    ostringstream oss;
+
+    auto fmt = [&](auto const& descr, auto const& o, auto const& s) {
+        oss << " - " << descr << ": hw" << o->assignment_number() << ':' << s << '\n';
+    };
+
+    oss << "Submission Collision Error\n\n";
+    oss << "Problem: File cannot be renamed:\n";
+    fmt("source", o1, s1);
+    fmt("target", o2, s2);
+    oss << "Reason:  The target already exists.\n";
+
+    return oss.str();
+}
+
+Submission::Move_collision::Move_collision(submission_t o1,
+                                           filename_t s1,
+                                           submission_t o2,
+                                           filename_t s2)
+        : std::runtime_error(move_error_message_(o1, s1, o2, s2))
+        , submissions_{o1, o2}
+        , filenames_{s1, s2}
+{ }
