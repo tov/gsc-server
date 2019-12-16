@@ -123,7 +123,7 @@ void Grades_csv::load(const Resource::Context& context) {
     const auto assigns_q = dbo.find<Assignment>()
             .orderBy("number")
             .resultList();
-    const auto exams_q = dbo.query<int>("SELECT DISTINCT number FROM exam_grades")
+    const auto exams_q = dbo.query<int>("SELECT DISTINCT number FROM exam_grade")
             .orderBy("number")
             .resultList();
 
