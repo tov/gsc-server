@@ -66,6 +66,19 @@ struct authn_result<User>
     static type lift(Wt::Auth::User const&, Db_session const&);
 };
 
+struct User_auth_params
+{
+    //
+    // Member variables
+    //
+
+    User::Role role = User::Role::Student;
+
+#ifdef GSC_AUTH_PASSWORD
+    std::string password;
+#endif // GSC_AUTH_PASSWORD
+};
+
 class Db_session
 {
 public:
@@ -91,8 +104,7 @@ public:
             Wt::Dbo::ptr<User>,
             Wt::Auth::User>
     create_user(const std::string& username,
-                const std::string& password = "",
-                User::Role role = User::Role::Student);
+                const User_auth_params& param = User_auth_params{});
 
     template <typename T>
     authn_result_t<T>
@@ -154,7 +166,9 @@ public:
     createConnectionPool(const std::string&);
 
     static const Wt::Auth::AuthService& auth();
+#ifdef GSC_AUTH_PASSWORD
     static const Wt::Auth::AbstractPasswordService& passwordAuth();
+#endif // GSC_AUTH_PASSWORD
 
 private:
     std::unique_ptr<User_database> users_;

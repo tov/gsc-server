@@ -6,7 +6,10 @@
 
 #include <Wt/Auth/AuthService.h>
 #include <Wt/Auth/HashFunction.h>
-#include <Wt/Auth/PasswordStrengthValidator.h>
+#ifdef GSC_AUTH_PASSWORD
+#  include <Wt/Auth/PasswordStrengthValidator.h>
+#endif // GSC_AUTH_PASSWORD
+
 #include <Wt/Http/Response.h>
 #include <Wt/Utils.h>
 #include <Wt/WDateTime.h>
@@ -75,8 +78,12 @@ std::unique_ptr<resources::Resource> Request_handler::parse_uri() const
     return resources::Resource::create(method_, path_info_);
 }
 
-static std::string const cookie_name = "gsc_cookie";
+#ifdef GSC_AUTH_API_KEY
 static std::string const api_key_name = "gsc_api_key";
+#endif // GSC_AUTH_API_KEY
+
+#ifdef GSC_AUTH_COOKIE
+static std::string const cookie_name = "gsc_cookie";
 
 void
 Request_handler::set_cookie_(std::string const& value, int ttl_seconds) const
@@ -97,7 +104,9 @@ void Request_handler::create_cookie_(Wt::Auth::User const& auth_user) const
     std::string auth_token = session_.auth().createAuthToken(auth_user);
     set_cookie_(auth_token, 60 * session_.auth().authTokenValidity());
 }
+#endif // GSC_AUTH_COOKIE
 
+#ifdef GSC_AUTH_PASSWORD
 void Request_handler::check_password_strength(Credentials const& cred)
 {
     Wt::Auth::PasswordStrengthValidator psv;
@@ -109,6 +118,7 @@ void Request_handler::check_password_strength(Credentials const& cred)
             << "Please try a stronger password ("
             << psv_result.message() << ")";
 }
+#endif // GSC_AUTH_PASSWORD
 
 dbo::ptr<User> Request_handler::authenticate_by_api_key_() const
 {

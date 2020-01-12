@@ -36,8 +36,7 @@ set(CLI_SRC_FILES
         src/view/cli/Cli_base.C)
 
 set(WWW_SRC_FILES
-        src/gscd.C
-        ${MODEL_SRC_FILES}
+        src/gscd.C ${MODEL_SRC_FILES}
         src/Application_controller.C
         src/Navigate.h
         src/view/web/Abstract_file_view.C
@@ -100,7 +99,9 @@ endmacro(add_program)
 if(TARGET Wt::HTTP)
     add_program(gscd ${WWW_SRC_FILES})
     target_link_libraries(gscd Wt::HTTP ${LIBRARIES})
-    target_compile_definitions(gscd PRIVATE GSC_AUTH_DEBUG)
+    target_compile_definitions(gscd PRIVATE GSC_AUTH_DEBUG
+            GSC_AUTH_OPEN_AM # TODO: delete
+            )
 endif(TARGET Wt::HTTP)
 
 if(TARGET Wt::FCGI)
@@ -109,8 +110,6 @@ if(TARGET Wt::FCGI)
     target_compile_definitions(gscd-fcgi PRIVATE GSC_AUTH_OPEN_AM)
 endif(TARGET Wt::FCGI)
 
-add_compile_definitions(GSC_AUTH_OPEN_AM)
-add_compile_definitions(GSC_AUTH_OPEN_AM)
 add_program(gsc-auth src/gsc-auth.C ${CLI_SRC_FILES})
 target_link_libraries(gsc-auth ${LIBRARIES})
 

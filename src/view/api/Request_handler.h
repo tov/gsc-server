@@ -35,8 +35,10 @@ private:
     dbo::ptr<User> authenticate_by_password_() const;
     dbo::ptr<User> authenticate_by_open_am_() const;
 
+#ifdef GSC_AUTH_COOKIE
     void create_cookie_(Wt::Auth::User const&) const;
     void set_cookie_(std::string const& value, int ttl_seconds) const;
+#endif // GSC_AUTH_COOKIE
 
     Db_session& session_;
     Wt::Http::Request const& request_;

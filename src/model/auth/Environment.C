@@ -4,6 +4,7 @@
 #include "Wt/WApplication.h"
 #include "Wt/WEnvironment.h"
 
+#ifdef GSC_AUTH_OPEN_AM
 namespace {
 
 struct Param
@@ -24,6 +25,7 @@ std::string Param::lookup(Wt::WEnvironment const& env) const
 }
 
 }
+#endif // GSC_AUTH_OPEN_AM
 
 std::optional<std::string> env_remote_user()
 {

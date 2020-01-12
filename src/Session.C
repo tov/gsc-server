@@ -19,10 +19,13 @@
 #include <Wt/Auth/AuthService.h>
 #include <Wt/Auth/HashFunction.h>
 #include <Wt/Auth/Identity.h>
-#include <Wt/Auth/PasswordService.h>
-#include <Wt/Auth/PasswordStrengthValidator.h>
-#include <Wt/Auth/PasswordVerifier.h>
 #include <Wt/Auth/Dbo/AuthInfo.h>
+
+#ifdef GSC_AUTH_PASSWORD
+#  include <Wt/Auth/PasswordService.h>
+#  include <Wt/Auth/PasswordStrengthValidator.h>
+#  include <Wt/Auth/PasswordVerifier.h>
+#endif // GSC_AUTH_PASSWORD
 
 #include <Wt/Dbo/backend/Postgres.h>
 #include <Wt/Dbo/FixedSqlConnectionPool.h>
@@ -39,8 +42,25 @@ namespace dbo = Wt::Dbo;
 
 namespace {
 
-Auth::AuthService     my_auth_service;
-Auth::PasswordService my_password_service(my_auth_service);
+struct Auth_services
+{
+    // Member functions
+
+    Auth_services();
+    void configure();
+    void update_auth_params(Wt::Auth::User, User_auth_params const&);
+
+    //
+    // Member variables
+    //
+
+    Auth::AuthService auth;
+#ifdef GSC_AUTH_PASSWORD
+    Auth::PasswordService password;
+#endif // GSC_AUTH_PASSWORD
+};
+
+Auth_services services;
 
 }
 
@@ -72,8 +92,11 @@ void Db_session::initialize_db(bool test_data)
         create_index_("gsc_user", "name", false);
         create_index_("self_eval", "permalink", false);
 
-        auto root_pw = get_env_var("ADMIN_PASSWORD");
-        create_user("jat489", root_pw, User::Role::Admin);
+        User_auth_params params {User::Role::Admin};
+#ifdef GSC_AUTH_PASSWORD
+        params.password = get_env_var("ADMIN_PASSWORD");
+#endif // GSC_AUTH_PASSWORD
+        create_user("jat489", params);
 
         if (test_data) populate_test_data_();
 
@@ -87,7 +110,7 @@ void Db_session::initialize_db(bool test_data)
 
 void Db_session::populate_test_data_()
 {
-    create_user("jtov", "", User::Role::Admin);
+    create_user("jtov", {User::Role::Admin});
 
     auto now = WDateTime::currentDateTime();
 
@@ -127,30 +150,20 @@ void Db_session::populate_test_data_()
 
 void Db_session::configure_auth()
 {
-    my_auth_service.setAuthTokensEnabled(true, "gsc_cookie");
-
-    auto verifier = std::make_unique<Auth::PasswordVerifier>();
-    verifier->addHashFunction(std::make_unique<Auth::BCryptHashFunction>(7));
-
-    my_password_service.setVerifier(std::move(verifier));
-    my_password_service.setStrengthValidator(
-            std::make_unique<Auth::PasswordStrengthValidator>());
-    my_password_service.setAttemptThrottlingEnabled(true);
+    services.configure();
 }
 
 std::pair<Dbo::ptr<User>, Auth::User>
 Db_session::create_user(const std::string& username,
-                        const std::string& password,
-                        User::Role role)
+                        const User_auth_params& params)
 {
     auto wt_user = users().registerNew();
 
     wt_user.addIdentity(Auth::Identity::LoginName, username);
 
-    if (!password.empty() || role == User::Role::Admin)
-        my_password_service.updatePassword(wt_user, password);
+    services.update_auth_params(wt_user, params);
 
-    auto user = addNew<User>(username, role);
+    auto user = addNew<User>(username, params.role);
     users().find(wt_user).modify()->setUser(user);
 
     return {user, wt_user};
@@ -160,7 +173,7 @@ Db_session::create_user(const std::string& username,
 void Db_session::set_password(const dbo::ptr<User>& user,
                               const std::string& password)
 {
-    my_password_service.updatePassword(users().find(user)->user(), password);
+    services.password.updatePassword(users().find(user)->user(), password);
 }
 #endif // GSC_AUTH_PASSWORD
 
@@ -228,13 +241,15 @@ int Session::find_ranking()
 
 const Auth::AuthService& Db_session::auth()
 {
-    return my_auth_service;
+    return services.auth;
 }
 
+#ifdef GSC_AUTH_PASSWORD
 const Auth::AbstractPasswordService& Db_session::passwordAuth()
 {
-    return my_password_service;
+    return services.password;
 }
+#endif // GSC_AUTH_PASSWORD
 
 std::unique_ptr<dbo::SqlConnectionPool>
 Db_session::createConnectionPool(const std::string& db)
@@ -325,4 +340,33 @@ auto authn_result<User>::lift(
         return info->user();
     else
         return nullptr;
+}
+
+Auth_services::Auth_services()
+#ifdef GSC_AUTH_PASSWORD
+        : password(auth)
+#endif // GSC_AUTH_PASSWORD
+{ }
+
+void Auth_services::configure()
+{
+    auth.setAuthTokensEnabled(true, "gsc_cookie");
+
+#ifdef GSC_AUTH_PASSWORD
+    auto verifier = std::make_unique<Auth::PasswordVerifier>();
+    verifier->addHashFunction(std::make_unique<Auth::BCryptHashFunction>(7));
+
+    password.setVerifier(std::move(verifier));
+    password.setStrengthValidator(
+            std::make_unique<Auth::PasswordStrengthValidator>());
+    password.setAttemptThrottlingEnabled(true);
+#endif // GSC_AUTH_PASSWORD
+}
+
+void Auth_services::update_auth_params(Wt::Auth::User user, const User_auth_params& params)
+{
+#ifdef GSC_AUTH_PASSWORD
+    if (!params.password.empty() || params.role == User::Role::Admin)
+        password.updatePassword(user, params.password);
+#endif // GSC_AUTH_PASSWORD
 }
