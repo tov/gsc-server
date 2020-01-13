@@ -1,6 +1,6 @@
 #include "Admin_eval_item_widget.h"
 #include "Admin_response_widget.h"
-#include "../Evaluation_view.h"
+#include "../view/Evaluation_view.h"
 #include "../../../model/Grader_eval.h"
 #include "../../../model/Self_eval.h"
 #include "../../../Session.h"

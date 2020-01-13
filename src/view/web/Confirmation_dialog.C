@@ -5,14 +5,14 @@
 #include <Wt/WPushButton.h>
 #include <Wt/WText.h>
 
-Confirmation_dialog& Confirmation_dialog::create(const std::string& message)
+Confirmation_dialog& Confirmation_dialog::create(Wt::WString const& message)
 {
     auto root = Wt::WApplication::instance()->root();
     std::unique_ptr<Confirmation_dialog> ptr(new Confirmation_dialog(message));
     return *root->addChild(std::move(ptr));
 }
 
-Confirmation_dialog::Confirmation_dialog(const std::string& message)
+Confirmation_dialog::Confirmation_dialog(Wt::WString const& message)
         : WDialog("Confirm action")
 {
     contents()->addNew<Wt::WText>(message);

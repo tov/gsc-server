@@ -6,17 +6,17 @@
 #include "model/Grader_eval.h"
 #include "model/Self_eval.h"
 #include "model/Submission.h"
-#include "view/web/Admin_view.h"
-#include "view/web/Assignments_view.h"
-#include "view/web/Edit_assignment_view.h"
-#include "view/web/Error_view.h"
-#include "view/web/Evaluation_view.h"
-#include "view/web/Grading_stats_view.h"
-#include "view/web/Grading_view.h"
-#include "view/web/Held_back_view.h"
-#include "view/web/Main_view.h"
-#include "view/web/Profile_view.h"
-#include "view/web/Submissions_view.h"
+#include "view/web/view/Admin_view.h"
+#include "view/web/view/Assignments_view.h"
+#include "view/web/view/Edit_assignment_view.h"
+#include "view/web/view/Error_view.h"
+#include "view/web/view/Evaluation_view.h"
+#include "view/web/view/Grading_stats_view.h"
+#include "view/web/view/Grading_view.h"
+#include "view/web/view/Held_back_view.h"
+#include "view/web/view/Main_view.h"
+#include "view/web/view/Profile_view.h"
+#include "view/web/view/Submissions_view.h"
 #include "view/game/HangmanWidget.h"
 #include "view/game/HighScoresWidget.h"
 
@@ -111,6 +111,7 @@ static const regex user_hw("/~([^/]+)/hw");
 static const regex user_hw_N("/~([^/]+)/hw/(\\d+)");
 static const regex user_hw_N_eval("/~([^/]+)/hw/(\\d+)/eval");
 static const regex user_hw_N_eval_M("/~([^/]+)/hw/(\\d+)/eval/(\\d+)");
+static const regex user_profile("/~([^/]+)/profile");
 static const regex trailing_slash("(.*)/");
 
 static const string hw("/hw");
@@ -145,7 +146,13 @@ user_hw_N(const dbo::ptr<Submission>& submission)
 inline string
 user_hw_N_eval(const dbo::ptr<Submission>& submission)
 {
-    return user_hw_N(submission) + " evaluation";
+    return user_hw_N(submission) + "/eval";
+}
+
+inline string
+user_profile(const dbo::ptr<User>& user)
+{
+    return "~" + user->name() + "/profile";
 }
 
 }
@@ -216,6 +223,11 @@ void Application_controller::handle_internal_path(
                     setInternalPath(Path::admin, true);
                     break;
             }
+
+            // /profile
+        } else if (internal_path == Path::profile) {
+            transaction.commit();
+            add_tilde_user();
 
             // /grade
         } else if (internal_path == Path::grade) {
@@ -309,6 +321,17 @@ void Application_controller::handle_internal_path(
             set_title(Title::user_hw_N_eval(submission));
             set_widget(std::move(view));
 
+            // /~:user/profile
+        } else if (std::regex_match(internal_path, sm, Path::user_profile)) {
+            auto user = find_user(sm[1], current_user);
+            transaction.commit();
+
+            if (!current_user->can_view(user))
+                permission_denied();
+
+            set_title(Title::user_profile(user));
+            set_new_widget<Profile_view>(user, session_);
+
             // /game
         } else if (internal_path == Path::game) {
             transaction.commit();
@@ -345,13 +368,6 @@ void Application_controller::handle_internal_path(
 
             set_title("Admin");
             set_new_widget<Admin_view>(session_);
-
-            // /profile
-        } else if (internal_path == Path::profile) {
-            transaction.commit();
-
-            set_title("User profile");
-            set_new_widget<Profile_view>(current_user, session_);
 
             // /held_back
         } else if (internal_path == Path::held_back) {

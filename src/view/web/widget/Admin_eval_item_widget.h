@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../Single_eval_item_widget.h"
+#include "Single_eval_item_widget.h"
 #include "../../../model/Grader_eval.h"
 
 #include <Wt/WPushButton.h>

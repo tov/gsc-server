@@ -1,13 +1,24 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <messages>
-  <message id="Wt.Auth.template.logged-in">
-    <div class="Wt-auth-logged-in">
+
+  <message id="gsc.template.logged-in">
+    <div class="gsc-auth-logged-in">
       Logged in as <strong>${user-name}</strong> | ${logout}
     </div>
   </message>
-  <message id="Wt.Auth.template.not-logged-in">
-    <div class="Wt-auth-logged-in">
+
+  <message id="gsc.template.not-logged-in">
+    <div class="gsc-auth-not-logged-in">
       Not logged in | ${login}
     </div>
   </message>
+
+  <message id="gsc.template.api-key-widget">
+    <div class="api-key-widget">
+        API Key: ${key}
+        <br />
+        ${button}
+    </div>
+  </message>
+
 </messages>

@@ -1,6 +1,6 @@
 #include "Admin_response_widget.h"
-#include "../Unit_line_edit.h"
-#include "../Explanation_edit_widget.h"
+#include "Unit_line_edit.h"
+#include "Explanation_edit_widget.h"
 
 #include <Wt/WPushButton.h>
 
