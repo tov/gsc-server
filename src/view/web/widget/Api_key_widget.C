@@ -11,7 +11,6 @@ namespace templates {
 
 WString const
         widget  = WString::tr("gsc.template.api-key-widget"),
-        button  = WString::tr("gsc.message.api-key.generate-button"),
         confirm = WString::tr("gsc.message.api-key.confirm-regenerate");
 
 }
@@ -22,7 +21,8 @@ Api_key_widget::Api_key_widget(dbo::ptr<User> const& user, Session& session)
 {
     impl_ = setNewImplementation<WTemplate>(templates::widget);
 
-    auto button = impl_->bindNew<WPushButton>("button", templates::button);
+    auto button = impl_->bindNew<WPushButton>("regenerate-button", "Regenerate");
+    button->setStyleClass("btn btn-danger");
     button->clicked().connect(this, &Api_key_widget::confirm_regenerate_);
 
     load_();

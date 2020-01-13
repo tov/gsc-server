@@ -72,8 +72,13 @@ Application_controller::Application_controller(Wt::Dbo::SqlConnectionPool& pool,
     messageResourceBundle().use(appRoot() + "strings");
     messageResourceBundle().use(appRoot() + "templates");
 
-    setTheme(std::make_shared<Wt::WBootstrapTheme>());
+    auto theme = std::make_shared<Wt::WBootstrapTheme>();
+    theme->setVersion(Wt::BootstrapVersion::v3);
+    setTheme(theme);
+
     useStyleSheet("css/gsc.css");
+    requireJQuery("jquery-3.4.1.min.js");
+    require("gsc.js");
 
     // There ought to be a way to pick this up from the environment.
     auto locale = this->locale();

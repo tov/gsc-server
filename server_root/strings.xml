@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <messages>
 
-  <message id="gsc.message.api-key.generate-button">Regenerate key</message>
-
   <message id="gsc.message.api-key.confirm-regenerate">Are you sure you want to generate a new API key?</message>
 
   <message id="highscore.info">

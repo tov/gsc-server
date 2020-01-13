@@ -1,5 +1,5 @@
 #include "Main_view.h"
-#include "../widget/Open_am_auth_widget.h"
+#include "../widget/Auth_widget.h"
 #include "../../game/HangmanWidget.h"
 #include "../../game/HighScoresWidget.h"
 #include "Admin_view.h"
@@ -30,8 +30,8 @@ Main_view::Main_view(Session& session)
 
     root_ = addNew<WContainerWidget>();
 
-#if defined(GSC_AUTH_OPEN_AM)
-    addNew<Open_am_auth_widget>(session_);
+#if defined(GSC_AUTH_OPEN_AM) || defined(GSC_AUTH_DEBUG)
+    addNew<Auth_widget>(session_);
 #elif defined(GSC_AUTH_PASSWORD)
     auto authModel = std::make_unique<Auth::AuthModel>(
             Session::auth(), session_.users());

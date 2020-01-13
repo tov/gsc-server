@@ -1,4 +1,4 @@
-#include "Open_am_auth_widget.h"
+#include "Auth_widget.h"
 #include "../../../Session.h"
 #include "../../../Navigate.h"
 
@@ -40,7 +40,7 @@ Navigate redirect_login()
 
 }
 
-void Open_am_auth_widget::reload()
+void Auth_widget::reload()
 {
     impl_->clear();
 
@@ -58,7 +58,7 @@ void Open_am_auth_widget::reload()
     }
 }
 
-Open_am_auth_widget::Open_am_auth_widget(Session& session)
+Auth_widget::Auth_widget(Session& session)
         : WCompositeWidget{std::make_unique<WTemplate>()}
         , impl_{dynamic_cast<WTemplate*>(implementation())}
         , session_{session}

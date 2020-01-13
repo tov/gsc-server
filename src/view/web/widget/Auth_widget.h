@@ -5,10 +5,10 @@
 
 class Session;
 
-class Open_am_auth_widget : public Wt::WCompositeWidget
+class Auth_widget : public Wt::WCompositeWidget
 {
 public:
-    explicit Open_am_auth_widget(Session&);
+    explicit Auth_widget(Session&);
 
     void reload();
 

@@ -24,3 +24,4 @@ private:
     Session& session_;
     Wt::WTemplate* impl_;
 };
+

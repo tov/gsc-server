@@ -3,4 +3,4 @@
 	url = https://github.com/tov/gsc-client.git
 [submodule "3rdparty/wt"]
 	path = 3rdparty/wt
-	url = https://github.com/emweb/wt.git
+	url = https://github.com/tov/wt.git

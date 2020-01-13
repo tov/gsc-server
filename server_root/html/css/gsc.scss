@@ -2,6 +2,10 @@ body {
     font-family: sans-serif;
 }
 
+table .invalid {
+    border: 3px dotted red;
+}
+
 .admin-view table {
     margin: 10px auto;
 
@@ -29,52 +33,53 @@ body {
     }
 }
 
-.profile-view
+.profile-view {
+    table {
+        margin: 10px auto;
+
+        td, th {
+            border: 0;
+            padding: 5px;
+            text-align: left;
+            vertical-align: middle;
+        }
+    }
+}
 
 .submissions-view {
     table {
         margin: 10px auto;
-    }
 
-    table td {
-        padding: 5px;
-        vertical-align: middle;
-    }
+        td {
+            padding: 5px;
+            vertical-align: middle;
+        }
 
-    table .future {
-        color: lightgray;
-    }
+        .past, .future {
+            color: lightgray;
+        }
 
-    table .past {
-        color: lightgray;
-    }
+        .past input {
+            background-color: lightgray;
+        }
 
-    table .past input {
-        background-color: lightgray;
+        .open, .self-eval {
+            background-color: lightyellow;
+        }
+
+        button {
+            display: block;
+            margin: 0 auto;
+        }
+
+        input {
+            width: 100px;
+            margin: 0;
+        }
     }
 
     .extended input {
         color: red;
-    }
-
-    table .invalid,
-    .assignments-view table .invalid {
-        border: 3px dotted red;
-    }
-
-    table .open,
-    table .self-eval {
-        background-color: lightyellow;
-    }
-
-    table button {
-        display: block;
-        margin: 0 auto;
-    }
-
-    table input {
-        width: 100px;
-        margin: 0;
     }
 
     .partner-notification {
@@ -100,15 +105,6 @@ body {
     .name {
         width: 10em;
     }
-
-    .date-edit {
-        width: 100px;
-    }
-
-    .time-edit {
-        width: 80px;
-    }
-
 }
 
 .edit-assignment-view {
@@ -237,7 +233,7 @@ input.username {
 }
 
 .code-line {
-    font-family: monospace;
+    font-family: "Menlo",monospace;
     white-space: pre;
 }
 
@@ -419,6 +415,10 @@ tr.grader-highlight {
     border-radius: 5px;
     margin-bottom: 1em;
     padding: 0.5em;
+
+    .buttons {
+        margin: 0.5em 0;
+    }
 }
 
 .partner-confirmer {
@@ -436,12 +436,31 @@ tr.grader-highlight {
     background-color: #cfc;
 }
 
-.partner-notification .buttons {
-    margin: 0.5em 0;
-}
-
 .quota-display {
     width: 100%;
     margin: 10px auto;
     text-align: center;
 }
+
+.input-monospace {
+    font-family: "Menlo",monospace;
+}
+
+#api-key-input {
+    text-overflow: ellipsis;
+    width: 10ex;
+    cursor: grab;
+}
+
+.taller {
+    height: 32px;
+}
+
+.date-edit {
+    width: 80px;
+}
+
+.time-edit {
+    width: 60px;
+}
+

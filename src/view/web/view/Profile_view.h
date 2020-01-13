@@ -4,7 +4,7 @@
 #include <Wt/Dbo/ptr.h>
 
 namespace Wt {
-class WContainerWidget;
+class WTemplate;
 }
 
 class User;
@@ -18,5 +18,5 @@ public:
 private:
     Wt::Dbo::ptr<User> user_;
     Session& session_;
-    Wt::WContainerWidget* impl_;
+    Wt::WTemplate* impl_;
 };
