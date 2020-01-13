@@ -13,6 +13,7 @@ set(MODEL_SRC_FILES
         src/view/api/resources.C
         src/view/api/Result_array.C
         src/model/specializations.h
+        src/model/auth/Api_key.C
         src/model/auth/Auth_token.C
         src/model/auth/Environment.C
         src/model/auth/User.C
@@ -65,6 +66,7 @@ set(WWW_SRC_FILES
         src/view/web/Notification.C
         src/view/web/Open_am_auth_widget.C
         src/view/web/Partner_notification_widget.C
+        src/view/web/Profile_view.C
         src/view/web/Response_widget.C
         src/view/web/Review_eval_item_widget.C
         src/view/web/Self_eval_item_widget.C
@@ -81,6 +83,7 @@ set(WWW_SRC_FILES
         src/view/game/WordWidget.C)
 
 add_compile_definitions(GSC_AUTH_API_KEY)
+add_compile_definitions(GSC_SHOW_QUOTA)
 
 find_package(Wt REQUIRED
         COMPONENTS wt dbo dbopostgres
@@ -99,9 +102,7 @@ endmacro(add_program)
 if(TARGET Wt::HTTP)
     add_program(gscd ${WWW_SRC_FILES})
     target_link_libraries(gscd Wt::HTTP ${LIBRARIES})
-    target_compile_definitions(gscd PRIVATE GSC_AUTH_DEBUG
-            GSC_AUTH_OPEN_AM # TODO: delete
-            )
+    target_compile_definitions(gscd PRIVATE GSC_AUTH_DEBUG)
 endif(TARGET Wt::HTTP)
 
 if(TARGET Wt::FCGI)

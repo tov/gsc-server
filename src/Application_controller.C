@@ -10,11 +10,12 @@
 #include "view/web/Assignments_view.h"
 #include "view/web/Edit_assignment_view.h"
 #include "view/web/Error_view.h"
+#include "view/web/Evaluation_view.h"
 #include "view/web/Grading_stats_view.h"
 #include "view/web/Grading_view.h"
 #include "view/web/Held_back_view.h"
 #include "view/web/Main_view.h"
-#include "view/web/Evaluation_view.h"
+#include "view/web/Profile_view.h"
 #include "view/web/Submissions_view.h"
 #include "view/game/HangmanWidget.h"
 #include "view/game/HighScoresWidget.h"
@@ -116,6 +117,7 @@ static const string hw("/hw");
 static const string held_back("/held_back");
 static const string grade("/grade");
 static const string grading_stats("/grading_stats");
+static const string profile("/profile");
 static const string root("/");
 static const string game("/game");
 static const string high_scores("/game/high_scores");
@@ -343,6 +345,13 @@ void Application_controller::handle_internal_path(
 
             set_title("Admin");
             set_new_widget<Admin_view>(session_);
+
+            // /profile
+        } else if (internal_path == Path::profile) {
+            transaction.commit();
+
+            set_title("User profile");
+            set_new_widget<Profile_view>(current_user, session_);
 
             // /held_back
         } else if (internal_path == Path::held_back) {

@@ -328,7 +328,7 @@ New_user_widget::New_user_widget(Session& session)
 void New_user_widget::go()
 {
     dbo::Transaction transaction(session_);
-    session_.create_user(editor_->text().toUTF8());
+    session_.create_user({editor_->text().toUTF8()});
     editor_->setText("");
 }
 

@@ -2,6 +2,7 @@
 
 #include "Navigate.h"
 #include "common/env_var.h"
+#include "model/auth/Api_key.h"
 #include "model/auth/Auth_token.h"
 #include "model/auth/Environment.h"
 #include "model/auth/User.h"
@@ -48,7 +49,7 @@ struct Auth_services
 
     Auth_services();
     void configure();
-    void update_auth_params(Wt::Auth::User, User_auth_params const&);
+    void update_user_auth(Wt::Auth::User, User_auth_params const&);
 
     //
     // Member variables
@@ -92,11 +93,11 @@ void Db_session::initialize_db(bool test_data)
         create_index_("gsc_user", "name", false);
         create_index_("self_eval", "permalink", false);
 
-        User_auth_params params {User::Role::Admin};
+        User_auth_params params {"jat489", User::Role::Admin};
 #ifdef GSC_AUTH_PASSWORD
         params.password = get_env_var("ADMIN_PASSWORD");
 #endif // GSC_AUTH_PASSWORD
-        create_user("jat489", params);
+        create_user(params);
 
         if (test_data) populate_test_data_();
 
@@ -110,7 +111,7 @@ void Db_session::initialize_db(bool test_data)
 
 void Db_session::populate_test_data_()
 {
-    create_user("jtov", {User::Role::Admin});
+    create_user({"jtov", User::Role::Admin});
 
     auto now = WDateTime::currentDateTime();
 
@@ -128,7 +129,7 @@ void Db_session::populate_test_data_()
     }
 
     for (auto const& name : std::vector{"s1", "s2", "s3", "s4"}) {
-        auto user = create_user(name).first;
+        auto user = create_user({name}).first;
 
         auto exam1 = addNew<Exam_grade>(user, 1);
         exam1.modify()->set_points_and_possible(40, 50);
@@ -154,26 +155,42 @@ void Db_session::configure_auth()
 }
 
 std::pair<Dbo::ptr<User>, Auth::User>
-Db_session::create_user(const std::string& username,
-                        const User_auth_params& params)
+Db_session::create_user(const User_auth_params& params)
 {
     auto wt_user = users().registerNew();
 
-    wt_user.addIdentity(Auth::Identity::LoginName, username);
+    services.update_user_auth(wt_user, params);
 
-    services.update_auth_params(wt_user, params);
+#ifdef GSC_AUTH_API_KEY
+    set_api_key_identity(wt_user);
+#endif // GSC_AUTH_API_KEY
 
-    auto user = addNew<User>(username, params.role);
+    auto user = addNew<User>(params.username, params.role);
     users().find(wt_user).modify()->setUser(user);
 
     return {user, wt_user};
 }
 
-#ifdef GSC_AUTH_PASSWORD
-void Db_session::set_password(const dbo::ptr<User>& user,
-                              const std::string& password)
+#ifdef GSC_AUTH_API_KEY
+void Db_session::set_api_key(dbo::ptr<User> const& user)
 {
-    services.password.updatePassword(users().find(user)->user(), password);
+    auto auth_user = find_by_login<auth_user_t>(user->name(), false);
+    set_api_key_identity(auth_user);
+}
+
+std::string Db_session::get_api_key(dbo::ptr<User> const& user)
+{
+    auto auth_user = find_by_login<auth_user_t>(user->name(), false);
+    return get_api_key_identity(auth_user);
+}
+#endif // GSC_AUTH_API_KEY
+
+#ifdef GSC_AUTH_PASSWORD
+void Db_session::set_password(dbo::ptr<User> const& user,
+                              std::string const& password) const
+{
+    auth_user_t auth_user = find_by_login(user->name(), false);
+    services.password.updatePassword(auth_user, password);
 }
 #endif // GSC_AUTH_PASSWORD
 
@@ -363,8 +380,10 @@ void Auth_services::configure()
 #endif // GSC_AUTH_PASSWORD
 }
 
-void Auth_services::update_auth_params(Wt::Auth::User user, const User_auth_params& params)
+void Auth_services::update_user_auth(Wt::Auth::User user, User_auth_params const& params)
 {
+    user.setIdentity(Auth::Identity::LoginName, params.username);
+
 #ifdef GSC_AUTH_PASSWORD
     if (!params.password.empty() || params.role == User::Role::Admin)
         password.updatePassword(user, params.password);

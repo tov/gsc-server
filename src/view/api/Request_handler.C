@@ -2,6 +2,7 @@
 #include "Http_status.h"
 #include "../../common/env_var.h"
 #include "../../common/stringify.h"
+#include "../../model/auth/Api_key.h"
 #include "../../model/auth/Environment.h"
 
 #include <Wt/Auth/AuthService.h>
@@ -78,10 +79,6 @@ std::unique_ptr<resources::Resource> Request_handler::parse_uri() const
     return resources::Resource::create(method_, path_info_);
 }
 
-#ifdef GSC_AUTH_API_KEY
-static std::string const api_key_name = "gsc_api_key";
-#endif // GSC_AUTH_API_KEY
-
 #ifdef GSC_AUTH_COOKIE
 static std::string const cookie_name = "gsc_cookie";
 
@@ -124,7 +121,7 @@ dbo::ptr<User> Request_handler::authenticate_by_api_key_() const
 {
 #ifdef GSC_AUTH_API_KEY
     if (auto* cookie_val = request_.getCookieValue(api_key_name))
-        return session_.find_by_identity<User>("apikey", *cookie_val);
+        return session_.find_by_identity<User>(api_key_identity, *cookie_val);
 #endif // GSC_AUTH_API_KEY
 
     return nullptr;

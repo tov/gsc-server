@@ -72,8 +72,8 @@ struct User_auth_params
     // Member variables
     //
 
+    std::string username;
     User::Role role = User::Role::Student;
-
 #ifdef GSC_AUTH_PASSWORD
     std::string password;
 #endif // GSC_AUTH_PASSWORD
@@ -103,8 +103,7 @@ public:
     std::pair<
             Wt::Dbo::ptr<User>,
             Wt::Auth::User>
-    create_user(const std::string& username,
-                const User_auth_params& param = User_auth_params{});
+    create_user(const User_auth_params&);
 
     template <typename T>
     authn_result_t<T>
@@ -133,7 +132,7 @@ public:
         auto auth_user = find_by_identity<auth_user_t>(provider, username);
 
         if (!auth_user.isValid() && create)
-            auth_user = create_user(username).second;
+            auth_user = create_user({username}).second;
 
         return lift_authn_result<T>(auth_user, *this);
     }
@@ -149,9 +148,14 @@ public:
         }
     }
 
+#ifdef GSC_AUTH_API_KEY
+    void set_api_key(dbo::ptr<User> const&);
+    std::string get_api_key(dbo::ptr<User> const&);
+#endif // GSC_AUTH_API_KEY
+
 #ifdef GSC_AUTH_PASSWORD
-    void set_password(const dbo::ptr<User>& user,
-                      const std::string& password);
+    void set_password(dbo::ptr<User> const& user,
+                      std::string const& password) const;
 #endif // GSC_AUTH_PASSWORD
 
     std::vector<dbo::ptr<User_stats>> top_users(int limit);
