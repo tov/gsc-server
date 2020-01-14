@@ -3,48 +3,42 @@
 
   <message id="gsc.template.logged-in">
     <div class="gsc-auth-logged-in">
-      Logged in as <strong>${user-name}</strong>
-      | <a href="${profile-url}" class="taller glyphicon glyphicon-user"/>
-      | <a href="${log-out-url}" class="taller glyphicon glyphicon-log-out"/>
+      <strong class="username">${user-name}</strong>
+      ${profile-link}
+      ${log-out-link}
     </div>
   </message>
 
   <message id="gsc.template.not-logged-in">
     <div class="gsc-auth-not-logged-in">
-      Not logged in
-      <span class="glyphicon glyphicon-log-in"/>
-      <a href="${log-in-url}">Log in</a>
+      ${log-in-link}
     </div>
   </message>
 
   <message id="gsc.template.api-key-widget">
     <div class="api-key-widget buttons-inline">
-      <input id="api-key-input"
-             type="text"
+      <input type="text"
+             id="api-key-input"
              class="input-monospace"
              onclick="selectCopyId('api-key-input')"
              value="${key}"
              readonly="readonly"
-      /><input type="button"
-               onclick="selectCopyId('api-key-input')"
-               class="btn btn-primary"
-               value="Copy"
-      />${regenerate-button}
+      />${copy-button}${regenerate-button}
     </div>
   </message>
 
   <message id="gsc.template.profile-table">
     <table class="profile-table">
       <tr>
-        <th>Login Name</th>
+        <th>NetID:</th>
         <td>${login-name}</td>
       </tr>
       <tr>
-        <th>Role</th>
+        <th>Role:</th>
         <td>${role}</td>
       </tr>
       <tr>
-        <th>API Key</th>
+        <th>API Key:</th>
         <td>${api-key}</td>
       </tr>
     </table>
