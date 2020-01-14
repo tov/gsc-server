@@ -243,11 +243,11 @@ Admin_submissions_view_row::Admin_submissions_view_row(
     due_date_ = row->elementAt(DUE_DATE)->addNew<Date_time_edit>();
     eval_date_ = row->elementAt(EVAL_DATE)->addNew<Date_time_edit>();
 
-    due_date_->set_date_format("M/d/yy");
-    eval_date_->set_date_format("M/d/yy");
+    due_date_->set_date_format("MM/dd/yy");
+    eval_date_->set_date_format("MM/dd/yy");
 
-    due_date_->set_time_format("H:mm");
-    eval_date_->set_time_format("H:mm");
+    due_date_->set_time_format("HH:mm");
+    eval_date_->set_time_format("HH:mm");
 
     due_date_->changed().connect(this,
                                  &Admin_submissions_view_row::due_date_changed_);
