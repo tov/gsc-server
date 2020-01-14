@@ -14,7 +14,7 @@ set(GSC_CSS_DIRECTORY
 function(target_uses_css target)
     add_custom_command(TARGET ${target}
             POST_BUILD
-            COMMAND                 sass gsc.scss gsc.css
+            COMMAND                 make gsc.css
             WORKING_DIRECTORY       ${GSC_CSS_DIRECTORY}
             COMMENT                 "Building gsc.css")
 endfunction(target_uses_css)

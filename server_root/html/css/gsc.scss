@@ -1,5 +1,27 @@
+$tt: "Menlo",monospace;
+
+$sf1: 300 50px "Helvetica Neue";
+$sf2: 100 40px "Helvetica Neue";
+$sf3: 400 30px "Helvetica Neue";
+$sf4: 800 20px "Helvetica Neue";
+$sf:  400 20px "Helvetica Neue";
+
 body {
-    font-family: sans-serif;
+    font: $sf;
+}
+
+h1 {
+    font: $sf1;
+    margin: 0 1ex;
+    padding: 0;
+
+    small {
+      font: $sf2;
+    }
+}
+
+h2 {
+    font: $sf2;
 }
 
 table .invalid {
@@ -233,7 +255,7 @@ input.username {
 }
 
 .code-line {
-    font-family: "Menlo",monospace;
+    font-family: $tt;
     white-space: pre;
 }
 
@@ -306,16 +328,6 @@ input.username {
     text-align: right;
 }
 
-h1 {
-    font-weight: normal;
-    margin: .5em 10px 0 10px;
-    padding: 0;
-}
-
-h2 {
-    font-weight: normal;
-}
-
 .highscores table {
     width: 60ex;
     margin-top: 20px;
@@ -379,11 +391,11 @@ h2 {
 }
 
 .gsc-auth-logged-in, .gsc-auth-not-logged-in {
-    position: absolute;
-    right: 10px;
+    position: fixed;
     top: 10px;
-    font-size: 90%;
-    z-index: 1;
+    right: 10px;
+    font-size: 125%;
+    z-index: 1000;
     background-color: white;
 }
 
@@ -443,7 +455,7 @@ tr.grader-highlight {
 }
 
 .input-monospace {
-    font-family: "Menlo",monospace;
+    font-family: $tt;
 }
 
 #api-key-input {
@@ -452,15 +464,35 @@ tr.grader-highlight {
     cursor: grab;
 }
 
-.taller {
-    height: 32px;
+.username {
+    font-family: $tt;
+}
+
+.date-edit, .time-edit, input.username {
+    display: inline;
+    padding: 0 6px;
+    font-family: $tt;
+}
+
+.date-edit, .time-edit {
+    font-size: 10pt;
+}
+
+input.username {
+    min-width: 10em;
 }
 
 .date-edit {
-    width: 80px;
+    border-right-style: hidden;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    min-width: 10em;
 }
 
 .time-edit {
-    width: 60px;
+    border-left-style: hidden;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    min-width: 5em;
 }
 
