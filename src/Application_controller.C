@@ -151,13 +151,13 @@ user_hw_N(const dbo::ptr<Submission>& submission)
 inline string
 user_hw_N_eval(const dbo::ptr<Submission>& submission)
 {
-    return user_hw_N(submission) + "/eval";
+    return user_hw_N(submission) + ": Evaluation";
 }
 
 inline string
 user_profile(const dbo::ptr<User>& user)
 {
-    return "~" + user->name() + "/profile";
+    return "~" + user->name() + ": Profile";
 }
 
 }

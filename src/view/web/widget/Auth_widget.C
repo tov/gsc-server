@@ -1,6 +1,8 @@
 #include "Auth_widget.h"
+#include "Glyph_button.h"
 #include "../../../Session.h"
 #include "../../../Navigate.h"
+#include "../../../common/env_var.h"
 
 #include <Wt/Dbo/Transaction.h>
 #include <Wt/Utils.h>
@@ -18,24 +20,20 @@ namespace dbo = Wt::Dbo;
 
 namespace {
 
-std::string const BASE_URL {
-        "https://cs214.cs.northwestern.edu/"
-};
-
 char const* const LOGOUT_URL =
         "https://websso.it.northwestern.edu/amserver/UI/Logout";
 char const* const LOGIN_URL_BASE =
         "https://websso.it.northwestern.edu/amserver/UI/Login";
 
-Navigate const redirect_logout { LOGOUT_URL, true };
-
-Navigate redirect_login()
+std::string login_url()
 {
+    auto base_url = get_env_var("GSC_BASE_URL", "http://localhost:9090/");
+
     auto buf = std::ostringstream();
     buf << LOGIN_URL_BASE << "?goto=";
-    buf << Utils::urlEncode(BASE_URL);
+    buf << Utils::urlEncode(base_url);
     buf << Utils::urlEncode(WApplication::instance()->bookmarkUrl());
-    return Navigate(buf.str(), true);
+    return buf.str();
 }
 
 }
@@ -46,15 +44,27 @@ void Auth_widget::reload()
 
     dbo::Transaction transaction(session_);
 
+    auto add_button = [=](auto key, auto icon, auto title,
+                          auto const& destination)
+    {
+        auto button = impl_->bindNew<Glyph_button>(key, icon, title, false);
+        button->setStyleClass("btn btn-lg btn-info");
+        button->clicked().connect(destination);
+    };
+
     if (session_.authenticate_from_environment()) {
         impl_->setTemplateText(tr("gsc.template.logged-in"));
         impl_->bindString("user-name", session_.user_name());
-        impl_->bindNew<WPushButton>("logout", "Logout")
-                ->clicked().connect(redirect_logout);
+
+        add_button("profile-link", "user", "Profile",
+                   Navigate{session_.user()->profile_url()});
+        add_button("log-out-link", "log-out", "Log out",
+                   Navigate{LOGOUT_URL, true});
     } else {
         impl_->setTemplateText(tr("gsc.template.not-logged-in"));
-        impl_->bindNew<WPushButton>("login", "Login")
-                ->clicked().connect(redirect_login());
+
+        add_button("log-in-link", "log-in", "Log in",
+                   Navigate{login_url(), true});
     }
 }
 
