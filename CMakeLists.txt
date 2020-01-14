@@ -67,14 +67,15 @@ set(WWW_SRC_FILES
         src/view/web/widget/Admin_eval_item_widget.C
         src/view/web/widget/Admin_response_widget.C
         src/view/web/widget/Api_key_widget.C
+        src/view/web/widget/Auth_widget.C
         src/view/web/widget/Base_eval_item_widget.C
         src/view/web/widget/Date_time_edit.C
         src/view/web/widget/Explanation_edit_widget.C
         src/view/web/widget/Explanation_view_widget.C
         src/view/web/widget/File_list_widget.C
         src/view/web/widget/File_viewer_widget.C
+        src/view/web/widget/Glyph_button.C
         src/view/web/widget/List_eval_item_widget.C
-        src/view/web/widget/Auth_widget.C
         src/view/web/widget/Partner_notification_widget.C
         src/view/web/widget/Response_widget.C
         src/view/web/widget/Review_eval_item_widget.C

@@ -17,6 +17,8 @@ public:
 
 private:
     void load_();
+
+    void copy_() const;
     void confirm_regenerate_();
     void regenerate_();
 

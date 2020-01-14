@@ -1,4 +1,5 @@
 #include "Api_key_widget.h"
+#include "Glyph_button.h"
 #include "../../../common/util.h"
 #include "../../../Session.h"
 #include "../Confirmation_dialog.h"
@@ -21,9 +22,14 @@ Api_key_widget::Api_key_widget(dbo::ptr<User> const& user, Session& session)
 {
     impl_ = setNewImplementation<WTemplate>(templates::widget);
 
-    auto button = impl_->bindNew<WPushButton>("regenerate-button", "Regenerate");
-    button->setStyleClass("btn btn-danger");
-    button->clicked().connect(this, &Api_key_widget::confirm_regenerate_);
+    auto copy_button = impl_->bindNew<Glyph_button>("copy-button", "copy", "Copy");
+    copy_button->setStyleClass("btn btn-primary");
+    copy_button->clicked().connect([=]{ copy_(); });
+
+    auto regen_button = impl_->bindNew<Glyph_button>("regenerate-button",
+                                                     "alert", "Regenerate");
+    regen_button->setStyleClass("btn btn-danger");
+    regen_button->clicked().connect([=]{ confirm_regenerate_(); });
 
     load_();
 }
@@ -31,6 +37,12 @@ Api_key_widget::Api_key_widget(dbo::ptr<User> const& user, Session& session)
 void Api_key_widget::load_() {
     auto api_key = session_.get_api_key(user_);
     impl_->bindString("key", api_key);
+}
+
+void Api_key_widget::copy_() const
+{
+    WApplication::instance()
+            ->doJavaScript("selectCopyId('api-key-input')");
 }
 
 void Api_key_widget::confirm_regenerate_()
