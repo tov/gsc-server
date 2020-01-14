@@ -1,10 +1,11 @@
-$tt: "Menlo",monospace;
+$tt4: 20px "Menlo",monospace;
+$tt: 12px/14px "Menlo",monospace;
 
-$sf1: 300 50px "Helvetica Neue";
-$sf2: 100 40px "Helvetica Neue";
-$sf3: 400 30px "Helvetica Neue";
-$sf4: 800 20px "Helvetica Neue";
-$sf:  400 20px "Helvetica Neue";
+$sf1: 200 50px "Helvetica Neue",sans-serif;
+$sf2: 200 40px "Helvetica Neue",sans-serif;
+$sf3: 400 30px "Helvetica Neue",sans-serif;
+$sf4: 500 20px "Helvetica Neue",sans-serif;
+$sf:  400 20px "Helvetica Neue",sans-serif;
 
 body {
     font: $sf;
@@ -28,55 +29,69 @@ table .invalid {
     border: 3px dotted red;
 }
 
-.admin-view table {
-    margin: 10px auto;
-
-    td {
-        padding: 5px;
-
-        select, input {
-            margin-right: 10px;
-            width: 80px;
-        }
-    }
-}
-
-.grading-stats-view {
-    margin: 10px;
-
-    table {
-        margin: 0 auto;
-
-        td, th
-        {
-            padding: 2px 4px;
-            text-align: right;
-        }
-    }
-}
-
+.admin-view,
 .profile-view {
-    table {
-        margin: 10px auto;
+    th, td {
+        text-align: left;
+    }
+}
 
-        td, th {
-            border: 0;
-            padding: 5px;
-            text-align: left;
+.assignments-view,
+.file-list,
+.grading-stats-view,
+.submissions-view {
+    th, td {
+        text-align: center;
+    }
+}
+
+.admin-view,
+.assignments-view,
+.file-list,
+.grading-stats-view,
+.profile-view,
+.submissions-view {
+    table {
+        margin: 1em auto;
+        border-collapse: separate;
+        border-spacing: 4px;
+
+        th, td {
             vertical-align: middle;
+        }
+
+        th {
+            padding: 0 2px;
+            font: $sf4;
+            color: white;
+            background: #660066;
+            border: 1px solid #990099;
+        }
+
+        td {
+            padding: 0 4px;
+            font: $sf;
+            border: 0;
+        }
+
+        input {
+            margin: 0;
+        }
+    }
+}
+
+.admin-view table {
+    td {
+        select, input {
+            display: inline;
+            margin-right: 10px;
+            width: 120px;
         }
     }
 }
 
 .submissions-view {
     table {
-        margin: 10px auto;
-
-        td {
-            padding: 5px;
-            vertical-align: middle;
-        }
-
         .past, .future {
             color: lightgray;
         }
@@ -164,7 +179,6 @@ input.username {
     line-height: 105%;
 
     h4 {
-        font-weight: normal;
         margin: 0;
         padding: 0;
     }
@@ -212,6 +226,23 @@ input.username {
     font-size: smaller;
 }
 
+
+.file-list {
+    table {
+        a {
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        button {
+            padding: 0 3px !important;
+        }
+    }
+}
+
 .list-eval-item {
     margin: 1em 0.25em;
     padding: 0 0.5em;
@@ -255,7 +286,7 @@ input.username {
 }
 
 .code-line {
-    font-family: $tt;
+    font: $tt;
     white-space: pre;
 }
 
@@ -264,26 +295,6 @@ input.username {
     color: grey;
     padding-right: 10px;
     text-align: center;
-}
-
-.file-list {
-    margin: 0 auto;
-}
-
-.file-list a {
-    text-decoration: none;
-}
-
-.file-list a:hover {
-    text-decoration: underline;
-}
-
-.file-list td {
-    padding: 2px 5px;
-}
-
-.file-list button {
-    padding: 0 3px !important;
 }
 
 .date-list {
@@ -306,9 +317,24 @@ input.username {
     position: absolute;
     top: 0;
     left: 0;
-    height: 100%;
     width: 100%;
+    height: 100%;
     opacity: 0;
+}
+
+.backup-file-uploader {
+    margin: 0 auto 1em auto;
+    width: 60%;
+}
+
+.backup-file-uploader input {
+    display: block;
+    margin: 0 auto 0 0;
+}
+
+.backup-file-uploader button {
+    display: block;
+    margin: 0 0 0 auto;
 }
 
 .progress-holder > * {
@@ -454,28 +480,25 @@ tr.grader-highlight {
     text-align: center;
 }
 
-.input-monospace {
-    font-family: $tt;
-}
-
 #api-key-input {
     text-overflow: ellipsis;
     width: 10ex;
     cursor: grab;
 }
 
-.username {
-    font-family: $tt;
+.username, .input-monospace {
+    font: $tt4;
 }
 
 .date-edit, .time-edit, input.username {
     display: inline;
     padding: 0 6px;
-    font-family: $tt;
+    font: $tt;
 }
 
 .date-edit, .time-edit {
     font-size: 10pt;
+    text-overflow: ellipsis;
 }
 
 input.username {
@@ -486,13 +509,30 @@ input.username {
     border-right-style: hidden;
     border-top-right-radius: 0;
     border-bottom-right-radius: 0;
-    min-width: 10em;
 }
 
 .time-edit {
     border-left-style: hidden;
     border-top-left-radius: 0;
     border-bottom-left-radius: 0;
-    min-width: 5em;
 }
 
+.assignments-view {
+    .date-edit {
+        width: 115px;
+    }
+
+    .time-edit {
+        max-width: 95px;
+    }
+}
+
+.submissions-view {
+    .date-edit {
+        width: 9.5em;
+    }
+
+    .time-edit {
+        width: 7em;
+    }
+}

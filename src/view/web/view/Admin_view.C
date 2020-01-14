@@ -48,6 +48,7 @@ Submission_chooser::Submission_chooser(Session& session)
 {
     editor_ = addNew<Wt::WLineEdit>();
     editor_->setPlaceholderText("username");
+    editor_->setStyleClass("username");
     editor_->keyWentUp().connect(this, &This::update);
     editor_->enterPressed().connect(this, &This::go);
 
@@ -126,6 +127,7 @@ Student_chooser::Student_chooser(Session& session)
 {
     editor_ = addNew<Wt::WLineEdit>();
     editor_->setPlaceholderText("username");
+    editor_->setStyleClass("username");
     editor_->enterPressed().connect(this, &Student_chooser::go);
 
     auto popup = addNew<User_suggester>(session, User::Role::Student);
@@ -219,6 +221,7 @@ Role_updater::Role_updater(Session& session)
 {
     editor_ = addNew<Wt::WLineEdit>();
     editor_->setPlaceholderText("username");
+    editor_->setStyleClass("username");
     editor_->keyWentUp().connect(this, &This::update);
 
     auto popup = addNew<User_suggester>(session);
@@ -280,6 +283,7 @@ SU_widget::SU_widget(Session& session)
 {
     editor_ = addNew<Wt::WLineEdit>();
     editor_->setPlaceholderText("username");
+    editor_->setStyleClass("username");
     editor_->enterPressed().connect(this, &This::go);
 
     auto popup = addNew<User_suggester>(session);
@@ -322,6 +326,7 @@ New_user_widget::New_user_widget(Session& session)
 {
     editor_ = addNew<Wt::WLineEdit>();
     editor_->setPlaceholderText("username");
+    editor_->setStyleClass("username");
     editor_->enterPressed().connect(this, &This::go);
 }
 
@@ -345,6 +350,8 @@ Admin_view::Admin_view(Session& session)
     auto table = addNew<Wt::WTable>();
     int row = 0;
 
+    table->setHeaderCount(1, Wt::Orientation::Vertical);
+    
     auto ja = table->elementAt(row, 0)->addNew<Accelerator_text>("Jump to su&bmission");
     ja->set_target(table->elementAt(row, 1)->addNew<Submission_chooser>(session_));
 
@@ -360,16 +367,16 @@ Admin_view::Admin_view(Session& session)
     auto nu = table->elementAt(++row, 0)->addNew<Accelerator_text>("&New user:");
     nu->set_target(table->elementAt(row, 1)->addNew<New_user_widget>(session_));
 
-    auto gr = table->elementAt(++row, 0)->addNew<Accelerator_button>("&Grade");
+    auto gr = table->elementAt(++row, 1)->addNew<Accelerator_button>("&Grade");
     gr->clicked().connect(Navigate("/grade"));
 
-    auto hw = table->elementAt(++row, 0)->addNew<Accelerator_button>("Edit &assignments");
+    auto hw = table->elementAt(++row, 1)->addNew<Accelerator_button>("Edit &assignments");
     hw->clicked().connect(Navigate("/hw"));
 
-    auto gs = table->elementAt(++row, 0)->addNew<Accelerator_button>("Grading s&tats");
+    auto gs = table->elementAt(++row, 1)->addNew<Accelerator_button>("Grading s&tats");
     gs->clicked().connect(Navigate("/grading_stats"));
 
-    auto play_game = table->elementAt(++row, 0)->addNew<Accelerator_button>("&Play game");
+    auto play_game = table->elementAt(++row, 1)->addNew<Accelerator_button>("&Play game");
     play_game->clicked().connect(Navigate("/game"));
 
     addNew<Held_back_view>(session_);

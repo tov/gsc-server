@@ -109,19 +109,23 @@ void Submissions_view_row::update()
 
         case Submission::Status::open:
         case Submission::Status::extended:
-            set_files_action("Submit");
+            row_->setStyleClass("open");
+            if (model_.submission->assignment()->web_allowed()) {
+                set_files_action("Submit");
+            } else if (model_.file_count > 0) {
+                set_files_action("Browse");
+            }
+
             if (model_.file_count == 0) {
-                row_->setStyleClass("open");
                 status += "Due in ";
                 status += time_to(model_.submission->effective_due_date());
-                set_action_style_class("btn-success");
+                set_action_style_class("btn btn-primary");
             } else {
-                row_->setStyleClass("open");
                 status += "Submitted ";
                 status += to_string(model_.file_count);
                 status += " file";
                 if (model_.file_count > 1) status += "s";
-                set_action_style_class("btn");
+                set_action_style_class("btn btn-info");
             }
             break;
 
@@ -133,7 +137,7 @@ void Submissions_view_row::update()
                     status += "Self-eval due in ";
                     status += time_to(model_.submission->effective_eval_date());
                     set_eval_action("Start");
-                    set_action_style_class("btn-success");
+                    set_action_style_class("btn btn-primary");
                     break;
                 }
 
@@ -142,15 +146,14 @@ void Submissions_view_row::update()
                     status += "Self-eval due in ";
                     status += time_to(model_.submission->effective_eval_date());
                     set_eval_action("Continue");
-                    set_action_style_class("btn-success");
+                    set_action_style_class("btn btn-primary");
                     break;
                 }
 
                 case Submission::Eval_status::complete: {
-
                     status += "Self-eval complete";
                     set_eval_action("Edit");
-                    set_action_style_class("btn");
+                    set_action_style_class("btn btn-success");
                     break;
                 }
             }
@@ -163,7 +166,7 @@ void Submissions_view_row::update()
                     now, chrono::seconds{2});
             status += " ago";
             set_eval_action("View");
-            set_action_style_class("btn-link");
+            set_action_style_class("btn btn-link");
             {
                 dbo::Transaction transaction(session_);
                 if (model_.submission->is_graded()) {

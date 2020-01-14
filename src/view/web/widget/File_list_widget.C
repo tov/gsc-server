@@ -9,8 +9,10 @@
 #include <Wt/Http/Request.h>
 #include <Wt/Http/Response.h>
 #include <Wt/WAnchor.h>
+#include <Wt/WContainerWidget.h>
 #include <Wt/WLink.h>
 #include <Wt/WPushButton.h>
+#include <Wt/WTable.h>
 #include <Wt/WText.h>
 
 // A resource for downloading a source file.
@@ -47,13 +49,16 @@ File_list_widget::File_list_widget(const Wt::Dbo::ptr<Submission>& submission,
         : Submission_context{changed, session, submission}
         , can_modify_(can_modify)
 {
+    auto impl = setNewImplementation<Wt::WContainerWidget>();
+    inner_ = impl->addNew<Wt::WTable>();
+    inner_->setHeaderCount(1, Wt::Orientation::Horizontal);
     setStyleClass("file-list");
     reload_();
 }
 
 void File_list_widget::reload_()
 {
-    clear();
+    inner_->clear();
 
     Wt::Dbo::Transaction transaction(session());
 
@@ -61,33 +66,33 @@ void File_list_widget::reload_()
 
     if (source_files.empty()) return;
 
-    elementAt(0, 0)->addNew<Wt::WText>("<strong>filename</strong>");
-    elementAt(0, 1)->addNew<Wt::WText>("<strong>type</strong>");
-    elementAt(0, 2)->addNew<Wt::WText>("<strong>bytes</strong>");
+    cell_(0, 0)->addNew<Wt::WText>("filename");
+    cell_(0, 1)->addNew<Wt::WText>("type");
+    cell_(0, 2)->addNew<Wt::WText>("bytes");
     if (can_modify_)
-        elementAt(0, 3)->addNew<Wt::WText>("<strong>rm</strong>");
+        cell_(0, 3)->addNew<Wt::WText>("rm");
 
     int row = 1;
 
     for (auto const& file : source_files) {
         auto download = std::make_shared<File_resource>(file);
 
-        auto anchor = elementAt(row, 0)->addNew<Wt::WAnchor>(
+        auto anchor = cell_(row, 0)->addNew<Wt::WAnchor>(
                 Wt::WLink(download), file->name());
-        auto type = elementAt(row, 1)->addNew<Wt::WText>(
+        auto type = cell_(row, 1)->addNew<Wt::WText>(
                 stringify(file->purpose()));
-        auto bytes = elementAt(row, 2)->addNew<Wt::WText>(
+        auto bytes = cell_(row, 2)->addNew<Wt::WText>(
                 with_commas(file->byte_count()));
 
-        elementAt(row, 1)->setStyleClass("file-list-type");
-        elementAt(row, 2)->setStyleClass("file-list-bytes");
+        cell_(row, 1)->setStyleClass("file-list-type");
+        cell_(row, 2)->setStyleClass("file-list-bytes");
 
         anchor->setToolTip("view or download");
         type->setToolTip("file purpose");
         bytes->setToolTip("file size in bytes");
 
         if (can_modify_) {
-            auto remove = elementAt(row, 3)->addNew<Wt::WPushButton>("X");
+            auto remove = cell_(row, 3)->addNew<Wt::WPushButton>("X");
             remove->setToolTip("delete file");
 
             auto deleter = remove->addChild(
@@ -97,6 +102,11 @@ void File_list_widget::reload_()
 
         ++row;
     }
+}
+
+Wt::WTableCell* File_list_widget::cell_(int row, int column)
+{
+    return inner_->elementAt(row, column);
 }
 
 File_resource::File_resource(const Wt::Dbo::ptr<File_meta>& source_file)

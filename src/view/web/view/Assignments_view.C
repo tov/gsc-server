@@ -69,13 +69,13 @@ Assignments_view_row::Assignments_view_row(
         update_();
     }));
 
-    open_date_->set_date_format("M/d/yy");
-    due_date_->set_date_format("M/d/yy");
-    eval_date_->set_date_format("M/d/yy");
+    open_date_->set_date_format("MM/dd/yy");
+    due_date_->set_date_format("MM/dd/yy");
+    eval_date_->set_date_format("MM/dd/yy");
 
-    open_date_->set_time_format("H:mm");
-    due_date_->set_time_format("H:mm");
-    eval_date_->set_time_format("H:mm");
+    open_date_->set_time_format("HH:mm");
+    due_date_->set_time_format("HH:mm");
+    eval_date_->set_time_format("HH:mm");
 
     open_date_->changed().connect(std::bind([=] () {
         if (open_date_->validate() == Wt::ValidationState::Valid) {

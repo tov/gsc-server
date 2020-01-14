@@ -163,6 +163,7 @@ Partner_requestor_widget::Partner_requestor_widget
     auto buttons = addNew<WContainerWidget>();
     buttons->setStyleClass("buttons");
     auto request = buttons->addNew<WPushButton>("Send");
+    request->setStyleClass("btn btn-primary");
 
     request->clicked().connect(this, &Partner_requestor_widget::submit_);
     edit_->enterPressed().connect(this, &Partner_requestor_widget::submit_);

@@ -120,7 +120,8 @@ void Request_handler::check_password_strength(Credentials const& cred)
 dbo::ptr<User> Request_handler::authenticate_by_api_key_() const
 {
 #ifdef GSC_AUTH_API_KEY
-    if (auto* cookie_val = request_.getCookieValue(api_key_name))
+    if (auto* cookie_val = request_.getCookieValue(api_key_name);
+            cookie_val)
         return session_.find_by_identity<User>(api_key_identity, *cookie_val);
 #endif // GSC_AUTH_API_KEY
 

@@ -30,15 +30,15 @@
   <message id="gsc.template.profile-table">
     <table class="profile-table">
       <tr>
-        <th>NetID:</th>
+        <th>NetID</th>
         <td>${login-name}</td>
       </tr>
       <tr>
-        <th>Role:</th>
+        <th>Role</th>
         <td>${role}</td>
       </tr>
       <tr>
-        <th>API Key:</th>
+        <th>API Key</th>
         <td>${api-key}</td>
       </tr>
     </table>

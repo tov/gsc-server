@@ -20,6 +20,7 @@
 #include <Wt/WPushButton.h>
 #include <Wt/WTable.h>
 #include <Wt/WTemplate.h>
+#include <Wt/WText.h>
 
 #ifdef GSC_USE_FILESYSTEM
 #include <filesystem>
@@ -149,11 +150,13 @@ void File_uploader::reset_()
     upload_->fileTooLarge().connect(this, &File_uploader::too_large_);
 
     if (Wt::WApplication::instance()->environment().ajax()) {
-        setStyleClass("file-uploader btn");
+        setStyleClass("file-uploader btn btn-success");
         auto label = addNew<Wt::WText>("Upload files...");
         upload_->changed().connect([=] { start_upload_(); });
     } else {
+        setStyleClass("backup-file-uploader");
         auto button = addNew<Wt::WPushButton>("Upload");
+        button->setStyleClass("btn btn-success");
         button->clicked().connect([=] { start_upload_(); });
     }
 }
@@ -232,9 +235,9 @@ File_manager_view::File_manager_view(const Wt::Dbo::ptr<Submission>& submission,
                                      Session& session)
         : Abstract_file_view(submission, session)
 {
-    bool can_modify =
-            submission->can_submit(session.user()) &&
-            submission->assignment()->web_allowed();
+    bool can_submit = submission->can_submit(session.user());
+    bool can_web    = submission->assignment()->web_allowed();
+    bool can_modify = can_submit && can_web;
 
     auto submission_owner =
            right_column_->addNew<Submission_owner_widget>(
@@ -245,6 +248,10 @@ File_manager_view::File_manager_view(const Wt::Dbo::ptr<Submission>& submission,
 
     if (can_modify)
         right_column_->addNew<File_uploader>(context());
+    else if (can_submit)
+        right_column_->addNew<Wt::WText>(
+                "You must use the command-line <tt>gsc</tt> client "
+                "to modify this assignment.");
 
     file_list_         = right_column_->addWidget(std::move(file_list));
 #ifdef GSC_SHOW_QUOTA
