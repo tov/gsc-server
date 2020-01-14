@@ -112,6 +112,11 @@ std::string User::hw_url() const
     return "/~" + name() + "/hw";
 }
 
+std::string User::profile_url() const
+{
+    return "/~" + name() + "/profile";
+}
+
 std::string User::rest_uri() const
 {
     return api::paths::Users_1(name());

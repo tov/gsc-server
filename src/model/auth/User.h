@@ -79,6 +79,7 @@ public:
     Exam_grades_vec exam_grades() const;
 
     std::string hw_url() const;
+    std::string profile_url() const;
 
     dbo::ptr<User> find_this() const;
 
