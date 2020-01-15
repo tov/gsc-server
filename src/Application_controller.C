@@ -64,7 +64,7 @@ Application_controller::create(Wt::Dbo::SqlConnectionPool& pool,
     return std::make_unique<Application_controller>(pool, env);
 }
 
-std::string styleSheetPath(char const* filename)
+static std::string styleSheetPath(char const* filename)
 {
     std::ostringstream result_path;
     result_path << filename;

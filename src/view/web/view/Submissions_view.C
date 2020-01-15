@@ -202,17 +202,39 @@ public:
             Wt::WTableRow* row);
 };
 
+namespace {
+
+char const
+        *const DATETIME_FMT_EOD = "dddd, MMMM d",
+        *const DATETIME_FMT_ANY = "ddd, MMM d 'at' h:mm AP";
+
+bool is_eod(Wt::WTime const& time)
+{
+    return time.hour() == 23 && time.minute() == 59;
+}
+
+Wt::WString friendly_due_date(Wt::WDateTime const& date_time)
+{
+    auto local_time = date_time.toLocalTime();
+    auto fmt        = is_eod(local_time.time())
+                      ? DATETIME_FMT_EOD
+                      : DATETIME_FMT_ANY;
+    return local_time.toString(fmt);
+}
+
+} // end anonymous namespace
+
 Student_submissions_view_row::Student_submissions_view_row(
         const View_model& model, Session& session,
         Wt::WTableRow* row)
         : Submissions_view_row(model, session, row)
 {
     row_->elementAt(DUE_DATE)->addNew<Wt::WText>(
-            model_.submission->effective_due_date().toLocalTime()
-                  .toString("ddd, MMM d 'at' h:mm AP"));
+            friendly_due_date(
+                    model_.submission->effective_due_date()));
     row_->elementAt(EVAL_DATE)->addNew<Wt::WText>(
-            model_.submission->effective_eval_date().toLocalTime()
-                  .toString("ddd, MMM d 'at' h:mm AP"));
+            friendly_due_date(
+                    model_.submission->effective_eval_date()));
 }
 
 class Admin_submissions_view_row : public Submissions_view_row
