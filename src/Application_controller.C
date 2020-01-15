@@ -66,20 +66,21 @@ Application_controller::create(Wt::Dbo::SqlConnectionPool& pool,
 
 std::string styleSheetPath(char const* filename)
 {
-    std::string result_path(filename);
-    std::string hash_filename(result_path);
+    std::ostringstream result_path;
+    result_path << filename;
 
-    result_path += "?";
-    hash_filename += ".hash";
+    std::ostringstream hash_filename;
+    hash_filename << "html/" << filename << ".hash";
 
     std::string hash_value;
-    std::ifstream hash_file(hash_filename);
+    std::ifstream hash_file(hash_filename.str());
 
     if (hash_file && hash_file >> hash_value) {
-        result_path += hash_value;
+        result_path << "?";
+        result_path << hash_value;
     }
 
-    return result_path;
+    return result_path.str();
 }
 
 Application_controller::Application_controller(Wt::Dbo::SqlConnectionPool& pool,
