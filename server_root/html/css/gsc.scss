@@ -3,6 +3,7 @@ $sf-fam: "Helvetica Neue",sans-serif;
 
 $tt4: 20px $tt-fam;
 $tt5: 16px $tt-fam;
+$tt6: 13px $tt-fam;
 $tt:  12px/14px $tt-fam;
 
 $sf1: 200 50px $sf-fam;
@@ -159,11 +160,7 @@ table .invalid {
         }
     }
 
-    .points {
-        width: 1.5em;
-    }
-
-    .name {
+    .name-edit {
         width: 10em;
     }
 }
@@ -176,10 +173,6 @@ table .invalid {
     width: 240px;
     text-align: center;
     margin: 0 auto 1em auto;
-}
-
-input.username {
-    width: 60px;
 }
 
 .edit-eval-item {
@@ -514,15 +507,24 @@ tr.grader-highlight {
     font: $tt4;
 }
 
-.date-edit, .time-edit, input.username {
+.date-edit,
+.time-edit {
     display: inline;
     padding: 0 6px;
+    font: $tt6;
+    text-overflow: ellipsis;
+}
+
+input.username,
+.points-edit {
+    display: inline;
+    padding: 0 4px;
     font: $tt;
 }
 
-.date-edit, .time-edit {
-    font-size: 10pt;
-    text-overflow: ellipsis;
+.points-edit {
+    text-align: center;
+    width: 3em;
 }
 
 input.username {

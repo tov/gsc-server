@@ -36,8 +36,8 @@ Assignments_view_row::Assignments_view_row(
     points_      = row_->elementAt(POINTS)->addNew<Wt::WLineEdit>();
     auto edit    = row_->elementAt(ACTION) ->addNew<Wt::WPushButton>("Edit");
 
-    name_->setStyleClass("name");
-    points_->setStyleClass("points");
+    name_->setStyleClass("name-edit");
+    points_->setStyleClass("points-edit");
 
     name_->changed().connect(std::bind([=] () {
         dbo::Transaction transaction(session_);
