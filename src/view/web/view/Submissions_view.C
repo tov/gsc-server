@@ -205,7 +205,7 @@ public:
 namespace {
 
 char const
-        *const DATETIME_FMT_EOD = "dddd, MMMM d",
+        *const DATETIME_FMT_EOD = "ddd, MMMM d",
         *const DATETIME_FMT_ANY = "ddd, MMM d 'at' h:mm AP";
 
 bool is_eod(Wt::WTime const& time)
