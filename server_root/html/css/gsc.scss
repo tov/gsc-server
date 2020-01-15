@@ -1,16 +1,16 @@
-$tt-face: "Menlo",monospace;
-$sf-face: "Helvetica Neue",sans-serif;
+$tt-fam: "Menlo",monospace;
+$sf-fam: "Helvetica Neue",sans-serif;
 
-$tt4: 20px $tt-face;
-$tt5: 16px $tt-face;
-$tt:  12px/14px $tt-face;
+$tt4: 20px $tt-fam;
+$tt5: 16px $tt-fam;
+$tt:  12px/14px $tt-fam;
 
-$sf1: 200 50px $sf-face;
-$sf2: 200 40px $sf-face;
-$sf3: 400 30px $sf-face;
-$sf4: 500 20px $sf-face;
-$sf6: 700 12px $sf-face;
-$sf:  400 20px $sf-face;
+$sf1: 200 50px $sf-fam;
+$sf2: 200 40px $sf-fam;
+$sf3: 400 30px $sf-fam;
+$sf4: 500 20px $sf-fam;
+$sf6: 700 12px $sf-fam;
+$sf:  400 20px $sf-fam;
 
 body {
     font: $sf;
@@ -139,7 +139,7 @@ table .invalid {
     }
 
     code.filename {
-        font: 60% $tt-face;
+        font: 60% $tt-fam;
         opacity: 60%;
         color: inherit;
         background-color: inherit;
@@ -561,3 +561,9 @@ input.username {
     }
 }
 
+table tr {
+    td.numeric, th.numeric {
+        text-align: right;
+        font-family: $tt-fam;
+    }
+}

@@ -58,6 +58,8 @@ Submissions_view_row::Submissions_view_row(
     grade_  = row_->elementAt(GRADE)->addNew<Wt::WText>();
     action_ = row_->elementAt(ACTION)->addNew<Wt::WPushButton>();
 
+    grade_->setStyleClass("numeric");
+
     action_->clicked().connect(this, &Submissions_view_row::action);
 }
 
@@ -206,7 +208,7 @@ namespace {
 
 char const
         *const DATETIME_FMT_EOD = "dddd, MMMM d",
-        *const DATETIME_FMT_ANY = "ddd, MMM d 'at' h:mm AP";
+        *const DATETIME_FMT_ANY = "ddd MM/dd '@' h:mm AP";
 
 bool is_eod(Wt::WTime const& time)
 {
