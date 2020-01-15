@@ -165,7 +165,7 @@ inline string
 user_hw_N(const dbo::ptr<Submission>& submission)
 {
     return user_hw(submission->user1()) +
-            ": " + submission->assignment()->name();
+            ": " + submission->assignment()->slug_string();
 }
 
 inline string
@@ -227,7 +227,7 @@ void Application_controller::handle_internal_path(
                     break;
 
                 case User::Role::Admin:
-                    set_title("Edit assignments");
+                    set_title("Edit Assignments");
                     set_new_widget<Assignments_view>(session_);
                     break;
             }
@@ -273,7 +273,7 @@ void Application_controller::handle_internal_path(
             transaction.commit();
             if (!current_user->can_grade()) permission_denied();
 
-            set_title("Grading stats");
+            set_title("Grading Stats");
             set_new_widget<Grading_stats_view>(session_);
 
             // /grade/:permalink
@@ -360,19 +360,19 @@ void Application_controller::handle_internal_path(
             // /game
         } else if (internal_path == Path::game) {
             transaction.commit();
-            set_title("Gaming ground");
+            set_title("Gaming Ground");
             set_new_widget<HangmanWidget>(session_);
 
             // /game/high_scores
         } else if (internal_path == Path::high_scores) {
-            set_title("High scores");
+            set_title("High Scores");
             set_new_widget<HighScoresWidget>(session_);
 
             // /hw/:n
         } else if (std::regex_match(internal_path, sm, Path::hw_N)) {
             if (current_user->can_admin()) {
                 auto assignment = find_assignment(&*sm[1].first);
-                set_title("Edit " + assignment->name());
+                set_title(assignment->slug_string() + ": Edit");
                 set_new_widget<Edit_assignment_view>(assignment, session_);
             } else {
                 add_tilde_user();
@@ -399,7 +399,7 @@ void Application_controller::handle_internal_path(
             transaction.commit();
             if (!current_user->can_admin()) permission_denied();
 
-            set_title("Held-back evaluations");
+            set_title("Held-Back Evaluations");
             set_new_widget<Held_back_view>(session_);
 
             // /~:user

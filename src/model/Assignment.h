@@ -6,6 +6,7 @@
 #include <Wt/Dbo/WtSqlTraits.h>
 #include <Wt/WDateTime.h>
 
+#include <string>
 #include <vector>
 
 namespace dbo = Wt::Dbo;
@@ -57,6 +58,8 @@ public:
     void set_eval_date(const Wt::WDateTime& date) { eval_date_ = date; }
     void set_partner(bool b) { partner_ = b; }
     void set_web_allowed(bool b) { web_allowed_ = b; }
+
+    std::string slug_string() const;
 
     Status status() const;
 

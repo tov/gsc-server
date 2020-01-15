@@ -1,34 +1,54 @@
 $tt-fam: "Menlo",monospace;
 $sf-fam: "Helvetica Neue",sans-serif;
 
-$tt4: 20px $tt-fam;
-$tt5: 16px $tt-fam;
-$tt6: 13px $tt-fam;
-$tt:  12px/14px $tt-fam;
+$sf-h1: 200 50px $sf-fam;
+$sf-h2: 200 40px $sf-fam;
+$sf-h3: 300 28px $sf-fam;
 
-$sf1: 200 50px $sf-fam;
-$sf2: 200 40px $sf-fam;
-$sf3: 400 30px $sf-fam;
-$sf4: 500 20px $sf-fam;
-$sf6: 700 12px $sf-fam;
-$sf:  400 20px $sf-fam;
+$sf-h4: 500 20px $sf-fam;
+$tt-h4:     20px $tt-fam;
+
+$sf-bd: 400 20px      $sf-fam;
+$tt-bd:     16px      $tt-fam;
+
+$sf-sm: 400 16px      $sf-fam;
+$tt-sm:     13px      $tt-fam;
+
+$sf-ls: 400 11px/11px $sf-fam;
+$tt-ls:     14px/18px $tt-fam;
+
+$radius: 15px;
+$inverse-bg: #606;
+$inverse-fg: white;
+$highlight-bg: #dcd;
+
+$file-viewer-height: 470px;
+$file-viewer-width: 630px;
+$code-number-width: 40px;
+$file-viewer-gutter: 10px;
+$code-line-padding: 6px;
+$code-number-padding: 3px;
+$fudge-pixels: 4px;
+
+$single-file-width: $file-viewer-width - 2 * $file-viewer-gutter;
+$code-line-width: $single-file-width - 2 * ($code-number-padding + $code-line-padding) - $fudge-pixels;
 
 body {
-    font: $sf;
+    font: $sf-bd;
 }
 
 h1 {
-    font: $sf1;
+    font: $sf-h1;
     margin: 0 1ex;
     padding: 0;
 
     small {
-      font: $sf2;
+      font: $sf-h2;
     }
 }
 
 h2 {
-    font: $sf2;
+    font: $sf-h2;
 }
 
 table .invalid {
@@ -36,72 +56,66 @@ table .invalid {
 }
 
 .admin-view,
-.profile-view {
-    th, td {
-        text-align: left;
-    }
-}
-
-.file-list,
-.grading-stats-view {
-    th, td {
-        text-align: center;
-    }
-}
-
 .assignments-view,
+.file-list,
+.file-viewer,
+.grading-stats-view,
+.profile-view,
 .submissions-view {
     table {
-        th {
-            padding: 0 6px;
-
-            a, a:hover {
-                color: white;
-            }
-        }
-
-        td, th {
-            text-align: left;
-        }
+        margin: 1em auto;
+        border-collapse: collapse;
 
         thead th {
             text-align: center;
+        }
+
+        thead,
+        tbody:nth-child(2) {
+            tr:first-child th:first-child {
+                border-top-left-radius: $radius;
+            }
+        }
+
+        tbody:nth-child(2) {
+            tr:last-child th:first-child {
+                border-bottom-left-radius: $radius;
+            }
+        }
+
+        th, td {
+            vertical-align: middle;
+            border: 0;
+        }
+
+        th {
+            padding: 5px 10px;
+            font: $sf-h3;
+            color: $inverse-fg;
+            background: $inverse-bg;
+
+            a {
+                color: white;
+            }
+
+            a:hover {
+                color: lightyellow;;
+            }
+        }
+
+        td {
+            padding: 3px 6px;
+            font: $sf-sm;
         }
 
         td.numeric {
             text-align: right;
             font-family: $tt-fam;
         }
-    }
-}
 
-.admin-view,
-.assignments-view,
-.file-list,
-.grading-stats-view,
-.profile-view,
-.submissions-view {
-    table {
-        margin: 1em auto;
-        border-collapse: separate;
-        border-spacing: 4px;
-
-        th, td {
-            vertical-align: middle;
-        }
-
-        th {
-            padding: 0 6px;
-            font: $sf4;
-            color: white;
-            background: #660066;
-            border: 1px solid #990099;
-        }
-
-        td {
-            padding: 0 4px;
-            font: $sf;
-            border: 0;
+        td>input, td>button {
+            display: block;
+            margin: 0 auto;
         }
 
         input {
@@ -202,17 +216,68 @@ table .invalid {
 }
 
 .file-viewer {
-    position: relative;
-    font-size: 90%;
-    padding: 5px;
-    border: 1px solid lightgrey;
-    width: 630px;
-    height: 470px;
-    line-height: 105%;
+    border: 2px outset $highlight-bg;
+    background-color: $highlight-bg;
+    padding: 0;
 
-    h4 {
+    select {
+        font: $sf-h4;
         margin: 0;
+        border: 0;
+        border-radius: 0;
+        background-color: transparent;
+    }
+
+    .file-viewer-area {
+        position: relative;
         padding: 0;
+        width: $file-viewer-width;
+        height: $file-viewer-height;
+
+        .single-file-viewer {
+            width: $single-file-width;
+            margin: $file-viewer-gutter auto;
+            background-color: white;
+            border-radius: $radius 0;
+
+            table {
+                margin: 0;
+            }
+
+            th {
+                margin: 0;
+                padding: 6px 0;
+                font: $tt-h4;
+                vertical-align: middle;
+
+                span {
+                    display: block;
+                    max-width: $code-line-width;
+                }
+            }
+
+            th:first-child {
+                width: $code-number-width;
+            }
+
+            th.code-number {
+                font: $sf-ls;
+                color: white;
+                padding: 0 $code-number-padding;
+                text-align: center;
+            }
+
+            th.code-number:last-child {
+                padding-bottom: 6px;
+            }
+
+            td.code-line {
+                min-width: $code-line-width;
+                padding: 0 $code-line-padding;
+                font: $tt-ls;
+                white-space: pre;
+            }
+        }
     }
 }
 
@@ -263,34 +328,27 @@ table .invalid {
     table {
         a {
             text-decoration: none;
+            font: $tt-bd;
         }
 
         a:hover {
             text-decoration: underline;
-        }
-
-        button {
-            padding: 0 3px !important;
         }
     }
 }
 
 .list-eval-item {
     margin: 1em 0.25em;
-    padding: 0 0.5em;
-    border-radius: 5px;
+    padding: 5px 10px;
+    border-radius: $radius 0 $radius 0;
 }
 
 .list-eval-item.has-been-docked {
-    margin: 1em 0.25em;
-    background-color: #ffcccc;
-    border: 1px solid #990000;
+    background-color: lightpink;
 }
 
 .list-eval-item.has-explanation {
-    margin: 1em 0.25em;
-    background-color: #ccffcc;
-    border: 1px solid #009900;
+    background-color: lightblue;
 }
 
 .held-back {
@@ -314,18 +372,6 @@ table .invalid {
 }
 
 .question td {
-    text-align: center;
-}
-
-.code-line {
-    font: $tt;
-    white-space: pre;
-}
-
-.code-number {
-    font-size: 85%;
-    color: grey;
-    padding-right: 10px;
     text-align: center;
 }
 
@@ -376,14 +422,6 @@ table .invalid {
     left: 25%;
     right: 25%;
     width: 50%;
-}
-
-.file-list-type {
-    text-align: center;
-}
-
-.file-list-bytes {
-    text-align: right;
 }
 
 .highscores table {
@@ -482,7 +520,7 @@ tr.grader-highlight {
 
 .partner-notification {
     border: 1px solid;
-    border-radius: 5px;
+    border-top-left-radius: $radius;
     margin-bottom: 1em;
     padding: 0.5em;
 
@@ -519,14 +557,14 @@ tr.grader-highlight {
 }
 
 .username, .input-monospace {
-    font: $tt4;
+    font: $tt-h4;
 }
 
 .date-edit,
 .time-edit {
     display: inline;
     padding: 0 6px;
-    font: $tt6;
+    font: $tt-sm;
     text-overflow: ellipsis;
 }
 
@@ -534,7 +572,7 @@ input.username,
 .points-edit {
     display: inline;
     padding: 0 4px;
-    font: $tt;
+    font: $tt-ls;
 }
 
 .points-edit {

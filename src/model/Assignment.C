@@ -10,6 +10,9 @@
 #include <Wt/Dbo/Impl.h>
 #include <Wt/Dbo/Transaction.h>
 
+#include <iomanip>
+#include <sstream>
+
 DBO_INSTANTIATE_TEMPLATES(Assignment)
 
 Assignment::Assignment(int number,
@@ -35,6 +38,13 @@ Assignment::Status Assignment::status() const
     else if (now <= due_date_)
         return Status::Open;
     else return Status::Closed;
+}
+
+std::string Assignment::slug_string() const
+{
+    std::ostringstream os;
+    os << "hw" << std::setfill('0') << std::setw(2) << number();
+    return os.str();
 }
 
 dbo::ptr<Assignment>
@@ -72,5 +82,4 @@ dbo::ptr<Eval_item> Assignment::find_eval_item(dbo::Session& session, int sequen
             .where("assignment_number = ?").bind(number())
             .where("sequence = ?").bind(sequence);
 }
-
 

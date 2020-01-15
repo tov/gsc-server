@@ -29,18 +29,21 @@
 
   <message id="gsc.template.profile-table">
     <table class="profile-table">
-      <tr>
-        <th>NetID</th>
-        <td>${login-name}</td>
-      </tr>
-      <tr>
-        <th>Role</th>
-        <td>${role}</td>
-      </tr>
-      <tr>
-        <th>API Key</th>
-        <td>${api-key}</td>
-      </tr>
+      <colgroup/>
+      <tbody>
+        <tr>
+          <th>NetID</th>
+          <td>${login-name}</td>
+        </tr>
+        <tr>
+          <th>Role</th>
+          <td>${role}</td>
+        </tr>
+        <tr>
+          <th>API Key</th>
+          <td>${api-key}</td>
+        </tr>
+      </tbody>
     </table>
   </message>
 

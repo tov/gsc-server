@@ -65,11 +65,11 @@ Submissions_view_row::Submissions_view_row(
 
 void Submissions_view_row::add_headings(Wt::WTableRow* row)
 {
-    row->elementAt(NAME)     ->addNew<Wt::WText>("Assignment");
+    row->elementAt(NAME)     ->addNew<Wt::WText>("Homework");
     row->elementAt(STATUS)   ->addNew<Wt::WText>("Status");
-    row->elementAt(DUE_DATE) ->addNew<Wt::WText>("Due");
-    row->elementAt(EVAL_DATE)->addNew<Wt::WText>("Self-eval due");
-    row->elementAt(GRADE)    ->addNew<Wt::WText>("Grade");
+    row->elementAt(DUE_DATE) ->addNew<Wt::WText>("Code Due");
+    row->elementAt(EVAL_DATE)->addNew<Wt::WText>("Self-Eval Due");
+    row->elementAt(GRADE)    ->addNew<Wt::WText>("Score");
     row->elementAt(ACTION)   ->addNew<Wt::WText>("Action");
 }
 

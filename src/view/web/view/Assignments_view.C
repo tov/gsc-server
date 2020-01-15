@@ -125,14 +125,14 @@ Assignments_view_row::Assignments_view_row(
 void Assignments_view_row::add_headings(Wt::WTableRow* row)
 {
     row->elementAt(NUMBER)->addNew<Wt::WText>("#");
-    row->elementAt(NAME)->addNew<Wt::WText>("Name");
+    row->elementAt(NAME)->addNew<Wt::WText>("Title");
     row->elementAt(PARTNER)->addNew<Wt::WText>("2")
        ->setToolTip("Allow partners");
     row->elementAt(WEB_ALLOWED) -> addNew<Wt::WText>("W")
        ->setToolTip("Allow web submission");
     row->elementAt(OPEN_DATE)->addNew<Wt::WText>("Opens");
-    row->elementAt(DUE_DATE)->addNew<Wt::WText>("Due");
-    row->elementAt(EVAL_DATE)->addNew<Wt::WText>("Self-eval");
+    row->elementAt(DUE_DATE)->addNew<Wt::WText>("Code Due");
+    row->elementAt(EVAL_DATE)->addNew<Wt::WText>("Self-Eval Due");
     row->elementAt(POINTS)->addNew<Wt::WText>("Pts");
     row->elementAt(ACTION)->addNew<Wt::WText>("Action");
 }

@@ -1,4 +1,5 @@
 #include "File_list_widget.h"
+#include "Glyph_button.h"
 #include "../../../Session.h"
 #include "../../../model/File_data.h"
 #include "../../../model/File_meta.h"
@@ -11,7 +12,6 @@
 #include <Wt/WAnchor.h>
 #include <Wt/WContainerWidget.h>
 #include <Wt/WLink.h>
-#include <Wt/WPushButton.h>
 #include <Wt/WTable.h>
 #include <Wt/WText.h>
 
@@ -52,6 +52,7 @@ File_list_widget::File_list_widget(const Wt::Dbo::ptr<Submission>& submission,
     auto impl = setNewImplementation<Wt::WContainerWidget>();
     inner_ = impl->addNew<Wt::WTable>();
     inner_->setHeaderCount(1, Wt::Orientation::Horizontal);
+    inner_->setHeaderCount(1, Wt::Orientation::Vertical);
     setStyleClass("file-list");
     reload_();
 }
@@ -66,11 +67,12 @@ void File_list_widget::reload_()
 
     if (source_files.empty()) return;
 
-    cell_(0, 0)->addNew<Wt::WText>("filename");
-    cell_(0, 1)->addNew<Wt::WText>("type");
-    cell_(0, 2)->addNew<Wt::WText>("bytes");
+    cell_(0, 0)->addNew<Wt::WText>("Filename");
+    cell_(0, 1)->addNew<Wt::WText>("Type");
+    cell_(0, 2)->addNew<Wt::WText>("Bytes");
     if (can_modify_)
-        cell_(0, 3)->addNew<Wt::WText>("rm");
+        cell_(0, 3)->addNew<Wt::WText>("X")
+                ->setAttributeValue("aria-label", "Delete file");
 
     int row = 1;
 
@@ -84,16 +86,18 @@ void File_list_widget::reload_()
         auto bytes = cell_(row, 2)->addNew<Wt::WText>(
                 with_commas(file->byte_count()));
 
+        cell_(row, 0)->setStyleClass("filename");
         cell_(row, 1)->setStyleClass("file-list-type");
-        cell_(row, 2)->setStyleClass("file-list-bytes");
+        cell_(row, 2)->setStyleClass("numeric");
 
         anchor->setToolTip("view or download");
         type->setToolTip("file purpose");
         bytes->setToolTip("file size in bytes");
 
         if (can_modify_) {
-            auto remove = cell_(row, 3)->addNew<Wt::WPushButton>("X");
-            remove->setToolTip("delete file");
+            auto remove = cell_(row, 3)->addNew<Glyph_button>(
+                    "trash", "Delete file", true);
+            remove->setStyleClass("btn btn-danger");
 
             auto deleter = remove->addChild(
                     std::make_unique<File_deleter>(file, context()));
