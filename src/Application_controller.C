@@ -24,6 +24,7 @@
 #include <Wt/WWidget.h>
 
 #include <cstdlib>
+#include <fstream>
 #include <sstream>
 #include <stdexcept>
 #include <string>
@@ -63,6 +64,24 @@ Application_controller::create(Wt::Dbo::SqlConnectionPool& pool,
     return std::make_unique<Application_controller>(pool, env);
 }
 
+std::string styleSheetPath(char const* filename)
+{
+    std::string result_path(filename);
+    std::string hash_filename(result_path);
+
+    result_path += "?";
+    hash_filename += ".hash";
+
+    std::string hash_value;
+    std::ifstream hash_file(hash_filename);
+
+    if (hash_file && hash_file >> hash_value) {
+        result_path += hash_value;
+    }
+
+    return result_path;
+}
+
 Application_controller::Application_controller(Wt::Dbo::SqlConnectionPool& pool,
                                                const Wt::WEnvironment& env)
         : WApplication(env), session_(pool)
@@ -76,7 +95,7 @@ Application_controller::Application_controller(Wt::Dbo::SqlConnectionPool& pool,
     theme->setVersion(Wt::BootstrapVersion::v3);
     setTheme(theme);
 
-    useStyleSheet("css/gsc.css");
+    useStyleSheet(styleSheetPath("css/gsc.css"));
     requireJQuery("jquery-3.4.1.min.js");
     require("gsc.js");
 
