@@ -253,7 +253,7 @@ File_manager_view::File_manager_view(const Wt::Dbo::ptr<Submission>& submission,
     else if (can_submit)
         right_column_->addNew<Wt::WText>(
                 "You must use the command-line <tt>gsc</tt> client "
-                "to modify this assignment.");
+                "to modify this submission.");
 
     file_list_         = right_column_->addWidget(std::move(file_list));
 #ifdef GSC_SHOW_QUOTA
