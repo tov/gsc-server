@@ -70,8 +70,8 @@ private:
     int           number_ = 0;
     std::string   name_;
     int           points_ = 0;
-    bool          partner_ = true;
-    bool          web_allowed_ = true;
+    bool          partner_ = false;
+    bool          web_allowed_ = false;
     Wt::WDateTime open_date_;
     Wt::WDateTime due_date_;
     Wt::WDateTime eval_date_;
