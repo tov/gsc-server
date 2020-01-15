@@ -1,7 +1,7 @@
 all: gsc.css
 
 %.css: %.scss
-	sass $< $@
+	sass $< > $@
 
 clean:
 	git clean -fX
