@@ -235,8 +235,10 @@ File_manager_view::File_manager_view(const Wt::Dbo::ptr<Submission>& submission,
                                      Session& session)
         : Abstract_file_view(submission, session)
 {
-    bool can_submit = submission->can_submit(session.user());
-    bool can_web    = submission->assignment()->web_allowed();
+    auto user = session.user();
+    bool can_submit = submission->can_submit(user);
+    bool can_web    = submission->assignment()->web_allowed()
+                      || user->can_admin();
     bool can_modify = can_submit && can_web;
 
     auto submission_owner =
