@@ -112,7 +112,7 @@ void Submissions_view_row::update()
             row_->setStyleClass("open");
             if (model_.submission->assignment()->web_allowed()) {
                 set_files_action("Submit");
-            } else if (model_.file_count > 0) {
+            } else {
                 set_files_action("Browse");
             }
 
