@@ -1,11 +1,16 @@
-$tt4: 20px "Menlo",monospace;
-$tt: 12px/14px "Menlo",monospace;
+$tt-face: "Menlo",monospace;
+$sf-face: "Helvetica Neue",sans-serif;
 
-$sf1: 200 50px "Helvetica Neue",sans-serif;
-$sf2: 200 40px "Helvetica Neue",sans-serif;
-$sf3: 400 30px "Helvetica Neue",sans-serif;
-$sf4: 500 20px "Helvetica Neue",sans-serif;
-$sf:  400 20px "Helvetica Neue",sans-serif;
+$tt4: 20px $tt-face;
+$tt5: 16px $tt-face;
+$tt:  12px/14px $tt-face;
+
+$sf1: 200 50px $sf-face;
+$sf2: 200 40px $sf-face;
+$sf3: 400 30px $sf-face;
+$sf4: 500 20px $sf-face;
+$sf6: 700 12px $sf-face;
+$sf:  400 20px $sf-face;
 
 body {
     font: $sf;
@@ -131,6 +136,16 @@ table .invalid {
     .partner-notification {
         margin: 1em;
         text-align: center;
+    }
+
+    code.filename {
+        font: 60% $tt-face;
+        opacity: 60%;
+        color: inherit;
+        background-color: inherit;
+        margin: 0;
+        padding: 0;
+        border: 0;
     }
 }
 
@@ -545,3 +560,4 @@ input.username {
         width: 7em;
     }
 }
+
