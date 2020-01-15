@@ -164,7 +164,8 @@ Assignments_view::Assignments_view(Session& session)
                                .resultList();
 
     table_ = addNew<Wt::WTable>();
-    table_->setHeaderCount(1);
+    table_->setHeaderCount(1, Wt::Orientation::Vertical);
+    table_->setHeaderCount(1, Wt::Orientation::Horizontal);
     Assignments_view_row::add_headings(table_->rowAt(0));
 
     int row = 1;

@@ -51,12 +51,27 @@ table .invalid {
 
 .assignments-view,
 .submissions-view {
-    th {
-        text-align: center;
-    }
+    table {
+        th {
+            padding: 0 6px;
 
-    td {
-        text-align: left;
+            a, a:hover {
+                color: white;
+            }
+        }
+
+        td, th {
+            text-align: left;
+        }
+
+        thead th {
+            text-align: center;
+        }
+
+        td.numeric {
+            text-align: right;
+            font-family: $tt-fam;
+        }
     }
 }
 
@@ -76,7 +91,7 @@ table .invalid {
         }
 
         th {
-            padding: 0 2px;
+            padding: 0 6px;
             font: $sf4;
             color: white;
             background: #660066;
@@ -560,12 +575,5 @@ input.username {
 
     .time-edit {
         width: 7em;
-    }
-}
-
-table tr {
-    td.numeric, th.numeric {
-        text-align: right;
-        font-family: $tt-fam;
     }
 }

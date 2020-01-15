@@ -58,7 +58,7 @@ Submissions_view_row::Submissions_view_row(
     grade_  = row_->elementAt(GRADE)->addNew<Wt::WText>();
     action_ = row_->elementAt(ACTION)->addNew<Wt::WPushButton>();
 
-    grade_->setStyleClass("numeric");
+    row->elementAt(GRADE)->setStyleClass("numeric");
 
     action_->clicked().connect(this, &Submissions_view_row::action);
 }
@@ -376,13 +376,15 @@ Submissions_view::Submissions_view(const dbo::ptr<User>& user, Session& session)
 
 void Submissions_view::reload_()
 {
+    using columns = Submissions_view_row::columns;
     clear();
 
     addNew<Partner_notification_widget>(
             model_.principal, dbo::ptr<Submission>{}, session_, changed_);
 
     auto table = addNew<Wt::WTable>();
-    table->setHeaderCount(1);
+    table->setHeaderCount(1, Orientation::Horizontal);
+    table->setHeaderCount(1, Orientation::Vertical);
     Submissions_view_row::add_headings(table->rowAt(0));
 
     int row = 1;
