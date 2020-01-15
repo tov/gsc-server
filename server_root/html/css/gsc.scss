@@ -36,12 +36,21 @@ table .invalid {
     }
 }
 
-.assignments-view,
 .file-list,
-.grading-stats-view,
-.submissions-view {
+.grading-stats-view {
     th, td {
         text-align: center;
+    }
+}
+
+.assignments-view,
+.submissions-view {
+    th {
+        text-align: center;
+    }
+
+    td {
+        text-align: left;
     }
 }
 
