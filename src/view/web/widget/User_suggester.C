@@ -10,25 +10,22 @@ static Wt::WSuggestionPopup::Options const popup_options = {
         ""             // appendReplacedText (prepare next email address)
 };
 
-User_suggester::User_suggester(Session& session, User::Role role)
+static Users get_users(Session& session,
+                       std::optional<User::Role> role)
+{
+    auto query = session.find<User>().orderBy("name");
+    return role
+           ? query.where("role = ?").bind((int) *role)
+           : query;
+}
+
+User_suggester::User_suggester(Session& session,
+                               std::optional<User::Role> role)
         : WSuggestionPopup(popup_options)
 {
     Wt::Dbo::Transaction transaction(session);
 
-    Users users = session.find<User>()
-                         .where("role = ?").bind((int) role)
-                         .orderBy("name");
-    for (const auto& user : users)
+    for (const auto& user : get_users(session, role))
         addSuggestion(user->name());
 }
 
-User_suggester::User_suggester(Session& session)
-        : WSuggestionPopup(popup_options)
-{
-    Wt::Dbo::Transaction transaction(session);
-
-    Users users = session.find<User>()
-                         .orderBy("name");
-    for (const auto& user : users)
-        addSuggestion(user->name());
-}

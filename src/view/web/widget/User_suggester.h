@@ -4,12 +4,14 @@
 
 #include <Wt/WSuggestionPopup.h>
 
+#include <optional>
+
 class Session;
 
 class User_suggester : public Wt::WSuggestionPopup
 {
 public:
-    User_suggester(Session&, User::Role role);
-    explicit User_suggester(Session&);
+    explicit User_suggester(Session&,
+                            std::optional<User::Role> = std::nullopt);
 };
 
