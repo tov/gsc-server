@@ -1,9 +1,7 @@
 #pragma once
 
 #include "../../../model/auth/User.h"
-
 #include <Wt/WSuggestionPopup.h>
-
 #include <optional>
 
 class Session;

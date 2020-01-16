@@ -3,6 +3,7 @@
 #include "../widget/Accelerator_text.h"
 #include "File_manager_view.h"
 #include "Held_back_view.h"
+#include "../widget/User_selector.h"
 #include "../widget/User_suggester.h"
 #include "../../game/HangmanWidget.h"
 #include "../../game/HighScoresWidget.h"
@@ -38,7 +39,7 @@ private:
     void go();
 
     Session& session_;
-    Wt::WLineEdit* editor_;
+    User_selector* editor_;
     Wt::WComboBox* combo_;
     std::vector<Wt::Dbo::ptr<Submission>> submissions_;
 };
@@ -46,14 +47,9 @@ private:
 Submission_chooser::Submission_chooser(Session& session)
         : session_(session)
 {
-    editor_ = addNew<Wt::WLineEdit>();
-    editor_->setPlaceholderText("username");
-    editor_->setStyleClass("username");
-    editor_->keyWentUp().connect(this, &This::update);
+    editor_ = addNew<User_selector>(session_, User::Role::Student);
     editor_->enterPressed().connect(this, &This::go);
-
-    auto popup = addNew<User_suggester>(session, User::Role::Student);
-    popup->forEdit(editor_);
+    editor_->keyWentUp().connect(this, &This::update);
 
     combo_  = addNew<Wt::WComboBox>();
     combo_->changed().connect(this, &This::go);
@@ -119,30 +115,20 @@ private:
     void go();
 
     Session& session_;
-    Wt::WLineEdit* editor_;
+    User_selector* editor_;
 };
 
 Student_chooser::Student_chooser(Session& session)
         : session_(session)
 {
-    editor_ = addNew<Wt::WLineEdit>();
-    editor_->setPlaceholderText("username");
-    editor_->setStyleClass("username");
+    editor_ = addNew<User_selector>(session_, User::Role::Student);
     editor_->enterPressed().connect(this, &Student_chooser::go);
-
-    auto popup = addNew<User_suggester>(session, User::Role::Student);
-    popup->forEdit(editor_);
 }
 
 void Student_chooser::go()
 {
-    Wt::Dbo::Transaction transaction(session_);
-    dbo::ptr<User> user = User::find_by_name(session_, editor_->text().toUTF8());
-    transaction.commit();
-
-    if (!user) return;
-
-    Navigate::to("/~" + user->name() + "/hw");
+    if (auto user = editor_->selected_user())
+        Navigate::to(user->hw_url());
 }
 
 void Student_chooser::setFocus(bool b)
@@ -183,7 +169,7 @@ private:
     void go();
 
     Session& session_;
-    Wt::WLineEdit* editor_;
+    User_selector* editor_;
     Role_chooser* chooser_;
 };
 
@@ -219,13 +205,8 @@ void Role_chooser::setRole(std::optional<Role> role)
 Role_updater::Role_updater(Session& session)
         : session_(session)
 {
-    editor_ = addNew<Wt::WLineEdit>();
-    editor_->setPlaceholderText("username");
-    editor_->setStyleClass("username");
+    editor_ = addNew<User_selector>(session_);
     editor_->keyWentUp().connect(this, &This::update);
-
-    auto popup = addNew<User_suggester>(session);
-    popup->forEdit(editor_);
 
     chooser_ = addNew<Role_chooser>(session);
     chooser_->enterPressed().connect(this, &This::go);
@@ -233,11 +214,7 @@ Role_updater::Role_updater(Session& session)
 
 void Role_updater::update()
 {
-    Wt::Dbo::Transaction transaction(session_);
-    auto user = User::find_by_name(session_, editor_->text().toUTF8());
-    transaction.commit();
-
-    if (user)
+    if (auto user = editor_->selected_user())
         chooser_->setRole(user->role());
     else
         chooser_->setRole(std::nullopt);
@@ -246,10 +223,10 @@ void Role_updater::update()
 void Role_updater::go()
 {
     if (auto choice = chooser_->role()) {
-        Wt::Dbo::Transaction transaction(session_);
-        auto user = User::find_by_name(session_, editor_->text().toUTF8());
-        user.modify()->set_role(*choice);
-        transaction.commit();
+        if (auto user = editor_->selected_user()) {
+            Wt::Dbo::Transaction transaction(session_);
+            user.modify()->set_role(*choice);
+        }
 
         chooser_->setRole(std::nullopt);
         editor_->setText("");
@@ -273,7 +250,7 @@ public:
 
 private:
     Session& session_;
-    Wt::WLineEdit* editor_;
+    User_selector* editor_;
 
     void go();
 };
@@ -281,23 +258,14 @@ private:
 SU_widget::SU_widget(Session& session)
         : session_(session)
 {
-    editor_ = addNew<Wt::WLineEdit>();
-    editor_->setPlaceholderText("username");
-    editor_->setStyleClass("username");
+    editor_ = addNew<User_selector>(session_);
     editor_->enterPressed().connect(this, &This::go);
-
-    auto popup = addNew<User_suggester>(session);
-    popup->forEdit(editor_);
 }
 
 void SU_widget::go()
 {
-    dbo::Transaction transaction(session_);
-
-    auto user = User::find_by_name(session_, editor_->text().toUTF8());
-    if (!user) return;
-
-    session_.become_user(user);
+    if (auto user = editor_->selected_user())
+        session_.become_user(user);
 }
 
 void SU_widget::setFocus(bool b)
@@ -333,7 +301,11 @@ New_user_widget::New_user_widget(Session& session)
 void New_user_widget::go()
 {
     dbo::Transaction transaction(session_);
-    session_.create_user({editor_->text().toUTF8()});
+
+    if (std::string username = clean_text(editor_->text());
+            !username.empty())
+        session_.create_user({username});
+
     editor_->setText("");
 }
 

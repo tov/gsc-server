@@ -83,6 +83,7 @@ set(WWW_SRC_FILES
         src/view/web/widget/Single_eval_item_widget.C
         src/view/web/widget/Submission_owner_widget.C
         src/view/web/widget/Unit_line_edit.C
+        src/view/web/widget/User_selector.C
         src/view/web/widget/User_suggester.C
         src/view/game/HangmanWidget.C
         src/view/game/HighScoresWidget.C
