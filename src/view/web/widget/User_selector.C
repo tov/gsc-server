@@ -5,41 +5,69 @@
 
 #include <Wt/WContainerWidget.h>
 #include <Wt/WLineEdit.h>
+#include <Wt/WRegExpValidator.h>
 
+#include <cctype>
 #include <sstream>
+
+class Username_validator : public WValidator
+{
+public:
+    Username_validator()
+//            : WRegExpValidator("[a-z]*[0-9]*")
+    { }
+
+    string inputFilter() const override
+    {
+        return "[a-zA-Z0-9]";
+    }
+};
 
 User_selector::User_selector(Session& session,
                              optional<User::Role> role)
         : session_(session)
+        , valid_(make_shared<Username_validator>())
 {
     auto impl = setNewImplementation<WContainerWidget>();
+
+    setStyleClass("user-selector");
 
     edit_ = impl->addNew<WLineEdit>();
     edit_->setPlaceholderText("username");
     edit_->setStyleClass("username");
 
-    auto popup = impl->addNew<User_suggester>(session, role);
+    edit_->setValidator(valid_);
+
+    auto popup = make_unique<User_suggester>(session, role);
     popup->forEdit(edit_);
+    impl->addChild(move(popup));
+
+    textInput().connect(this, &User_selector::fixup_);
 }
 
-string User_selector::cleaned_text() const
+string User_selector::cleaned_username() const
 {
-    return clean_text(text());
+    return clean_username(text());
 }
 
 dbo::ptr<User> User_selector::selected_user() const
 {
     Wt::Dbo::Transaction transaction(session_);
-    return User::find_by_name(session_, cleaned_text());
+    return User::find_by_name(session_, cleaned_username());
 }
 
-string clean_text(Wt::WString const& text)
+void User_selector::fixup_()
+{
+    setText(clean_username(text()));
+}
+
+string clean_username(Wt::WString const& text)
 {
     ostringstream os;
 
     for (char c : text.toUTF8()) {
-        if (isalnum(c) || c == '-' || c == '_') {
-            os << c;
+        if (isalnum(c)) {
+            os << char(tolower(c));
         }
     }
 

@@ -1,19 +1,16 @@
 #include "Admin_view.h"
+#include "Held_back_view.h"
 #include "../widget/Accelerator_button.h"
 #include "../widget/Accelerator_text.h"
-#include "File_manager_view.h"
-#include "Held_back_view.h"
 #include "../widget/User_selector.h"
 #include "../widget/User_suggester.h"
 #include "../../game/HangmanWidget.h"
-#include "../../game/HighScoresWidget.h"
 #include "../../../Navigate.h"
-#include "../../../model/auth/User.h"
 #include "../../../model/Assignment.h"
 #include "../../../model/Submission.h"
 #include "../../../Session.h"
+#include "../../../common/util.h"
 
-#include <Wt/WApplication.h>
 #include <Wt/WComboBox.h>
 #include <Wt/WCompositeWidget.h>
 #include <Wt/WEvent.h>
@@ -22,10 +19,11 @@
 #include <Wt/WMessageBox.h>
 #include <Wt/WPushButton.h>
 #include <Wt/WTable.h>
+#include <Wt/WValidator.h>
 
 #include <vector>
 
-class Submission_chooser : public Wt::WContainerWidget
+class Submission_chooser : public WContainerWidget
 {
 public:
     Submission_chooser(Session& session);
@@ -40,18 +38,18 @@ private:
 
     Session& session_;
     User_selector* editor_;
-    Wt::WComboBox* combo_;
-    std::vector<Wt::Dbo::ptr<Submission>> submissions_;
+    WComboBox* combo_;
+    vector<dbo::ptr<Submission>> submissions_;
 };
 
 Submission_chooser::Submission_chooser(Session& session)
         : session_(session)
 {
     editor_ = addNew<User_selector>(session_, User::Role::Student);
+    editor_->textInput().connect(this, &This::update);
     editor_->enterPressed().connect(this, &This::go);
-    editor_->keyWentUp().connect(this, &This::update);
 
-    combo_  = addNew<Wt::WComboBox>();
+    combo_  = addNew<WComboBox>();
     combo_->changed().connect(this, &This::go);
     combo_->enterPressed().connect(this, &This::go);
 }
@@ -61,7 +59,7 @@ void Submission_chooser::update()
     combo_->clear();
     submissions_.clear();
 
-    Wt::Dbo::Transaction transaction(session_);
+    dbo::Transaction transaction(session_);
 
     auto user = User::find_by_name(session_, editor_->text().toUTF8());
 
@@ -70,7 +68,7 @@ void Submission_chooser::update()
 
         for (const auto& submission : submissions_) {
             auto number = submission->assignment()->number();
-            combo_->addItem(std::to_string(number));
+            combo_->addItem(to_string(number));
         }
     }
 }
@@ -80,7 +78,7 @@ void Submission_chooser::go()
     auto current_index = combo_->currentIndex();
 
     if (current_index < submissions_.size()) {
-        Wt::Dbo::Transaction transaction(session_);
+        dbo::Transaction transaction(session_);
 
         auto submission = submissions_[size_t(current_index)];
 
@@ -104,7 +102,7 @@ void Submission_chooser::setFocus(bool b)
     editor_->setFocus(b);
 }
 
-class Student_chooser : public Wt::WContainerWidget
+class Student_chooser : public WContainerWidget
 {
 public:
     Student_chooser(Session& session);
@@ -136,26 +134,26 @@ void Student_chooser::setFocus(bool b)
     editor_->setFocus(b);
 }
 
-class Role_chooser : public Wt::WCompositeWidget {
+class Role_chooser : public WCompositeWidget {
 public:
     explicit Role_chooser(Session&,
-                          std::optional<User::Role> = std::nullopt);
+                          optional<User::Role> = nullopt);
 
     using Role = User::Role;
     using This = Role_chooser;
 
-    std::optional<Role> role();
-    void setRole(std::optional<Role>);
+    optional<Role> role();
+    void setRole(optional<Role>);
 
-    Wt::EventSignal<>& changed() { return combo_->changed(); }
-    Wt::EventSignal<>& enterPressed() { return combo_->enterPressed(); }
+    EventSignal<>& changed() { return combo_->changed(); }
+    EventSignal<>& enterPressed() { return combo_->enterPressed(); }
 
 private:
     Session& session_;
-    Wt::WComboBox* combo_;
+    WComboBox* combo_;
 };
 
-class Role_updater : public Wt::WContainerWidget
+class Role_updater : public WContainerWidget
 {
 public:
     explicit Role_updater(Session& session);
@@ -173,10 +171,10 @@ private:
     Role_chooser* chooser_;
 };
 
-Role_chooser::Role_chooser(Session& session, std::optional<Role> role)
-        : Wt::WCompositeWidget(std::make_unique<Wt::WComboBox>())
+Role_chooser::Role_chooser(Session& session, optional<Role> role)
+        : WCompositeWidget(make_unique<WComboBox>())
         , session_(session)
-        , combo_(dynamic_cast<Wt::WComboBox*>(implementation()))
+        , combo_(dynamic_cast<WComboBox*>(implementation()))
 {
     combo_->setNoSelectionEnabled(true);
     
@@ -186,12 +184,12 @@ Role_chooser::Role_chooser(Session& session, std::optional<Role> role)
     setRole(role);
 }
 
-std::optional<User::Role> Role_chooser::role()
+optional<User::Role> Role_chooser::role()
 {
     return Enum<Role>::from_repr(combo_->currentIndex());
 }
 
-void Role_chooser::setRole(std::optional<Role> role)
+void Role_chooser::setRole(optional<Role> role)
 {
     if (role) {
         combo_->setDisabled(false);
@@ -206,7 +204,7 @@ Role_updater::Role_updater(Session& session)
         : session_(session)
 {
     editor_ = addNew<User_selector>(session_);
-    editor_->keyWentUp().connect(this, &This::update);
+    editor_->textInput().connect(this, &This::update);
 
     chooser_ = addNew<Role_chooser>(session);
     chooser_->enterPressed().connect(this, &This::go);
@@ -217,18 +215,18 @@ void Role_updater::update()
     if (auto user = editor_->selected_user())
         chooser_->setRole(user->role());
     else
-        chooser_->setRole(std::nullopt);
+        chooser_->setRole(nullopt);
 }
 
 void Role_updater::go()
 {
     if (auto choice = chooser_->role()) {
         if (auto user = editor_->selected_user()) {
-            Wt::Dbo::Transaction transaction(session_);
+            dbo::Transaction transaction(session_);
             user.modify()->set_role(*choice);
         }
 
-        chooser_->setRole(std::nullopt);
+        chooser_->setRole(nullopt);
         editor_->setText("");
         editor_->setFocus(true);
     }
@@ -239,7 +237,7 @@ void Role_updater::setFocus(bool b)
     editor_->setFocus(b);
 }
 
-class SU_widget : public Wt::WContainerWidget
+class SU_widget : public WContainerWidget
 {
 public:
     SU_widget(Session& session);
@@ -273,7 +271,7 @@ void SU_widget::setFocus(bool b)
     editor_->setFocus(b);
 }
 
-class New_user_widget : public Wt::WContainerWidget
+class New_user_widget : public WContainerWidget
 {
 public:
     New_user_widget(Session& session);
@@ -284,7 +282,7 @@ public:
 
 private:
     Session& session_;
-    Wt::WLineEdit* editor_;
+    WLineEdit* editor_;
 
     void go();
 };
@@ -292,7 +290,7 @@ private:
 New_user_widget::New_user_widget(Session& session)
         : session_(session)
 {
-    editor_ = addNew<Wt::WLineEdit>();
+    editor_ = addNew<WLineEdit>();
     editor_->setPlaceholderText("username");
     editor_->setStyleClass("username");
     editor_->enterPressed().connect(this, &This::go);
@@ -302,7 +300,7 @@ void New_user_widget::go()
 {
     dbo::Transaction transaction(session_);
 
-    if (std::string username = clean_text(editor_->text());
+    if (string username = clean_username(editor_->text());
             !username.empty())
         session_.create_user({username});
 
@@ -319,10 +317,10 @@ Admin_view::Admin_view(Session& session)
 {
     setStyleClass("admin-view");
 
-    auto table = addNew<Wt::WTable>();
+    auto table = addNew<WTable>();
     int row = 0;
 
-    table->setHeaderCount(1, Wt::Orientation::Vertical);
+    table->setHeaderCount(1, Orientation::Vertical);
     
     auto ja = table->elementAt(row, 0)->addNew<Accelerator_text>("Jump to su&bmission");
     ja->set_target(table->elementAt(row, 1)->addNew<Submission_chooser>(session_));
