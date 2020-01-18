@@ -10,8 +10,13 @@
 
 double constexpr grade_epsilon = 1E-3;
 
-double clean_grade(double grade) {
-    return (std::isnan(grade) || grade < grade_epsilon) ? 0 : grade;
+double clean_grade(double num, double den) {
+    if (den < grade_epsilon)
+        return 0;
+    else if (double grade = num / den;
+            std::isnormal(grade) && grade >= grade_epsilon)
+        return grade;
+    else return 0;
 }
 
 void set_time_zone(Wt::WLocale& locale)

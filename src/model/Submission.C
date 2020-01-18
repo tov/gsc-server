@@ -425,8 +425,9 @@ void Submission::load_cache() const
 {
     if (is_loaded_) return;
 
+    double total_grade = 0;
+
     item_count_ = 0;
-    grade_ = 0;
     point_value_ = 0;
 
     for (const auto& eval_item : assignment()->eval_items()) {
@@ -451,8 +452,8 @@ void Submission::load_cache() const
             items_[sequence].grader_eval = grader_eval;
             if (grader_eval->status() == Grader_eval::Status::ready) {
                 ++grader_eval_count;
-                grade_ += grader_eval->score() *
-                          self_eval->eval_item()->relative_value();
+                total_grade += grader_eval->score() *
+                               self_eval->eval_item()->relative_value();
             }
         }
     }
@@ -467,7 +468,7 @@ void Submission::load_cache() const
                                                        ? Grading_status::regrade
                     /* otherwise */                    : Grading_status::incomplete;
 
-    grade_ = clean_grade(grade_ / point_value_);
+    grade_ = clean_grade(total_grade, point_value_);
 
     is_loaded_ = true;
 }

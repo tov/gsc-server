@@ -13,7 +13,7 @@
 #include <sstream>
 #include <string>
 
-double clean_grade(double);
+double clean_grade(double numerator, double denominator = 1.0);
 
 void set_time_zone(Wt::WLocale& locale);
 
