@@ -10,6 +10,8 @@ using namespace std;
 
 struct Gsc_createdb_app : public cli::Cli_base
 {
+    Gsc_createdb_app() : Cli_base(true) { }
+
     static int main(int argc, const char* argv[],
                     istream&, ostream&, ostream&);
 };

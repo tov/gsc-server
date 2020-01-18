@@ -24,7 +24,7 @@ private:
 class Cli_base
 {
 public:
-    Cli_base();
+    explicit Cli_base(bool show_queries = false);
 
 protected:
     Db_session& session() { return session_; }
@@ -32,10 +32,12 @@ protected:
     Wt::Dbo::ptr<Auth_info> find_user(std::string const&);
 
 private:
-    Db_session session_{get_db_conn_()};
+    Db_session session_;
 
     static const char* get_db_string_();
-    static std::unique_ptr<Wt::Dbo::SqlConnection> get_db_conn_();
+
+    static std::unique_ptr<Wt::Dbo::SqlConnection>
+    get_db_conn_(bool show_queries);
 };
 
 } // end namespace cli

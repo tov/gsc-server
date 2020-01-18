@@ -10,7 +10,8 @@ namespace dbo = Wt::Dbo;
 
 namespace cli {
 
-Cli_base::Cli_base()
+Cli_base::Cli_base(bool show_queries)
+        : session_(get_db_conn_(show_queries))
 {
     Db_session::configure_auth();
 }
@@ -28,9 +29,15 @@ const char* Cli_base::get_db_string_()
     return get_env_var("POSTGRES_CONNINFO", "dbname=gsc");
 }
 
-std::unique_ptr<dbo::SqlConnection> Cli_base::get_db_conn_()
+std::unique_ptr<dbo::SqlConnection>
+Cli_base::get_db_conn_(bool show_queries)
 {
-    return std::make_unique<dbo::backend::Postgres>(get_db_string_());
+    auto result = std::make_unique<dbo::backend::Postgres>(get_db_string_());
+
+    if (show_queries)
+        result->setProperty("show-queries", "true");
+
+    return result;
 }
 
 User_not_found::User_not_found(std::string const& user_name)
