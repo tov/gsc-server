@@ -6,6 +6,7 @@
 #include <Wt/WDateTime.h>
 
 #include <string>
+#include <unordered_map>
 
 namespace dbo = Wt::Dbo;
 
@@ -14,15 +15,17 @@ class User;
 class User_info
 {
 public:
+    class Map;
+    class Proxy;
+
     User_info() {};
-    User_info(const dbo::ptr<User>&);
+    explicit User_info(const dbo::ptr<User>&);
 
     dbo::ptr<User> user() const { return user_; }
 
     std::string const& key() const { return key_; }
     std::string const& value() const { return value_; }
 
-    void set_key(std::string const& key) { key_ = key; }
     void set_value(std::string const& value) { value_ = value; }
 
 private:
@@ -38,6 +41,20 @@ public:
         dbo::field(a, key_, "key");
         dbo::field(a, value_, "value");
     }
+};
+
+class User_info::Map {
+public:
+    bool contains(std::string const& key) const;
+    void remove(std::string const& key);
+
+private:
+    dbo::ptr<User> user_;
+    std::unordered_map<std::string, dbo::ptr<User_info>> map_;
+};
+
+class User_info::Proxy {
+
 };
 
 DBO_EXTERN_TEMPLATES(User_info)
