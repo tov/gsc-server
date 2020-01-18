@@ -18,6 +18,7 @@ class Submission;
 class Partner_request;
 class User;
 class User_info;
+class User_info_map;
 class User_stats;
 
 namespace dbo = Wt::Dbo;
@@ -84,6 +85,7 @@ public:
     Partner_requests_vec outgoing_requests() const;
     Partner_requests_vec incoming_requests() const;
 
+    User_info_map user_info() const;
     dbo::weak_ptr<User_stats> user_stats() const { return user_stats_; }
     Exam_grades_vec exam_grades() const;
 

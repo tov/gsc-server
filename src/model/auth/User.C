@@ -131,6 +131,17 @@ Partner_requests_vec User::incoming_requests() const
     return result;
 }
 
+User_info_map User::user_info() const
+{
+    User_info_map result(find_this());
+
+    for (auto info : user_infos_) {
+        result.map_[info->key()] = info;
+    }
+
+    return result;
+}
+
 Exam_grades_vec User::exam_grades() const {
     Exam_grades_vec result(exam_grades_.begin(), exam_grades_.end());
     std::sort(result.begin(), result.end(), [](auto const& a, auto const& b) {
