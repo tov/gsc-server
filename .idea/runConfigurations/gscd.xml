@@ -1,0 +1,8 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="gscd" type="CMakeRunConfiguration" factoryName="Application" activateToolWindowBeforeRun="false" PROGRAM_PARAMS="--config wt_config.xml --docroot html --http-listen localhost:9090" WORKING_DIR="file://$PROJECT_DIR$/server_root" PASS_PARENT_ENVS_2="true" PROJECT_NAME="gsc" TARGET_NAME="gscd" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="gsc" RUN_TARGET_NAME="gscd">
+    <method v="2">
+      <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      <option name="RunConfigurationTask" enabled="true" run_configuration_name="Build CSS" run_configuration_type="BashConfigurationType" />
+    </method>
+  </configuration>
+</component>
