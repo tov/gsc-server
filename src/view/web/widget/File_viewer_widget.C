@@ -138,20 +138,7 @@ struct Plain_text_line_renderer
     }
 };
 
-struct Hlog_line_renderer
-{
-    Hlog_line_renderer() = default;
-
-    void operator()(WTableCell* td, string const& line) const
-    {
-        td->addNew<WText>(WString::fromUTF8(line), TextFormat::XHTML);
-        td->setStyleClass("hlog-line");
-    }
-};
-
 using Plain_text_file_viewer = Line_file_viewer<Plain_text_line_renderer>;
-
-using Hlog_file_viewer = Line_file_viewer<Hlog_line_renderer>;
 
 File_viewer_widget::File_viewer_widget(Submission_context& context)
         : Submission_context{context}
@@ -200,13 +187,8 @@ void File_viewer_widget::reload_()
                     file, line_number, lines_, this);
         }
 
-        else if (file->media_type() == "text/x-html-log") {
-            file_selector_->addItem(file->name());
-            file_contents_->addNew<Hlog_file_viewer>(
-                    file, line_number, lines_, this);
-        }
-
-        else if (file->media_type() == "text/html") {
+        else if (file->media_type() == "text/x-html-log"
+                 || file->media_type() == "text/html") {
             file_selector_->addItem(file->name());
             file_contents_->addNew<Html_file_viewer>(file);
         }

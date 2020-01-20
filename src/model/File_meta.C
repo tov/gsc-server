@@ -89,7 +89,7 @@ static File_purpose classify_file_type(string const& media_type,
         return File_purpose::log;
 
     if (regex_match(filename, resource_file_re)
-        || media_type == "text/plain")
+        || media_type != "text/plain")
         return File_purpose::resource;
 
     if (regex_match(filename, test_file_re))

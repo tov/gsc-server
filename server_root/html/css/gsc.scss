@@ -15,7 +15,10 @@ $sf-sm: 400 16px      $sf-fam;
 $tt-sm:     13px      $tt-fam;
 
 $sf-ls: 400 11px/11px $sf-fam;
-$tt-ls:     14px/18px $tt-fam;
+$tt-ls:     12px/16px $tt-fam;
+
+$docked-color: #fcd;
+$explanation-color: #cdf;
 
 $radius: 15px;
 $inverse-bg: #606;
@@ -237,6 +240,8 @@ table .invalid {
         .line-file-viewer,
         .html-file-viewer {
             width: $single-file-width;
+            max-width: $single-file-width;
+            overflow-x: scroll;
             margin: $file-viewer-gutter auto;
             background-color: white;
             border-radius: $radius 0;
@@ -270,13 +275,8 @@ table .invalid {
                 text-align: center;
             }
 
-            td.code-line,
-            td.hlog-line
-            {
-                padding: 0 $code-line-padding;
-            }
-
             td.code-line {
+                padding: 0 $code-line-padding;
                 font: $tt-ls;
                 white-space: pre;
             }
@@ -347,11 +347,11 @@ table .invalid {
 }
 
 .list-eval-item.has-been-docked {
-    background-color: lightpink;
+    background-color: $docked-color;
 }
 
 .list-eval-item.has-explanation {
-    background-color: lightblue;
+    background-color: $explanation-color;
 }
 
 .held-back {
@@ -621,4 +621,148 @@ input.username {
 
 .user-selector {
     display: inline;
+}
+
+$hlog-gap: 4px;
+$hlog-skip: 2 * $hlog-gap;
+$hlog-indent: 2 * $hlog-skip;
+$hlog-big-indent: 3 * $hlog-indent;
+
+.file-viewer .file-viewer-area .html-file-viewer .html-file-contents {
+    font: $sf-sm;
+
+    div.test-case {
+        margin: 12px 6px;
+        padding: 0;
+        border: 2px solid #aaa;
+        border-radius: 2px;
+        background-color: #eee;
+    }
+
+    h3 {
+        margin: 0;
+        padding: 6px 4px;
+        color: white;
+        background-color: #555;
+    }
+
+    div.test-case-body > * {
+        margin: 6px 4px;
+        padding: 0;
+    }
+
+    div.test-case-body > .io_lines {
+        margin: $hlog-gap;
+        padding: $hlog-gap;
+        color: white;
+        background-color: #345;
+        border: 1px solid #aaa;
+        border-radius: 2px;
+        overflow: visible;
+
+        div {
+            overflow: visible;
+        }
+    }
+
+    h4.passed, h4.failed {
+        margin: 0 0 $hlog-skip $hlog-big-indent;
+    }
+
+    .passed strong {
+        color: #090;
+    }
+
+    .failed strong {
+        color: #C00;
+    }
+
+    .stdin, .stdout, .stderr, .stdlog {
+        position: relative;
+    }
+
+    .stdin {
+        color: #ADA;
+    }
+
+    .stdout {
+        color: #9CF;
+    }
+
+    .stderr {
+        color: #DAA;
+    }
+
+    .stdlog {
+        color: #DD9;
+    }
+
+    .stdin:before,
+    .stdout:before,
+    .stderr:before,
+    .stdlog:before
+    {
+        display: none;
+    }
+
+    .stdin:hover:before,
+    .stdout:hover:before,
+    .stderr:hover:before,
+    .stdlog:hover:before
+    {
+        display: inline;
+        top: 0;
+        right: 0;
+        position: absolute;
+        padding: 0 8px 0 0;
+        vertical-align: middle;
+        color: white;
+    }
+
+    .stdin:before {
+        content: "<&0";
+    }
+
+    .stdout:before {
+        content: ">&1";
+    }
+
+    .stderr:before {
+        content: ">&2";
+    }
+
+    .stdlog:before {
+        content: ">&3";
+    }
+
+    code.filename {
+        color: inherit;
+        background-color: inherit;
+    }
+
+    table.points-summary {
+        margin: 1em auto;
+        min-width: 60%;
+
+        border-radius: $radius 0;
+        color: #555;
+        background-color: $highlight-bg;
+
+        thead th {
+            width: auto;
+            font: 300 200% $sf-fam;
+            margin: 0;
+        }
+
+        th {
+            font: 300 150% $sf-fam;
+            margin: 0;
+            color: white;
+            background-color: #555;
+        }
+
+        td {
+            padding: 0.25ex 1em;
+        }
+    }
 }
