@@ -1,3 +1,5 @@
+hlog=text/x-html-log
+html=text/html
 txt=text/plain
 log=text/plain
 md=text/plain

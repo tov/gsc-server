@@ -5,6 +5,7 @@
 #include "../common/Media_type_registry.h"
 #include "../common/format.h"
 #include "../common/paths.h"
+#include "../common/util.h"
 
 #include <Wt/Dbo/Impl.h>
 #include <Wt/Json/Value.h>
@@ -16,7 +17,7 @@
 #include <regex>
 #include <sstream>
 
-namespace J = Wt::Json;
+namespace J = Json;
 
 DBO_INSTANTIATE_TEMPLATES(File_meta)
 
@@ -31,15 +32,15 @@ char const* Enum<File_purpose>::show(File_purpose purpose)
     }
 }
 
-static std::regex const config_re("config", std::regex_constants::icase);
-static std::regex const log_re("log", std::regex_constants::icase);
-static std::regex const resource_re("resource", std::regex_constants::icase);
-static std::regex const test_re("test", std::regex_constants::icase);
+static regex const config_re("config", regex_constants::icase);
+static regex const log_re("log", regex_constants::icase);
+static regex const resource_re("resource", regex_constants::icase);
+static regex const test_re("test", regex_constants::icase);
 
 File_purpose Enum<File_purpose>::read(const char* purpose)
 {
     auto match = [=] (auto re) {
-        return std::regex_match(purpose, re);
+        return regex_match(purpose, re);
     };
 
     if (match(config_re))
@@ -73,33 +74,33 @@ static int count_lines(const Bytes& bytes)
     return result;
 }
 
-static std::regex const config_file_re("Makefile|CMakeLists\\.txt|.*\\.md", std::regex_constants::icase);
-static std::regex const log_file_re(".*\\.log", std::regex_constants::icase);
-static std::regex const test_file_re("test.*|.*test\\.[^.]*", std::regex_constants::icase);
-static std::regex const resource_file_re(".*\\.(?:in|out|err|txt)");
+static regex const config_file_re("Makefile|CMakeLists\\.txt|.*\\.md", regex_constants::icase);
+static regex const log_file_re(".*\\.h?log|.*-log\\.[^.]*", regex_constants::icase);
+static regex const resource_file_re(".*\\.(?:in|out|err|txt)");
+static regex const test_file_re("test.*|.*test\\.[^.]*", regex_constants::icase);
 
-static File_purpose classify_file_type(std::string const& media_type,
-                                       std::string const& filename)
+static File_purpose classify_file_type(string const& media_type,
+                                       string const& filename)
 {
-    if (std::regex_match(filename, config_file_re))
+    if (regex_match(filename, config_file_re))
         return File_purpose::config;
 
-    if (media_type != "text/plain" ||
-            std::regex_match(filename, resource_file_re))
-        return File_purpose::resource;
-
-    if (std::regex_match(filename, log_file_re))
+    if (regex_match(filename, log_file_re))
         return File_purpose::log;
 
-    if (std::regex_match(filename, test_file_re))
-        return File_purpose::test;
+    if (regex_match(filename, resource_file_re)
+        || media_type == "text/plain")
+        return File_purpose::resource;
 
-    return File_purpose::source;
+    if (regex_match(filename, test_file_re))
+        return File_purpose::test;
+    else
+        return File_purpose::source;
 }
 
 const int File_meta::max_byte_count = 5 * 1024 * 1024;
 
-File_meta::File_meta(const std::string &name, const std::string &media_type,
+File_meta::File_meta(const string &name, const string &media_type,
                      const dbo::ptr<Submission> &submission, const dbo::ptr<User> &uploader,
                      int line_count, int byte_count)
         : name_{name}
@@ -109,11 +110,11 @@ File_meta::File_meta(const std::string &name, const std::string &media_type,
         , uploader_{uploader}
         , line_count_{line_count}
         , byte_count_{byte_count}
-        , time_stamp_{Wt::WDateTime::currentDateTime()}
+        , time_stamp_{WDateTime::currentDateTime()}
 { }
 
-Wt::Dbo::ptr<File_meta>
-File_meta::upload(const std::string &name, const Bytes &contents,
+dbo::ptr<File_meta>
+File_meta::upload(const string &name, const Bytes &contents,
                   const dbo::ptr<Submission> &submission,
                   const dbo::ptr<User> &uploader)
 {
@@ -140,7 +141,7 @@ File_meta::upload(const std::string &name, const Bytes &contents,
 }
 
 void File_meta::move(const dbo::ptr<Submission>& dst_owner,
-                     const std::string& dst_name,
+                     const string& dst_name,
                      bool overwrite)
 {
     if (submission() == dst_owner && name() == dst_name)
@@ -158,7 +159,7 @@ void File_meta::move(const dbo::ptr<Submission>& dst_owner,
     name_       = dst_name;
 }
 
-void File_meta::set_media_type(const std::string& media_type)
+void File_meta::set_media_type(const string& media_type)
 {
     media_type_ = media_type;
 }
@@ -182,16 +183,16 @@ bool operator<(const File_meta& a, const File_meta& b)
     if (a_type < b_type) return true;
     if (a_type > b_type) return false;
 
-    return std::lexicographical_compare(
+    return lexicographical_compare(
             a.name().begin(), a.name().end(),
             b.name().begin(), b.name().end(),
             [](char c1, char c2) {
-                return std::toupper(c1) < std::toupper(c2);
+                return toupper(c1) < toupper(c2);
             }
     );
 }
 
-std::string File_meta::rest_uri() const
+string File_meta::rest_uri() const
 {
     return api::paths::Submissions_1_files_2(submission().id(), name());
 }

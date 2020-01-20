@@ -234,7 +234,8 @@ table .invalid {
         width: $file-viewer-width;
         height: $file-viewer-height;
 
-        .single-file-viewer {
+        .line-file-viewer,
+        .html-file-viewer {
             width: $single-file-width;
             margin: $file-viewer-gutter auto;
             background-color: white;
@@ -246,34 +247,36 @@ table .invalid {
 
             th {
                 margin: 0;
+                vertical-align: middle;
+            }
+
+            thead th {
                 padding: 6px 0;
                 font: $tt-h4;
-                vertical-align: middle;
-
-                span {
-                    display: block;
-                    max-width: $code-line-width;
-                }
+                width: $file-viewer-width;
             }
 
-            th:first-child {
-                width: $code-number-width;
+            tr:last-child td:last-child {
+                padding-bottom: 6px;
             }
+        }
 
+        .line-file-viewer {
             th.code-number {
+                width: $code-number-width;
                 font: $sf-ls;
                 color: white;
                 padding: 0 $code-number-padding;
                 text-align: center;
             }
 
-            th.code-number:last-child {
-                padding-bottom: 6px;
+            td.code-line,
+            td.hlog-line
+            {
+                padding: 0 $code-line-padding;
             }
 
             td.code-line {
-                min-width: $code-line-width;
-                padding: 0 $code-line-padding;
                 font: $tt-ls;
                 white-space: pre;
             }

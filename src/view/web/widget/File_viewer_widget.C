@@ -15,56 +15,143 @@
 
 #include <sstream>
 
-class Single_file_viewer : public WContainerWidget
+class Base_file_viewer : public WContainerWidget
 {
-public:
-    Single_file_viewer(
-                const dbo::ptr<File_meta>& source_file, int& first_line_number,
-                std::vector<WTableRow*>& lines,
-                const File_viewer_widget* viewer);
+protected:
+    Base_file_viewer(dbo::ptr<File_meta> const&,
+                     const char* style_class,
+                     bool numbered);
 
-    ~Single_file_viewer();
+    string contents_() const;
+    WTableRow* row_at(int row_no);
+    WTableCell* element_at(int row_no, int col_no);
+
+private:
+    dbo::ptr<File_meta> file_meta_;
+    WTable* table_;
 };
 
-Single_file_viewer::~Single_file_viewer()
-{
-//    setId("");
-}
-
-Single_file_viewer::Single_file_viewer(
-            const dbo::ptr<File_meta>& source_file, int& line_number,
-            std::vector<WTableRow*>& lines,
-            const File_viewer_widget* viewer)
+Base_file_viewer::Base_file_viewer(
+        dbo::ptr<File_meta> const& source_file,
+        const char* style_class,
+        bool numbered)
+        : file_meta_(source_file)
 {
     auto container = addNew<WContainerWidget>();
-    container->setOverflow(Overflow::Auto, Orientation::Horizontal);
-    container->setStyleClass("single-file-viewer");
+    container->setStyleClass(style_class);
 
-    auto table = container->addNew<WTable>();
-    table->setHeaderCount(1, Orientation::Horizontal);
-    table->setHeaderCount(1, Orientation::Vertical);
+    table_ = container->addNew<WTable>();
+    table_->setHeaderCount(1, Orientation::Horizontal);
+    if (numbered) {
+        table_->setHeaderCount(1, Orientation::Vertical);
+    }
 
-    auto file_name = table->elementAt(0, 1)->addNew<WText>(source_file->name());
+    auto file_head = table_->elementAt(0, 0);
+    if (numbered) {
+        file_head->setColumnSpan(2);
+    }
+
+    auto file_name = file_head->addNew<WText>(source_file->name());
     file_name->setStyleClass("filename");
+}
 
-    std::istringstream file_stream(
-            std::string(source_file->file_data().lock()->contents()));
-    std::string        line;
-    int                row   = 1;
+string Base_file_viewer::contents_() const
+{
+    return string(file_meta_->file_data().lock()->contents());
+}
 
-    while (std::getline(file_stream, line)) {
-        table->elementAt(row, 0)->addNew<WText>(
-                std::to_string(line_number));
-        table->elementAt(row, 0)->setStyleClass("code-number");
-        table->elementAt(row, 1)->addNew<WText>(
-                WString::fromUTF8(line), TextFormat::Plain);
-        table->elementAt(row, 1)->setStyleClass("code-line");
-        table->rowAt(row)->setId(viewer->line_id(line_number));
-        lines.push_back(table->rowAt(row));
-        ++row;
+WTableRow* Base_file_viewer::row_at(int row_no)
+{
+    return table_->rowAt(row_no + 1);
+}
+
+WTableCell* Base_file_viewer::element_at(int row_no, int col_no)
+{
+    return table_->elementAt(row_no + 1, col_no);
+}
+
+class Html_file_viewer : public Base_file_viewer
+{
+public:
+    Html_file_viewer(dbo::ptr<File_meta> const& source_file);
+};
+
+Html_file_viewer::Html_file_viewer(dbo::ptr<File_meta> const& source_file)
+        : Base_file_viewer(source_file, "html-file-viewer", false)
+{
+    auto td = element_at(0, 0);
+    td->addNew<WText>(contents_());
+    td->setStyleClass("html-file-contents");
+}
+
+template <typename R>
+class Line_file_viewer : public Base_file_viewer
+{
+public:
+    using Renderer = R;
+
+    Line_file_viewer(
+            const dbo::ptr<File_meta>& source_file,
+            int& line_number,
+            vector<WTableRow*>& lines,
+            const File_viewer_widget* viewer,
+            Renderer = Renderer{});
+};
+
+template <typename R>
+Line_file_viewer<R>::Line_file_viewer(
+        const dbo::ptr<File_meta>& source_file,
+        int& line_number,
+        vector<WTableRow*>& lines,
+        const File_viewer_widget* viewer,
+        Renderer renderer)
+        : Base_file_viewer(source_file, "line-file-viewer", true)
+{
+    istringstream file_stream(contents_());
+    string        line;
+    int           row_no = 1;
+
+    while (getline(file_stream, line)) {
+        auto tr = row_at(row_no);
+        auto th = tr->elementAt(0);
+        auto td = tr->elementAt(1);
+
+        tr->setId(viewer->line_id(line_number));
+        th->template addNew<WText>(to_string(line_number));
+        th->setStyleClass("code-number");
+        renderer(td, line);
+
+        lines.push_back(tr);
+        ++row_no;
         ++line_number;
     }
 }
+
+struct Plain_text_line_renderer
+{
+    Plain_text_line_renderer() = default;
+
+    void operator()(WTableCell* td, string const& line) const
+    {
+        td->addNew<WText>(WString::fromUTF8(line), TextFormat::Plain);
+        td->setStyleClass("code-line");
+    }
+};
+
+struct Hlog_line_renderer
+{
+    Hlog_line_renderer() = default;
+
+    void operator()(WTableCell* td, string const& line) const
+    {
+        td->addNew<WText>(WString::fromUTF8(line), TextFormat::XHTML);
+        td->setStyleClass("hlog-line");
+    }
+};
+
+using Plain_text_file_viewer = Line_file_viewer<Plain_text_line_renderer>;
+
+using Hlog_file_viewer = Line_file_viewer<Hlog_line_renderer>;
 
 File_viewer_widget::File_viewer_widget(Submission_context& context)
         : Submission_context{context}
@@ -107,10 +194,21 @@ void File_viewer_widget::reload_()
     int line_number = 1;
 
     for (const auto& file : files) {
-        if (file->line_count() > 0) {
+        if (file->media_type() == "text/plain") {
             file_selector_->addItem(file->name());
-            file_contents_->addNew<Single_file_viewer>(
+            file_contents_->addNew<Plain_text_file_viewer>(
                     file, line_number, lines_, this);
+        }
+
+        else if (file->media_type() == "text/x-html-log") {
+            file_selector_->addItem(file->name());
+            file_contents_->addNew<Hlog_file_viewer>(
+                    file, line_number, lines_, this);
+        }
+
+        else if (file->media_type() == "text/html") {
+            file_selector_->addItem(file->name());
+            file_contents_->addNew<Html_file_viewer>(file);
         }
     }
 }
@@ -125,9 +223,9 @@ void File_viewer_widget::scroll_to_file(int file_number) const
     scroll_to_id_(file_contents_->children().at(file_number)->id());
 }
 
-std::string File_viewer_widget::line_id(int line_number) const
+string File_viewer_widget::line_id(int line_number) const
 {
-    return WCompositeWidget::id() + "-L" + std::to_string(line_number);
+    return WCompositeWidget::id() + "-L" + to_string(line_number);
 }
 
 void File_viewer_widget::set_line_style(int line, const WString& style)
@@ -136,9 +234,9 @@ void File_viewer_widget::set_line_style(int line, const WString& style)
         lines_[line]->setStyleClass(style);
 }
 
-void File_viewer_widget::scroll_to_id_(const std::string& target) const
+void File_viewer_widget::scroll_to_id_(const string& target) const
 {
-    std::ostringstream code;
+    ostringstream code;
 
     code << "var target = $('#" << target << "');";
     code << "if (target && target.position() && target.position().top) {";
