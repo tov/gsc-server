@@ -26,7 +26,7 @@ $inverse-fg: white;
 $highlight-bg: #dcd;
 
 $file-viewer-height: 470px;
-$file-viewer-width: 630px;
+$file-viewer-width: 800px;
 $code-number-width: 40px;
 $file-viewer-gutter: 10px;
 $code-line-padding: 6px;
@@ -52,6 +52,20 @@ h1 {
 
 h2 {
     font: $sf-h2;
+}
+
+code {
+    font-family: $tt-fam;
+    color: inherit;
+    background-color: inherit;
+    border: 0;
+    margin: 0;
+    padding: 0;
+}
+
+var {
+    font-family: $tt-fam;
+    font-style: italic;
 }
 
 table .invalid {
@@ -169,16 +183,6 @@ table .invalid {
     .partner-notification {
         margin: 1em;
         text-align: center;
-    }
-
-    code.filename {
-        font: 60% $tt-fam;
-        opacity: 60%;
-        color: inherit;
-        background-color: inherit;
-        margin: 0;
-        padding: 0;
-        border: 0;
     }
 }
 
@@ -623,12 +627,11 @@ input.username {
     display: inline;
 }
 
-$hlog-gap: 4px;
-$hlog-skip: 2 * $hlog-gap;
-$hlog-indent: 2 * $hlog-skip;
-$hlog-big-indent: 3 * $hlog-indent;
+$hlog-gap: 6px;
+$hlog-skip: 10px;
+$hlog-indent: 72px;
 
-.file-viewer .file-viewer-area .html-file-viewer .html-file-contents {
+.html-file-viewer .html-file-contents {
     font: $sf-sm;
 
     div.test-case {
@@ -646,27 +649,21 @@ $hlog-big-indent: 3 * $hlog-indent;
         background-color: #555;
     }
 
-    div.test-case-body > * {
-        margin: 6px 4px;
-        padding: 0;
-    }
-
-    div.test-case-body > .io_lines {
-        margin: $hlog-gap;
-        padding: $hlog-gap;
-        color: white;
-        background-color: #345;
-        border: 1px solid #aaa;
-        border-radius: 2px;
-        overflow: visible;
-
-        div {
-            overflow: visible;
+    div.test-case-body {
+        h4, p {
+            margin: $hlog-skip $hlog-indent $hlog-gap $hlog-gap;
+            padding: 0;
         }
-    }
 
-    h4.passed, h4.failed {
-        margin: 0 0 $hlog-skip $hlog-big-indent;
+        h4.test-result {
+            margin: 0 0 $hlog-skip $hlog-indent;
+        }
+
+        code.io_lines, code.grep_output {
+            margin: $hlog-gap;
+            padding: $hlog-gap;
+            max-width: 100%;
+        }
     }
 
     .passed strong {
@@ -675,6 +672,66 @@ $hlog-big-indent: 3 * $hlog-indent;
 
     .failed strong {
         color: #C00;
+    }
+
+    table.points-summary {
+        margin: 1em auto;
+        min-width: 60%;
+
+        border-radius: $radius 0;
+        color: #555;
+        background-color: $highlight-bg;
+
+        thead th {
+            font-weight: 300;
+            font-size: 200%;
+            width: auto;
+        }
+
+        th {
+            font-weight: 300;
+            font-size: 150%;
+            margin: 0;
+            color: white;
+            background-color: #555;
+        }
+
+        td {
+            padding: 0.25ex 1em;
+        }
+    }
+}
+
+code.grep_output, code.io_lines {
+    display: block;
+    padding: 4px;
+    border: 1px solid #aaa;
+    border-radius: 2px;
+    overflow-x: scroll;
+}
+
+code.grep_output {
+    color: #333;
+    background-color: #FFD;
+    white-space: pre;
+
+    strong {
+        font-weight: normal;
+        color: #C00;
+    }
+
+    small {
+        font-size: 70%;
+        opacity: 60%;
+    }
+}
+
+code.io_lines {
+    color: white;
+    background-color: #345;
+
+    div {
+        white-space: pre;
     }
 
     .stdin, .stdout, .stderr, .stdlog {
@@ -733,36 +790,5 @@ $hlog-big-indent: 3 * $hlog-indent;
 
     .stdlog:before {
         content: ">&3";
-    }
-
-    code.filename {
-        color: inherit;
-        background-color: inherit;
-    }
-
-    table.points-summary {
-        margin: 1em auto;
-        min-width: 60%;
-
-        border-radius: $radius 0;
-        color: #555;
-        background-color: $highlight-bg;
-
-        thead th {
-            width: auto;
-            font: 300 200% $sf-fam;
-            margin: 0;
-        }
-
-        th {
-            font: 300 150% $sf-fam;
-            margin: 0;
-            color: white;
-            background-color: #555;
-        }
-
-        td {
-            padding: 0.25ex 1em;
-        }
     }
 }
