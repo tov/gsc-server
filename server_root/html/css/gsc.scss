@@ -56,6 +56,7 @@ h2 {
 
 code {
     font-family: $tt-fam;
+    font-size: 90%;
     color: inherit;
     background-color: inherit;
     border: 0;
@@ -66,6 +67,7 @@ code {
 var {
     font-family: $tt-fam;
     font-style: italic;
+    font-size: 90%;
 }
 
 table .invalid {
@@ -721,8 +723,7 @@ code.grep_output {
     }
 
     small {
-        font-size: 70%;
-        opacity: 60%;
+        opacity: 50%;
     }
 }
 
@@ -730,7 +731,8 @@ code.io_lines {
     color: white;
     background-color: #345;
 
-    div {
+    span {
+        display: block;
         white-space: pre;
     }
 
