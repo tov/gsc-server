@@ -247,7 +247,7 @@ table .invalid {
         .html-file-viewer {
             width: $single-file-width;
             max-width: $single-file-width;
-            overflow-x: scroll;
+            overflow-x: auto;
             margin: $file-viewer-gutter auto;
             background-color: white;
             border-radius: $radius 0;
@@ -709,7 +709,7 @@ code.grep_output, code.io_lines {
     padding: 4px;
     border: 1px solid #aaa;
     border-radius: 2px;
-    overflow-x: scroll;
+    overflow-x: auto;
 }
 
 code.grep_output {
