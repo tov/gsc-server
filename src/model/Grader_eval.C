@@ -7,6 +7,7 @@
 #include "../common/format.h"
 #include "../common/stringify.h"
 #include "../common/paths.h"
+#include "../common/util.h"
 
 #include <Wt/Dbo/Impl.h>
 #include <Wt/Json/Value.h>
@@ -58,26 +59,25 @@ std::string Grader_eval::plain_score_string() const
     }
 }
 
-std::string Grader_eval::score_string(Viewing_context const& cxt) const
+Score_owner Grader_eval::score_owner(Viewing_context const& cxt) const
 {
-    if (can_see_score(cxt))
-        return plain_score_string();
-    else
-        return "";
+    WString score, owner = "Grader";
+
+    if (can_see_score_(cxt)) {
+        score = plain_score_string();
+
+        if (! grader()->can_grade())
+            owner = "Auto";
+
+        else if (cxt.viewer->can_grade()
+                 || grader()->can_admin())
+            owner = grader()->name();
+    }
+
+    return {score, owner};
 }
 
-std::string Grader_eval::owner_string(Viewing_context const& cxt) const
-{
-    if (! grader()->can_grade())
-        return "Auto";
-
-    if (! cxt.viewer->can_grade())
-        return "Grader";
-
-    return grader()->name();
-}
-
-bool Grader_eval::can_see_score(Viewing_context const& cxt) const
+bool Grader_eval::can_see_score_(Viewing_context const& cxt) const
 {
     auto grading_status = submission()->grading_status();
 
@@ -114,7 +114,7 @@ Wt::Json::Object Grader_eval::to_json(Viewing_context const& cxt) const {
     J::Object result = Abstract_evaluation::to_json();
 
     result["uri"]           = J::Value(rest_uri());
-    result["grader"]        = J::Value(owner_string(cxt));
+    result["grader"]        = J::Value(score_owner(cxt).owner);
     result["status"]        = J::Value(stringify(status()));
 
     return result;

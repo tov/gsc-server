@@ -25,7 +25,6 @@ $inverse-bg: #606;
 $inverse-fg: white;
 $highlight-bg: #dcd;
 
-$file-viewer-height: 600px;
 $file-viewer-width: 800px;
 $code-number-width: 40px;
 $file-viewer-gutter: 10px;
@@ -224,13 +223,31 @@ table .invalid {
     }
 }
 
+.right-column {
+    position: fixed;
+    top: 0;
+    right: 15px;
+    bottom: 0;
+    left: $file-viewer-width + 30px;
+    padding: 80px 0 0 0;
+    overflow-y: scroll;
+}
+
 .file-viewer {
+    position: fixed;
+    top: 80px;
+    bottom: 15px;
+    left: 15px;
+    width: $file-viewer-width;
+
     border: 2px outset $highlight-bg;
     background-color: $highlight-bg;
     padding: 0;
 
     select {
+        position: absolute;
         font: $sf-h4;
+        height: 40px;
         margin: 0;
         border: 0;
         border-radius: 0;
@@ -238,19 +255,22 @@ table .invalid {
     }
 
     .file-viewer-area {
-        position: relative;
+        position: absolute;
         padding: 0;
-        width: $file-viewer-width;
-        height: $file-viewer-height;
+        top: 40px;
+        bottom: 0;
+        left: $file-viewer-gutter;
+        right: $file-viewer-gutter;
+        width: $single-file-width;
+        overflow-y: auto;
 
         .line-file-viewer,
         .html-file-viewer {
             width: $single-file-width;
-            max-width: $single-file-width;
-            overflow-x: auto;
             margin: $file-viewer-gutter auto;
             background-color: white;
             border-radius: $radius 0;
+            overflow-x: auto;
 
             table {
                 margin: 0;
@@ -288,10 +308,6 @@ table .invalid {
             }
         }
     }
-}
-
-.right-column {
-    padding: 0 1em;
 }
 
 .evaluation-view, .grading-view {

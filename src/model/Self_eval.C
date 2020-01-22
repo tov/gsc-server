@@ -5,6 +5,7 @@
 #include "Grader_eval.h"
 #include "../common/paths.h"
 #include "../common/format.h"
+#include "../common/util.h"
 
 #include "Permalink.h"
 
@@ -133,30 +134,6 @@ Self_eval::find_with_grade_status(Grader_eval::Status status,
     ).bind((int) status).resultList();
 }
 
-std::string Self_eval::score_string(Viewing_context const& cxt) const
-{
-    if (cxt.viewer->role() != User::Role::Grader)
-        return plain_score_string();
-    else
-        return "[***]";
-}
-
-std::string Self_eval::owner_string(Viewing_context const& cxt) const
-{
-    if (cxt.viewer == submission()->user1() ||
-        cxt.viewer == submission()->user2())
-        return "You";
-
-    switch (cxt.viewer->role()) {
-        case User::Role::Student:
-            return "Other student";
-        case User::Role::Grader:
-            return "Student";
-        case User::Role::Admin:
-            return submission()->owner_string();
-    }
-}
-
 std::string Self_eval::rest_uri() const {
     return api::paths::Submissions_1_evals_2_self(submission()->id(),
                                                   eval_item()->sequence());
@@ -171,4 +148,31 @@ J::Object Self_eval::to_json(Viewing_context const&) const {
     return result;
 }
 
+
+static string
+submission_owner_string(Submission const& submission,
+                        Viewing_context const& cxt)
+{
+    if (cxt.viewer == submission.user1()
+        || cxt.viewer == submission.user2())
+        return "You";
+
+    switch (cxt.viewer->role()) {
+        case User::Role::Student:
+            return "Other student";
+        case User::Role::Grader:
+            return "Student";
+        case User::Role::Admin:
+            return submission.owner_string();
+    }
+}
+
+Score_owner Self_eval::score_owner(Viewing_context const& cxt) const
+{
+    WString score = cxt.viewer->role() != User::Role::Grader
+                   ? plain_score_string()
+                   : "[***]";
+    WString owner = submission_owner_string(*submission(), cxt);
+    return {score, owner};
+}
 

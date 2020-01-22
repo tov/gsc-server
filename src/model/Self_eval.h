@@ -30,8 +30,7 @@ public:
     std::string eval_url() const;
     std::string grade_url() const;
 
-    std::string score_string(Viewing_context const&) const override;
-    std::string owner_string(Viewing_context const&) const override;
+    Score_owner score_owner(Viewing_context const& cxt) const override;
 
     static dbo::ptr<Self_eval> find_by_permalink(dbo::Session&,
                                                  const std::string&);

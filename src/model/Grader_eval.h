@@ -45,9 +45,7 @@ public:
     const dbo::ptr<User>& grader() const { return grader_; }
     void set_grader(const dbo::ptr<User>& grader) { grader_ = grader; }
 
-    bool can_see_score(Viewing_context const&) const;
-    std::string score_string(Viewing_context const&) const override;
-    std::string owner_string(Viewing_context const&) const override;
+    Score_owner score_owner(Viewing_context const& cxt) const override;
 
     const Wt::Dbo::ptr<Eval_item>& eval_item() const override;
     const Wt::Dbo::ptr<Submission>& submission() const override;
@@ -67,6 +65,8 @@ private:
     dbo::ptr<Self_eval> self_eval_;
     dbo::ptr<User>      grader_;
     int                 status_;
+
+    bool can_see_score_(Viewing_context const& cxt) const;
 
 public:
     template<typename Action>

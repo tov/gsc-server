@@ -16,6 +16,10 @@ class Self_eval;
 class Submission;
 class Viewing_context;
 
+struct Score_owner {
+    Wt::WString score, owner;
+};
+
 class Abstract_evaluation
 {
 public:
@@ -31,8 +35,8 @@ public:
     double score() const { return score_; }
     virtual void set_score(double);
 
-    virtual std::string owner_string(Viewing_context const&) const = 0;
-    virtual std::string score_string(Viewing_context const&) const = 0;
+    virtual Score_owner
+    score_owner(Viewing_context const& cxt) const = 0;
 
     virtual const dbo::ptr<Eval_item>& eval_item() const = 0;
     virtual const dbo::ptr<Submission>& submission() const = 0;

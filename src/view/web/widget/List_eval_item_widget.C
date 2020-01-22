@@ -24,7 +24,8 @@ void List_eval_item_widget::add_buttons_()
 
     auto focus_btn = buttons->addNew<Wt::WPushButton>();
 
-    if (main_.submission()->can_eval(session_.user())) {
+    if (main_.submission()->can_eval(session_.user())
+        && ! model_.eval_item->is_informational()) {
         focus_btn->setText("Edit");
     } else {
         focus_btn->setText("View");
@@ -40,24 +41,19 @@ void List_eval_item_widget::add_scores_()
 
     Viewing_context cxt {current_user};
 
-    Wt::WString self;
-    Wt::WString self_score;
-    Wt::WString grader;
-    Wt::WString grader_score;
+    Score_owner self;
+    Score_owner grader;
 
     Wt::WString attention_class = "list-eval-item";
 
     if (model_.self_eval) {
-        self = model_.self_eval->owner_string(cxt);
-        self_score = model_.self_eval->score_string(cxt);
+        self = model_.self_eval->score_owner(cxt);
     } else {
-        self_score = "[not set]";
+        self.score = "[not set]";
     }
 
-    if (model_.grader_eval && model_.grader_eval->can_see_score(cxt)) {
-        grader_score = model_.grader_eval->score_string(cxt);
-        if (!grader_score.empty())
-            grader = model_.grader_eval->owner_string(cxt);
+    if (model_.grader_eval) {
+        grader = model_.grader_eval->score_owner(cxt);
 
         if (model_.grader_eval->score() < model_.self_eval->score())
             attention_class = "list-eval-item has-been-docked";
@@ -68,16 +64,22 @@ void List_eval_item_widget::add_scores_()
     setStyleClass(attention_class);
 
     auto table = addNew<Wt::WTemplate>(
-            "<table class='scores'>"
-                    "<tr><th>${self}</th><td>${self-score}</td></tr>"
-                    "<tr><th>${grader}</th><td>${grader-score}</td></tr>"
-                    "</table>"
+            model_.eval_item->is_informational()
+            ? model_.eval_item->absolute_value() == 0
+              ? ""
+              : "<table class='scores'>"
+                  "<tr><th>${grader}</th><td>${grader-score}</td></tr>"
+                "</table>"
+            : "<table class='scores'>"
+                "<tr><th>${self}</th><td>${self-score}</td></tr>"
+                "<tr><th>${grader}</th><td>${grader-score}</td></tr>"
+              "</table>"
     );
 
-    table->bindString("self", self);
-    table->bindString("self-score", self_score);
-    table->bindString("grader", grader);
-    table->bindString("grader-score", grader_score);
+    table->bindString("self", self.owner);
+    table->bindString("self-score", self.score);
+    table->bindString("grader", grader.owner);
+    table->bindString("grader-score", grader.score);
 }
 
 void List_eval_item_widget::focus_action_()
