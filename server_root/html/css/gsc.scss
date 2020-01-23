@@ -682,14 +682,26 @@ $hlog-indent: 72px;
             padding: $hlog-gap;
             max-width: 100%;
         }
-    }
 
-    .passed strong {
-        color: #090;
-    }
+        .passed strong {
+            color: #090;
+        }
 
-    .failed strong {
-        color: #C00;
+        .failed strong {
+            color: #C00;
+        }
+
+        .exit-success, .exit-error {
+            font-style: normal;
+        }
+
+        .exit-success {
+            color: #090;
+        }
+
+        .exit-error {
+            color: #900;
+        }
     }
 
     table.points-summary {
@@ -747,11 +759,38 @@ code.io_lines {
     color: white;
     background-color: #345;
 
+    .trailing-ws, .no-newline {
+        position: relative;
+        border: 1px dotted pink;
+    }
+
+    .no-newline {
+        margin: 0 1px;
+        padding: 0 1px;
+        color: white;
+    }
+
+    .trailing-ws:hover:after,
+    .no-newline:hover:after {
+        position: absolute;
+        margin-left: 1em;
+        font: $tt-ls;
+        font-style: italic;
+        color: yellow;
+    }
+
+    .trailing-ws:hover:after {
+        content: '# trailing whitespace';
+    }
+
+    .no-newline:hover:after {
+        content: '# no final newline';
+    }
+
     > span {
         display: block;
         white-space: pre;
     }
-
     .stdin, .stdout, .stderr, .stdlog {
         position: relative;
     }
