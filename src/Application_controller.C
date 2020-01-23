@@ -98,7 +98,8 @@ Application_controller::Application_controller(Wt::Dbo::SqlConnectionPool& pool,
 
     useStyleSheet(htmlResourcePath("css/gsc.css"));
     requireJQuery("jquery-3.4.1.min.js");
-    require("gsc.js");
+    require("https://cdnjs.cloudflare.com/ajax/libs/markdown-it/10.0.0/markdown-it.min.js");
+    require(htmlResourcePath("gsc.js"));
 
     // There ought to be a way to pick this up from the environment.
     auto locale = this->locale();
