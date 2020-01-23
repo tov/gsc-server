@@ -747,7 +747,7 @@ code.io_lines {
     color: white;
     background-color: #345;
 
-    span {
+    > span {
         display: block;
         white-space: pre;
     }
