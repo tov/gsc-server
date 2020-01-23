@@ -64,7 +64,7 @@ Application_controller::create(Wt::Dbo::SqlConnectionPool& pool,
     return std::make_unique<Application_controller>(pool, env);
 }
 
-static std::string styleSheetPath(char const* filename)
+static std::string htmlResourcePath(char const* filename)
 {
     std::ostringstream result_path;
     result_path << filename;
@@ -96,7 +96,7 @@ Application_controller::Application_controller(Wt::Dbo::SqlConnectionPool& pool,
     theme->setVersion(Wt::BootstrapVersion::v3);
     setTheme(theme);
 
-    useStyleSheet(styleSheetPath("css/gsc.css"));
+    useStyleSheet(htmlResourcePath("css/gsc.css"));
     requireJQuery("jquery-3.4.1.min.js");
     require("gsc.js");
 

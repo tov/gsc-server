@@ -8,14 +8,14 @@ macro(add_program target)
             CXX_EXTENSIONS          Off)
 endmacro(add_program)
 
-set(GSC_CSS_DIRECTORY
-        ${CMAKE_CURRENT_SOURCE_DIR}/server_root/html/css)
+set(GSC_HTML_DIRECTORY
+        ${CMAKE_CURRENT_SOURCE_DIR}/server_root/html)
 
-function(target_uses_css target)
+function(target_uses_resources target)
     add_custom_command(TARGET ${target}
             POST_BUILD
-            COMMAND                 make gsc.css
-            WORKING_DIRECTORY       ${GSC_CSS_DIRECTORY}
-            COMMENT                 "Building gsc.css")
-endfunction(target_uses_css)
+            COMMAND                 make all
+            WORKING_DIRECTORY       ${GSC_HTML_DIRECTORY}
+            COMMENT                 "Building web resources")
+endfunction(target_uses_resources)
 

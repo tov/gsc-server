@@ -14,6 +14,7 @@
 #include <Wt/WText.h>
 
 #include <sstream>
+#include <iostream>
 
 class Base_file_viewer : public WContainerWidget
 {
@@ -193,6 +194,12 @@ void File_viewer_widget::reload_()
             file_contents_->addNew<Html_file_viewer>(file);
         }
     }
+
+    ostringstream install;
+    install << "installScrollToId('"
+            << WCompositeWidget::id()
+            << "');";
+    doJavaScript(install.str());
 }
 
 void File_viewer_widget::scroll_to_line(int line_number) const
@@ -220,13 +227,16 @@ void File_viewer_widget::scroll_to_id_(const string& target) const
 {
     ostringstream code;
 
-    code << "var target = $('#" << target << "');";
-    code << "if (target && target.position() && target.position().top) {";
-    code << "$('#" << WCompositeWidget::id() << "-area').scrollTop(0);";
-    code << "$('#" << WCompositeWidget::id() << "-area').scrollTop(target.position().top)";
-    code << "}";
+    code << "scrollToId('"
+             << WCompositeWidget::id() << "-area', '"
+             << target
+         << "');";
 
-    WApplication::instance()->doJavaScript(code.str());
+    try {
+        WApplication::instance()->doJavaScript(code.str());
+    } catch (dbo::Exception const& e) {
+        cerr << "EXN: " << e.what() << "\n";
+    }
 }
 
 void File_viewer_widget::scroll_to_selected_file_()
