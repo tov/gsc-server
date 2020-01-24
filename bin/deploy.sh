@@ -33,7 +33,7 @@ sudo true
 
 echo >&2 Not building gsc-auth today
 bin/build.sh $build_type gscd-fcgi
-make -C server_root/html/css
+make -C server_root/html
 
 publish_dirs server_root 3rdparty/wt/resources
 
