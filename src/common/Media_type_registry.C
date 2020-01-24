@@ -57,11 +57,29 @@ bool is_not_eof(std::istream& is)
     return !is.eof();
 }
 
+static std::string
+failure_message(std::exception const& reason)
+{
+    return "Media_type_registry: could not load media types"
+           ";\n    reason: " + std::string(reason.what());
+}
+
 } // anonymous
+
+struct Media_type_load_failure : std::runtime_error
+{
+    explicit Media_type_load_failure(std::exception const& reason)
+            : runtime_error(failure_message(reason))
+    { }
+};
 
 Media_type_registry::Media_type_registry()
 {
-    load("media_types.dat");
+    try {
+        load("media_types.dat");
+    } catch (std::ios_base::failure const& exn) {
+        throw Media_type_load_failure(exn);
+    }
 }
 
 Media_type_registry const& Media_type_registry::instance()
