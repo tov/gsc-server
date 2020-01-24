@@ -759,17 +759,20 @@ code.io_lines {
     color: white;
     background-color: #345;
 
-    .trailing-ws, .no-newline {
+    .control-char,
+    .trailing-ws,
+    .no-newline {
         position: relative;
         border: 1px dotted pink;
+        color: white;
     }
 
     .no-newline {
         margin: 0 1px;
         padding: 0 1px;
-        color: white;
     }
 
+    .control-char:hover:after,
     .trailing-ws:hover:after,
     .no-newline:hover:after {
         position: absolute;
@@ -785,6 +788,10 @@ code.io_lines {
 
     .no-newline:hover:after {
         content: '# no final newline';
+    }
+
+    .control-char:hover:after {
+        content: '# control character';
     }
 
     > span {

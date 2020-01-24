@@ -195,11 +195,11 @@ void File_viewer_widget::reload_()
         }
     }
 
-    ostringstream install;
-    install << "installScrollToId('"
-            << WCompositeWidget::id()
-            << "');";
-    doJavaScript(install.str());
+    //ostringstream install;
+    //install << "installScrollToId('"
+    //        << WCompositeWidget::id()
+    //        << "');";
+    //doJavaScript(install.str());
 }
 
 void File_viewer_widget::scroll_to_line(int line_number) const
