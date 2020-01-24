@@ -677,6 +677,11 @@ $hlog-indent: 72px;
             margin: 0 0 $hlog-skip $hlog-indent;
         }
 
+        h4.error {
+            font-weight: 800;
+            color: #933;
+        }
+
         code.io_lines, code.grep_output {
             margin: $hlog-gap;
             padding: $hlog-gap;
