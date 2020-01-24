@@ -7,8 +7,12 @@
 #include <regex>
 #include <sstream>
 
-static std::regex const registry_entry_regex("([^=]+)=(.+)");
-static std::regex const file_extension_regex(".*\\.([^.]*)");
+namespace {
+
+std::regex const registry_entry_regex("([^=]+)=(.+)");
+std::regex const file_extension_regex(".*\\.([^.]*)");
+
+std::string const default_type = "application/octet-stream";
 
 struct Media_type
 {
@@ -16,77 +20,84 @@ struct Media_type
     std::string extension;
 };
 
+struct ToLower
+{
+    char operator()(char c)
+    {
+        return static_cast<char>( std::tolower(c) );
+    }
+};
+
 template <typename InputIter>
 void lcase_assign(std::string& buffer, InputIter source, InputIter limit)
 {
     buffer.clear();
     buffer.reserve(limit - source);
-
-    transform(source, limit,
-              back_inserter(buffer),
-              [](char c) { return (int) tolower(c); });
+    std::transform(source, limit, back_inserter(buffer), ToLower{});
 }
 
-std::istream& operator>>(std::istream& is, Media_type& media_type)
+std::istream& operator>>(std::istream& is, Media_type& out)
 {
     std::string buffer;
-    is >> buffer;
-    if (!is) return is;
-
     std::smatch sm;
-    if (! std::regex_match(buffer, sm, registry_entry_regex)) {
-        is.setstate(std::ios::failbit);
-        return is;
-    }
 
-    lcase_assign(media_type.extension, sm[1].first, sm[1].second);
-    media_type.name = std::string(sm[2].first, sm[2].second);
+    if (is >> buffer && std::regex_match(buffer, sm, registry_entry_regex)) {
+        lcase_assign(out.extension, sm[1].first, sm[1].second);
+        out.name = std::string(sm[2].first, sm[2].second);
+    } else {
+        is.setstate(is.failbit);
+    }
 
     return is;
 }
 
-Media_type_registry& Media_type_registry::instance()
+bool is_not_eof(std::istream& is)
+{
+    is >> std::ws;
+    return !is.eof();
+}
+
+} // anonymous
+
+Media_type_registry::Media_type_registry()
+{
+    load("media_types.dat");
+}
+
+Media_type_registry const& Media_type_registry::instance()
 {
     static Media_type_registry instance;
     return instance;
 }
 
+void Media_type_registry::load(std::string const& filename)
+{
+    std::ifstream file;
+    file.exceptions(file.badbit | file.failbit);
+    file.open(filename);
+
+    Media_type media_type;
+
+    while (is_not_eof(file) && file >> media_type) {
+        media_types_[media_type.extension] = media_type.name;
+    }
+}
+
 std::string const&
 Media_type_registry::lookup(std::string const& filename) const
 {
-    static std::string const unknown("application/octet-stream");
     std::smatch sm;
 
     if (!std::regex_match(filename, sm, file_extension_regex))
-        return unknown;
+        return default_type;
 
     std::string extension;
     lcase_assign(extension, sm[1].first, sm[1].second);
 
-    auto iter = media_types_.find(extension);
-    if (iter == media_types_.end())
-        return unknown;
+    if (auto iter = media_types_.find(extension);
+            iter != media_types_.end())
+        return iter->second;
 
-    return iter->second;
-}
-
-void Media_type_registry::load(std::string const& filename)
-{
-    std::ifstream file(filename);
-    Media_type media_type;
-
-    while (file >> media_type) {
-        media_types_[media_type.extension] = media_type.name;
-    }
-
-    if (file.eof()) return;
-
-    throw std::runtime_error{"Could not load media type registry from file: "
-                             + filename};
-}
-
-Media_type_registry::Media_type_registry()
-{
-    load("media_types.dat");
+    return default_type;
 }
 

@@ -6,7 +6,7 @@
 class Media_type_registry
 {
 public:
-    static Media_type_registry& instance();
+    static Media_type_registry const& instance();
 
     std::string const& lookup(std::string const& filename) const;
 
