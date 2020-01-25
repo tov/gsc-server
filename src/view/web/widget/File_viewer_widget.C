@@ -150,7 +150,7 @@ File_viewer_widget::File_viewer_widget(Submission_context& context)
         file_selector_->hide();
 
     scroll_area_ = impl_->addNew<WContainerWidget>();
-    scroll_area_->setOverflow(Overflow::Auto, Orientation::Vertical);
+    //scroll_area_->setOverflow(Overflow::Auto, Orientation::Vertical);
 
     file_contents_ = scroll_area_->addNew<WContainerWidget>();
 

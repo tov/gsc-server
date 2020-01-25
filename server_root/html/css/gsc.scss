@@ -270,6 +270,7 @@ table .invalid {
             background-color: white;
             border-radius: $radius 0;
             overflow-x: auto;
+            overflow-y: hidden;
 
             table {
                 margin: 0;

@@ -40,7 +40,7 @@ std::wstring RandomWord(Dictionary dictionary)
    std::getline(dict, retval);
    for(unsigned int i = 0; i < retval.size(); ++i)
       if(retval[i] < 'A' || retval[i] > 'Z')
-	 std::cout << "word " << retval 
+	 std::cerr << "word " << retval
 		   << " contains illegal data at pos " << i << std::endl;
 
    return Wt::widen(retval);
