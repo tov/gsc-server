@@ -64,7 +64,7 @@ Application_controller::create(Wt::Dbo::SqlConnectionPool& pool,
     return std::make_unique<Application_controller>(pool, env);
 }
 
-static std::string htmlResourcePath(char const* filename)
+static std::string hashedResource(char const* filename)
 {
     std::ostringstream result_path;
     result_path << filename;
@@ -96,13 +96,12 @@ Application_controller::Application_controller(Wt::Dbo::SqlConnectionPool& pool,
     theme->setVersion(Wt::BootstrapVersion::v3);
     setTheme(theme);
 
-    useStyleSheet(htmlResourcePath("css/gsc.css"));
-    useStyleSheet("jquery-ui-1.12.1.min.css");
+    useStyleSheet(hashedResource("css/gsc.css"));
 
-    requireJQuery("jquery-3.4.1.min.js");
-    require("jquery-ui-1.12.1.min.js");
+    requireJQuery("js/jquery-3.4.1.min.js");
+    require("js/jquery-ui-1.12.1.min.js");
+    require(hashedResource("js/onload.js"));
     //require("https://cdnjs.cloudflare.com/ajax/libs/markdown-it/10.0.0/markdown-it.min.js");
-    require(htmlResourcePath("gsc.js"));
 
     // There ought to be a way to pick this up from the environment.
     auto locale = this->locale();

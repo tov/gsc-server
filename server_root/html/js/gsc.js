@@ -1,4 +1,6 @@
-const GSC = {
+'use strict';
+
+export const GSC = {
   // Select the given ID and copies it:
   selectCopyId: (id) => {
     const elt = document.getElementById(id)
@@ -7,7 +9,7 @@ const GSC = {
   },
 }
 
-const GscFileViewer = function(id) {
+export function GscFileViewer(id) {
   const viewer    = $('#' + id)
   const selector  = viewer.find('.file-viewer-selector')
   const area      = viewer.find('.file-viewer-area')

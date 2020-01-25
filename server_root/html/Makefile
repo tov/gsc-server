@@ -1,6 +1,10 @@
-ALL = css/gsc.css \
-      css/gsc.css.hash \
-      gsc.js.hash
+SCSS = $(wildcard css/*.scss)
+JS   = $(wildcard js/*.js)
+
+CSS  = $(SCSS:.scss=.css)
+HASH = $(CSS) $(JS)
+
+ALL = $(CSS) $(HASH:%=%.hash)
 
 all:  $(ALL)
 
