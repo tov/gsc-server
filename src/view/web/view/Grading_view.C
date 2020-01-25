@@ -8,9 +8,11 @@
 #include "../../../model/Grader_eval.h"
 #include "../../../model/Assignment.h"
 #include "../../../common/format.h"
+#include "../../../common/util.h"
 #include "../../../Session.h"
 
 #include <Wt/Dbo/ptr.h>
+#include <Wt/Dbo/Exception.h>
 #include <Wt/WApplication.h>
 #include <Wt/WCompositeWidget.h>
 #include <Wt/WContainerWidget.h>
@@ -128,9 +130,13 @@ void Abstract_grading_widget::add_hold_button()
 
 Abstract_grading_widget::~Abstract_grading_widget()
 {
-    if (model_->status() == Grader_eval::Status::editing) {
+    try {
         dbo::Transaction transaction(session_);
-        model_.remove();
+        if (model_->status() == Grader_eval::Status::editing) {
+            model_.remove();
+        }
+    } catch (Wt::Dbo::Exception const& e) {
+        // TODO: print something
     }
 }
 
