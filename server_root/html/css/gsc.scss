@@ -264,8 +264,7 @@ table .invalid {
         width: $single-file-width;
         overflow-y: auto;
 
-        .line-file-viewer,
-        .html-file-viewer {
+        .single-file-viewer {
             width: $single-file-width;
             margin: $file-viewer-gutter auto;
             background-color: white;
@@ -287,12 +286,12 @@ table .invalid {
                 width: $file-viewer-width;
             }
 
-            tr:last-child td:last-child {
-                padding-bottom: 6px;
-            }
+            //tr:last-child td:last-child {
+            //    padding-bottom: 6px;
+            //}
         }
 
-        .line-file-viewer {
+        .line-single-file-viewer {
             th.code-number {
                 width: $code-number-width;
                 font: $sf-ls;
@@ -305,6 +304,27 @@ table .invalid {
                 padding: 0 $code-line-padding;
                 font: $tt-ls;
                 white-space: pre;
+                line-height: 100%;
+            }
+
+            tr.student-highlight, tr.grader-highlight {
+                color: black;
+                border: 1px dotted;
+
+                th.code-number {
+                    color: inherit;
+                    background-color: inherit;
+                }
+            }
+
+            tr.student-highlight {
+                background-color: #ffff00;
+                border-color: #ffff00;
+            }
+
+            tr.grader-highlight {
+                background-color: #ffccff;
+                border-color: #ffccff;
             }
         }
     }
@@ -520,22 +540,20 @@ table .invalid {
     background-color: white;
 }
 
-tr.student-highlight {
-    background-color: #ffff00;
-}
-
-tr.grader-highlight {
-    background-color: #ffccff;
-}
-
 .home-link {
     cursor: pointer;
 }
 
 .line-link {
-    text-decoration: underline;
     color: darkred;
     cursor: pointer;
+    text-decoration: underline;
+}
+
+.broken-line-link {
+    color: darkred;
+    cursor: not-allowed;
+    text-decoration: wavy black line-through;
 }
 
 .submission-grade {
@@ -649,7 +667,7 @@ $hlog-gap: 6px;
 $hlog-skip: 10px;
 $hlog-indent: 72px;
 
-.html-file-viewer .html-file-contents {
+.html-single-file-viewer .html-file-contents {
     font: $sf-sm;
 
     div.test-case {

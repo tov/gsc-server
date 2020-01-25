@@ -29,24 +29,23 @@ void Explanation_view_widget::initialize_viewer_(const std::string& content)
 
     std::string buf;
     bool in_L = false;
-    int jump_line = 0;
+    int min_line = -1;
 
-    auto emit_text = [&]() {
+    auto emit_text = [&] {
         impl->addNew<Wt::WText>(buf, Wt::TextFormat::Plain);
         buf.clear();
     };
 
-    auto emit_link = [&]() {
-        auto line_no = atoi(&buf[1]);
-        viewer_->set_line_style(line_no, highlight_style_);
-        auto link = impl->addNew<Wt::WText>(buf);
+    auto emit_link = [&] {
+        auto line = atoi(&buf[1]);
+
+        if (min_line < 0 || line < min_line)
+            min_line = line;
+
+        viewer_->set_line_style(line, highlight_style_);
+
+        impl->addNew<Wt::WText>(buf)->setStyleClass("line-link");
         buf.clear();
-
-        if (jump_line == 0)
-            jump_line = std::max(1, line_no - 2);
-
-        link->setStyleClass("line-link");
-        link->clicked().connect(viewer_->scroller(line_no));
     };
 
     for (char c : content) {
@@ -72,6 +71,6 @@ void Explanation_view_widget::initialize_viewer_(const std::string& content)
     else
         emit_text();
 
-    if (jump_line != 0)
-        viewer_->scroll_to_line(jump_line);
+    if (min_line > 0)
+        viewer_->show_line(min_line);
 }

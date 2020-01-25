@@ -42,7 +42,7 @@ void Api_key_widget::load_() {
 void Api_key_widget::copy_() const
 {
     WApplication::instance()
-            ->doJavaScript("selectCopyId('api-key-input')");
+            ->doJavaScript("GSC.selectCopyId('api-key-input')");
 }
 
 void Api_key_widget::confirm_regenerate_()

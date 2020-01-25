@@ -14,13 +14,12 @@
 #include <Wt/WText.h>
 
 #include <sstream>
-#include <iostream>
 
 class Base_file_viewer : public WContainerWidget
 {
 protected:
     Base_file_viewer(dbo::ptr<File_meta> const&,
-                     const char* style_class,
+                     std::string file_type,
                      bool numbered);
 
     string contents_() const;
@@ -34,12 +33,13 @@ private:
 
 Base_file_viewer::Base_file_viewer(
         dbo::ptr<File_meta> const& source_file,
-        const char* style_class,
+        std::string file_type,
         bool numbered)
         : file_meta_(source_file)
 {
     auto container = addNew<WContainerWidget>();
-    container->setStyleClass(style_class);
+    file_type += "-single-file-viewer single-file-viewer";
+    container->setStyleClass(file_type);
 
     table_ = container->addNew<WTable>();
     table_->setHeaderCount(1, Orientation::Horizontal);
@@ -78,7 +78,7 @@ public:
 };
 
 Html_file_viewer::Html_file_viewer(dbo::ptr<File_meta> const& source_file)
-        : Base_file_viewer(source_file, "html-file-viewer", false)
+        : Base_file_viewer(source_file, "html", false)
 {
     auto td = element_at(0, 0);
     td->addNew<WText>(contents_());
@@ -106,7 +106,7 @@ Line_file_viewer<R>::Line_file_viewer(
         vector<WTableRow*>& lines,
         const File_viewer_widget* viewer,
         Renderer renderer)
-        : Base_file_viewer(source_file, "line-file-viewer", true)
+        : Base_file_viewer(source_file, "line", true)
 {
     istringstream file_stream(contents_());
     string        line;
@@ -117,7 +117,6 @@ Line_file_viewer<R>::Line_file_viewer(
         auto th = tr->elementAt(0);
         auto td = tr->elementAt(1);
 
-        tr->setId(viewer->line_id(line_number));
         th->template addNew<WText>(to_string(line_number));
         th->setStyleClass("code-number");
         renderer(td, line);
@@ -147,18 +146,17 @@ File_viewer_widget::File_viewer_widget(Submission_context& context)
     impl_ = setNewImplementation<WContainerWidget>();
 
     file_selector_ = impl_->addNew<WComboBox>();
-    file_selector_->changed().connect(this,
-                                      &File_viewer_widget::scroll_to_selected_file_);
     if (!WApplication::instance()->environment().ajax())
         file_selector_->hide();
 
-    auto scroll_area = impl_->addNew<WContainerWidget>();
-    file_contents_ = scroll_area->addNew<WContainerWidget>();
-    scroll_area->setOverflow(Overflow::Auto, Orientation::Vertical);
-    scroll_area->setId(WCompositeWidget::id() + "-area");
+    scroll_area_ = impl_->addNew<WContainerWidget>();
+    scroll_area_->setOverflow(Overflow::Auto, Orientation::Vertical);
+
+    file_contents_ = scroll_area_->addNew<WContainerWidget>();
 
     setStyleClass("file-viewer");
-    scroll_area->setStyleClass("file-viewer-area");
+    file_selector_->setStyleClass("file-viewer-selector");
+    scroll_area_->setStyleClass("file-viewer-area");
 
     reload_();
 }
@@ -183,38 +181,37 @@ void File_viewer_widget::reload_()
 
     for (const auto& file : files) {
         if (file->media_type() == "text/plain") {
-            file_selector_->addItem(file->name());
             file_contents_->addNew<Plain_text_file_viewer>(
                     file, line_number, lines_, this);
         }
 
         else if (file->media_type() == "text/x-html-log"
                  || file->media_type() == "text/html") {
-            file_selector_->addItem(file->name());
             file_contents_->addNew<Html_file_viewer>(file);
         }
+
+        else continue;
+
+        file_selector_->addItem(file->name());
     }
 
-    //ostringstream install;
-    //install << "installScrollToId('"
-    //        << WCompositeWidget::id()
-    //        << "');";
-    //doJavaScript(install.str());
+    ostringstream script;
+    script  << "GSC.fileViewer = new GscFileViewer('" << id() << "')";
+    doJavaScript(script.str());
 }
 
-void File_viewer_widget::scroll_to_line(int line_number) const
+void File_viewer_widget::show_line(int line_number) const
 {
-    scroll_to_id_(line_id(line_number));
+    ostringstream script;
+    script << "GSC.fileViewer.showLine(" << line_number << ")";
+    WApplication::instance()->doJavaScript(script.str());
 }
 
-void File_viewer_widget::scroll_to_file(int file_number) const
+void File_viewer_widget::show_file(int file_number) const
 {
-    scroll_to_id_(file_contents_->children().at(file_number)->id());
-}
-
-string File_viewer_widget::line_id(int line_number) const
-{
-    return WCompositeWidget::id() + "-L" + to_string(line_number);
+    ostringstream script;
+    script << "GSC.fileViewer.showFile(" << file_number << ")";
+    WApplication::instance()->doJavaScript(script.str());
 }
 
 void File_viewer_widget::set_line_style(int line, const WString& style)
@@ -223,23 +220,13 @@ void File_viewer_widget::set_line_style(int line, const WString& style)
         lines_[line]->setStyleClass(style);
 }
 
-void File_viewer_widget::scroll_to_id_(const string& target) const
+File_viewer_widget::Scroller
+File_viewer_widget::scroller(int line)
 {
-    ostringstream code;
-
-    code << "scrollToId('"
-             << WCompositeWidget::id() << "-area', '"
-             << target
-         << "');";
-
-    try {
-        WApplication::instance()->doJavaScript(code.str());
-    } catch (dbo::Exception const& e) {
-        cerr << "EXN: " << e.what() << "\n";
-    }
+    return Scroller(this, line);
 }
 
-void File_viewer_widget::scroll_to_selected_file_()
+void File_viewer_widget::Scroller::operator()()
 {
-    scroll_to_file(file_selector_->currentIndex());
+    viewer_->show_line(line_);
 }
