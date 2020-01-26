@@ -21,13 +21,7 @@ export function selectCopyId(inputId: string) {
     }
 }
 
-export function fileViewerFor(id: string): FileViewer {
-    const viewer = document.getElementById(id)!
-    return $.data(viewer, VIEWER_KEY) ?? new FileViewer(viewer)
-}
-
 export class FileViewer {
-    private readonly _viewer: JQuery
     private readonly _selector: JQuerySelect
     private readonly _area: JQuery
     private readonly _lines: [Line]
@@ -38,7 +32,6 @@ export class FileViewer {
         const selector = viewer.find('.file-viewer-selector') as JQuerySelect
         const area     = viewer.find('.file-viewer-area')
 
-        this._viewer   = viewer
         this._selector = selector
         this._area     = area
         this._lines    = area.find('td.code-line')
@@ -51,6 +44,11 @@ export class FileViewer {
         this.setupLineLinks()
 
         viewer.data(VIEWER_KEY, this)
+    }
+
+    public static forId(id: string): FileViewer {
+        const viewer = document.getElementById(id)!
+        return $.data(viewer, VIEWER_KEY) ?? new FileViewer(viewer)
     }
 
     public showLine(lineNo: number) {
@@ -108,7 +106,7 @@ export class FileViewer {
         }
     }
 
-    private showElement(target: JQuery<HTMLElement>, margin: number) {
+    private showElement(target: JQuery, margin: number) {
         if (!target.length) {
             this.error()
             return

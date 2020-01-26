@@ -27,18 +27,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         }
     }
     exports.selectCopyId = selectCopyId;
-    function fileViewerFor(id) {
-        var _a;
-        var viewer = document.getElementById(id);
-        return _a = jquery_1.default.data(viewer, VIEWER_KEY), (_a !== null && _a !== void 0 ? _a : new FileViewer(viewer));
-    }
-    exports.fileViewerFor = fileViewerFor;
     var FileViewer = /** @class */ (function () {
         function FileViewer(element) {
             var viewer = jquery_1.default(element);
             var selector = viewer.find('.file-viewer-selector');
             var area = viewer.find('.file-viewer-area');
-            this._viewer = viewer;
             this._selector = selector;
             this._area = area;
             this._lines = area.find('td.code-line')
@@ -50,6 +43,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
             this.setupLineLinks();
             viewer.data(VIEWER_KEY, this);
         }
+        FileViewer.forId = function (id) {
+            var _a;
+            var viewer = document.getElementById(id);
+            return _a = jquery_1.default.data(viewer, VIEWER_KEY), (_a !== null && _a !== void 0 ? _a : new FileViewer(viewer));
+        };
         FileViewer.prototype.showLine = function (lineNo) {
             this.showElement(this.line(lineNo), 0.3);
         };

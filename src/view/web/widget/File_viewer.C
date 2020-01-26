@@ -195,14 +195,14 @@ void File_viewer::reload_()
     }
 
     ostringstream script;
-    script  << "GSC.fileViewerFor('" << id() << "')";
+    script  << "GSC.FileViewer.forId('" << id() << "')";
     doJavaScript(script.str());
 }
 
 void File_viewer::show_line(int line_number) const
 {
     ostringstream script;
-    script << "GSC.fileViewerFor('" << id()
+    script << "GSC.FileViewer.forId('" << id()
             << "').showLine(" << line_number << ")";
     WApplication::instance()->doJavaScript(script.str());
 }

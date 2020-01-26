@@ -12,7 +12,7 @@ let require = (_: string): any => {
     throw new Error('Loader not ready')
 }
 
-const resetLoader = (moduleMap: any) => {
+const prepareLoader = (moduleMap: any): any => {
     exports = {}
 
     module = {exports: exports}
@@ -24,4 +24,6 @@ const resetLoader = (moduleMap: any) => {
             throw new Error(`Unknown module: ${moduleName}`)
         }
     }
+
+    return exports
 }

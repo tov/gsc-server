@@ -8,7 +8,7 @@ var module = {
 var require = function (_) {
     throw new Error('Loader not ready');
 };
-var resetLoader = function (moduleMap) {
+var prepareLoader = function (moduleMap) {
     exports = {};
     module = { exports: exports };
     require = function (moduleName) {
@@ -19,5 +19,6 @@ var resetLoader = function (moduleMap) {
             throw new Error("Unknown module: " + moduleName);
         }
     };
+    return exports;
 };
 //# sourceMappingURL=loader.js.map
