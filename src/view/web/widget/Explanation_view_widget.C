@@ -1,76 +1,99 @@
 #include "Explanation_view_widget.h"
-#include "File_viewer_widget.h"
+#include "File_viewer.h"
+#include "../../../common/util.h"
+#include "../../../model/util/Explanation_parser.h"
 
 #include <Wt/WText.h>
 
 #include <cctype>
-#include <cstdlib>
+#include <string_view>
 
-Explanation_view_widget::Explanation_view_widget(const std::string& content)
+Explanation_view_widget::Explanation_view_widget(const string& content)
         : Explanation_view_widget(content, nullptr, {})
 { }
 
-Explanation_view_widget::Explanation_view_widget(const std::string& content,
-                                                 File_viewer_widget* viewer,
-                                                 const std::string& highlight_style)
-        : viewer_(viewer),
-          highlight_style_(highlight_style)
+Explanation_view_widget::Explanation_view_widget(const string& content,
+                                                 File_viewer* viewer,
+                                                 const string& highlight_style)
+        : viewer_(viewer)
+        , highlight_style_(highlight_style)
 {
-    if (viewer_)
+    if (viewer_) {
         initialize_viewer_(content);
-    else
-        setNewImplementation<Wt::WText>(content, Wt::TextFormat::Plain);
+    } else {
+        setNewImplementation<WText>(content, TextFormat::Plain);
+    }
 }
 
-void Explanation_view_widget::initialize_viewer_(const std::string& content)
+namespace {
+
+class Html_explanation_writer : public Explanation_writer
 {
-    auto impl = setNewImplementation<Wt::WContainerWidget>();
+public:
+    void plain_char(char) override;
+    int link(string_view) override;
+};
+
+} // end inline namespace
+
+void Explanation_view_widget::initialize_viewer_(const string& content)
+{
+    auto writer      = Html_explanation_writer();
+    auto highlighter = viewer_->highlighter(highlight_style_);
+
+    parse_explanation(content, writer, highlighter);
+
+    auto impl = setNewImplementation<WText>(
+            writer.wstr(), TextFormat::UnsafeXHTML);
     impl->setInline(true);
+}
 
-    std::string buf;
-    bool in_L = false;
-    int min_line = -1;
+void Html_explanation_writer::plain_char(char c)
+{
+    switch (c) {
+        case '<':
+            raw_text_("&lt;");
+            return;
 
-    auto emit_text = [&] {
-        impl->addNew<Wt::WText>(buf, Wt::TextFormat::Plain);
-        buf.clear();
-    };
+        case '>':
+            raw_text_("&gt;");
+            return;
 
-    auto emit_link = [&] {
-        auto line = atoi(&buf[1]);
+        case '&':
+            raw_text_("&amp;");
+            return;
 
-        if (min_line < 0 || line < min_line)
-            min_line = line;
+        default:
+            raw_text_(c);
+            return;
+    }
+}
 
-        viewer_->set_line_style(line, highlight_style_);
+int Html_explanation_writer::link(string_view sv)
+{
+    const char* src   = sv.data();
+    const char* limit = sv.data() + sv.size();
+    int result = 0;
 
-        impl->addNew<Wt::WText>(buf)->setStyleClass("line-link");
-        buf.clear();
-    };
+    raw_text_("<span class=\"line-link\">");
 
-    for (char c : content) {
-        if (c == 'L') {
-            if (in_L && buf.size() > 1)
-                emit_link();
-            else
-                emit_text();
-            in_L = true;
-        } else if (isdigit(c) && in_L) {
-            // Nothing -- still in_L
-        } else if (in_L && buf.size() > 1) {
-            emit_link();
-            in_L = false;
-        } else {
-            in_L = false;
-        }
-        buf.push_back(c);
+    while (src < limit && !isdigit(*src)) {
+        plain_char(*src);
+        ++src;
     }
 
-    if (in_L && buf.size() > 1)
-        emit_link();
-    else
-        emit_text();
+    while (src < limit && isdigit(*src)) {
+        result = 10 * result + (*src - '0');
+        raw_text_(*src);
+        ++src;
+    }
 
-    if (min_line > 0)
-        viewer_->show_line(min_line);
+    raw_text_("</span>");
+
+    if (src < limit) {
+        plain_range(src, limit);
+    }
+
+    return result;
 }
+

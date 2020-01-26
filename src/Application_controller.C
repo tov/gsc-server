@@ -100,7 +100,7 @@ Application_controller::Application_controller(Wt::Dbo::SqlConnectionPool& pool,
 
     requireJQuery("js/jquery-3.4.1.min.js");
     require("js/jquery-ui-1.12.1.min.js");
-    require(hashedResource("js/onload.js"));
+    require(hashedResource("js/gsc.js"));
     //require("https://cdnjs.cloudflare.com/ajax/libs/markdown-it/10.0.0/markdown-it.min.js");
 
     // There ought to be a way to pick this up from the environment.

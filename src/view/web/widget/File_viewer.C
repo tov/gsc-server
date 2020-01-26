@@ -1,4 +1,4 @@
-#include "File_viewer_widget.h"
+#include "File_viewer.h"
 #include "../../../Session.h"
 #include "../../../model/File_data.h"
 #include "../../../model/File_meta.h"
@@ -95,7 +95,7 @@ public:
             const dbo::ptr<File_meta>& source_file,
             int& line_number,
             vector<WTableRow*>& lines,
-            const File_viewer_widget* viewer,
+            const File_viewer* viewer,
             Renderer = Renderer{});
 };
 
@@ -104,7 +104,7 @@ Line_file_viewer<R>::Line_file_viewer(
         const dbo::ptr<File_meta>& source_file,
         int& line_number,
         vector<WTableRow*>& lines,
-        const File_viewer_widget* viewer,
+        const File_viewer* viewer,
         Renderer renderer)
         : Base_file_viewer(source_file, "line", true)
 {
@@ -140,7 +140,7 @@ struct Plain_text_line_renderer
 
 using Plain_text_file_viewer = Line_file_viewer<Plain_text_line_renderer>;
 
-File_viewer_widget::File_viewer_widget(Submission_context& context)
+File_viewer::File_viewer(Submission_context& context)
         : Submission_context{context}
 {
     impl_ = setNewImplementation<WContainerWidget>();
@@ -150,7 +150,6 @@ File_viewer_widget::File_viewer_widget(Submission_context& context)
         file_selector_->hide();
 
     scroll_area_ = impl_->addNew<WContainerWidget>();
-    //scroll_area_->setOverflow(Overflow::Auto, Orientation::Vertical);
 
     file_contents_ = scroll_area_->addNew<WContainerWidget>();
 
@@ -161,12 +160,12 @@ File_viewer_widget::File_viewer_widget(Submission_context& context)
     reload_();
 }
 
-void File_viewer_widget::on_change()
+void File_viewer::on_change()
 {
     reload_();
 }
 
-void File_viewer_widget::reload_()
+void File_viewer::reload_()
 {
     file_selector_->clear();
     file_contents_->clear();
@@ -200,33 +199,49 @@ void File_viewer_widget::reload_()
     doJavaScript(script.str());
 }
 
-void File_viewer_widget::show_line(int line_number) const
+void File_viewer::show_line(int line_number) const
 {
     ostringstream script;
     script << "GSC.fileViewer.showLine(" << line_number << ")";
     WApplication::instance()->doJavaScript(script.str());
 }
 
-void File_viewer_widget::show_file(int file_number) const
-{
-    ostringstream script;
-    script << "GSC.fileViewer.showFile(" << file_number << ")";
-    WApplication::instance()->doJavaScript(script.str());
-}
-
-void File_viewer_widget::set_line_style(int line, const WString& style)
+void File_viewer::set_line_style(int line, const WString& style)
 {
     if (0 < line && line < lines_.size())
         lines_[line]->setStyleClass(style);
 }
 
-File_viewer_widget::Scroller
-File_viewer_widget::scroller(int line)
+File_viewer::Highlighter
+File_viewer::highlighter(Wt::WString style)
 {
-    return Scroller(this, line);
+    return Highlighter(move(style), this);
 }
 
-void File_viewer_widget::Scroller::operator()()
+File_viewer::Highlighter::Highlighter(
+        WString style,
+        File_viewer* viewer)
+        : style_(move(style))
+        , viewer_(viewer)
+        , first_(0)
+{ }
+
+File_viewer::Highlighter::~Highlighter()
 {
-    viewer_->show_line(line_);
+    if (first_) viewer_->show_line(first_);
 }
+
+void File_viewer::Highlighter::highlight(int line)
+{
+    viewer_->set_line_style(line, style_);
+
+    if (!first_ || line < first_) first_ = line;
+}
+
+void File_viewer::Highlighter::highlight(int from, int to)
+{
+    highlight(from);
+    highlight(to);
+    while (++from < to) highlight(from);
+}
+

@@ -16,3 +16,5 @@ all:  $(ALL)
 
 clean:
 	git clean -fX
+
+.PHONY: all clean

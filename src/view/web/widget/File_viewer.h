@@ -11,32 +11,34 @@ class Session;
 
 class Submission;
 
-namespace Wt {
+namespace Wt
+{
 
 class WComboBox;
 
 }
 
-class File_viewer_widget : public Wt::WCompositeWidget,
-                           private Submission_context
+class File_viewer
+        : public Wt::WCompositeWidget
+                , private Submission_context
 {
 public:
-    explicit File_viewer_widget(Submission_context&);
+    explicit File_viewer(Submission_context&);
 
     void show_line(int line_number) const;
-    void show_file(int file_number) const;
 
     void set_line_style(int line, const Wt::WString& style);
 
-    class Scroller;
-    Scroller scroller(int line);
+    class Highlighter;
+
+    Highlighter highlighter(Wt::WString style);
 
 protected:
     void on_change() final override;
 
 private:
     Wt::WContainerWidget* impl_;
-    Wt::WComboBox* file_selector_;
+    Wt::WComboBox       * file_selector_;
     Wt::WContainerWidget* scroll_area_;
     Wt::WContainerWidget* file_contents_;
     // INVARIANT: each child of file_contents_ is a Single_file_viewer
@@ -47,16 +49,22 @@ private:
     void reload_();
 };
 
-class File_viewer_widget::Scroller {
+class File_viewer::Highlighter
+{
 public:
-    Scroller(File_viewer_widget* viewer, int line)
-            : viewer_(viewer), line_(line)
-    { }
+    ~Highlighter();
 
-    void operator()();
+    void highlight(int line);
+
+    void highlight(int from_line, int to_line);
 
 private:
-    File_viewer_widget* viewer_;
-    int line_;
+    friend File_viewer;
+
+    Highlighter(Wt::WString style, File_viewer* viewer);
+
+    Wt::WString const style_;
+    File_viewer* viewer_;
+    int first_;
 };
 

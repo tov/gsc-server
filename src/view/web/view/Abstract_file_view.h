@@ -7,7 +7,7 @@
 #include <Wt/WCompositeWidget.h>
 #include <Wt/WContainerWidget.h>
 
-class File_viewer_widget;
+class File_viewer;
 
 class Submission;
 class Session;
@@ -18,10 +18,10 @@ class Abstract_file_view : public Wt::WCompositeWidget,
 public:
     Abstract_file_view(const Wt::Dbo::ptr<Submission>&, Session&);
 
-    File_viewer_widget* file_viewer() { return viewer_; }
+    File_viewer* file_viewer() { return viewer_; }
 
 protected:
-    File_viewer_widget* viewer_;
+    File_viewer         * viewer_;
     Wt::WContainerWidget* right_column_;
 
 };

@@ -1,5 +1,5 @@
 #include "Abstract_file_view.h"
-#include "../widget/File_viewer_widget.h"
+#include "../widget/File_viewer.h"
 
 #include <Wt/WHBoxLayout.h>
 #include <Wt/Dbo/Transaction.h>
@@ -11,7 +11,7 @@ Abstract_file_view::Abstract_file_view(const Wt::Dbo::ptr<Submission>& submissio
     auto container    = setNewImplementation<Wt::WContainerWidget>();
 
     auto layout       = std::make_unique<Wt::WHBoxLayout>();
-    auto viewer       = std::make_unique<File_viewer_widget>(context());
+    auto viewer       = std::make_unique<File_viewer>(context());
     auto right_column = std::make_unique<Wt::WContainerWidget>();
 
     right_column->setStyleClass("right-column");

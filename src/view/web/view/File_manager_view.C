@@ -1,6 +1,6 @@
 #include "File_manager_view.h"
 #include "../widget/File_list_widget.h"
-#include "../widget/File_viewer_widget.h"
+#include "../widget/File_viewer.h"
 #include "../Notification.h"
 #include "../widget/Submission_owner_widget.h"
 #include "../../../Session.h"

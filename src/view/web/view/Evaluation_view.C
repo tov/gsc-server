@@ -6,7 +6,7 @@
 #include "../widget/Self_eval_item_widget.h"
 #include "../widget/Submission_owner_widget.h"
 
-#include "../widget/File_viewer_widget.h"
+#include "../widget/File_viewer.h"
 
 #include "../../../model/auth/User.h"
 #include "../../../model/Assignment.h"

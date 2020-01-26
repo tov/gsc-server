@@ -29,7 +29,8 @@ set(MODEL_SRC_FILES
         src/model/Partner_request.C
         src/model/Permalink.C
         src/model/Self_eval.C
-        src/model/Submission.C)
+        src/model/Submission.C
+        src/model/util/Explanation_parser.C)
 
 set(CLI_SRC_FILES
         ${MODEL_SRC_FILES}
@@ -73,7 +74,7 @@ set(WWW_SRC_FILES
         src/view/web/widget/Explanation_edit_widget.C
         src/view/web/widget/Explanation_view_widget.C
         src/view/web/widget/File_list_widget.C
-        src/view/web/widget/File_viewer_widget.C
+        src/view/web/widget/File_viewer.C
         src/view/web/widget/Glyph_button.C
         src/view/web/widget/List_eval_item_widget.C
         src/view/web/widget/Partner_notification_widget.C
