@@ -1,18 +1,18 @@
 'use strict';
 
-var exports
+let exports: any
 
-var module = {
+let module = {
     get exports() {
         return require('boo!')
     }
 }
 
-var require: (_: string) => any = (_) => {
+let require = (_: string): any => {
     throw new Error('Loader not ready')
 }
 
-var resetLoader = (moduleMap: any) => {
+const resetLoader = (moduleMap: any) => {
     exports = {}
 
     module = {exports: exports}

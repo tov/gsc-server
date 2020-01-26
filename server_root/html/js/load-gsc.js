@@ -1,6 +1,5 @@
 'use strict';
-
 /// <reference path="./loader.ts" /> #
-
-resetLoader({jquery: $})
-window.GSC = exports
+resetLoader({ jquery: $ });
+var GSC = exports;
+//# sourceMappingURL=load-gsc.js.map
