@@ -30,16 +30,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     var FileViewer = /** @class */ (function () {
         function FileViewer(element) {
             var viewer = jquery_1.default(element);
-            var selector = viewer.find('.file-viewer-selector');
-            var area = viewer.find('.file-viewer-area');
-            this._selector = selector;
-            this._area = area;
-            this._lines = area.find('td.code-line')
+            this._select = viewer.find('.file-viewer-selector');
+            this._scrollArea = viewer.find('.file-viewer-area');
+            this._lines = this._scrollArea.find('td.code-line')
                 .get();
-            this._files = area.find('div.single-file-viewer')
+            this._files = this._scrollArea.find('div.single-file-viewer')
                 .get().map(jquery_1.default);
-            selector.on('change', this.showSelectedFile.bind(this));
-            area.on('scroll', this.selectShownFile.bind(this));
+            this._select.on('change', this.showSelectedFile.bind(this));
+            this._scrollArea.on('scroll', this.selectShownFile.bind(this));
             this.setupLineLinks();
             viewer.data(VIEWER_KEY, this);
         }
@@ -81,12 +79,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
             this.showLine(jquery_1.default.data(evt.target, LINE_NUMBER_KEY));
         };
         FileViewer.prototype.showSelectedFile = function () {
-            var choice = this._selector.val();
+            var choice = this._select.val();
             this.showFile(Number(choice));
         };
         FileViewer.prototype.selectShownFile = function () {
             var _a;
-            this._selector.val((_a = this.currentShownFile(), (_a !== null && _a !== void 0 ? _a : 0)));
+            this._select.val((_a = this.currentShownFile(), (_a !== null && _a !== void 0 ? _a : 0)));
         };
         FileViewer.prototype.currentShownFile = function () {
             for (var _i = 0, _a = this._files; _i < _a.length; _i++) {
@@ -101,14 +99,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                 this.error();
                 return;
             }
-            var area = this._area;
+            var area = this._scrollArea;
             var goal = target.offset().top - margin * area.height();
             var delta = goal - area.offset().top;
             area.scrollTop(area.scrollTop() + delta);
             target.effect('highlight', { color: 'purple' }, 500);
         };
         FileViewer.prototype.error = function () {
-            this._area.effect('shake', { distance: 10, times: 2 }, 400);
+            this._scrollArea.effect('shake', { distance: 10, times: 2 }, 400);
         };
         return FileViewer;
     }());

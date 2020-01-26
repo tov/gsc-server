@@ -22,25 +22,22 @@ export function selectCopyId(inputId: string) {
 }
 
 export class FileViewer {
-    private readonly _selector: JQuerySelect
-    private readonly _area: JQuery
+    private readonly _select: JQuerySelect
+    private readonly _scrollArea: JQuery
     private readonly _lines: [Line]
     private readonly _files: [JQuery]
 
     constructor(element: HTMLElement) {
-        const viewer   = $(element)
-        const selector = viewer.find('.file-viewer-selector') as JQuerySelect
-        const area     = viewer.find('.file-viewer-area')
+        const viewer     = $(element)
+        this._select     = viewer.find('.file-viewer-selector') as JQuerySelect
+        this._scrollArea = viewer.find('.file-viewer-area')
+        this._lines      = this._scrollArea.find('td.code-line')
+                               .get() as [Line]
+        this._files      = this._scrollArea.find('div.single-file-viewer')
+                               .get().map($) as [JQuery]
 
-        this._selector = selector
-        this._area     = area
-        this._lines    = area.find('td.code-line')
-                             .get() as [Line]
-        this._files    = area.find('div.single-file-viewer')
-                             .get().map($) as [JQuery]
-
-        selector.on('change', this.showSelectedFile.bind(this))
-        area.on('scroll', this.selectShownFile.bind(this))
+        this._select.on('change', this.showSelectedFile.bind(this))
+        this._scrollArea.on('scroll', this.selectShownFile.bind(this))
         this.setupLineLinks()
 
         viewer.data(VIEWER_KEY, this)
@@ -90,12 +87,12 @@ export class FileViewer {
     }
 
     private showSelectedFile() {
-        const choice = this._selector.val()
+        const choice = this._select.val()
         this.showFile(Number(choice))
     }
 
     private selectShownFile() {
-        this._selector.val(this.currentShownFile() ?? 0)
+        this._select.val(this.currentShownFile() ?? 0)
     }
 
     private currentShownFile() {
@@ -112,7 +109,7 @@ export class FileViewer {
             return
         }
 
-        const area  = this._area
+        const area  = this._scrollArea
         const goal  = target.offset()!.top - margin * area.height()!
         const delta = goal - area.offset()!.top
         area.scrollTop(area.scrollTop()! + delta)
@@ -121,7 +118,7 @@ export class FileViewer {
     }
 
     private error() {
-        this._area.effect('shake', {distance: 10, times: 2}, 400)
+        this._scrollArea.effect('shake', {distance: 10, times: 2}, 400)
     }
 }
 
