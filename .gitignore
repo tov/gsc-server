@@ -1,7 +1,12 @@
+# CMake
 build/
 build.*/
 cmake-build-*/
 
+# NPM
+node_modules/
+
+# CLion
 .idea/
 *.iml
 

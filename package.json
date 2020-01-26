@@ -1,15 +1,20 @@
 {
   "name": "gsc-js",
   "version": "0.1.0",
-  "main": "gsc.js",
+  "browser": "server_root/html/gen/gsc.js",
   "author": "Jesse A. Tov",
   "dependencies": {
     "jquery": "^3.4.1",
     "jquery-ui": "^1.12.1"
   },
   "devDependencies": {
+    "node-sass": "^4.13.1",
     "typescript": "^3.7.5",
     "@types/jquery": "^3.3.31",
     "@types/jqueryui": "^1.12.10"
+  },
+  "scripts": {
+    "preinstall": "tsc",
+    "scss": "node-sass --recursive --output server_root/html/gen --source-map true --source-map-contents --style compressed scss"
   }
 }

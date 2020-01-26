@@ -1,1 +1,3 @@
 *.hash
+gen/*
+!gen/.retain
