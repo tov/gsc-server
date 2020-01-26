@@ -9,7 +9,7 @@ ALL = $(CSS) $(HASH:%=%.hash)
 all:  $(ALL)
 
 %.css: %.scss
-	sass $< > $@
+	sass $< > $@ --style compressed
 
 %.hash: %
 	git hash-object $< > $@
