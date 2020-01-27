@@ -179,8 +179,6 @@ void Submissions_view_row::update()
                 dbo::Transaction transaction(session_);
                 if (model_.submission->is_graded()) {
                     grade_->setText(model_.submission->grade_string());
-                } else if (! model_.submission->is_evaluated()) {
-                    grade_->setText("0%");
                 }
             }
             break;
