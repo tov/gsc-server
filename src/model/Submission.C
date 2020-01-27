@@ -120,35 +120,42 @@ Submission::Status Submission::status() const
         return Status::closed;
 }
 
+Submission::Eval_status
+Submission::eval_status_given_self_eval_count_(size_t self_eval_count) const
+{
+    if (self_eval_count == assignment()->eval_items().size())
+        return Eval_status::complete;
+    else if (status() == Status::closed)
+        return Eval_status::overdue;
+    else if (self_eval_count > 0)
+        return Eval_status::started;
+    else
+        return Eval_status::empty;
+}
+
 Submission::Eval_status Submission::eval_status() const
 {
     if (is_loaded_) {
         return eval_status_;
     }
 
-    size_t self_evals_size = self_evals_.size();
-
-    if (self_evals_size == assignment()->eval_items().size())
-        return Eval_status::complete;
-    else if (self_evals_size > 0)
-        return Eval_status::started;
-    else
-        return Eval_status::empty;
+    return eval_status_given_self_eval_count_(self_evals_.size());
 }
 
 double Submission::grade() const
 {
-    if (is_loaded_) {
-        return grade_;
-    }
+    load_cache();
+    return grade_;
+    //if (is_loaded_) {
+    //}
 
-    return clean_grade(session()->query<double>(
-            "SELECT SUM(relative_value * g.score) / NULLIF(SUM(relative_value), 0)"
-            "  FROM self_eval s"
-            " INNER JOIN eval_item e ON s.eval_item_id = e.id"
-            " INNER JOIN grader_eval g ON g.self_eval_id = s.id"
-            " WHERE s.submission_id = ?"
-    ).bind(id()).resultValue());
+    //return clean_grade(session()->query<double>(
+    //        "SELECT SUM(relative_value * g.score) / NULLIF(SUM(relative_value), 0)"
+    //        "  FROM self_eval s"
+    //        " INNER JOIN eval_item e ON s.eval_item_id = e.id"
+    //        " INNER JOIN grader_eval g ON g.self_eval_id = s.id"
+    //        " WHERE s.submission_id = ?"
+    //).bind(id()).resultValue());
 }
 
 dbo::ptr<Self_eval>
@@ -401,26 +408,28 @@ bool Submission::is_graded() const
 
 Submission::Grading_status Submission::grading_status() const
 {
-    if (is_loaded_) {
-        return grading_status_;
-    }
+    load_cache();
+    return grading_status_;
 
-    auto grader_eval_count = session()->query<int>(
-            "SELECT COUNT(*)"
-            "  FROM self_eval s"
-            " INNER JOIN grader_eval g ON g.self_eval_id = s.id"
-            " WHERE s.submission_id = ?"
-            "   AND g.status = ?"
-    ).bind(id()).bind((int) Grader_eval::Status::ready).resultValue();
+    //if (is_loaded_) {
+    //}
 
-    if (grader_eval_count == self_evals_.size())
-        return Grading_status::complete;
-
-    if (grader_eval_count > 2 && in_eval_period()) {
-        return Grading_status::regrade;
-    }
-
-    return Grading_status::incomplete;
+    //auto grader_eval_count = session()->query<int>(
+    //        "SELECT COUNT(*)"
+    //        "  FROM self_eval s"
+    //        " INNER JOIN grader_eval g ON g.self_eval_id = s.id"
+    //        " WHERE s.submission_id = ?"
+    //        "   AND g.status = ?"
+    //).bind(id()).bind((int) Grader_eval::Status::ready).resultValue();
+    //
+    //if (grader_eval_count == self_evals_.size())
+    //    return Grading_status::complete;
+    //
+    //if (grader_eval_count > 2 && in_eval_period()) {
+    //    return Grading_status::regrade;
+    //}
+    //
+    //return Grading_status::incomplete;
 }
 
 void Submission::load_cache() const
@@ -460,12 +469,10 @@ void Submission::load_cache() const
         }
     }
 
-    eval_status_ = self_eval_count == item_count_ ? Eval_status::complete
-                 : self_eval_count == 0           ? Eval_status::empty
-                 /* otherwise */                  : Eval_status::started;
+    eval_status_ = eval_status_given_self_eval_count_(self_eval_count);
 
-
-    grading_status_ = grader_eval_count == item_count_ ? Grading_status::complete
+    grading_status_ = grader_eval_count == self_eval_count
+                                                       ? Grading_status::complete
                     : grader_eval_count > 2 && in_eval_period()
                                                        ? Grading_status::regrade
                     /* otherwise */                    : Grading_status::incomplete;
@@ -678,6 +685,7 @@ char const* Enum<Submission::Eval_status>::show(Submission::Eval_status status)
 
     switch (status) {
         case S::empty: return "empty";
+        case S::overdue: return "overdue";
         case S::started: return "started";
         case S::complete: return "complete";
     }

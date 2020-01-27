@@ -158,9 +158,15 @@ void Submissions_view_row::update()
                     set_action_style_class("btn btn-success");
                     break;
                 }
+
+                case Submission::Eval_status::overdue:
+                    goto closed;
+                    // Can't happen if the eval status is only overdue
+                    // when the submission status is closed.
             }
             break;
 
+        closed:
         case Submission::Status::closed: {
             row_->setStyleClass("closed");
             status += "Closed ";
