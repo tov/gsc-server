@@ -1,6 +1,7 @@
 #include "Application_controller.h"
 
 #include "common/format.h"
+#include "common/util.h"
 #include "model/auth/User.h"
 #include "model/Assignment.h"
 #include "model/Grader_eval.h"
@@ -17,6 +18,7 @@
 #include "view/web/view/Main_view.h"
 #include "view/web/view/Profile_view.h"
 #include "view/web/view/Submissions_view.h"
+#include "view/web/PageTitle.h"
 #include "view/game/HangmanWidget.h"
 #include "view/game/HighScoresWidget.h"
 
@@ -29,28 +31,30 @@
 #include <stdexcept>
 #include <string>
 
-namespace {
+namespace
+{
 
 struct Load_error : std::exception
 {
     Load_error(const std::string& title,
                const std::string& message)
-            : title(title), message(message) {}
+            : title(title), message(message)
+    { }
 
     std::string title;
     std::string message;
 };
 
 
-void not_found [[noreturn]] (const std::string& message)
+void not_found [[noreturn]](const std::string& message)
 {
     throw Load_error("Not found", message);
 }
 
 const std::string denied_message =
-        "You aren't allowed to access that.";
+                          "You aren't allowed to access that.";
 
-void permission_denied [[noreturn]] (const std::string& message = denied_message)
+void permission_denied [[noreturn]](const std::string& message = denied_message)
 {
     throw Load_error("Permission denied", message);
 }
@@ -72,7 +76,7 @@ static std::string hashedResource(char const* filename)
     std::ostringstream hash_filename;
     hash_filename << "html/" << filename << ".hash";
 
-    std::string hash_value;
+    std::string   hash_value;
     std::ifstream hash_file(hash_filename.str());
 
     if (hash_file && hash_file >> hash_value) {
@@ -128,7 +132,8 @@ void Application_controller::on_auth_event()
     handle_internal_path(internalPath());
 }
 
-namespace Path {
+namespace Path
+{
 
 using namespace std;
 
@@ -153,37 +158,6 @@ static const string root("/");
 static const string game("/game");
 static const string high_scores("/game/high_scores");
 static const string admin("/admin");
-
-}
-
-namespace Title
-{
-
-using namespace std;
-
-inline string user_hw(const dbo::ptr<User>& user)
-{
-    return "~" + user->name();
-}
-
-inline string
-user_hw_N(const dbo::ptr<Submission>& submission)
-{
-    return user_hw(submission->user1()) +
-            ": " + submission->assignment()->slug_string();
-}
-
-inline string
-user_hw_N_eval(const dbo::ptr<Submission>& submission)
-{
-    return user_hw_N(submission) + ": Evaluation";
-}
-
-inline string
-user_profile(const dbo::ptr<User>& user)
-{
-    return "~" + user->name() + ": Profile";
-}
 
 }
 
@@ -216,10 +190,9 @@ void Application_controller::handle_internal_path(
             setInternalPath(url.str(), true);
         };
 
-        if (false)
-        { }
+        if (false) { }
 
-        // /hw
+            // /hw
         else if (internal_path == Path::hw) {
             transaction.commit();
             switch (current_user->role()) {
@@ -232,7 +205,7 @@ void Application_controller::handle_internal_path(
                     break;
 
                 case User::Role::Admin:
-                    set_title("Edit Assignments");
+                    set_page_title("Edit Assignments");
                     set_new_widget<Assignments_view>(session_);
                     break;
             }
@@ -278,7 +251,7 @@ void Application_controller::handle_internal_path(
             transaction.commit();
             if (!current_user->can_grade()) permission_denied();
 
-            set_title("Grading Stats");
+            set_page_title("Grading Stats");
             set_new_widget<Grading_stats_view>(session_);
 
             // /grade/:permalink
@@ -286,11 +259,12 @@ void Application_controller::handle_internal_path(
             if (!current_user->can_grade()) permission_denied();
 
             std::string permalink{sm[1].first, sm[1].second};
-            auto self_eval = Self_eval::find_by_permalink(session_, permalink);
+            auto        self_eval = Self_eval::find_by_permalink(session_,
+                                                                 permalink);
             if (!self_eval) not_found("No such evaluation.");
             transaction.commit();
 
-            set_title("Grading");
+            set_page_title("Grading");
             set_new_widget<Grading_view>(self_eval, session_);
 
             // /~:user/hw
@@ -298,29 +272,31 @@ void Application_controller::handle_internal_path(
             auto user = find_user(sm[1], current_user);
             transaction.commit();
 
-            if (!current_user->can_view(user))
+            if (!current_user->can_view(user)) {
                 permission_denied();
+            }
 
-            set_title(Title::user_hw(user));
+            set_page_title(PageTitle::user_home(user));
             set_new_widget<Submissions_view>(user, session_);
 
             // /~:user/hw/:n
         } else if (std::regex_match(internal_path, sm, Path::user_hw_N)) {
             auto assignment = find_assignment(&*sm[2].first);
-            auto user = find_user(sm[1], current_user);
+            auto user       = find_user(sm[1], current_user);
             auto submission = Submission::find_by_assignment_and_user(
                     session_, assignment, user);
 
-            if (!submission->can_view(current_user))
+            if (!submission->can_view(current_user)) {
                 permission_denied();
+            }
 
-            set_title(Title::user_hw_N(submission));
+            set_page_title(PageTitle::user_hwN(submission, current_user));
             set_new_widget<File_manager_view>(submission, session_);
 
             // /~:user/hw/:n/eval
         } else if (std::regex_match(internal_path, sm, Path::user_hw_N_eval)) {
             auto assignment = find_assignment(&*sm[2].first);
-            auto user = find_user(sm[1], current_user);
+            auto user       = find_user(sm[1], current_user);
             auto submission = Submission::find_by_assignment_and_user(
                     session_, assignment, user);
 
@@ -329,18 +305,17 @@ void Application_controller::handle_internal_path(
             auto view = std::make_unique<Evaluation_view>(submission, session_);
             view->go_default();
 
-            set_title(Title::user_hw_N_eval(submission));
+            set_page_title(PageTitle::user_hwN_eval(submission, current_user));
             set_widget(std::move(view));
 
             // /~:user/hw/:n/eval/:m
         } else if (std::regex_match(internal_path, sm,
-                                    Path::user_hw_N_eval_M))
-        {
+                                    Path::user_hw_N_eval_M)) {
             auto assignment = find_assignment(&*sm[2].first);
-            auto user = find_user(sm[1], current_user);
+            auto user       = find_user(sm[1], current_user);
             auto submission = Submission::find_by_assignment_and_user(
                     session_, assignment, user);
-            auto m = find_eval_item(assignment, &*sm[3].first);
+            auto m          = find_eval_item(assignment, &*sm[3].first);
 
             check_eval_view_privileges(current_user, submission);
             transaction.commit();
@@ -348,7 +323,7 @@ void Application_controller::handle_internal_path(
             auto view = std::make_unique<Evaluation_view>(submission, session_);
             view->go_to((unsigned) m);
 
-            set_title(Title::user_hw_N_eval(submission));
+            set_page_title(PageTitle::user_hwN_eval(submission, current_user));
             set_widget(std::move(view));
 
             // /~:user/profile
@@ -356,28 +331,29 @@ void Application_controller::handle_internal_path(
             auto user = find_user(sm[1], current_user);
             transaction.commit();
 
-            if (!current_user->can_view(user))
+            if (!current_user->can_view(user)) {
                 permission_denied();
+            }
 
-            set_title(Title::user_profile(user));
+            set_page_title(PageTitle::user_profile(user));
             set_new_widget<Profile_view>(user, session_);
 
             // /game
         } else if (internal_path == Path::game) {
             transaction.commit();
-            set_title("Gaming Ground");
+            set_page_title("Gaming Ground");
             set_new_widget<HangmanWidget>(session_);
 
             // /game/high_scores
         } else if (internal_path == Path::high_scores) {
-            set_title("High Scores");
+            set_page_title("High Scores");
             set_new_widget<HighScoresWidget>(session_);
 
             // /hw/:n
         } else if (std::regex_match(internal_path, sm, Path::hw_N)) {
             if (current_user->can_admin()) {
                 auto assignment = find_assignment(&*sm[1].first);
-                set_title(assignment->slug_string() + ": Edit");
+                set_page_title(assignment->slug_string() + ": Edit");
                 set_new_widget<Edit_assignment_view>(assignment, session_);
             } else {
                 add_tilde_user();
@@ -396,7 +372,7 @@ void Application_controller::handle_internal_path(
             transaction.commit();
             if (!current_user->can_admin()) permission_denied();
 
-            set_title("Admin");
+            set_page_title("Admin");
             set_new_widget<Admin_view>(session_);
 
             // /held_back
@@ -404,7 +380,7 @@ void Application_controller::handle_internal_path(
             transaction.commit();
             if (!current_user->can_admin()) permission_denied();
 
-            set_title("Held-Back Evaluations");
+            set_page_title("Held-Back Evaluations");
             set_new_widget<Held_back_view>(session_);
 
             // /~:user
@@ -419,15 +395,21 @@ void Application_controller::handle_internal_path(
             not_found("No such page.");
         }
     } catch (const Load_error& e) {
-        set_title(e.title);
+        set_page_title(e.title);
         set_new_widget<Error_view>(e.message);
     }
 }
 
-void Application_controller::set_title(const std::string& title)
+void Application_controller::set_page_title(PageTitle&& title)
 {
-    setTitle("gsc: " + title);
-    main_->set_title(title);
+    setTitle(title.get_text());
+    main_->set_title(title.build_widget());
+}
+
+void Application_controller::set_page_title(std::string const& text)
+{
+    setTitle(text);
+    main_->set_title(text);
 }
 
 void Application_controller::set_widget(std::unique_ptr<Wt::WWidget> widget)
@@ -441,31 +423,35 @@ Application_controller::find_user(ssubmatch const& sub,
 {
     std::string user_name(sub.first, sub.second);
 
-    if (auto user = User::find_by_name(session_, user_name))
+    if (auto user = User::find_by_name(session_, user_name)) {
         return user;
+    }
 
-    if (current && current->can_admin())
+    if (current && current->can_admin()) {
         not_found("No such user: " + user_name);
-    else
+    } else {
         permission_denied();
+    }
 }
 
 Wt::Dbo::ptr<Assignment>
 Application_controller::find_assignment(const char* number_s)
 {
-    int number = std::atoi(number_s);
+    int  number     = std::atoi(number_s);
     auto assignment = Assignment::find_by_number(session_, number);
     if (!assignment) not_found("No such assignment");
     return assignment;
 }
 
 int
-Application_controller::find_eval_item(const dbo::ptr <Assignment>& assignment,
-                                       const char* number_s) {
+Application_controller::find_eval_item(const dbo::ptr<Assignment>& assignment,
+                                       const char* number_s)
+{
     int m = std::atoi(number_s);
 
-    if (m < 1 || m > assignment->eval_items().size())
+    if (m < 1 || m > assignment->eval_items().size()) {
         permission_denied("Question number out of range.");
+    }
 
     return m;
 }
@@ -475,9 +461,11 @@ void Application_controller::check_eval_view_privileges(
         const Wt::Dbo::ptr<Submission>& submission) const
 {
     if (!submission->can_view_eval(current_user)) {
-        if (!submission->can_view(current_user))
+        if (!submission->can_view(current_user)) {
             permission_denied();
+        }
 
         permission_denied("Too early! Submission is still open.");
     }
 }
+

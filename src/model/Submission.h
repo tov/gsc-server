@@ -108,9 +108,11 @@ public:
     bool can_eval(const Wt::Dbo::ptr <User>&) const;
     bool can_view_eval(const Wt::Dbo::ptr<User>&) const;
 
-    std::string url() const;
+    std::string url(bool eval = false) const;
     std::string eval_url() const;
-    std::string url_for_user(const Wt::Dbo::ptr<User>&) const;
+
+    std::string url_for_user(const Wt::Dbo::ptr<User>&,
+                             bool eval = false) const;
 
     Wt::Dbo::ptr<Submission> find_this() const;
 

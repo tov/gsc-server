@@ -15,10 +15,12 @@ public:
     explicit Main_view(Session&);
 
     void set_title(const Wt::WString&);
+    void set_title(std::unique_ptr<Wt::WWidget>);
+
     void set_widget(std::unique_ptr<Wt::WWidget>);
 
 private:
-    Wt::WText* title_;
+    Wt::WTemplate       * head_;
     Wt::WContainerWidget* root_;
-    Session& session_;
+    Session             & session_;
 };

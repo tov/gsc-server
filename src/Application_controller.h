@@ -16,6 +16,7 @@ class Main_view;
 class User;
 class Assignment;
 class Eval_item;
+class PageTitle;
 class Submission;
 
 class Application_controller : public Wt::WApplication
@@ -31,8 +32,9 @@ private:
     Session session_;
     Main_view* main_;
 
-    void set_title(const std::string&);
-    void set_widget(std::unique_ptr<Wt::WWidget> widget);
+    void set_page_title(PageTitle&& title);
+    void set_page_title(std::string const& text);
+    void set_widget(std::unique_ptr<Wt::WWidget>);
 
     template <class T, class... Arg>
     void set_new_widget(Arg&&... arg)

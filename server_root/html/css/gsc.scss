@@ -17,11 +17,13 @@ $tt-sm:     13px      $tt-fam;
 $sf-ls: 400 11px/11px $sf-fam;
 $tt-ls:     12px/16px $tt-fam;
 
+$nu-purple: #606;
+
 $docked-color: #fcd;
 $explanation-color: #cdf;
 
 $radius: 15px;
-$inverse-bg: #606;
+$inverse-bg: $nu-purple;
 $inverse-fg: white;
 $highlight-bg: #dcd;
 
@@ -45,7 +47,21 @@ h1 {
     padding: 0;
 
     small {
-      font: $sf-h2;
+        font: $sf-h2;
+    }
+
+    .home-link, .header-nav-link {
+        cursor: pointer;
+        color: #999;
+    }
+
+    .home-link:hover,
+    .header-nav-link:hover {
+        color: $nu-purple;
+    }
+
+    .header-nav-current {
+        color: black;
     }
 }
 
@@ -539,10 +555,6 @@ table .invalid {
     font-size: 125%;
     z-index: 1000;
     background-color: white;
-}
-
-.home-link {
-    cursor: pointer;
 }
 
 .line-link {

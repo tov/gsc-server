@@ -348,22 +348,24 @@ bool Submission::can_view_eval(const dbo::ptr<User>& user) const
             (user == user1_ || user == user2_));
 }
 
-std::string Submission::url() const
+std::string Submission::url(bool eval) const
 {
-    return url_for_user(user1_);
+    return url_for_user(user1_, eval);
 }
 
 std::string Submission::eval_url() const
 {
-    return url() + "/eval";
+    return url(true);
 }
 
-std::string Submission::url_for_user(const dbo::ptr<User>& user) const
+std::string
+Submission::url_for_user(const Wt::Dbo::ptr<User>& user, bool eval) const
 {
     std::ostringstream result;
 
     result << "/~" << (user == user2_? user2_ : user1_)->name();
     result << "/hw/" << assignment_->number();
+    if (eval) result << "/eval";
 
     return result.str();
 }
