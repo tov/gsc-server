@@ -158,6 +158,7 @@ public:
 
 
     void touch();
+    void light_touch() const;
 
     // Creates the submission if it doesn't exist.
     static Wt::Dbo::ptr<Submission>
@@ -205,7 +206,11 @@ private:
     static Wt::Dbo::ptr<Grader_eval>&
     find_grader_eval_(const Wt::Dbo::ptr<Self_eval>&);
 
-    Eval_status eval_status_given_self_eval_count_(size_t self_eval_count) const;
+    Eval_status eval_status_given_counts_(size_t self_eval_count,
+                                          size_t eval_item_count) const;
+
+    Grading_status grading_status_given_counts_(size_t grader_eval_count,
+                                                size_t self_eval_count) const;
 
 public:
     template<typename Action>

@@ -26,6 +26,7 @@ void Abstract_evaluation::set_explanation(const std::string& explanation)
 void Abstract_evaluation::set_score(double score)
 {
     score_ = normalize_score(score);
+    submission()->light_touch();
 }
 
 const dbo::ptr<Assignment>& Abstract_evaluation::assignment() const

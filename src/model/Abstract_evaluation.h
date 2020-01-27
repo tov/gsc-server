@@ -30,10 +30,10 @@ public:
     { }
 
     const std::string& explanation() const { return explanation_; }
-    virtual void set_explanation(const std::string&);
+    void set_explanation(const std::string&);
 
     double score() const { return score_; }
-    virtual void set_score(double);
+    void set_score(double);
 
     virtual Score_owner
     score_owner(Viewing_context const& cxt) const = 0;

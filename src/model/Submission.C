@@ -24,13 +24,14 @@ DBO_INSTANTIATE_TEMPLATES(Submission)
 
 static int const initial_bytes_quota = 20 * 1024 * 1024;
 
-Submission::Submission(const dbo::ptr <User>& user,
-                       const dbo::ptr <Assignment>& assignment)
-        : user1_(user), assignment_(assignment),
-          due_date_(assignment->due_date()),
-          eval_date_(assignment->eval_date()),
-          last_modified_(Wt::WDateTime::currentDateTime()),
-          bytes_quota_(initial_bytes_quota)
+Submission::Submission(const dbo::ptr<User>& user,
+                       const dbo::ptr<Assignment>& assignment)
+        : user1_(user)
+        , assignment_(assignment)
+        , due_date_(assignment->due_date())
+        , eval_date_(assignment->eval_date())
+        , last_modified_(Wt::WDateTime::currentDateTime())
+        , bytes_quota_(initial_bytes_quota)
 {
 
 }
@@ -57,8 +58,9 @@ int Submission::byte_count() const
         byte_count_ = 0;
 
         for (const auto& meta : source_files()) {
-            if (! meta->uploader()->can_admin())
+            if (!meta->uploader()->can_admin()) {
                 byte_count_ += meta->byte_count();
+            }
         }
     }
 
@@ -106,31 +108,50 @@ Submission::Status Submission::status() const
 {
     auto now = Wt::WDateTime::currentDateTime();
 
-    if (now <= assignment()->open_date())
+    if (now <= assignment()->open_date()) {
         return Status::future;
-    if (now <= assignment()->due_date())
+    }
+    if (now <= assignment()->due_date()) {
         return Status::open;
-    else if (now <= due_date_)
+    } else if (now <= due_date_) {
         return Status::extended;
-    else if (now <= assignment()->eval_date())
+    } else if (now <= assignment()->eval_date()) {
         return Status::self_eval;
-    else if (now <= eval_date_)
+    } else if (now <= eval_date_) {
         return Status::extended_eval;
-    else
+    } else {
         return Status::closed;
+    }
 }
 
 Submission::Eval_status
-Submission::eval_status_given_self_eval_count_(size_t self_eval_count) const
+Submission::eval_status_given_counts_(
+        size_t self_eval_count,
+        size_t eval_item_count) const
 {
-    if (self_eval_count == assignment()->eval_items().size())
+    if (self_eval_count == eval_item_count) {
         return Eval_status::complete;
-    else if (status() == Status::closed)
+    } else if (status() == Status::closed) {
         return Eval_status::overdue;
-    else if (self_eval_count > 0)
+    } else if (self_eval_count > 0) {
         return Eval_status::started;
-    else
+    } else {
         return Eval_status::empty;
+    }
+}
+
+Submission::Grading_status
+Submission::grading_status_given_counts_(
+        size_t grader_eval_count,
+        size_t self_eval_count) const
+{
+    if (grader_eval_count == self_eval_count) {
+        return Grading_status::complete;
+    } else if (grader_eval_count > 2 && in_eval_period()) {
+        return Grading_status::regrade;
+    } else {
+        return Grading_status::incomplete;
+    }
 }
 
 Submission::Eval_status Submission::eval_status() const
@@ -139,23 +160,33 @@ Submission::Eval_status Submission::eval_status() const
         return eval_status_;
     }
 
-    return eval_status_given_self_eval_count_(self_evals_.size());
+    return eval_status_given_counts_(self_evals_.size(),
+                                     assignment()->eval_items().size());
 }
 
 double Submission::grade() const
 {
-    load_cache();
-    return grade_;
-    //if (is_loaded_) {
-    //}
+    if (is_loaded_) {
+        return grade_;
+    }
 
-    //return clean_grade(session()->query<double>(
-    //        "SELECT SUM(relative_value * g.score) / NULLIF(SUM(relative_value), 0)"
-    //        "  FROM self_eval s"
-    //        " INNER JOIN eval_item e ON s.eval_item_id = e.id"
-    //        " INNER JOIN grader_eval g ON g.self_eval_id = s.id"
-    //        " WHERE s.submission_id = ?"
-    //).bind(id()).resultValue());
+    const char* const sql_query =
+            "SELECT"
+            " (SELECT SUM(g.score * e.relative_value)"
+            "    FROM grader_eval g"
+            "   INNER JOIN self_eval s ON s.id = g.self_eval_id"
+            "   INNER JOIN eval_item e ON e.id = s.eval_item_id"
+            "   WHERE s.submission_id = ?)"
+            " /"
+            " (SELECT NULLIF(SUM(relative_value), 0)"
+            "    FROM eval_item"
+            "   WHERE assignment_number = ?)";
+
+    double grade_value = session()->query<double>(sql_query)
+                                  .bind(id()).bind(assignment_number())
+                                  .resultValue();
+
+    return clean_grade(grade_value);
 }
 
 dbo::ptr<Self_eval>
@@ -176,7 +207,7 @@ Submission::get_self_eval(const dbo::ptr<Eval_item>& eval_item,
 
 Wt::Dbo::ptr<Self_eval>
 Submission::get_self_eval(int sequence,
-                          const dbo::ptr<Submission> &submission,
+                          const dbo::ptr<Submission>& submission,
                           bool create)
 {
     submission->load_cache();
@@ -187,7 +218,7 @@ Submission::get_self_eval(int sequence,
 void Submission::retract_self_eval(const dbo::ptr<Self_eval>& self_eval)
 {
     auto submission = self_eval->submission();
-    auto sequence = self_eval->eval_item()->sequence();
+    auto sequence   = self_eval->eval_item()->sequence();
 
     submission->load_cache();
 
@@ -213,10 +244,10 @@ Submission::save_self_eval(const dbo::ptr<Self_eval>& self_eval,
     }
 
     if (score == 0.0 &&
-            self_eval->eval_item()->type() == Eval_item::Type::Boolean) {
+        self_eval->eval_item()->type() == Eval_item::Type::Boolean) {
         set_grader_eval(self_eval, session.user(), 0.1, "You chose no.");
     } else if (self_eval->grader_eval()
-               && ! self_eval->eval_item()->is_informational()) {
+               && !self_eval->eval_item()->is_informational()) {
         retract_grader_eval(self_eval->grader_eval());
     }
 
@@ -227,7 +258,7 @@ dbo::ptr<Grader_eval>&
 Submission::find_grader_eval_(const dbo::ptr<Self_eval>& self_eval)
 {
     auto submission = self_eval->submission();
-    auto sequence = self_eval->eval_item()->sequence();
+    auto sequence   = self_eval->eval_item()->sequence();
 
     submission->load_cache();
 
@@ -273,11 +304,12 @@ Submission::set_grader_eval(const Wt::Dbo::ptr<Self_eval>& self_eval,
 
 void Submission::retract_grader_eval(const dbo::ptr<Grader_eval>& grader_eval)
 {
-    if (grader_eval->eval_item()->is_graded_automatically())
+    if (grader_eval->eval_item()->is_graded_automatically()) {
         return;
+    }
 
     auto submission = grader_eval->submission();
-    auto sequence = grader_eval->eval_item()->sequence();
+    auto sequence   = grader_eval->eval_item()->sequence();
 
     submission->load_cache();
 
@@ -290,6 +322,12 @@ void Submission::retract_grader_eval(const dbo::ptr<Grader_eval>& grader_eval)
 void Submission::touch()
 {
     last_modified_ = Wt::WDateTime::currentDateTime();
+    light_touch();
+}
+
+void Submission::light_touch() const
+{
+    is_loaded_ = false;
 }
 
 dbo::ptr<Submission>
@@ -298,8 +336,7 @@ Submission::find_by_assignment_and_user(dbo::Session& session,
                                         const dbo::ptr<User>& user)
 {
     if (dbo::ptr<Submission> result = find_by_assignment_number_and_user(
-            session, assignment->number(), user))
-    {
+            session, assignment->number(), user)) {
         return result;
     } else {
         return session.addNew<Submission>(user, assignment);
@@ -312,17 +349,17 @@ Submission::find_by_assignment_number_and_user(Wt::Dbo::Session& session,
                                                const Wt::Dbo::ptr<User>& user)
 {
     return session.find<Submission>()
-            .where("user1_id = ? OR user2_id = ?")
-            .bind(user.id()).bind(user.id())
-            .where("assignment_number = ?")
-            .bind(assignment_number);
+                  .where("user1_id = ? OR user2_id = ?")
+                  .bind(user.id()).bind(user.id())
+                  .where("assignment_number = ?")
+                  .bind(assignment_number);
 }
 
 dbo::ptr<Submission> Submission::find_by_id(dbo::Session& session,
                                             int submission_id)
 {
     return session.find<Submission>()
-            .where("id = ?").bind(submission_id);
+                  .where("id = ?").bind(submission_id);
 }
 
 bool Submission::can_view(const dbo::ptr<User>& user) const
@@ -338,7 +375,7 @@ bool Submission::can_submit(const dbo::ptr<User>& user) const
     return in_submit_period();
 }
 
-bool Submission::can_eval(const dbo::ptr <User>& user) const
+bool Submission::can_eval(const dbo::ptr<User>& user) const
 {
     if (user->can_admin()) return true;
     if (user != user1_ && user != user2_) return false;
@@ -370,7 +407,7 @@ Submission::url_for_user(const Wt::Dbo::ptr<User>& user, bool eval) const
 {
     std::ostringstream result;
 
-    result << "/~" << (user == user2_? user2_ : user1_)->name();
+    result << "/~" << (user == user2_ ? user2_ : user1_)->name();
     result << "/hw/" << assignment_->number();
     if (eval) result << "/eval";
 
@@ -408,28 +445,19 @@ bool Submission::is_graded() const
 
 Submission::Grading_status Submission::grading_status() const
 {
-    load_cache();
-    return grading_status_;
+    if (is_loaded_) {
+        return grading_status_;
+    }
 
-    //if (is_loaded_) {
-    //}
+    auto grader_eval_count = session()->query<int>(
+            "SELECT COUNT(*)"
+            "  FROM self_eval s"
+            " INNER JOIN grader_eval g ON g.self_eval_id = s.id"
+            " WHERE s.submission_id = ?"
+            "   AND g.status = ?"
+    ).bind(id()).bind((int) Grader_eval::Status::ready).resultValue();
 
-    //auto grader_eval_count = session()->query<int>(
-    //        "SELECT COUNT(*)"
-    //        "  FROM self_eval s"
-    //        " INNER JOIN grader_eval g ON g.self_eval_id = s.id"
-    //        " WHERE s.submission_id = ?"
-    //        "   AND g.status = ?"
-    //).bind(id()).bind((int) Grader_eval::Status::ready).resultValue();
-    //
-    //if (grader_eval_count == self_evals_.size())
-    //    return Grading_status::complete;
-    //
-    //if (grader_eval_count > 2 && in_eval_period()) {
-    //    return Grading_status::regrade;
-    //}
-    //
-    //return Grading_status::incomplete;
+    return grading_status_given_counts_(grader_eval_count, self_evals_.size());
 }
 
 void Submission::load_cache() const
@@ -438,7 +466,7 @@ void Submission::load_cache() const
 
     double total_grade = 0;
 
-    item_count_ = 0;
+    item_count_  = 0;
     point_value_ = 0;
 
     for (const auto& eval_item : assignment()->eval_items()) {
@@ -449,7 +477,7 @@ void Submission::load_cache() const
         items_[sequence].eval_item = eval_item;
     }
 
-    size_t self_eval_count = 0;
+    size_t self_eval_count   = 0;
     size_t grader_eval_count = 0;
 
     for (const auto& self_eval : self_evals_) {
@@ -469,13 +497,17 @@ void Submission::load_cache() const
         }
     }
 
-    eval_status_ = eval_status_given_self_eval_count_(self_eval_count);
+    eval_status_    = eval_status_given_counts_(self_eval_count,
+                                                grader_eval_count);
+    grading_status_ = grading_status_given_counts_(self_eval_count,
+                                                   grader_eval_count);
 
-    grading_status_ = grader_eval_count == self_eval_count
-                                                       ? Grading_status::complete
-                    : grader_eval_count > 2 && in_eval_period()
-                                                       ? Grading_status::regrade
-                    /* otherwise */                    : Grading_status::incomplete;
+    // TODO: delete
+    //grading_status_ = grader_eval_count == self_eval_count
+    //                                                   ? Grading_status::complete
+    //                : grader_eval_count > 2 && in_eval_period()
+    //                                                   ? Grading_status::regrade
+    //                /* otherwise */                    : Grading_status::incomplete;
 
     grade_ = clean_grade(total_grade, point_value_);
 
@@ -513,9 +545,11 @@ set<string> Submission::intersection(dbo::ptr<Submission> sub1,
               inserter(set1, set1.end()),
               mem_fn(&File_meta::name));
 
-    for (const auto& file2 : sub2->source_files())
-        if (set1.count(file2->name()))
+    for (const auto& file2 : sub2->source_files()) {
+        if (set1.count(file2->name())) {
             result.insert(file2->name());
+        }
+    }
 
     return result;
 }
@@ -557,8 +591,8 @@ dbo::ptr<File_meta>
 Submission::find_file_by_name(const std::string& filename) const
 {
     return session()->find<File_meta>()
-           .where("name = ?").bind(filename)
-           .where("submission_id = ?").bind(id());
+                    .where("name = ?").bind(filename)
+                    .where("submission_id = ?").bind(id());
 }
 
 int Submission::remaining_space() const
@@ -577,15 +611,18 @@ bool Submission::has_sufficient_space(int bytes,
     return remaining >= bytes;
 }
 
-std::string Submission::rest_uri() const {
+std::string Submission::rest_uri() const
+{
     return api::paths::Submissions_1(id());
 }
 
-std::string Submission::files_rest_uri() const {
+std::string Submission::files_rest_uri() const
+{
     return api::paths::Submissions_1_files(id());
 }
 
-std::string Submission::evals_rest_uri() const {
+std::string Submission::evals_rest_uri() const
+{
     return api::paths::Submissions_1_evals(id());
 }
 
@@ -593,24 +630,24 @@ J::Object Submission::to_json(bool brief) const
 {
     J::Object result;
 
-    result["id"] = J::Value(id());
-    result["uri"] = J::Value(rest_uri());
-    result["assignment_number"] = J::Value(assignment()->number());
-    result["status"] = J::Value(stringify(status()));
-    result["grade"] = J::Value(grade());
-    result["owner1"] = J::Value(user1()->to_json(true));
+    result["id"]                  = J::Value(id());
+    result["uri"]                 = J::Value(rest_uri());
+    result["assignment_number"]   = J::Value(assignment()->number());
+    result["status"]              = J::Value(stringify(status()));
+    result["grade"]               = J::Value(grade());
+    result["owner1"]              = J::Value(user1()->to_json(true));
     if (user2()) result["owner2"] = J::Value(user2()->to_json(true));
 
     if (!brief) {
-        result["open_date"] = J::Value(json_format(open_date()));
-        result["due_date"] = J::Value(json_format(effective_due_date()));
-        result["eval_date"] = J::Value(json_format(effective_eval_date()));
+        result["open_date"]     = J::Value(json_format(open_date()));
+        result["due_date"]      = J::Value(json_format(effective_due_date()));
+        result["eval_date"]     = J::Value(json_format(effective_eval_date()));
         result["last_modified"] = J::Value(json_format(last_modified()));
-        result["files_uri"] = J::Value(files_rest_uri());
-        result["evals_uri"] = J::Value(evals_rest_uri());
-        result["bytes_used"] = J::Value(byte_count());
-        result["bytes_quota"] = J::Value(bytes_quota());
-        result["eval_status"] = J::Value(stringify(eval_status()));
+        result["files_uri"]     = J::Value(files_rest_uri());
+        result["evals_uri"]     = J::Value(evals_rest_uri());
+        result["bytes_used"]    = J::Value(byte_count());
+        result["bytes_quota"]   = J::Value(bytes_quota());
+        result["eval_status"]   = J::Value(stringify(eval_status()));
     }
 
     return result;
@@ -635,14 +672,16 @@ bool Submission::divorce()
     }
 }
 
-Self_eval_vec Submission::self_eval_vec() const {
+Self_eval_vec Submission::self_eval_vec() const
+{
     Self_eval_vec result;
 
     auto insert = [&](dbo::ptr<Self_eval> const& ptr) {
         auto index = ptr->eval_item()->sequence();
 
-        while (index >= result.size())
+        while (index >= result.size()) {
             result.emplace_back();
+        }
 
         result[index] = ptr;
     };
@@ -651,13 +690,15 @@ Self_eval_vec Submission::self_eval_vec() const {
         return index < result.size() && result[index];
     };
 
-    for (const auto& self_eval : self_evals_)
+    for (const auto& self_eval : self_evals_) {
         insert(self_eval);
+    }
 
     for (const auto& eval_item : assignment()->eval_item_vec()) {
         auto index = eval_item->sequence();
 
-        if (eval_item->type() == Eval_item::Type::Informational && !present(index)) {
+        if (eval_item->type() == Eval_item::Type::Informational &&
+            !present(index)) {
             insert(Submission::get_self_eval(eval_item, find_this()));
         }
     }
@@ -670,12 +711,18 @@ char const* Enum<Submission::Status>::show(Submission::Status status)
     using S = Submission::Status;
 
     switch (status) {
-        case S::future: return "future";
-        case S::open: return "open";
-        case S::self_eval: return "self_eval";
-        case S::extended: return "extended";
-        case S::extended_eval: return "extended_eval";
-        case S::closed: return "closed";
+        case S::future:
+            return "future";
+        case S::open:
+            return "open";
+        case S::self_eval:
+            return "self_eval";
+        case S::extended:
+            return "extended";
+        case S::extended_eval:
+            return "extended_eval";
+        case S::closed:
+            return "closed";
     }
 }
 
@@ -684,20 +731,26 @@ char const* Enum<Submission::Eval_status>::show(Submission::Eval_status status)
     using S = Submission::Eval_status;
 
     switch (status) {
-        case S::empty: return "empty";
-        case S::overdue: return "overdue";
-        case S::started: return "started";
-        case S::complete: return "complete";
+        case S::empty:
+            return "empty";
+        case S::overdue:
+            return "overdue";
+        case S::started:
+            return "started";
+        case S::complete:
+            return "complete";
     }
 }
 
 static std::string join_error_message_(dbo::ptr<Submission> const& o1,
                                        dbo::ptr<Submission> const& o2,
-                                       set<string> const& names) {
+                                       set<string> const& names)
+{
     ostringstream oss;
 
     auto fmt = [&](auto const& o) {
-        oss << " - " << o->owner_string() << " hw" << o->assignment_number() << "\n";
+        oss << " - " << o->owner_string() << " hw" << o->assignment_number()
+            << "\n";
     };
 
     oss << "Submission Collision Error\n\n";
@@ -724,18 +777,21 @@ std::ostream& Submission::Join_collision::write_html(std::ostream& note) const
 {
     note << "<p>";
 
-    if (filenames().size() == 1)
+    if (filenames().size() == 1) {
         note << "A file";
-    else
+    } else {
         note << "Some files";
+    }
 
     note << " you both have would be lost:</p><ul>";
 
-    for (auto const& name : filenames())
+    for (auto const& name : filenames()) {
         note << "<li><tt>" << Wt::Utils::htmlEncode(name) << "</tt></li>";
+    }
 
     note << "</ul><p>Before this partnership can be registered, your and your ";
-    note << "prospective partner must ensure that your submissions do not have ";
+    note
+            << "prospective partner must ensure that your submissions do not have ";
     note << "any filenames in common.</p>";
 
     return note;
@@ -744,11 +800,13 @@ std::ostream& Submission::Join_collision::write_html(std::ostream& note) const
 static std::string move_error_message_(dbo::ptr<Submission> const& o1,
                                        string const& s1,
                                        dbo::ptr<Submission> const& o2,
-                                       string const& s2) {
+                                       string const& s2)
+{
     ostringstream oss;
 
     auto fmt = [&](auto const& descr, auto const& o, auto const& s) {
-        oss << " - " << descr << ": hw" << o->assignment_number() << ':' << s << '\n';
+        oss << " - " << descr << ": hw" << o->assignment_number() << ':' << s
+            << '\n';
     };
 
     oss << "Submission Collision Error\n\n";
