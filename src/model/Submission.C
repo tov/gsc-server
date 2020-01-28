@@ -403,11 +403,16 @@ std::string Submission::eval_url() const
 }
 
 std::string
-Submission::url_for_user(const Wt::Dbo::ptr<User>& user, bool eval) const
+Submission::url_for_user(const Wt::Dbo::ptr<User>& principal, bool eval) const
 {
     std::ostringstream result;
 
-    result << "/~" << (user == user2_ ? user2_ : user1_)->name();
+    auto const& owner =
+            (user2_ && user2_->id() == principal->id())
+            ? user2_
+            : user1_;
+
+    result << "/~" << owner->name();
     result << "/hw/" << assignment_->number();
     if (eval) result << "/eval";
 

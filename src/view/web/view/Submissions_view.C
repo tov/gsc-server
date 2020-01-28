@@ -17,16 +17,17 @@
 #include <Wt/WTable.h>
 #include <Wt/WText.h>
 
-
-Submissions_view_model::Item::Item(
-        dbo::ptr<Submission> const& submission)
+Submissions_view::Model::Item::Item(
+        dbo::ptr<Submission> const& submission,
+        dbo::ptr<User> const& principal)
         : submission(submission)
         , file_count(submission->file_count())
         , eval_status(submission->eval_status())
+        , principal(principal)
 { }
 
-Submissions_view_model::Submissions_view_model(
-        Wt::Dbo::ptr<User> const& principal,
+Submissions_view::Model::Model(
+        dbo::ptr<User> const& principal,
         Session& session)
         : principal(principal)
 {
@@ -34,9 +35,10 @@ Submissions_view_model::Submissions_view_model(
 
     for (const auto& submission : principal->submissions()) {
         // Make sure this is loaded now.
+        // TODO: does adding `principal` to Item mean this isn't needed?
         submission->user1()->name();
 
-        submissions[submission->assignment()->number()] = submission;
+        submissions[submission->assignment()->number()] = Item(submission, principal);
     }
 
     for (auto exam_grade : Exam_grade::find_by_user(principal)) {
@@ -44,63 +46,63 @@ Submissions_view_model::Submissions_view_model(
     }
 }
 
-Submissions_view_row::Submissions_view_row(
-        const Submissions_view_model::Item& model,
+Submissions_view::Row_view::Row_view(
+        const Row_model& model,
         Session& session,
-        Wt::WTableRow* row)
+        WTableRow* row)
         : model_(model),
           session_(session),
           row_(row)
 {
-    row->elementAt(NAME)->addNew<Wt::WText>(
+    row->elementAt(NAME)->addNew<WText>(
             model_.submission->assignment()->name());
-    status_ = row_->elementAt(STATUS)->addNew<Wt::WText>();
-    grade_  = row_->elementAt(GRADE)->addNew<Wt::WText>();
-    action_ = row_->elementAt(ACTION)->addNew<Wt::WPushButton>();
+    status_ = row_->elementAt(STATUS)->addNew<WText>();
+    grade_  = row_->elementAt(GRADE)->addNew<WText>();
+    action_ = row_->elementAt(ACTION)->addNew<WPushButton>();
 
     row->elementAt(GRADE)->setStyleClass("numeric");
 
-    action_->clicked().connect(this, &Submissions_view_row::action);
+    action_->clicked().connect(this, &Submissions_view::Row_view::action);
 }
 
-void Submissions_view_row::add_headings(Wt::WTableRow* row)
+void Submissions_view::Row_view::add_headings(WTableRow* row)
 {
-    row->elementAt(NAME)     ->addNew<Wt::WText>("Homework");
-    row->elementAt(STATUS)   ->addNew<Wt::WText>("Status");
-    row->elementAt(DUE_DATE) ->addNew<Wt::WText>("Code Due");
-    row->elementAt(EVAL_DATE)->addNew<Wt::WText>("Self-Eval Due");
-    row->elementAt(GRADE)    ->addNew<Wt::WText>("Score");
-    row->elementAt(ACTION)   ->addNew<Wt::WText>("Action");
+    row->elementAt(NAME)     ->addNew<WText>("Homework");
+    row->elementAt(STATUS)   ->addNew<WText>("Status");
+    row->elementAt(DUE_DATE) ->addNew<WText>("Code Due");
+    row->elementAt(EVAL_DATE)->addNew<WText>("Self-Eval Due");
+    row->elementAt(GRADE)    ->addNew<WText>("Score");
+    row->elementAt(ACTION)   ->addNew<WText>("Action");
 }
 
-void Submissions_view_row::set_files_action(const char* title)
-{
-    action_->setText(title);
-    action_url_ = model_.submission->url();
-}
-
-void Submissions_view_row::set_eval_action(const char* title)
+void Submissions_view::Row_view::set_files_action(const char* title)
 {
     action_->setText(title);
-    action_url_ = model_.submission->eval_url();
+    action_url_ = model_.submission->url_for_user(model_.principal, false);
 }
 
-void Submissions_view_row::set_action_style_class(const char* style)
+void Submissions_view::Row_view::set_eval_action(const char* title)
+{
+    action_->setText(title);
+    action_url_ = model_.submission->url_for_user(model_.principal, true);
+}
+
+void Submissions_view::Row_view::set_action_style_class(const char* style)
 {
     action_->setStyleClass(style);
 }
 
-void Submissions_view_row::update()
+void Submissions_view::Row_view::update()
 {
-    auto const now = Wt::WDateTime::currentDateTime();
+    auto const now = WDateTime::currentDateTime();
 
-    auto time_to = [&](const Wt::WDateTime& date) {
+    auto time_to = [&](const WDateTime& date) {
         return now.timeTo(date, chrono::seconds{2});
     };
 
     action_->show();
 
-    Wt::WString status;
+    WString status;
     switch (model_.submission->status()) {
         case Submission::Status::future:
             row_->setStyleClass("future");
@@ -193,19 +195,19 @@ void Submissions_view_row::update()
             model_.submission->effective_eval_date() < now ? "past" : "");
 }
 
-void Submissions_view_row::action()
+void Submissions_view::Row_view::action()
 {
     if (!action_url_.empty())
-        Wt::WApplication::instance()->setInternalPath(action_url_, true);
+        WApplication::instance()->setInternalPath(action_url_, true);
 }
 
-class Student_submissions_view_row : public Submissions_view_row
+class Student_submissions_view_row : public Submissions_view::Row_view
 {
 public:
     Student_submissions_view_row(
-            const View_model& model,
+            const Row_model& model,
             Session& session,
-            Wt::WTableRow* row);
+            WTableRow* row);
 };
 
 namespace {
@@ -214,12 +216,12 @@ char const
         *const DATETIME_FMT_EOD = "dddd, MMMM d",
         *const DATETIME_FMT_ANY = "ddd MM/dd '@' h:mm AP";
 
-bool is_eod(Wt::WTime const& time)
+bool is_eod(WTime const& time)
 {
     return time.hour() == 23 && time.minute() == 59;
 }
 
-Wt::WString friendly_due_date(Wt::WDateTime const& date_time)
+WString friendly_due_date(Wt::WDateTime const& date_time)
 {
     auto local_time = date_time.toLocalTime();
     auto fmt        = is_eod(local_time.time())
@@ -231,25 +233,25 @@ Wt::WString friendly_due_date(Wt::WDateTime const& date_time)
 } // end anonymous namespace
 
 Student_submissions_view_row::Student_submissions_view_row(
-        const View_model& model, Session& session,
-        Wt::WTableRow* row)
-        : Submissions_view_row(model, session, row)
+        const Row_model& model, Session& session,
+        WTableRow* row)
+        : Submissions_view::Row_view(model, session, row)
 {
-    row_->elementAt(DUE_DATE)->addNew<Wt::WText>(
+    row_->elementAt(DUE_DATE)->addNew<WText>(
             friendly_due_date(
                     model_.submission->effective_due_date()));
-    row_->elementAt(EVAL_DATE)->addNew<Wt::WText>(
+    row_->elementAt(EVAL_DATE)->addNew<WText>(
             friendly_due_date(
                     model_.submission->effective_eval_date()));
 }
 
-class Admin_submissions_view_row : public Submissions_view_row
+class Admin_submissions_view_row : public Submissions_view::Row_view
 {
 public:
     Admin_submissions_view_row(
-            const View_model& model,
+            const Row_model& model,
             Session& session,
-            Wt::WTableRow* row);
+            WTableRow* row);
 
     virtual void update() override;
 
@@ -266,10 +268,10 @@ protected:
 };
 
 Admin_submissions_view_row::Admin_submissions_view_row(
-        const View_model& model,
+        const Row_model& model,
         Session& session,
-        Wt::WTableRow* row)
-        : Submissions_view_row(model, session, row)
+        WTableRow* row)
+        : Submissions_view::Row_view(model, session, row)
 {
     due_date_ = row->elementAt(DUE_DATE)->addNew<Date_time_edit>();
     eval_date_ = row->elementAt(EVAL_DATE)->addNew<Date_time_edit>();
@@ -288,7 +290,7 @@ Admin_submissions_view_row::Admin_submissions_view_row(
 
 void Admin_submissions_view_row::update()
 {
-    Submissions_view_row::update();
+    Submissions_view::Row_view::update();
     due_date_->set_date_time(model_.submission->effective_due_date());
     eval_date_->set_date_time(model_.submission->effective_eval_date());
 
@@ -313,7 +315,7 @@ void Admin_submissions_view_row::update()
 
 void Admin_submissions_view_row::due_date_changed_()
 {
-    if (due_date_->validate() == Wt::ValidationState::Valid) {
+    if (due_date_->validate() == ValidationState::Valid) {
         due_date_->setStyleClass("");
         dbo::Transaction transaction(session_);
         model_.submission.modify()->set_due_date(due_date_->date_time());
@@ -326,7 +328,7 @@ void Admin_submissions_view_row::due_date_changed_()
 
 void Admin_submissions_view_row::eval_date_changed_()
 {
-    if (eval_date_->validate() == Wt::ValidationState::Valid) {
+    if (eval_date_->validate() == ValidationState::Valid) {
         eval_date_->setStyleClass("");
         dbo::Transaction transaction(session_);
         model_.submission.modify()->set_eval_date(eval_date_->date_time());
@@ -339,22 +341,23 @@ void Admin_submissions_view_row::eval_date_changed_()
 
 void Admin_submissions_view_row::set_files_action(const char*)
 {
-    Submissions_view_row::set_files_action("Files");
+    Submissions_view::Row_view::set_files_action("Files");
 }
 
 void Admin_submissions_view_row::set_eval_action(const char*)
 {
-    Submissions_view_row::set_eval_action("Eval");
+    Submissions_view::Row_view::set_eval_action("Eval");
 }
 
 void Admin_submissions_view_row::set_action_style_class(const char*)
 {
-    Submissions_view_row::set_action_style_class("btn");
+    Submissions_view::Row_view::set_action_style_class("btn");
 }
 
-unique_ptr<Submissions_view_row>
-Submissions_view_row::construct(const View_model& model,
-                                Session& session, Wt::WTableRow* row)
+unique_ptr<Submissions_view::Row_view>
+Submissions_view::Row_view::construct(const Row_model& model,
+                                      Session& session,
+                                      WTableRow* row)
 {
     if (session.user()->can_admin()) {
         auto result = make_unique<Admin_submissions_view_row>(
@@ -380,25 +383,25 @@ Submissions_view::Submissions_view(const dbo::ptr<User>& user, Session& session)
 
 void Submissions_view::reload_()
 {
-    using columns = Submissions_view_row::columns;
+    using columns = Row_view::columns;
     clear();
 
     addNew<Partner_notification_widget>(
             model_.principal, dbo::ptr<Submission>{}, session_, changed_);
 
-    auto table = addNew<Wt::WTable>();
+    auto table = addNew<WTable>();
     table->setHeaderCount(1, Orientation::Horizontal);
     table->setHeaderCount(1, Orientation::Vertical);
-    Submissions_view_row::add_headings(table->rowAt(0));
+    Row_view::add_headings(table->rowAt(0));
 
     int row = 1;
     for (const auto& each : model_.submissions) {
         if (!each.submission) continue;
-        rows_.push_back(Submissions_view_row::construct(each, session_,
-                                                        table->rowAt(row++)));
+        rows_.push_back(Submissions_view::Row_view::construct(
+                each, session_, table->rowAt(row++)));
     }
 
-    auto exam_table = addNew<Wt::WTable>();
+    auto exam_table = addNew<WTable>();
     exam_table->setStyleClass("exam-table");
     row = 0;
     for (const auto& each : model_.exams) {
@@ -406,13 +409,13 @@ void Submissions_view::reload_()
 
         ostringstream fmt;
         fmt << "Exam " << each->number();
-        exam_row->elementAt(0)->addNew<Wt::WText>(fmt.str());
+        exam_row->elementAt(0)->addNew<WText>(fmt.str());
 
         fmt.str("");
         fmt << each->points() << " / " << each->possible();
-        exam_row->elementAt(1)->addNew<Wt::WText>(fmt.str());
+        exam_row->elementAt(1)->addNew<WText>(fmt.str());
 
-        exam_row->elementAt(2)->addNew<Wt::WText>(each->pct_string());
+        exam_row->elementAt(2)->addNew<WText>(each->pct_string());
     }
 }
 
@@ -420,7 +423,8 @@ void Submissions_view::on_change_(Submission_change_message submission)
 {
     if (submission) {
         dbo::Transaction trans(session_);
-        model_.submissions[submission->assignment_number()] = submission;
+        model_.submissions[submission->assignment_number()] =
+                Model::Item(submission, model_.principal);
     }
 
     reload_();

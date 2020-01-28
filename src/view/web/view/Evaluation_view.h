@@ -1,12 +1,12 @@
 #pragma once
 
 #include "Abstract_file_view.h"
-
 #include <Wt/WContainerWidget.h>
 #include <Wt/Dbo/ptr.h>
 #include <Wt/WSignal.h>
 
 class Submission;
+class User;
 
 class Evaluation_view : public File_view_base
 {

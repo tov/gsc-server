@@ -34,7 +34,6 @@
 
 #include <Wt/WApplication.h>
 #include <Wt/WEnvironment.h>
-#include <Wt/WLogger.h>
 
 #include <cstdlib>
 
