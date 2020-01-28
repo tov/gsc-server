@@ -60,7 +60,9 @@ PageTitle PageTitle::user_profile(Wt::Dbo::ptr<User> const& user)
 PageTitle PageTitle::user_hwN(const dbo::ptr<Submission>& submission,
                               const dbo::ptr<User>& current_user)
 {
-    PageTitle result = user_home(submission->user1());
+    PageTitle result = user_home(current_user == submission->user2()
+                                 ? submission->user2()
+                                 : submission->user1());
     result.plain(" › ");
     result.link(submission->assignment()->slug_string(),
                 submission->url_for_user(current_user));
