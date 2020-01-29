@@ -34,9 +34,9 @@ Submissions_view::Model::Model(
     dbo::Transaction transaction(session);
 
     for (const auto& submission : principal->submissions()) {
-        // Make sure this is loaded now.
-        // TODO: does adding `principal` to Item mean this isn't needed?
-        submission->user1()->name();
+        // Make sure these are loaded now.
+        submission->user1()->id();
+        if (submission->user2())submission->user2()->id();
 
         submissions[submission->assignment()->number()] = Item(submission, principal);
     }
