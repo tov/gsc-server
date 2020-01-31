@@ -32,6 +32,7 @@ set(MODEL_SRC_FILES
         src/model/Permalink.C
         src/model/Self_eval.C
         src/model/Submission.C
+        src/model/User_info.C
         src/model/util/Explanation_parser.C)
 
 set(CLI_SRC_FILES

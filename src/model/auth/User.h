@@ -17,6 +17,7 @@ class Exam_grade;
 class Submission;
 class Partner_request;
 class User;
+class User_info;
 class User_stats;
 
 namespace dbo = Wt::Dbo;
@@ -29,6 +30,7 @@ using Auth_tokens          = dbo::collection<dbo::ptr<Auth_token>>;
 using Submissions          = dbo::collection<dbo::ptr<Submission>>;
 using Partner_requests_vec = std::vector<dbo::ptr<Partner_request>>;
 using Partner_requests     = dbo::collection<dbo::ptr<Partner_request>>;
+using User_infos           = dbo::collection<dbo::ptr<User_info>>;
 
 class User : public dbo::Dbo<User>
 {
@@ -100,7 +102,7 @@ private:
     std::string name_;
     int role_ = Role_info::to_repr(Role::Student);
 
-//    std::string realname_;
+    User_infos user_infos_;
 
     Submissions submissions1_;
     Submissions submissions2_;
@@ -118,7 +120,7 @@ public:
         dbo::field(a, name_, "name", 16);
         dbo::field(a, role_, "role");
 
-//        dbo::field(a, realname_, "realname");
+        dbo::hasMany(a, user_infos_, dbo::ManyToOne, "user");
 
         dbo::hasMany(a, submissions1_, dbo::ManyToOne, "user1");
         dbo::hasMany(a, submissions2_, dbo::ManyToOne, "user2");
