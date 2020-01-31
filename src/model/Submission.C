@@ -540,33 +540,68 @@ std::string Submission::grade_string() const
     return percentage(grade());
 }
 
-set<string> Submission::intersection(dbo::ptr<Submission> sub1,
-                                     dbo::ptr<Submission> sub2)
-{
-    set<string> set1, result;
+namespace {
 
-    transform(sub1->source_files().begin(),
-              sub1->source_files().end(),
-              inserter(set1, set1.end()),
-              mem_fn(&File_meta::name));
+struct Partition_of_files
+{
+    vector<dbo::ptr<File_meta>> cheap;
+    vector<string>              precious;
+
+    Partition_of_files&
+    operator<<(dbo::ptr<File_meta> const& file)
+    {
+        if (file->is_automatically_deletable())
+            cheap.push_back(file);
+        else
+            precious.push_back(file->name());
+
+        return *this;
+    }
+};
+
+Partition_of_files partition_files(dbo::ptr<Submission> const& sub1,
+                                   dbo::ptr<Submission> const& sub2)
+{
+    set<dbo::ptr<File_meta>, File_meta::Less_by_name<>>
+            set1(begin(sub1->source_files()), end(sub1->source_files()));
+
+    Partition_of_files partition;
 
     for (const auto& file2 : sub2->source_files()) {
-        if (set1.count(file2->name())) {
-            result.insert(file2->name());
+        if (auto iter = set1.find(file2);
+                iter != end(set1)) {
+
+            auto& file1 = *iter;
+
+            if (file1->is_automatically_deletable()
+                && file2->is_automatically_deletable())
+            {
+                partition.cheap.push_back(file1);
+                partition.cheap.push_back(file2);
+            } else {
+                partition.precious.push_back(file1->name());
+            }
         }
     }
 
-    return result;
+    return partition;
 }
 
-static void check_disjoint(dbo::ptr<Submission> const& sub1,
-                           dbo::ptr<Submission> const& sub2)
+void ensure_disjoint(dbo::ptr<Submission> const& sub1,
+                     dbo::ptr<Submission> const& sub2)
 {
-    if (auto intersection = Submission::intersection(sub1, sub2);
-            intersection.size() > 0) {
-        throw Submission::Join_collision(sub1, sub2, move(intersection));
+    auto partition = partition_files(sub1, sub2);
+
+    if (partition.precious.empty()) {
+        for (auto file : partition.cheap) {
+            file.remove();
+        }
+    } else {
+        throw Submission::Join_collision(sub1, sub2, partition.precious);
     }
 }
+
+} // end inline namespace
 
 bool Submission::join_together(dbo::ptr<Submission> keep,
                                dbo::ptr<Submission> kill)
@@ -575,7 +610,7 @@ bool Submission::join_together(dbo::ptr<Submission> keep,
     if (keep->user1() == kill->user1()) return false;
     if (keep->assignment() != kill->assignment()) return false;
 
-    check_disjoint(keep, kill);
+    ensure_disjoint(keep, kill);
 
     for (auto file : kill->source_files()) {
         file.modify()->move(keep, file->name());
@@ -749,7 +784,7 @@ char const* Enum<Submission::Eval_status>::show(Submission::Eval_status status)
 
 static std::string join_error_message_(dbo::ptr<Submission> const& o1,
                                        dbo::ptr<Submission> const& o2,
-                                       set<string> const& names)
+                                       vector<string> const& names)
 {
     ostringstream oss;
 
@@ -782,22 +817,30 @@ std::ostream& Submission::Join_collision::write_html(std::ostream& note) const
 {
     note << "<p>";
 
-    if (filenames().size() == 1) {
-        note << "A file";
-    } else {
-        note << "Some files";
-    }
+    bool singular = filenames().size() == 1;
 
-    note << " you both have would be lost:</p><ul>";
+    note    << "File submitted by you and "
+            << submissions_[1]->user1()->name()
+            << " have the same "
+            << (singular? "name" : "names")
+            << ":</p><ul>";
 
     for (auto const& name : filenames()) {
         note << "<li><tt>" << Wt::Utils::htmlEncode(name) << "</tt></li>";
     }
 
-    note << "</ul><p>Before this partnership can be registered, your and your ";
-    note
-            << "prospective partner must ensure that your submissions do not have ";
-    note << "any filenames in common.</p>";
+    note    << "</ul><p>Before this partnership can be registered, "
+            << "you and your prospective partner must ensure that your "
+            << "submissions do not have any filenames in common. ";
+
+    if (submissions_[0]->assignment()->web_allowed()) {
+        note    << "You should delete or rename the files, ";
+    } else {
+        note    << "You should rename the files using <code>gsc mv</code> "
+                << "or delete them using <code>gsc rm</code>, ";
+    }
+
+    note    << "then try again.</p>";
 
     return note;
 }

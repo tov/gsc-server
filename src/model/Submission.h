@@ -153,8 +153,9 @@ public:
     static bool join_together(Wt::Dbo::ptr<Submission> keep,
                               Wt::Dbo::ptr<Submission> kill);
 
-    static std::set<std::string> intersection(Wt::Dbo::ptr<Submission>,
-                                              Wt::Dbo::ptr<Submission>);
+    static std::vector<Wt::Dbo::ptr<File_meta>>
+    intersection(Wt::Dbo::ptr<Submission> const&,
+                 Wt::Dbo::ptr<Submission> const&);
 
 
     void touch();
@@ -231,7 +232,7 @@ public:
 class Submission::Join_collision : public std::runtime_error {
 public:
     using submission_t = Wt::Dbo::ptr<Submission>;
-    using filenames_t  = std::set<std::string>;
+    using filenames_t  = std::vector<std::string>;
 
     Join_collision(submission_t, submission_t, filenames_t);
 

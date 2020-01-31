@@ -174,6 +174,11 @@ void File_meta::reclassify(File_purpose purpose)
     purpose_ = purpose;
 }
 
+bool File_meta::is_automatically_deletable() const
+{
+    return purpose() == File_purpose::log;
+}
+
 bool operator<(const File_meta& a, const File_meta& b)
 {
     auto a_type = a.purpose();
