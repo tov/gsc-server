@@ -1,5 +1,6 @@
 #include "Auth_widget.h"
 #include "Glyph_button.h"
+#include "../../../Config.h"
 #include "../../../Session.h"
 #include "../../../Navigate.h"
 #include "../../../common/env_var.h"
@@ -20,17 +21,13 @@ namespace dbo = Wt::Dbo;
 
 namespace {
 
-char const* const LOGOUT_URL =
-        "https://websso.it.northwestern.edu/amserver/UI/Logout";
-char const* const LOGIN_URL_BASE =
-        "https://websso.it.northwestern.edu/amserver/UI/Login";
-
 std::string login_url()
 {
-    auto base_url = get_env_var("GSC_BASE_URL", "http://localhost:9090/");
+    auto base_url = get_env_var("GSC_BASE_URL",
+                                CONFIG.gsc_base_url.c_str());
 
     auto buf = std::ostringstream();
-    buf << LOGIN_URL_BASE << "?goto=";
+    buf << CONFIG.websso_login_url << "?goto=";
     buf << Utils::urlEncode(base_url);
     buf << Utils::urlEncode(WApplication::instance()->bookmarkUrl());
     return buf.str();
@@ -59,7 +56,7 @@ void Auth_widget::reload()
         add_button("profile-link", "user", "Profile",
                    Navigate{session_.user()->profile_url()});
         add_button("log-out-link", "log-out", "Log out",
-                   Navigate{LOGOUT_URL, true});
+                   Navigate{CONFIG.websso_logout_url, true});
     } else {
         impl_->setTemplateText(tr("gsc.template.not-logged-in"));
 

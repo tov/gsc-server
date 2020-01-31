@@ -6,6 +6,7 @@
 #include "File_meta.h"
 #include "Grader_eval.h"
 #include "auth/User.h"
+#include "../Config.h"
 #include "../Session.h"
 #include "../common/format.h"
 #include "../common/util.h"
@@ -244,8 +245,10 @@ Submission::save_self_eval(const dbo::ptr<Self_eval>& self_eval,
     }
 
     if (score == 0.0 &&
-        self_eval->eval_item()->type() == Eval_item::Type::Boolean) {
-        set_grader_eval(self_eval, session.user(), 0.1, "You chose no.");
+            self_eval->eval_item()->type() == Eval_item::Type::Boolean) {
+        set_grader_eval(self_eval, session.user(),
+                        CONFIG.reward_for_no,
+                        "You chose no.");
     } else if (self_eval->grader_eval()
                && !self_eval->eval_item()->is_informational()) {
         retract_grader_eval(self_eval->grader_eval());

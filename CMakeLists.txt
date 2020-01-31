@@ -11,6 +11,7 @@ set(MODEL_SRC_FILES
         src/common/format.C
         src/common/paths.C
         src/common/Media_type_registry.C
+        src/Config.C
         src/Session.C
         src/model/specializations.h
         src/model/auth/Api_key.C
