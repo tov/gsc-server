@@ -14,6 +14,7 @@
 #include "model/Partner_request.h"
 #include "model/Self_eval.h"
 #include "model/Submission.h"
+#include "model/User_info.h"
 
 #include <Wt/Auth/AuthService.h>
 #include <Wt/Auth/HashFunction.h>
@@ -89,6 +90,7 @@ void Db_session::initialize_db(bool test_data)
 
         create_index_("gsc_user", "name", false);
         create_index_("self_eval", "permalink", false);
+        create_index_("user_info", "key", false);
 
         User_auth_params params {"jat489", User::Role::Admin};
 #ifdef GSC_AUTH_PASSWORD
@@ -300,6 +302,7 @@ void Db_session::map_classes()
     mapClass<Self_eval>("self_eval");
     mapClass<Submission>("submission");
     mapClass<User>("gsc_user");
+    mapClass<User_info>("user_info");
     mapClass<User_stats>("user_stats");
 }
 

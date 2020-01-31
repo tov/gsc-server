@@ -7,6 +7,7 @@
 #include "../File_meta.h"
 #include "../Grader_eval.h"
 #include "../Partner_request.h"
+#include "../User_info.h"
 #include "../Self_eval.h"
 #include "../Submission.h"
 #include "../game/User_stats.h"
