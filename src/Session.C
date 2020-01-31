@@ -3,11 +3,8 @@
 #include "Navigate.h"
 #include "common/env_var.h"
 #include "model/auth/Api_key.h"
-#include "model/auth/Auth_token.h"
-#include "model/auth/Environment.h"
 #include "model/auth/User.h"
 #include "model/game/User_stats.h"
-#include "model/Self_eval.h"
 #include "model/Assignment.h"
 #include "model/Eval_item.h"
 #include "model/Exam_grade.h"
@@ -15,6 +12,7 @@
 #include "model/File_meta.h"
 #include "model/Grader_eval.h"
 #include "model/Partner_request.h"
+#include "model/Self_eval.h"
 #include "model/Submission.h"
 
 #include <Wt/Auth/AuthService.h>

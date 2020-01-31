@@ -76,18 +76,18 @@ std::vector<dbo::ptr<Submission>> User::submissions() const
     return result;
 }
 
-Partner_requests User::outgoing_requests() const
+Partner_requests_vec User::outgoing_requests() const
 {
-    Partner_requests result(outgoing_requests_.begin(), outgoing_requests_.end());
+    Partner_requests_vec result(outgoing_requests_.begin(), outgoing_requests_.end());
     std::sort(result.begin(), result.end(), [](auto const& a, auto const& b) {
         return *a < *b;
     });
     return result;
 }
 
-Partner_requests User::incoming_requests() const
+Partner_requests_vec User::incoming_requests() const
 {
-    Partner_requests result(incoming_requests_.begin(), incoming_requests_.end());
+    Partner_requests_vec result(incoming_requests_.begin(), incoming_requests_.end());
     std::sort(result.begin(), result.end(), [](auto const& a, auto const& b) {
         return *a < *b;
     });

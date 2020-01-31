@@ -21,13 +21,14 @@ class User_stats;
 
 namespace dbo = Wt::Dbo;
 
-using Auth_info        = Wt::Auth::Dbo::AuthInfo<User>;
-using Exam_grades      = dbo::collection<dbo::ptr<Exam_grade>>;
-using Exam_grades_vec  = std::vector<dbo::ptr<Exam_grade>>;
-using Users            = dbo::collection<dbo::ptr<User>>;
-using Auth_tokens      = dbo::collection<dbo::ptr<Auth_token>>;
-using Submissions      = dbo::collection<dbo::ptr<Submission>>;
-using Partner_requests = std::vector<dbo::ptr<Partner_request>>;
+using Auth_info            = Wt::Auth::Dbo::AuthInfo<User>;
+using Exam_grades          = dbo::collection<dbo::ptr<Exam_grade>>;
+using Exam_grades_vec      = std::vector<dbo::ptr<Exam_grade>>;
+using Users                = dbo::collection<dbo::ptr<User>>;
+using Auth_tokens          = dbo::collection<dbo::ptr<Auth_token>>;
+using Submissions          = dbo::collection<dbo::ptr<Submission>>;
+using Partner_requests_vec = std::vector<dbo::ptr<Partner_request>>;
+using Partner_requests     = dbo::collection<dbo::ptr<Partner_request>>;
 
 class User : public dbo::Dbo<User>
 {
@@ -72,8 +73,8 @@ public:
 
     std::vector<dbo::ptr<Submission>> submissions() const;
 
-    Partner_requests outgoing_requests() const;
-    Partner_requests incoming_requests() const;
+    Partner_requests_vec outgoing_requests() const;
+    Partner_requests_vec incoming_requests() const;
 
     dbo::weak_ptr<User_stats> user_stats() const { return user_stats_; }
     Exam_grades_vec exam_grades() const;
@@ -98,8 +99,8 @@ private:
     Submissions submissions1_;
     Submissions submissions2_;
 
-    dbo::collection<dbo::ptr<Partner_request>> outgoing_requests_;
-    dbo::collection<dbo::ptr<Partner_request>> incoming_requests_;
+    Partner_requests outgoing_requests_;
+    Partner_requests incoming_requests_;
 
     Exam_grades exam_grades_;
     dbo::weak_ptr<User_stats> user_stats_;
