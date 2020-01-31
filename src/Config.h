@@ -4,7 +4,7 @@
 
 struct Config
 {
-    float reward_for_no = 0.1;
+    float reward_for_no = 0.2;
 
     std::string websso_login_url
             = "https://websso.it.northwestern.edu/amserver/UI/Login";
