@@ -50,8 +50,9 @@ set(WWW_SRC_FILES
         src/view/api/resources.C
         src/view/web/Confirmation_dialog.C
         src/view/web/Notification.C
-        src/view/web/Submission_context.C
         src/view/web/PageTitle.C
+        src/view/web/Username_validator.C
+        src/view/web/Submission_context.C
         src/view/web/view/Abstract_file_view.C
         src/view/web/view/Admin_view.C
         src/view/web/view/Assignments_view.C

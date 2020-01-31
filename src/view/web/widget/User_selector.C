@@ -1,5 +1,6 @@
 #include "User_selector.h"
 #include "User_suggester.h"
+#include "../Username_validator.h"
 #include "../../../Session.h"
 #include "../../../common/util.h"
 
@@ -9,19 +10,6 @@
 
 #include <cctype>
 #include <sstream>
-
-class Username_validator : public WValidator
-{
-public:
-    Username_validator()
-//            : WRegExpValidator("[a-z]*[0-9]*")
-    { }
-
-    string inputFilter() const override
-    {
-        return "[a-zA-Z0-9]";
-    }
-};
 
 User_selector::User_selector(Session& session,
                              optional<User::Role> role)
