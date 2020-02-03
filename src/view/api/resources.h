@@ -34,9 +34,6 @@ public:
     static std::unique_ptr<Resource> create(std::string const& method,
                                             std::string const& path_info);
 
-    // Loads the resource on behalf of current_user.
-    virtual void load(Context const&) = 0;
-
     // Processes the request, building the response.
     void process(Wt::Http::Request const& request, Context const&);
 
@@ -46,6 +43,9 @@ public:
     virtual ~Resource() = default;
 
 protected:
+    // Loads the resource on behalf of current_user.
+    virtual void load_(Context const&) = 0;
+
     // Override these to handle specific methods.
     virtual void do_delete_(Context const&);
     virtual void do_get_(Context const&);

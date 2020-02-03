@@ -97,7 +97,7 @@ public:
 
     explicit Grades_csv(uri_type&&) { }
 
-    void load(Context const&) override;
+    void load_(Context const&) override;
 
 protected:
     void do_get_(Context const&) override;
@@ -114,9 +114,9 @@ private:
     Score_map scores_;
 };
 
-void Grades_csv::load(const Resource::Context& context) {
     if (!context.user->can_admin())
         denied(12);
+void Grades_csv::load_(const Resource::Context& context) {
 
     auto& dbo = context.session.dbo();
 
@@ -195,7 +195,7 @@ public:
 
     explicit Users(uri_type&&) { }
 
-    void load(Context const&) override;
+    void load_(Context const&) override;
 
 protected:
     void do_get_(Context const&) override;
@@ -204,7 +204,7 @@ private:
     dbo::collection<dbo::ptr<User>> users_;
 };
 
-void Users::load(Context const& context)
+void Users::load_(Context const& context)
 {
     if (!context.user->can_admin())
         denied(1);
@@ -231,7 +231,7 @@ public:
             : uri_{std::move(uri)}
     { }
 
-    void load(Context const&) override;
+    void load_(Context const&) override;
 
 protected:
     void do_get_(Context const&) override;
@@ -291,7 +291,7 @@ Resource::load_self_eval(Context const& context,
             eval_item->type() == Eval_item::Type::Informational);
 }
 
-void Users_1::load(Context const& context)
+void Users_1::load_(Context const& context)
 {
     user_ = load_user(context, uri_.name);
 }
@@ -509,7 +509,7 @@ public:
             : uri_{std::move(uri)}
     { }
 
-    void load(Context const&) override;
+    void load_(Context const&) override;
 
 protected:
     void do_get_(Context const& context) override;
@@ -521,7 +521,7 @@ private:
     std::vector<dbo::ptr<Submission>> submissions_;
 };
 
-void Users_1_submissions::load(Context const& context)
+void Users_1_submissions::load_(Context const& context)
 {
     user_ = load_user(context, uri_.name);
     submissions_ = user_->submissions();
@@ -545,7 +545,7 @@ public:
             : uri_{std::move(uri)}
     { }
 
-    void load(Context const&) override;
+    void load_(Context const&) override;
 
 protected:
     void do_delete_(Context const& context) override;
@@ -558,7 +558,7 @@ private:
     dbo::ptr<Submission> submission_;
 };
 
-void Submissions_1::load(const Context& context)
+void Submissions_1::load_(const Context& context)
 {
     submission_ = load_submission(context, uri_.submission_id);
 }
@@ -577,7 +577,8 @@ void Submissions_1::do_get_(const Context& context)
     use_json(submission_->to_json());
 }
 
-void Submissions_1::do_patch_(Request_body body, const Resource::Context &context) {
+void Submissions_1::do_patch_(Request_body body, const Resource::Context &context)
+{
     if (!context.user->can_admin())
         denied(10);
 
@@ -647,7 +648,7 @@ public:
             : uri_{std::move(uri)}
     { }
 
-    void load(Context const&) override;
+    void load_(Context const&) override;
 
 protected:
     void do_get_(Context const& context) override;
@@ -657,7 +658,7 @@ private:
     std::vector<dbo::ptr<File_meta>> file_metas_;
 };
 
-void Submissions_1_files::load(Context const& context)
+void Submissions_1_files::load_(Context const& context)
 {
     auto submission = load_submission(context, uri_.submission_id);
     auto file_metas = submission->source_files_sorted();
@@ -681,7 +682,7 @@ public:
             : uri_{std::move(uri)}
     { }
 
-    void load(Context const&) override;
+    void load_(Context const&) override;
 
 protected:
     void do_delete_(Context const& context) override;
@@ -696,7 +697,7 @@ private:
     dbo::ptr<File_meta> file_meta_;
 };
 
-void Submissions_1_files_2::load(Context const& context)
+void Submissions_1_files_2::load_(Context const& context)
 {
     submission_ = load_submission(context, uri_.submission_id);
     file_meta_ = submission_->find_file_by_name(uri_.filename);
@@ -818,7 +819,7 @@ public:
             : uri_{std::move(uri)}
     { }
 
-    void load(Context const&) override;
+    void load_(Context const&) override;
 
 protected:
     void do_get_(Context const& context) override;
@@ -830,7 +831,7 @@ private:
     std::vector<dbo::ptr<Eval_item>> eval_items_;
 };
 
-void Submissions_1_evals::load(Context const& context)
+void Submissions_1_evals::load_(Context const& context)
 {
     submission_ = load_submission(context, uri_.submission_id);
     eval_items_ = submission_->assignment()->eval_item_vec();
@@ -856,7 +857,7 @@ public:
             : uri_{std::move(uri)}
     { }
 
-    void load(Context const&) override;
+    void load_(Context const&) override;
 
 protected:
     void do_get_(Context const& context) override;
@@ -868,7 +869,7 @@ private:
     dbo::ptr<Eval_item> eval_item_;
 };
 
-void Submissions_1_evals_2::load(Context const& context)
+void Submissions_1_evals_2::load_(Context const& context)
 {
     submission_ = load_submission(context, uri_.submission_id);
     eval_item_  = load_eval_item(context, submission_, uri_.sequence);
@@ -888,7 +889,7 @@ public:
             : uri_{std::move(uri)}
     { }
 
-    void load(Context const&) override;
+    void load_(Context const&) override;
 
 protected:
     void do_delete_(Context const& context) override;
@@ -903,7 +904,7 @@ private:
     dbo::ptr<Self_eval> self_eval_;
 };
 
-void Submissions_1_evals_2_self::load(Context const& context)
+void Submissions_1_evals_2_self::load_(Context const& context)
 {
     submission_ = load_submission(context, uri_.submission_id);
     eval_item_  = load_eval_item(context, submission_, uri_.sequence);
@@ -964,7 +965,7 @@ public:
             : uri_{std::move(uri)}
     { }
 
-    void load(Context const&) override;
+    void load_(Context const&) override;
 
 protected:
     void do_delete_(Context const& context) override;
@@ -981,7 +982,7 @@ private:
     dbo::ptr<Grader_eval> grader_eval_;
 };
 
-void Submissions_1_evals_2_grader::load(Context const& context)
+void Submissions_1_evals_2_grader::load_(Context const& context)
 {
     submission_  = load_submission(context, uri_.submission_id);
     eval_item_   = load_eval_item(context, submission_, uri_.sequence);
@@ -1053,7 +1054,7 @@ public:
             : uri_{std::move(uri)}
     { }
 
-    void load(Context const&) override;
+    void load_(Context const&) override;
 
 protected:
     void do_get_(Context const& context) override;
@@ -1064,7 +1065,7 @@ private:
     std::vector<dbo::ptr<Submission>> submissions_;
 };
 
-void Submissions_hw1::load(Context const& context)
+void Submissions_hw1::load_(Context const& context)
 {
     if (!context.user->can_admin())
         denied(9);
@@ -1100,7 +1101,7 @@ public:
 
     explicit Whoami(uri_type&&) { }
 
-    void load(Context const&) override;
+    void load_(Context const&) override;
 
 protected:
     void do_get_(Context const&) override;
@@ -1109,7 +1110,7 @@ private:
     dbo::ptr<User> user_;
 };
 
-void Whoami::load(const Resource::Context& context) {
+void Whoami::load_(const Resource::Context& context) {
     user_ = context.user;
 }
 
@@ -1145,7 +1146,7 @@ std::unique_ptr<Resource> Resource::dispatch_(std::string path_info)
 }
 
 void Resource::process(Wt::Http::Request const& request,
-                   Context const& context)
+                       Context const& context)
 {
     Request_body body{request};
 
