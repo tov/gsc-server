@@ -86,7 +86,6 @@ protected:
     load_self_eval(Context const&, Wt::Dbo::ptr<Submission> const&, Wt::Dbo::ptr<Eval_item> const&);
 
     // Give up.
-    static void denied [[noreturn]] (int code);
     static void not_found [[noreturn]] ();
     static void not_supported [[noreturn]] ();
 

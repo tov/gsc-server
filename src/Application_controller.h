@@ -53,6 +53,4 @@ private:
     Wt::Dbo::ptr<Assignment> find_assignment(const char*);
     int find_eval_item(const dbo::ptr <Assignment>&, const char*);
 
-    void check_eval_view_privileges(const Wt::Dbo::ptr<User>& current_user,
-                                    const Wt::Dbo::ptr<Submission>& submission) const;
 };

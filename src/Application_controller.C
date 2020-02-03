@@ -234,7 +234,7 @@ void Application_controller::handle_internal_path(
 
             // /grade
         } else if (internal_path == Path::grade) {
-            if (!current_user->can_grade()) permission_denied();
+            current_user->check_can_grade();
 
             auto permalink = Self_eval::find_ungraded_permalink(session_,
                                                                 current_user);
@@ -249,14 +249,14 @@ void Application_controller::handle_internal_path(
             // /grading_stats
         } else if (internal_path == Path::grading_stats) {
             transaction.commit();
-            if (!current_user->can_grade()) permission_denied();
+            current_user->check_can_grade();
 
             set_page_title("Grading Stats");
             set_new_widget<Grading_stats_view>(session_);
 
             // /grade/:permalink
         } else if (std::regex_match(internal_path, sm, Path::grade_N)) {
-            if (!current_user->can_grade()) permission_denied();
+            current_user->check_can_grade();
 
             std::string permalink{sm[1].first, sm[1].second};
             auto        self_eval = Self_eval::find_by_permalink(session_,
@@ -272,9 +272,7 @@ void Application_controller::handle_internal_path(
             auto user = find_user(sm[1], current_user);
             transaction.commit();
 
-            if (!current_user->can_view(user)) {
-                permission_denied();
-            }
+            current_user->check_can_view(user);
 
             set_page_title(PageTitle::user_home(user));
             set_new_widget<Submissions_view>(user, session_);
@@ -286,9 +284,7 @@ void Application_controller::handle_internal_path(
             auto submission = Submission::find_by_assignment_and_user(
                     session_, assignment, user);
 
-            if (!submission->can_view(current_user)) {
-                permission_denied();
-            }
+            submission->check_can_view(current_user);
 
             set_page_title(PageTitle::user_hwN(submission, current_user));
             set_new_widget<File_manager_view>(submission, session_);
@@ -300,7 +296,7 @@ void Application_controller::handle_internal_path(
             auto submission = Submission::find_by_assignment_and_user(
                     session_, assignment, user);
 
-            check_eval_view_privileges(current_user, submission);
+            submission->check_can_view_eval(current_user);
 
             auto view = std::make_unique<Evaluation_view>(submission, session_);
             view->go_default();
@@ -317,7 +313,7 @@ void Application_controller::handle_internal_path(
                     session_, assignment, user);
             auto m          = find_eval_item(assignment, &*sm[3].first);
 
-            check_eval_view_privileges(current_user, submission);
+            submission->check_can_view_eval(current_user);
             transaction.commit();
 
             auto view = std::make_unique<Evaluation_view>(submission, session_);
@@ -331,9 +327,7 @@ void Application_controller::handle_internal_path(
             auto user = find_user(sm[1], current_user);
             transaction.commit();
 
-            if (!current_user->can_view(user)) {
-                permission_denied();
-            }
+            current_user->check_can_view(user);
 
             set_page_title(PageTitle::user_profile(user));
             set_new_widget<Profile_view>(user, session_);
@@ -454,18 +448,5 @@ Application_controller::find_eval_item(const dbo::ptr<Assignment>& assignment,
     }
 
     return m;
-}
-
-void Application_controller::check_eval_view_privileges(
-        const Wt::Dbo::ptr<User>& current_user,
-        const Wt::Dbo::ptr<Submission>& submission) const
-{
-    if (!submission->can_view_eval(current_user)) {
-        if (!submission->can_view(current_user)) {
-            permission_denied();
-        }
-
-        permission_denied("Too early! Submission is still open.");
-    }
 }
 

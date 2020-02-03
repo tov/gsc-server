@@ -65,11 +65,6 @@ std::unique_ptr<T> match(std::string const& path_info)
     }
 }
 
-void Resource::denied(int code)
-{
-    Http_error{403} << "You can't do that (code " << code << ")";
-}
-
 void Resource::not_found()
 {
     Http_error{404} << "The named resource does not exist";
@@ -114,9 +109,8 @@ private:
     Score_map scores_;
 };
 
-    if (!context.user->can_admin())
-        denied(12);
 void Grades_csv::load_(const Resource::Context& context) {
+    context.user->check_can_admin();
 
     auto& dbo = context.session.dbo();
 
@@ -206,8 +200,7 @@ private:
 
 void Users::load_(Context const& context)
 {
-    if (!context.user->can_admin())
-        denied(1);
+    context.user->check_can_admin();
 
     users_ = context.session.find<User>();
 }
@@ -246,8 +239,7 @@ private:
 dbo::ptr<User>
 Resource::load_user(Context const& context, std::string const& username)
 {
-    if (context.user->name() != username && !context.user->can_admin())
-        denied(2);
+    context.user->check_can_view(username);
 
     auto user = User::find_by_name(context.session, username);
     if (user) return user;
@@ -268,7 +260,7 @@ Resource::load_submission(Context const& context, int submission_id)
 {
     auto submission = Submission::find_by_id(context.session, submission_id);
     if (!submission) not_found();
-    if (!submission->can_view(context.user)) denied(7);
+    submission->check_can_view(context.user);
     return submission;
 }
 
@@ -303,8 +295,7 @@ void Users_1::do_get_(Context const&)
 
 void Users_1::do_delete_(Context const& context)
 {
-    if (!context.user->can_admin())
-        denied(3);
+    context.user->check_can_admin();
 
     user_.remove();
     success();
@@ -321,8 +312,7 @@ void Users_1::do_patch_(Request_body body, Context const& context)
 
         for (auto const& pair : object) {
             if (pair.first == "role") {
-                if (!context.user->can_admin())
-                    denied(4);
+                context.user->check_can_admin();
 
                 User::Role role = destringify(pair.second);
                 user_.modify()->set_role(role);
@@ -342,8 +332,7 @@ void Users_1::do_patch_(Request_body body, Context const& context)
 #endif // GSC_AUTH_PASSWORD
 
             else if (pair.first == "exam_grades") {
-                if (!context.user->can_admin())
-                    denied(11);
+                context.user->check_can_admin();
 
                 Result_array nested;
 
@@ -565,8 +554,7 @@ void Submissions_1::load_(const Context& context)
 
 void Submissions_1::do_delete_(const Context& context)
 {
-    if (!submission_->can_submit(context.user))
-        denied(6);
+    submission_->check_can_submit(context.user);
 
     submission_.remove();
     success();
@@ -579,8 +567,7 @@ void Submissions_1::do_get_(const Context& context)
 
 void Submissions_1::do_patch_(Request_body body, const Resource::Context &context)
 {
-    if (!context.user->can_admin())
-        denied(10);
+    context.user->check_can_admin();
 
     Result_array result;
 
@@ -746,8 +733,7 @@ void Submissions_1_files_2::do_patch_(Request_body body, Context const& context)
             if (submission_->assignment_number() != value) {
                 owner = Submission::find_by_assignment_number_and_user(
                         context.session, value, context.user);
-                if (!owner->can_submit(context.user))
-                    denied(17);
+                owner->check_can_submit(context.user);
             }
         });
 
@@ -795,8 +781,7 @@ void Submissions_1_files_2::do_patch_(Request_body body, Context const& context)
 void Submissions_1_files_2::do_put_(
         Request_body body, const Resource::Context& context)
 {
-    if (!submission_->can_submit(context.user))
-        denied(8);
+    submission_->check_can_submit(context.user);
 
     if (!submission_->has_sufficient_space(body.size(), uri_.filename))
         throw Http_status{413, "Upload would exceed quota"};
@@ -921,8 +906,7 @@ void Submissions_1_evals_2_self::do_get_(Resource::Context const& context)
 
 void Submissions_1_evals_2_self::do_delete_(Resource::Context const& context)
 {
-    if (!submission_->can_eval(context.user))
-        denied(13);
+    submission_->check_can_eval(context.user);
 
     self_eval_.remove();
     success();
@@ -930,8 +914,7 @@ void Submissions_1_evals_2_self::do_delete_(Resource::Context const& context)
 
 void Submissions_1_evals_2_self::do_put_(Request_body body, Resource::Context const& context)
 {
-    if (!submission_->can_eval(context.user))
-        denied(16);
+    submission_->check_can_eval(context.user);
 
     try {
         auto json = std::move(body).read_json();
@@ -996,16 +979,15 @@ void Submissions_1_evals_2_grader::load_(Context const& context)
 
 void Submissions_1_evals_2_grader::do_get_(Resource::Context const& context)
 {
-    if (!(grader_eval_ && grader_eval_->can_view(context.user)))
-        not_found();
+    if (!grader_eval_) not_found();
+    grader_eval_->check_can_view(context.user);
 
     use_json(grader_eval_->to_json({context.user}));
 }
 
 void Submissions_1_evals_2_grader::do_delete_(Resource::Context const& context)
 {
-    if (!context.user->can_grade())
-        denied(14);
+    context.user->check_can_grade();
 
     grader_eval_.remove();
     success();
@@ -1013,8 +995,7 @@ void Submissions_1_evals_2_grader::do_delete_(Resource::Context const& context)
 
 void Submissions_1_evals_2_grader::do_put_(Request_body body, Resource::Context const& context)
 {
-    if (!context.user->can_grade())
-        denied(15);
+    context.user->check_can_grade();
 
     try {
         auto json = std::move(body).read_json();
@@ -1067,8 +1048,7 @@ private:
 
 void Submissions_hw1::load_(Context const& context)
 {
-    if (!context.user->can_admin())
-        denied(9);
+    context.user->check_can_admin();
 
     auto assignment = load_assignment(context, uri_.assignment_number);
     std::copy(assignment->submissions().begin(),
