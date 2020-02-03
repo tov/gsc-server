@@ -799,7 +799,7 @@ void Submissions_1_files_2::do_put_(
         denied(8);
 
     if (!submission_->has_sufficient_space(body.size(), uri_.filename))
-        throw Http_status{403, "Upload would exceed quota"};
+        throw Http_status{413, "Upload would exceed quota"};
 
     auto file_meta = File_meta::upload(
             uri_.filename,
