@@ -4,6 +4,7 @@
 #include "Submission.h"
 #include "auth/User.h"
 #include "../Session.h"
+#include "../common/exceptions.h"
 #include "../common/format.h"
 #include "../common/stringify.h"
 #include "../common/paths.h"
@@ -104,6 +105,16 @@ bool Grader_eval::can_view(dbo::ptr<User> const& user) const {
             (self_eval()->submission()->can_view(user) && status() == Status::ready);
 }
 
+void Grader_eval::check_can_view(dbo::ptr<User> const& user) const
+{
+    if (user->can_grade()) return;
+
+    if (!self_eval()->submission()->can_view(user))
+        throw Resource_not_found();
+
+    if (status() != Status::ready)
+        throw Access_check_failed("That isn’t ready yet.");
+}
 
 std::string Grader_eval::rest_uri() const {
     return api::paths::Submissions_1_evals_2_grader(self_eval()->submission()->id(),

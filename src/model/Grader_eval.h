@@ -51,6 +51,7 @@ public:
     const Wt::Dbo::ptr<Submission>& submission() const override;
 
     bool can_view(dbo::ptr<User> const&) const;
+    void check_can_view(dbo::ptr<User> const&) const;
 
     std::string rest_uri() const;
     Wt::Json::Object to_json(Viewing_context const& cxt) const;

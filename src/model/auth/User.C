@@ -10,6 +10,7 @@
 #include "../Self_eval.h"
 #include "../Submission.h"
 #include "../game/User_stats.h"
+#include "../../common/exceptions.h"
 #include "../../common/paths.h"
 
 #include <Wt/Auth/PasswordHash.h>
@@ -36,6 +37,41 @@ bool User::can_grade() const
 bool User::can_admin() const
 {
     return role() == User::Role::Admin;
+}
+
+bool User::can_view(const std::string& other_name) const
+{
+    return can_admin() || name() == other_name;
+}
+
+bool User::can_view(const dbo::ptr<User>& other) const
+{
+    return can_view(other->name());
+}
+
+void User::check_can_grade() const
+{
+    if (!can_grade())
+        throw Access_check_failed("You aren’t a grader!");
+}
+
+void User::check_can_admin() const
+{
+    if (!can_admin())
+        throw Access_check_failed("You aren’t an admin!");
+}
+
+void User::check_can_view(const std::string& other) const
+{
+    if (can_admin()) return;
+
+    if (!can_view(other))
+        throw Access_check_failed("That isn’t yours!");
+}
+
+void User::check_can_view(const dbo::ptr<User>& other) const
+{
+    check_can_view(other->name());
 }
 
 dbo::ptr<User> User::find_by_name(dbo::Session& dbo,
@@ -100,11 +136,6 @@ Exam_grades_vec User::exam_grades() const {
         return a->number() < b->number();
     });
     return result;
-}
-
-bool User::can_view(const dbo::ptr<User>& other) const
-{
-    return can_admin() || name() == other->name();
 }
 
 std::string User::hw_url() const

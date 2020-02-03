@@ -367,15 +367,15 @@ dbo::ptr<Submission> Submission::find_by_id(dbo::Session& session,
 
 bool Submission::can_view(const dbo::ptr<User>& user) const
 {
-    return user->can_admin() || user == user1_ || user == user2_;
-}
+    if (user->can_admin()) return true;
 
+    return user == user1_ || user == user2_;
+}
 bool Submission::can_submit(const dbo::ptr<User>& user) const
 {
     if (user->can_admin()) return true;
-    if (user != user1_ && user != user2_) return false;
 
-    return in_submit_period();
+    return can_view(user) && in_submit_period();
 }
 
 bool Submission::can_eval(const dbo::ptr<User>& user) const
@@ -393,6 +393,45 @@ bool Submission::can_view_eval(const dbo::ptr<User>& user) const
     return user->can_admin() ||
            (effective_due_date() < now &&
             (user == user1_ || user == user2_));
+}
+
+void Submission::check_can_view(const Wt::Dbo::ptr<User>& user) const
+{
+    if (user->can_admin()) return;
+
+    if (!can_view(user))
+        throw Access_check_failed("That isn’t yours.");
+}
+
+void Submission::check_can_submit(const Wt::Dbo::ptr<User>& user) const
+{
+    if (user->can_admin()) return;
+
+    check_can_view(user);
+
+    if (!in_submit_period())
+        throw Access_check_failed("Submission is closed.");
+}
+
+void Submission::check_can_eval(const Wt::Dbo::ptr<User>& user) const
+{
+    if (user->can_admin()) return;
+
+    check_can_view(user);
+
+    if (!in_eval_period())
+        throw Access_check_failed("Self evaluation is closed.");
+}
+
+void Submission::check_can_view_eval(const Wt::Dbo::ptr<User>& user) const
+{
+    if (user->can_admin()) return;
+
+    check_can_view(user);
+
+    auto now = Wt::WDateTime::currentDateTime();
+    if (effective_due_date() >= now)
+        throw Access_check_failed("Too early for that!");
 }
 
 std::string Submission::url(bool eval) const

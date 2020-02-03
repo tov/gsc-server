@@ -70,6 +70,12 @@ public:
     bool can_grade() const;
     bool can_admin() const;
     bool can_view(const dbo::ptr<User>&) const;
+    bool can_view(const std::string&) const;
+
+    void check_can_grade() const;
+    void check_can_admin() const;
+    void check_can_view(const dbo::ptr<User>&) const;
+    void check_can_view(const std::string&) const;
 
     std::vector<dbo::ptr<Submission>> submissions() const;
 

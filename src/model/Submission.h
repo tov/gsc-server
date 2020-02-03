@@ -1,6 +1,7 @@
 #pragma once
 
 #include "specializations.h"
+#include "../common/exceptions.h"
 #include "../common/stringify.h"
 
 #include <Wt/Dbo/Types.h>
@@ -107,6 +108,11 @@ public:
     bool can_submit(const Wt::Dbo::ptr<User>&) const;
     bool can_eval(const Wt::Dbo::ptr <User>&) const;
     bool can_view_eval(const Wt::Dbo::ptr<User>&) const;
+
+    void check_can_view(const Wt::Dbo::ptr<User>&) const;
+    void check_can_submit(const Wt::Dbo::ptr<User>&) const;
+    void check_can_eval(const Wt::Dbo::ptr <User>&) const;
+    void check_can_view_eval(const Wt::Dbo::ptr<User>&) const;
 
     std::string url(bool eval = false) const;
     std::string eval_url() const;
