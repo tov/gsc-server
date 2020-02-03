@@ -1147,7 +1147,9 @@ std::unique_ptr<Resource> Resource::dispatch_(std::string path_info)
 
 void Resource::process(Wt::Http::Request const& request,
                        Context const& context)
-{
+try {
+    load_(context);
+
     Request_body body{request};
 
     if (body.size() > File_meta::max_byte_count)
@@ -1164,6 +1166,11 @@ void Resource::process(Wt::Http::Request const& request,
     else if (method_ == "PUT")
         do_put_(body, context);
     else not_supported();
+
+} catch (Resource_not_found const&) {
+    not_found();
+} catch (Access_check_failed const& e) {
+    throw Http_status{403, e.what()};
 }
 
 void Resource::do_delete_(Context const&)
