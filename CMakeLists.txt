@@ -28,6 +28,8 @@ set(MODEL_SRC_FILES
         src/model/File_data.C
         src/model/File_meta.C
         src/model/Grader_eval.C
+        src/model/Lab_enrollment.C
+        src/model/Lab_section.C
         src/model/Partner_request.C
         src/model/Permalink.C
         src/model/Self_eval.C
