@@ -15,7 +15,7 @@ $sf-sm: 400 16px      $sf-fam;
 $tt-sm:     13px      $tt-fam;
 
 $sf-ls: 400 11px/11px $sf-fam;
-$tt-ls:     12px/14px $tt-fam;
+$tt-ls:     13px/14px $tt-fam;
 
 $nu-purple: #606;
 
@@ -325,6 +325,7 @@ table .invalid {
                 padding: $code-line-padding;
                 vertical-align: baseline;
                 white-space: pre-wrap;
+                word-break: break-all;
                 font: $tt-ls;
             }
 
@@ -718,6 +719,7 @@ $hlog-indent: 72px;
         }
 
         code.io_lines, code.grep_output {
+            font: $tt-ls;
             margin: $hlog-gap;
             padding: $hlog-gap;
             max-width: 100%;
@@ -783,6 +785,7 @@ code.grep_output {
     color: #333;
     background-color: #FFD;
     white-space: pre-wrap;
+    overflow-wrap: break-word;
 
     strong {
         font-weight: normal;
@@ -801,6 +804,7 @@ code.io_lines {
     .control-char,
     .trailing-ws,
     .no-newline {
+        white-space: pre;
         position: relative;
         border: 1px dotted pink;
         color: white;
@@ -836,6 +840,12 @@ code.io_lines {
     > span {
         display: block;
         white-space: pre-wrap;
+        overflow-wrap: break-word;
+        margin-bottom: $code-line-spacing;
+    }
+
+    > span:last-child {
+        margin-bottom: 0;
     }
 
     .stdin, .stdout, .stderr, .stdlog {
