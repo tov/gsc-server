@@ -15,7 +15,7 @@ $sf-sm: 400 16px      $sf-fam;
 $tt-sm:     13px      $tt-fam;
 
 $sf-ls: 400 11px/11px $sf-fam;
-$tt-ls:     12px/16px $tt-fam;
+$tt-ls:     12px/14px $tt-fam;
 
 $nu-purple: #606;
 
@@ -30,12 +30,15 @@ $highlight-bg: #dcd;
 $file-viewer-width: 750px;
 $code-number-width: 40px;
 $file-viewer-gutter: 10px;
-$code-line-padding: 6px;
-$code-number-padding: 3px;
+$code-line-spacing: 4px;
+$code-line-hpadding: 6px;
+$code-number-hpadding: 3px;
+$code-line-padding: 0 $code-line-hpadding $code-line-spacing $code-line-hpadding;
+$code-number-padding: 0 $code-number-hpadding $code-line-spacing $code-number-hpadding;
 $fudge-pixels: 4px;
 
 $single-file-width: $file-viewer-width - 2 * $file-viewer-gutter;
-$code-line-width: $single-file-width - 2 * ($code-number-padding + $code-line-padding) - $fudge-pixels;
+$code-line-width: $single-file-width - 2 * ($code-number-hpadding + $code-line-hpadding) - $fudge-pixels;
 
 body {
     font: $sf-bd;
@@ -246,7 +249,7 @@ table .invalid {
     bottom: 0;
     left: $file-viewer-width + 30px;
     padding: 80px 0 0 0;
-    overflow-y: scroll;
+    overflow-y: auto;
 }
 
 .file-viewer {
@@ -281,12 +284,14 @@ table .invalid {
         overflow-y: auto;
 
         .single-file-viewer {
-            width: $single-file-width;
+            max-width: $single-file-width;
             margin: $file-viewer-gutter auto;
             background-color: white;
             border-radius: $radius 0;
-            overflow-x: auto;
-            overflow-y: hidden;
+
+            .html-file-contents {
+                max-width: $single-file-width;
+            }
 
             table {
                 margin: 0;
@@ -302,26 +307,25 @@ table .invalid {
                 font: $tt-h4;
                 width: $file-viewer-width;
             }
-
-            //tr:last-child td:last-child {
-            //    padding-bottom: 6px;
-            //}
         }
 
         .line-single-file-viewer {
             th.code-number {
                 width: $code-number-width;
+                padding: $code-number-padding;
+                vertical-align: baseline;
+                text-align: right;
                 font: $sf-ls;
                 color: white;
-                padding: 0 $code-number-padding;
-                text-align: center;
+                overflow-x: visible;
             }
 
             td.code-line {
-                padding: 0 $code-line-padding;
+                max-width: $code-line-width;
+                padding: $code-line-padding;
+                vertical-align: baseline;
+                white-space: pre-wrap;
                 font: $tt-ls;
-                white-space: pre;
-                line-height: 100%;
             }
 
             tr.student-highlight, tr.grader-highlight {
@@ -773,13 +777,12 @@ code.grep_output, code.io_lines {
     padding: 4px;
     border: 1px solid #aaa;
     border-radius: 2px;
-    overflow-x: auto;
 }
 
 code.grep_output {
     color: #333;
     background-color: #FFD;
-    white-space: pre;
+    white-space: pre-wrap;
 
     strong {
         font-weight: normal;
@@ -832,8 +835,9 @@ code.io_lines {
 
     > span {
         display: block;
-        white-space: pre;
+        white-space: pre-wrap;
     }
+
     .stdin, .stdout, .stderr, .stdlog {
         position: relative;
     }
