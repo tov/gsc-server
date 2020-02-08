@@ -27,7 +27,7 @@ $inverse-bg: $nu-purple;
 $inverse-fg: white;
 $highlight-bg: #dcd;
 
-$file-viewer-width: 800px;
+$file-viewer-width: 750px;
 $code-number-width: 40px;
 $file-viewer-gutter: 10px;
 $code-line-padding: 6px;
@@ -231,7 +231,7 @@ table .invalid {
 .edit-eval-item {
     .prompt {
         width: 600px;
-        height: 3em;
+        height: 6em;
     }
 
     .relative-value {
