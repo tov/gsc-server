@@ -717,6 +717,7 @@ $hlog-indent:              72px;
         background-color: #EEE;
     }
 
+    > h3,  // deprecated
     summary {
         font:             $sf-bd;
         margin:           0;
