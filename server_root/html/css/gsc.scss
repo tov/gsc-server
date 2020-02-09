@@ -1,48 +1,53 @@
-$tt-fam:              "Menlo", monospace;
-$sf-fam:              "Helvetica Neue", sans-serif;
+$tt-fam:                   "Menlo", monospace;
+$sf-fam:                   "Helvetica Neue", sans-serif;
 
-$sf-h1:               200 50px $sf-fam;
-$sf-h2:               200 40px $sf-fam;
-$sf-h3:               300 28px $sf-fam;
+$sf-h1:                    200 50px $sf-fam;
+$sf-h2:                    200 40px $sf-fam;
+$sf-h3:                    300 28px $sf-fam;
 
-$sf-h4:               500 20px $sf-fam;
-$tt-h4:               20px $tt-fam;
+$sf-h4:                    500 20px $sf-fam;
+$tt-h4:                    20px $tt-fam;
 
-$sf-bd:               400 20px $sf-fam;
-$tt-bd:               16px $tt-fam;
+$sf-bd:                    400 20px $sf-fam;
+$tt-bd:                    16px $tt-fam;
 
-$sf-sm:               400 16px $sf-fam;
-$tt-sm:               13px $tt-fam;
+$sf-sm:                    400 16px $sf-fam;
+$tt-sm:                    13px $tt-fam;
 
-$sf-ls:               400 11px/11px $sf-fam;
-$tt-ls:               13px/14px $tt-fam;
+$sf-ls:                    400 11px/11px $sf-fam;
+$tt-ls:                    13px/14px $tt-fam;
 
-$nu-purple:           #3B2F77;
-$generic-purple:      #606;
+$nu-purple:                #3B2F77;
 
-$docked-color:        #FCD;
-$explanation-color:   #CDF;
+$deep-grey:                #333;
+$dark-grey:                #555;
+$medium-grey:              #999;
 
-$radius:              15px;
-$inverse-bg:          $nu-purple;
-$inverse-fg:          white;
-$highlight-bg:        adjust-color($nu-purple, $lightness: 58%);
+$primary-highlight:        #FF0;
+$secondary-highlight:      #FCF;
+$docked-highlight:         #FCD;
+$explanation-highlight:    #CDF;
 
-$file-viewer-width:   750px;
-$code-number-width:   40px;
-$file-viewer-gutter:  10px;
+$radius:                   15px;
+$inverse-bg:               $nu-purple;
+$inverse-fg:               white;
+$highlight-bg:             adjust-color($nu-purple, $lightness: 58%);
 
-$code-line-vskip:     4px;
-$code-line-hpad:      6px;
-$code-number-hpad:    3px;
-$fudge-pixels:        4px;
+$file-viewer-width:        750px;
+$code-number-width:        40px;
+$file-viewer-gutter:       10px;
 
-$code-line-padding:   0 $code-line-hpad $code-line-vskip $code-line-hpad;
-$code-number-padding: 0 $code-number-hpad $code-line-vskip $code-number-hpad;
+$code-line-vskip:          4px;
+$code-line-hpad:           6px;
+$code-number-hpad:         3px;
+$fudge-pixels:             4px;
 
-$single-file-width:   $file-viewer-width - 2 * $file-viewer-gutter;
-//$code-line-loss:      3 * $code-number-width + 2 * ($code-number-hpad + $code-line-hpad) + $fudge-pixels;
-//$code-line-width:     $single-file-width - $code-line-loss;
+$code-line-padding:        0 $code-line-hpad $code-line-vskip $code-line-hpad;
+$code-number-padding:      0 $code-number-hpad $code-line-vskip $code-number-hpad;
+
+$file-viewer-border-width: 2px;
+$single-file-loss:         2 * ($file-viewer-gutter + $file-viewer-border-width);
+$single-file-width:        $file-viewer-width - $single-file-loss;
 
 body {
     font: $sf-bd;
@@ -59,7 +64,7 @@ h1 {
 
     .home-link, .header-nav-link {
         cursor: pointer;
-        color:  #999;
+        color:  $medium-grey;
     }
 
     .home-link:hover,
@@ -103,7 +108,8 @@ table .invalid {
 .grading-stats-view,
 .profile-view,
 .submissions-view {
-    table {
+    table, // deprecate this; require .fancy
+    table.fancy {
         margin:          1em auto;
         border-collapse: collapse;
 
@@ -263,7 +269,7 @@ table .invalid {
     left:             15px;
     width:            $file-viewer-width;
 
-    border:           2px outset $highlight-bg;
+    border:           $file-viewer-border-width outset $highlight-bg;
     background-color: $highlight-bg;
     padding:          0;
 
@@ -284,17 +290,16 @@ table .invalid {
         bottom:     0;
         left:       $file-viewer-gutter;
         right:      $file-viewer-gutter;
-        width:      $single-file-width;
         overflow-y: auto;
 
         .single-file-viewer {
-            max-width:        $single-file-width;
+            width:            $single-file-width;
             margin:           $file-viewer-gutter auto;
             background-color: white;
             border-radius:    $radius 0;
 
             .html-file-contents {
-                max-width: $single-file-width;
+                width: $single-file-width;
             }
 
             table {
@@ -309,11 +314,14 @@ table .invalid {
             thead th {
                 padding: 6px 0;
                 font:    $tt-h4;
-                width:   $file-viewer-width;
             }
         }
 
         .line-single-file-viewer {
+            > table {
+                width: $single-file-width;
+            }
+
             th.code-number {
                 width:          $code-number-width;
                 padding:        $code-number-padding;
@@ -353,13 +361,13 @@ table .invalid {
             }
 
             tr.student-highlight {
-                background-color: #FF0;
-                border-color:     #FF0;
+                background-color: $primary-highlight;
+                border-color:     $primary-highlight;
             }
 
             tr.grader-highlight {
-                background-color: #FCF;
-                border-color:     #FCF;
+                background-color: $secondary-highlight;
+                border-color:     $secondary-highlight;
             }
         }
     }
@@ -424,11 +432,11 @@ table .invalid {
 }
 
 .list-eval-item.has-been-docked {
-    background-color: $docked-color;
+    background-color: $docked-highlight;
 }
 
 .list-eval-item.has-explanation {
-    background-color: $explanation-color;
+    background-color: $explanation-highlight;
 }
 
 .held-back {
@@ -510,15 +518,15 @@ table .invalid {
     margin-bottom: 20px;
 
     border-style:  solid;
-    border-color:  #555;
+    border-color:  $dark-grey;
     border-width:  2px;
-    color:         #333;
+    color:         $deep-grey;
 }
 
 .highscores td, th {
     border-style: solid;
     border-width: 1px;
-    border-color: #999;
+    border-color: $medium-grey;
     padding:      3px;
 }
 
@@ -694,14 +702,14 @@ input.username {
     display: inline;
 }
 
-$hlog-gap:            6px;
-$hlog-skip:           10px;
-$hlog-indent:         72px;
+$hlog-gap:                 6px;
+$hlog-skip:                10px;
+$hlog-indent:              72px;
 
 .html-single-file-viewer .html-file-contents {
     font: $sf-sm;
 
-    div.test-case {
+    .test-case {
         margin:           12px 6px;
         padding:          0;
         border:           2px solid #AAA;
@@ -709,14 +717,22 @@ $hlog-indent:         72px;
         background-color: #EEE;
     }
 
-    h3 {
+    summary {
+        font:             $sf-bd;
         margin:           0;
-        padding:          6px 4px;
+        padding:          6px;
         color:            white;
-        background-color: #555;
+        background-color: $dark-grey;
+
+        h3 {
+            display: inline;
+            font:    inherit;
+            margin:  0;
+            padding: 0;
+        }
     }
 
-    div.test-case-body {
+    .test-case-body {
         h4, p {
             margin:  $hlog-skip $hlog-indent $hlog-gap $hlog-gap;
             padding: 0;
@@ -757,7 +773,7 @@ $hlog-indent:         72px;
         min-width:        60%;
 
         border-radius:    $radius 0;
-        color:            #555;
+        color:            $dark-grey;
         background-color: $highlight-bg;
 
         thead th {
@@ -771,7 +787,7 @@ $hlog-indent:         72px;
             font-size:        150%;
             margin:           0;
             color:            white;
-            background-color: #555;
+            background-color: $dark-grey;
         }
 
         td {
@@ -780,12 +796,12 @@ $hlog-indent:         72px;
     }
 }
 
-code.grep_output,
+code.grep_output, // deprecated in favor of code.grep-output
+code.io_lines, // deprecated in favor of code.io-lines
 code.grep-output,
-code.io_lines,
 code.io-lines {
     display:       block;
-    max-width:     100%;
+    //max-width:     calc(100% - 2 * #{$hlog-gap});
     margin:        $hlog-gap;
     padding:       $hlog-gap;
     border:        1px solid #AAA;
@@ -795,7 +811,7 @@ code.io-lines {
 
 code.grep_output,
 code.grep-output {
-    color:            #333;
+    color:            $deep-grey;
     background-color: #FFD;
     white-space:      pre-wrap;
     overflow-wrap:    break-word;
@@ -824,7 +840,7 @@ code.io-lines {
         @return adjust-color($base, $alpha: $alpha);
     }
 
-    @mixin term-io-line($sel, $color, $sigil) {
+    @mixin term-io-line($sel, $color, $redir) {
         #{$sel} {
             position:      relative;
             display:       block;
@@ -843,7 +859,7 @@ code.io-lines {
         }
 
         #{$sel}:hover:after {
-            content:          $sigil;
+            content:          $redir;
             display:          inline;
             position:         absolute;
             right:            0;
