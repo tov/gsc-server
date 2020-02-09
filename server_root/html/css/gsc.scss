@@ -1,52 +1,56 @@
-$tt-fam: "Menlo",monospace;
-$sf-fam: "Helvetica Neue",sans-serif;
+$tt-fam:              "Menlo", monospace;
+$sf-fam:              "Helvetica Neue", sans-serif;
 
-$sf-h1: 200 50px $sf-fam;
-$sf-h2: 200 40px $sf-fam;
-$sf-h3: 300 28px $sf-fam;
+$sf-h1:               200 50px $sf-fam;
+$sf-h2:               200 40px $sf-fam;
+$sf-h3:               300 28px $sf-fam;
 
-$sf-h4: 500 20px $sf-fam;
-$tt-h4:     20px $tt-fam;
+$sf-h4:               500 20px $sf-fam;
+$tt-h4:               20px $tt-fam;
 
-$sf-bd: 400 20px      $sf-fam;
-$tt-bd:     16px      $tt-fam;
+$sf-bd:               400 20px $sf-fam;
+$tt-bd:               16px $tt-fam;
 
-$sf-sm: 400 16px      $sf-fam;
-$tt-sm:     13px      $tt-fam;
+$sf-sm:               400 16px $sf-fam;
+$tt-sm:               13px $tt-fam;
 
-$sf-ls: 400 11px/11px $sf-fam;
-$tt-ls:     13px/14px $tt-fam;
+$sf-ls:               400 11px/11px $sf-fam;
+$tt-ls:               13px/14px $tt-fam;
 
-$nu-purple: #606;
+$nu-purple:           #3B2F77;
+$generic-purple:      #606;
 
-$docked-color: #fcd;
-$explanation-color: #cdf;
+$docked-color:        #FCD;
+$explanation-color:   #CDF;
 
-$radius: 15px;
-$inverse-bg: $nu-purple;
-$inverse-fg: white;
-$highlight-bg: #dcd;
+$radius:              15px;
+$inverse-bg:          $nu-purple;
+$inverse-fg:          white;
+$highlight-bg:        adjust-color($nu-purple, $lightness: 58%);
 
-$file-viewer-width: 750px;
-$code-number-width: 40px;
-$file-viewer-gutter: 10px;
-$code-line-spacing: 4px;
-$code-line-hpadding: 6px;
-$code-number-hpadding: 3px;
-$code-line-padding: 0 $code-line-hpadding $code-line-spacing $code-line-hpadding;
-$code-number-padding: 0 $code-number-hpadding $code-line-spacing $code-number-hpadding;
-$fudge-pixels: 4px;
+$file-viewer-width:   750px;
+$code-number-width:   40px;
+$file-viewer-gutter:  10px;
 
-$single-file-width: $file-viewer-width - 2 * $file-viewer-gutter;
-$code-line-width: $single-file-width - 2 * ($code-number-hpadding + $code-line-hpadding) - $fudge-pixels;
+$code-line-vskip:     4px;
+$code-line-hpad:      6px;
+$code-number-hpad:    3px;
+$fudge-pixels:        4px;
+
+$code-line-padding:   0 $code-line-hpad $code-line-vskip $code-line-hpad;
+$code-number-padding: 0 $code-number-hpad $code-line-vskip $code-number-hpad;
+
+$single-file-width:   $file-viewer-width - 2 * $file-viewer-gutter;
+//$code-line-loss:      3 * $code-number-width + 2 * ($code-number-hpad + $code-line-hpad) + $fudge-pixels;
+//$code-line-width:     $single-file-width - $code-line-loss;
 
 body {
     font: $sf-bd;
 }
 
 h1 {
-    font: $sf-h1;
-    margin: 0 1ex;
+    font:    $sf-h1;
+    margin:  0 1ex;
     padding: 0;
 
     small {
@@ -55,7 +59,7 @@ h1 {
 
     .home-link, .header-nav-link {
         cursor: pointer;
-        color: #999;
+        color:  #999;
     }
 
     .home-link:hover,
@@ -73,19 +77,19 @@ h2 {
 }
 
 code {
-    font-family: $tt-fam;
-    font-size: 90%;
-    color: inherit;
+    font-family:      $tt-fam;
+    font-size:        90%;
+    color:            inherit;
     background-color: inherit;
-    border: 0;
-    margin: 0;
-    padding: 0;
+    border:           0;
+    margin:           0;
+    padding:          0;
 }
 
 var {
     font-family: $tt-fam;
-    font-style: italic;
-    font-size: 90%;
+    font-style:  italic;
+    font-size:   90%;
 }
 
 table .invalid {
@@ -100,7 +104,7 @@ table .invalid {
 .profile-view,
 .submissions-view {
     table {
-        margin: 1em auto;
+        margin:          1em auto;
         border-collapse: collapse;
 
         thead th {
@@ -122,13 +126,13 @@ table .invalid {
 
         th, td {
             vertical-align: middle;
-            border: 0;
+            border:         0;
         }
 
         th {
-            padding: 5px 10px;
-            font: $sf-h3;
-            color: $inverse-fg;
+            padding:    5px 10px;
+            font:       $sf-h3;
+            color:      $inverse-fg;
             background: $inverse-bg;
 
             a {
@@ -142,17 +146,17 @@ table .invalid {
 
         td {
             padding: 3px 6px;
-            font: $sf-sm;
+            font:    $sf-sm;
         }
 
         td.numeric {
-            text-align: right;
+            text-align:  right;
             font-family: $tt-fam;
         }
 
-        td>input, td>button {
+        td > input, td > button {
             display: block;
-            margin: 0 auto;
+            margin:  0 auto;
         }
 
         input {
@@ -164,9 +168,9 @@ table .invalid {
 .admin-view table {
     td {
         select, input {
-            display: inline;
+            display:      inline;
             margin-right: 10px;
-            width: 120px;
+            width:        120px;
         }
     }
 }
@@ -187,11 +191,11 @@ table .invalid {
 
         button {
             display: block;
-            margin: 0 auto;
+            margin:  0 auto;
         }
 
         input {
-            width: 100px;
+            width:  100px;
             margin: 0;
         }
     }
@@ -201,14 +205,14 @@ table .invalid {
     }
 
     .partner-notification {
-        margin: 1em;
+        margin:     1em;
         text-align: center;
     }
 }
 
 .assignments-view {
     table {
-        margin: 1em auto;
+        margin:         1em auto;
         vertical-align: middle;
 
         input {
@@ -226,14 +230,14 @@ table .invalid {
 }
 
 .submission-owner-widget {
-    width: 240px;
+    width:      240px;
     text-align: center;
-    margin: 0 auto 1em auto;
+    margin:     0 auto 1em auto;
 }
 
 .edit-eval-item {
     .prompt {
-        width: 600px;
+        width:  600px;
         height: 6em;
     }
 
@@ -243,51 +247,51 @@ table .invalid {
 }
 
 .right-column {
-    position: fixed;
-    top: 0;
-    right: 15px;
-    bottom: 0;
-    left: $file-viewer-width + 30px;
-    padding: 80px 0 0 0;
+    position:   fixed;
+    top:        0;
+    right:      15px;
+    bottom:     0;
+    left:       $file-viewer-width + 30px;
+    padding:    80px 0 0 0;
     overflow-y: auto;
 }
 
 .file-viewer {
-    position: fixed;
-    top: 80px;
-    bottom: 15px;
-    left: 15px;
-    width: $file-viewer-width;
+    position:         fixed;
+    top:              80px;
+    bottom:           15px;
+    left:             15px;
+    width:            $file-viewer-width;
 
-    border: 2px outset $highlight-bg;
+    border:           2px outset $highlight-bg;
     background-color: $highlight-bg;
-    padding: 0;
+    padding:          0;
 
     select {
-        position: absolute;
-        font: $sf-h4;
-        height: 40px;
-        margin: 0;
-        border: 0;
-        border-radius: 0;
+        position:         absolute;
+        font:             $sf-h4;
+        height:           40px;
+        margin:           0;
+        border:           0;
+        border-radius:    0;
         background-color: transparent;
     }
 
     .file-viewer-area {
-        position: absolute;
-        padding: 0;
-        top: 40px;
-        bottom: 0;
-        left: $file-viewer-gutter;
-        right: $file-viewer-gutter;
-        width: $single-file-width;
+        position:   absolute;
+        padding:    0;
+        top:        40px;
+        bottom:     0;
+        left:       $file-viewer-gutter;
+        right:      $file-viewer-gutter;
+        width:      $single-file-width;
         overflow-y: auto;
 
         .single-file-viewer {
-            max-width: $single-file-width;
-            margin: $file-viewer-gutter auto;
+            max-width:        $single-file-width;
+            margin:           $file-viewer-gutter auto;
             background-color: white;
-            border-radius: $radius 0;
+            border-radius:    $radius 0;
 
             .html-file-contents {
                 max-width: $single-file-width;
@@ -298,55 +302,64 @@ table .invalid {
             }
 
             th {
-                margin: 0;
+                margin:         0;
                 vertical-align: middle;
             }
 
             thead th {
                 padding: 6px 0;
-                font: $tt-h4;
-                width: $file-viewer-width;
+                font:    $tt-h4;
+                width:   $file-viewer-width;
             }
         }
 
         .line-single-file-viewer {
             th.code-number {
-                width: $code-number-width;
-                padding: $code-number-padding;
+                width:          $code-number-width;
+                padding:        $code-number-padding;
                 vertical-align: baseline;
-                text-align: right;
-                font: $sf-ls;
-                color: white;
-                overflow-x: visible;
+                text-align:     center;
+                font:           $sf-ls;
+                color:          white;
+                overflow-x:     visible;
             }
 
             td.code-line {
-                max-width: $code-line-width;
+                font:    $tt-ls;
                 padding: $code-line-padding;
-                vertical-align: baseline;
-                white-space: pre-wrap;
-                word-break: break-all;
-                font: $tt-ls;
+
+                span {
+                    vertical-align: baseline;
+                    display:        block;
+                    max-width:      80ch;
+                    white-space:    pre-wrap;
+                    word-break:     break-all;
+                    color:          #A00;
+                }
+
+                span:first-line {
+                    color: black;
+                }
             }
 
             tr.student-highlight, tr.grader-highlight {
-                color: black;
+                color:  black;
                 border: 1px dotted;
 
                 th.code-number {
-                    color: inherit;
+                    color:            inherit;
                     background-color: inherit;
                 }
             }
 
             tr.student-highlight {
-                background-color: #ffff00;
-                border-color: #ffff00;
+                background-color: #FF0;
+                border-color:     #FF0;
             }
 
             tr.grader-highlight {
-                background-color: #ffccff;
-                border-color: #ffccff;
+                background-color: #FCF;
+                border-color:     #FCF;
             }
         }
     }
@@ -358,7 +371,7 @@ table .invalid {
     }
 
     .explanation {
-        width: 100%;
+        width:  100%;
         height: 8em;
     }
 
@@ -370,16 +383,16 @@ table .invalid {
 .evaluation-view {
     .score {
         text-align: center;
-        margin: 1ex;
+        margin:     1ex;
     }
 
     table.scores {
-        margin-left: auto;
+        margin-left:  auto;
         margin-right: auto;
 
         th {
-            padding: 0 1em 0 0;
-            border: 0;
+            padding:    0 1em 0 0;
+            border:     0;
             text-align: left;
         }
     }
@@ -387,7 +400,7 @@ table .invalid {
 
 .grading-view .status {
     text-align: center;
-    font-size: smaller;
+    font-size:  smaller;
 }
 
 
@@ -395,7 +408,7 @@ table .invalid {
     table {
         a {
             text-decoration: none;
-            font: $tt-bd;
+            font:            $tt-bd;
         }
 
         a:hover {
@@ -405,8 +418,8 @@ table .invalid {
 }
 
 .list-eval-item {
-    margin: 1em 0.25em;
-    padding: 5px 10px;
+    margin:        1em 0.25em;
+    padding:       5px 10px;
     border-radius: $radius 0 $radius 0;
 }
 
@@ -443,7 +456,7 @@ table .invalid {
 }
 
 .date-list {
-    margin: 1em auto;
+    margin:    1em auto;
     font-size: small;
 }
 
@@ -453,60 +466,60 @@ table .invalid {
 
 .file-uploader {
     position: relative;
-    display: block;
-    width: 100px;
-    margin: 10px auto;
+    display:  block;
+    width:    100px;
+    margin:   10px auto;
 }
 
 .file-uploader input[type=file] {
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    opacity: 0;
+    top:      0;
+    left:     0;
+    width:    100%;
+    height:   100%;
+    opacity:  0;
 }
 
 .backup-file-uploader {
     margin: 0 auto 1em auto;
-    width: 60%;
+    width:  60%;
 }
 
 .backup-file-uploader input {
     display: block;
-    margin: 0 auto 0 0;
+    margin:  0 auto 0 0;
 }
 
 .backup-file-uploader button {
     display: block;
-    margin: 0 0 0 auto;
+    margin:  0 0 0 auto;
 }
 
 .progress-holder > * {
     visibility: visible;
-    position: fixed;
-    top: 40%;
-    left: 25%;
-    right: 25%;
-    width: 50%;
+    position:   fixed;
+    top:        40%;
+    left:       25%;
+    right:      25%;
+    width:      50%;
 }
 
 .highscores table {
-    width: 60ex;
-    margin-top: 20px;
+    width:         60ex;
+    margin-top:    20px;
     margin-bottom: 20px;
 
-    border-style: solid;
-    border-color: #555;
-    border-width: 2px;
-    color: #333;
+    border-style:  solid;
+    border-color:  #555;
+    border-width:  2px;
+    color:         #333;
 }
 
 .highscores td, th {
     border-style: solid;
     border-width: 1px;
     border-color: #999;
-    padding: 3px;
+    padding:      3px;
 }
 
 .highscores th {
@@ -514,8 +527,8 @@ table .invalid {
 }
 
 .highscores tr#self {
-    font-style: italic;
-    font-weight: bold;
+    font-style:   italic;
+    font-weight:  bold;
     font-variant: normal;
 }
 
@@ -529,8 +542,8 @@ table .invalid {
 
 .wordcontainer {
     border-style: solid;
-    font-family: monospace;
-    font-size: xx-large;
+    font-family:  monospace;
+    font-size:    xx-large;
 }
 
 .hangman-widget select {
@@ -544,46 +557,46 @@ table .invalid {
 }
 
 .buttons {
-    margin: 1em 0;
+    margin:     1em 0;
     text-align: center;
 }
 
 .dialog-buttons {
-    margin: 1em 0;
+    margin:     1em 0;
     text-align: right;
 }
 
 .gsc-auth-logged-in, .gsc-auth-not-logged-in {
-    position: fixed;
-    top: 10px;
-    right: 10px;
-    font-size: 125%;
-    z-index: 1000;
+    position:         fixed;
+    top:              10px;
+    right:            10px;
+    font-size:        125%;
+    z-index:          1000;
     background-color: white;
 }
 
 .line-link {
-    color: darkred;
-    cursor: pointer;
+    color:           darkred;
+    cursor:          pointer;
     text-decoration: underline;
 }
 
 .broken-line-link {
-    color: darkred;
-    cursor: not-allowed;
+    color:           darkred;
+    cursor:          not-allowed;
     text-decoration: wavy black line-through;
 }
 
 .submission-grade {
     text-align: center;
-    font-size: 200%;
+    font-size:  200%;
 }
 
 .partner-notification {
-    border: 1px solid;
+    border:                 1px solid;
     border-top-left-radius: $radius;
-    margin-bottom: 1em;
-    padding: 0.5em;
+    margin-bottom:          1em;
+    padding:                0.5em;
 
     .buttons {
         margin: 0.5em 0;
@@ -591,30 +604,30 @@ table .invalid {
 }
 
 .partner-confirmer {
-    border-color: darkred;
-    background-color: #fcc;
+    border-color:     darkred;
+    background-color: #FCC;
 }
 
 .partner-pending {
-    border-color: darkorange;
-    background-color: #ffc;
+    border-color:     darkorange;
+    background-color: #FFC;
 }
 
 .partner-requestor {
-    border-color: darkgreen;
-    background-color: #cfc;
+    border-color:     darkgreen;
+    background-color: #CFC;
 }
 
 .quota-display {
-    width: 100%;
-    margin: 10px auto;
+    width:      100%;
+    margin:     10px auto;
     text-align: center;
 }
 
 #api-key-input {
     text-overflow: ellipsis;
-    width: 10ex;
-    cursor: grab;
+    width:         10ex;
+    cursor:        grab;
 }
 
 .username, .input-monospace {
@@ -623,9 +636,9 @@ table .invalid {
 
 .date-edit,
 .time-edit {
-    display: inline;
-    padding: 0 6px;
-    font: $tt-sm;
+    display:       inline;
+    padding:       0 6px;
+    font:          $tt-sm;
     text-overflow: ellipsis;
 }
 
@@ -633,12 +646,12 @@ input.username,
 .points-edit {
     display: inline;
     padding: 0 4px;
-    font: $tt-ls;
+    font:    $tt-ls;
 }
 
 .points-edit {
     text-align: center;
-    width: 3em;
+    width:      3em;
 }
 
 input.username {
@@ -646,14 +659,14 @@ input.username {
 }
 
 .date-edit {
-    border-right-style: hidden;
-    border-top-right-radius: 0;
+    border-right-style:         hidden;
+    border-top-right-radius:    0;
     border-bottom-right-radius: 0;
 }
 
 .time-edit {
-    border-left-style: hidden;
-    border-top-left-radius: 0;
+    border-left-style:         hidden;
+    border-top-left-radius:    0;
     border-bottom-left-radius: 0;
 }
 
@@ -681,31 +694,31 @@ input.username {
     display: inline;
 }
 
-$hlog-gap: 6px;
-$hlog-skip: 10px;
-$hlog-indent: 72px;
+$hlog-gap:            6px;
+$hlog-skip:           10px;
+$hlog-indent:         72px;
 
 .html-single-file-viewer .html-file-contents {
     font: $sf-sm;
 
     div.test-case {
-        margin: 12px 6px;
-        padding: 0;
-        border: 2px solid #aaa;
-        border-radius: 2px;
-        background-color: #eee;
+        margin:           12px 6px;
+        padding:          0;
+        border:           2px solid #AAA;
+        border-radius:    2px;
+        background-color: #EEE;
     }
 
     h3 {
-        margin: 0;
-        padding: 6px 4px;
-        color: white;
+        margin:           0;
+        padding:          6px 4px;
+        color:            white;
         background-color: #555;
     }
 
     div.test-case-body {
         h4, p {
-            margin: $hlog-skip $hlog-indent $hlog-gap $hlog-gap;
+            margin:  $hlog-skip $hlog-indent $hlog-gap $hlog-gap;
             padding: 0;
         }
 
@@ -715,14 +728,7 @@ $hlog-indent: 72px;
 
         h4.error {
             font-weight: 800;
-            color: #933;
-        }
-
-        code.io_lines, code.grep_output {
-            font: $tt-ls;
-            margin: $hlog-gap;
-            padding: $hlog-gap;
-            max-width: 100%;
+            color:       #933;
         }
 
         .passed strong {
@@ -747,24 +753,24 @@ $hlog-indent: 72px;
     }
 
     table.points-summary {
-        margin: 1em auto;
-        min-width: 60%;
+        margin:           1em auto;
+        min-width:        60%;
 
-        border-radius: $radius 0;
-        color: #555;
+        border-radius:    $radius 0;
+        color:            #555;
         background-color: $highlight-bg;
 
         thead th {
             font-weight: 300;
-            font-size: 200%;
-            width: auto;
+            font-size:   200%;
+            width:       auto;
         }
 
         th {
-            font-weight: 300;
-            font-size: 150%;
-            margin: 0;
-            color: white;
+            font-weight:      300;
+            font-size:        150%;
+            margin:           0;
+            color:            white;
             background-color: #555;
         }
 
@@ -774,22 +780,29 @@ $hlog-indent: 72px;
     }
 }
 
-code.grep_output, code.io_lines {
-    display: block;
-    padding: 4px;
-    border: 1px solid #aaa;
+code.grep_output,
+code.grep-output,
+code.io_lines,
+code.io-lines {
+    display:       block;
+    max-width:     100%;
+    margin:        $hlog-gap;
+    padding:       $hlog-gap;
+    border:        1px solid #AAA;
     border-radius: 2px;
+    font:          $tt-ls;
 }
 
-code.grep_output {
-    color: #333;
+code.grep_output,
+code.grep-output {
+    color:            #333;
     background-color: #FFD;
-    white-space: pre-wrap;
-    overflow-wrap: break-word;
+    white-space:      pre-wrap;
+    overflow-wrap:    break-word;
 
     strong {
         font-weight: normal;
-        color: #C00;
+        color:       #C00;
     }
 
     small {
@@ -797,114 +810,84 @@ code.grep_output {
     }
 }
 
-code.io_lines {
-    color: white;
-    background-color: #345;
+code.io_lines,
+code.io-lines {
+    $io-bg-color:     #345;
+    $io-bg-step:      2px;
 
-    .control-char,
-    .trailing-ws,
-    .no-newline {
-        white-space: pre;
-        position: relative;
-        border: 1px dotted pink;
-        color: white;
+    ::selection {
+        color:            white !important;
+        background-color: $nu-purple !important;
     }
 
-    .no-newline {
-        margin: 0 1px;
-        padding: 0 1px;
+    @function alpha($base, $alpha) {
+        @return adjust-color($base, $alpha: $alpha);
     }
 
-    .control-char:hover:after,
-    .trailing-ws:hover:after,
-    .no-newline:hover:after {
-        position: absolute;
-        margin-left: 1em;
-        font: $tt-ls;
-        font-style: italic;
-        color: yellow;
+    @mixin term-io-line($sel, $color, $sigil) {
+        #{$sel} {
+            position:      relative;
+            display:       block;
+            white-space:   pre-wrap;
+            overflow-wrap: break-word;
+            overflow:      hidden;
+            color:         adjust-color($color, $saturation: -20%, $lightness: -20%);
+        }
+
+        #{$sel}:not(:last-child) {
+            margin-bottom: $code-line-vskip;
+        }
+
+        #{$sel}:first-line {
+            color: $color;
+        }
+
+        #{$sel}:hover:after {
+            content:          $sigil;
+            display:          inline;
+            position:         absolute;
+            right:            0;
+            bottom:           0;
+            padding:          $io-bg-step;
+            border:           $io-bg-step solid alpha($io-bg-color, -0.5);
+            margin-bottom:    -2 * $io-bg-step;
+            color:            white !important;
+            background-color: alpha($io-bg-color, -0.25);
+            vertical-align:   baseline;
+        }
     }
 
-    .trailing-ws:hover:after {
-        content: '# trailing whitespace';
+    @mixin hover-highlight($class, $description, $extra-hspace: 0) {
+        #{$class} {
+            position:    relative;
+            border:      1px dotted pink;
+            color:       white;
+            margin:      0 $extra-hspace;
+            padding:     0 $extra-hspace;
+            white-space: pre;
+        }
+
+        #{$class}:hover:after {
+            content:     '# ' $description;
+            position:    absolute;
+            margin-left: 1em;
+            font:        $tt-ls;
+            font-style:  italic;
+            color:       yellow;
+        }
     }
 
-    .no-newline:hover:after {
-        content: '# no final newline';
-    }
+    color:            white;
+    background-color: $io-bg-color;
 
-    .control-char:hover:after {
-        content: '# control character';
-    }
+    @include term-io-line('.stdin', #ADA, '<&0');
+    @include term-io-line('.stdout', #9CF, '>&1');
+    @include term-io-line('.stderr', #DAA, '>&2');
+    @include term-io-line('.stdlog', #DD9, '>&3');
 
-    > span {
-        display: block;
-        white-space: pre-wrap;
-        overflow-wrap: break-word;
-        margin-bottom: $code-line-spacing;
-    }
-
-    > span:last-child {
-        margin-bottom: 0;
-    }
-
-    .stdin, .stdout, .stderr, .stdlog {
-        position: relative;
-    }
-
-    .stdin {
-        color: #ADA;
-    }
-
-    .stdout {
-        color: #9CF;
-    }
-
-    .stderr {
-        color: #DAA;
-    }
-
-    .stdlog {
-        color: #DD9;
-    }
-
-    .stdin:before,
-    .stdout:before,
-    .stderr:before,
-    .stdlog:before
-    {
-        display: none;
-    }
-
-    .stdin:hover:before,
-    .stdout:hover:before,
-    .stderr:hover:before,
-    .stdlog:hover:before
-    {
-        display: inline;
-        top: 0;
-        right: 0;
-        position: absolute;
-        padding: 0 8px 0 0;
-        vertical-align: middle;
-        color: white;
-    }
-
-    .stdin:before {
-        content: "<&0";
-    }
-
-    .stdout:before {
-        content: ">&1";
-    }
-
-    .stderr:before {
-        content: ">&2";
-    }
-
-    .stdlog:before {
-        content: ">&3";
-    }
+    @include hover-highlight('.control-char', 'control character');
+    @include hover-highlight('.no-newline', 'no final newline', $extra-hspace: 1px);
+    @include hover-highlight('.trailing-ws', 'trailing whitespace');
 }
 
 span.txt-only {
