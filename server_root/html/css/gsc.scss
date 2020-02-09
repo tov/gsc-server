@@ -857,8 +857,8 @@ code.io-lines {
         }
     }
 
-    @mixin hover-highlight($class, $description, $extra-hspace: 0) {
-        #{$class} {
+    @mixin hover-highlight($sel, $description, $extra-hspace: 0) {
+        #{$sel} {
             position:    relative;
             border:      1px dotted pink;
             color:       white;
@@ -867,7 +867,7 @@ code.io-lines {
             white-space: pre;
         }
 
-        #{$class}:hover:after {
+        #{$sel}:hover:after {
             content:     '# ' $description;
             position:    absolute;
             margin-left: 1em;
