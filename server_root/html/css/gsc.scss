@@ -717,8 +717,9 @@ $hlog-indent:              72px;
         background-color: #EEE;
     }
 
-    h3,  // deprecated
+    h3, // deprecated
     summary {
+        display:          list-item;
         font:             $sf-bd;
         margin:           0;
         padding:          6px;
