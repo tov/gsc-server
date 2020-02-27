@@ -239,10 +239,3 @@ void File_viewer::Highlighter::highlight(int line)
     if (!first_ || line < first_) first_ = line;
 }
 
-void File_viewer::Highlighter::highlight(int from, int to)
-{
-    highlight(from);
-    highlight(to);
-    while (++from < to) highlight(from);
-}
-

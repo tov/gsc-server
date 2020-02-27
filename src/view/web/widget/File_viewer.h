@@ -55,8 +55,6 @@ class File_viewer::Highlighter : public Code_highlighter
 public:
     void highlight(int line) override;
 
-    void highlight(int from_line, int to_line) override;
-
     ~Highlighter() override;
 
 private:
