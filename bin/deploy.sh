@@ -1,5 +1,7 @@
 #!/bin/sh
 
+set -e
+
 cd "$(dirname $0)"/..
 
 for_dirs_upward () (
@@ -20,7 +22,9 @@ publish_dirs () {
     done
 }
 
-set -e
+gsc_install () {
+    sudo install -v -o gsc -m 4555 "$@"
+}
 
 if [ "$1" = "-d" ]; then
     build_type=debug
@@ -31,16 +35,11 @@ fi
 # Require password up front
 sudo true
 
-echo >&2 Not building gsc-auth today
-bin/build.sh $build_type gscd-fcgi
 make -C server_root/html
-
 publish_dirs server_root 3rdparty/wt/resources
 
-sudo install -v -o gsc -m 4555 \
-    build.$build_type/gscd-fcgi server_root/gscd.fcgi
-echo >&2 Not installing gsc-auth today
-# sudo install -v -o gsc -m 4555 \
-#     build.$build_type/gsc-auth server_root/gsc-auth
+bin/build.sh $build_type gscd-fcgi gsc-auth
+gsc_install build.$build_type/gscd-fcgi server_root/gscd.fcgi
+gsc_install build.$build_type/gsc-auth server_root/gsc-auth
 
 sudo service apache2 restart
