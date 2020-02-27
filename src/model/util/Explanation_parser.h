@@ -13,7 +13,7 @@ struct Code_highlighter
     virtual ~Code_highlighter() = default;
 
     virtual void highlight(int line) = 0;
-    virtual void highlight(int from_line, int to_line) = 0;
+    virtual void highlight(int from_line, int to_line);
 
     Code_highlighter(Code_highlighter const&) = delete;
     Code_highlighter(Code_highlighter&&) = delete;

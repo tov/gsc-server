@@ -205,6 +205,13 @@ Token Lexer::real_next_()
     return tok;
 }
 
+void Code_highlighter::highlight(int from, int to)
+{
+    highlight(from);
+    highlight(to);
+    while (++from < to) highlight(from);
+}
+
 void Explanation_writer::plain_string(std::string_view sv)
 {
     for (char c : sv) plain_char(c);
