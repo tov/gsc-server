@@ -2,8 +2,10 @@
 #include "model/auth/User.h"
 #include "Session.h"
 
+#ifdef GSC_AUTH_PASSWORD
 #include <Wt/Auth/PasswordService.h>
 #include <Wt/Auth/PasswordVerifier.h>
+#endif
 
 #include <cstring>
 #include <iostream>
@@ -22,7 +24,9 @@ public:
 
 private:
     Gsc_auth_app();
-    bool check_user_(User::Role role, const string& username, const string& password);
+    bool check_user_(User::Role role,
+                     const string& identity,
+                     const string& secret);
 };
 
 
@@ -58,27 +62,37 @@ int Gsc_auth_app::main(int argc, const char* argv[],
             exit(1);
     }
 
-    string username, password;
+    string username, secret;
     getline(in, username);
-    getline(in, password);
+    getline(in, secret);
 
     Gsc_auth_app app;
-    return app.check_user_(role, username, password)? 0 : 1;
+    return app.check_user_(role, username, secret)? 0 : 1;
 }
 
-bool Gsc_auth_app::check_user_(User::Role role, const string& username, const string& password)
+bool Gsc_auth_app::check_user_(
+        User::Role role, const string& identity, const string& secret)
 {
     dbo::Transaction transaction(session());
 
-    auto auth_info = session().find_by_login<Auth_info>(username, false);
+    auto auth_info = session().find_by_login<Auth_info>(identity, false);
     auto auth_user = session().users().find(auth_info);
     auto user      = auth_info->user();
 
     if (user->role() < role) return false;
 
-    auto verify_result = Db_session::passwordAuth().verifyPassword(auth_user, password);
+#ifdef GSC_AUTH_API_KEY
+    if (secret == session().get_api_key(user))
+        return true;
+#endif
 
-    return verify_result == Wt::Auth::PasswordResult::PasswordValid;
+#ifdef GSC_AUTH_PASSWORD
+    if (auto verify_result = Db_session::passwordAuth().verifyPassword(auth_user, secret);
+            verify_result == Wt::Auth::PasswordResult::PasswordValid)
+        return true;
+#endif
+
+    return false;
 }
 
 
