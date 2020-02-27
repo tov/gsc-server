@@ -3,6 +3,8 @@
 #include "../../../common/util.h"
 #include "../../../model/util/Explanation_parser.h"
 
+#include <xxint.hxx>
+
 #include <Wt/WText.h>
 
 #include <cctype>
@@ -73,7 +75,7 @@ int Html_explanation_writer::link(string_view sv)
 {
     const char* src   = sv.data();
     const char* limit = sv.data() + sv.size();
-    int result = 0;
+    xxint::Checked<int> result = 0;
 
     raw_text_("<span class=\"line-link\">");
 
@@ -83,7 +85,7 @@ int Html_explanation_writer::link(string_view sv)
     }
 
     while (src < limit && isdigit(*src)) {
-        result = 10 * result + (*src - '0');
+        result = result * 10 + (*src - '0');
         raw_text_(*src);
         ++src;
     }
@@ -94,6 +96,6 @@ int Html_explanation_writer::link(string_view sv)
         plain_range(src, limit);
     }
 
-    return result;
+    return result.get();
 }
 
