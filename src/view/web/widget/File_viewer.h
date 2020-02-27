@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../Submission_context.h"
+#include "../../../model/util/Explanation_parser.h"
 
 #include <Wt/WCompositeWidget.h>
 #include <Wt/Dbo/ptr.h>
@@ -49,14 +50,14 @@ private:
     void reload_();
 };
 
-class File_viewer::Highlighter
+class File_viewer::Highlighter : public Code_highlighter
 {
 public:
-    ~Highlighter();
+    void highlight(int line) override;
 
-    void highlight(int line);
+    void highlight(int from_line, int to_line) override;
 
-    void highlight(int from_line, int to_line);
+    ~Highlighter() override;
 
 private:
     friend File_viewer;

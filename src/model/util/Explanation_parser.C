@@ -68,7 +68,7 @@ void Lexer::unnext(Token tok)
 
 void parse_explanation(string_view source,
                        Explanation_writer& writer,
-                       File_viewer::Highlighter& highlighter)
+                       Code_highlighter& highlighter)
 {
     Lexer lexer(source);
 

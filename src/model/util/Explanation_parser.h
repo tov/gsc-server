@@ -1,6 +1,5 @@
 #pragma once
 
-#include "../../view/web/widget/File_viewer.h"
 #include "../../common/util.h"
 #include <Wt/WString.h>
 #include <sstream>
@@ -8,9 +7,23 @@
 
 class Explanation_writer;
 
+struct Code_highlighter
+{
+    Code_highlighter() = default;
+    virtual ~Code_highlighter() = default;
+
+    virtual void highlight(int line) = 0;
+    virtual void highlight(int from_line, int to_line) = 0;
+
+    Code_highlighter(Code_highlighter const&) = delete;
+    Code_highlighter(Code_highlighter&&) = delete;
+    Code_highlighter& operator=(Code_highlighter const&) = delete;
+    Code_highlighter& operator=(Code_highlighter&&) = delete;
+};
+
 void parse_explanation(string_view source,
                        Explanation_writer&,
-                       File_viewer::Highlighter&);
+                       Code_highlighter&);
 
 class Explanation_writer
 {
