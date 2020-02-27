@@ -3,6 +3,8 @@ project(gsc CXX)
 
 include(cmake/helpers.cmake)
 
+include_directories(3rdparty/xxint)
+
 add_compile_definitions(GSC_AUTH_API_KEY)
 add_compile_definitions(GSC_SHOW_QUOTA)
 
