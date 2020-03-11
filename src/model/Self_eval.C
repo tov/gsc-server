@@ -80,8 +80,11 @@ Self_eval::find_by_permalink(dbo::Session& dbo,
               .where("permalink = ?").bind(permalink);
 }
 
-std::string Self_eval::find_ungraded_permalink(dbo::Session& dbo,
-                                               const dbo::ptr<User>& user)
+std::string
+Self_eval::find_ungraded_permalink(
+        dbo::Session& dbo,
+        const dbo::ptr<User>& user,
+        bool include_informational)
 {
     dbo.execute("DELETE FROM grader_eval"
                 " WHERE status = ?"
@@ -102,21 +105,37 @@ std::string Self_eval::find_ungraded_permalink(dbo::Session& dbo,
                .resultValue();
     if (!current.empty()) return current;
 
-    return dbo.query<std::string>(
-            "SELECT s.permalink"
-            " FROM self_eval s"
-            " INNER JOIN submission b ON b.id = s.submission_id"
-            " INNER JOIN eval_item e ON s.eval_item_id = e.id"
-            " INNER JOIN assignment a ON e.assignment_number = a.number"
-            " LEFT OUTER JOIN grader_eval g ON g.self_eval_id = s.id"
-            " WHERE g.self_eval_id IS NULL"
-            "   AND e.type <> ?"
-            "   AND a.eval_date < NOW() AT TIME ZONE 'UTC'"
-            "   AND b.eval_date < NOW() AT TIME ZONE 'UTC'"
-            " ORDER BY a.number, e.sequence"
-            " LIMIT 1"
-    ).bind(static_cast<int>(Eval_item::Type::Informational))
-            .resultValue();
+    // Ew.
+    if (include_informational)
+        return dbo.query<std::string>(
+                "SELECT s.permalink"
+                " FROM self_eval s"
+                " INNER JOIN submission b ON b.id = s.submission_id"
+                " INNER JOIN eval_item e ON s.eval_item_id = e.id"
+                " INNER JOIN assignment a ON e.assignment_number = a.number"
+                " LEFT OUTER JOIN grader_eval g ON g.self_eval_id = s.id"
+                " WHERE g.self_eval_id IS NULL"
+                "   AND a.eval_date < NOW() AT TIME ZONE 'UTC'"
+                "   AND b.eval_date < NOW() AT TIME ZONE 'UTC'"
+                " ORDER BY a.number, e.sequence"
+                " LIMIT 1"
+        ).resultValue();
+    else
+        return dbo.query<std::string>(
+                "SELECT s.permalink"
+                " FROM self_eval s"
+                " INNER JOIN submission b ON b.id = s.submission_id"
+                " INNER JOIN eval_item e ON s.eval_item_id = e.id"
+                " INNER JOIN assignment a ON e.assignment_number = a.number"
+                " LEFT OUTER JOIN grader_eval g ON g.self_eval_id = s.id"
+                " WHERE g.self_eval_id IS NULL"
+                "   AND e.type <> ?"
+                "   AND a.eval_date < NOW() AT TIME ZONE 'UTC'"
+                "   AND b.eval_date < NOW() AT TIME ZONE 'UTC'"
+                " ORDER BY a.number, e.sequence"
+                " LIMIT 1"
+        ).bind(static_cast<int>(Eval_item::Type::Informational))
+         .resultValue();
 }
 
 dbo::collection<dbo::ptr<Self_eval>>

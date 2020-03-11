@@ -236,8 +236,8 @@ void Application_controller::handle_internal_path(
         } else if (internal_path == Path::grade) {
             current_user->check_can_grade();
 
-            auto permalink = Self_eval::find_ungraded_permalink(session_,
-                                                                current_user);
+            auto permalink = Self_eval::find_ungraded_permalink(
+                    session_, current_user);
             transaction.commit();
 
             if (permalink.empty()) {
