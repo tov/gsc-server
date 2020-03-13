@@ -206,7 +206,7 @@ Submission::get_self_eval(const dbo::ptr<Eval_item>& eval_item,
     return result;
 }
 
-Wt::Dbo::ptr<Self_eval>
+dbo::ptr<Self_eval>
 Submission::get_self_eval(int sequence,
                           const dbo::ptr<Submission>& submission,
                           bool create)
@@ -237,35 +237,51 @@ Submission::save_self_eval(const dbo::ptr<Self_eval>& self_eval,
                            double score,
                            const std::string& explanation)
 {
+    if (self_eval->frozen()) return;
+
+    bool frozen_score = self_eval->frozen_score();
+
     {
         auto self_eval_m = self_eval.modify();
-        self_eval_m->set_score(score);
+        if (!frozen_score) self_eval_m->set_score(score);
         self_eval_m->set_explanation(explanation);
         score = self_eval_m->score();
     }
 
-    if (score == 0.0 &&
-            self_eval->eval_item()->type() == Eval_item::Type::Boolean) {
-        set_grader_eval(self_eval, session.user(),
-                        CONFIG.reward_for_no,
-                        "You chose no.");
-    } else if (self_eval->grader_eval()
-               && !self_eval->eval_item()->is_informational()) {
-        retract_grader_eval(self_eval->grader_eval());
+    auto submission  = self_eval->submission();
+    auto eval_item   = self_eval->eval_item();
+    auto sequence    = eval_item->sequence();
+    auto grader_eval = submission->find_grader_eval_(sequence);
+
+    if (score == 0.0 && eval_item->type() == Eval_item::Type::Boolean) {
+        set_grader_eval(self_eval, session.user(), CONFIG.reward_for_no, "");
+    } else if (grader_eval && !eval_item->is_informational()) {
+        if (frozen_score)
+            submission->hold_grader_eval(sequence);
+        else
+            submission->retract_grader_eval(sequence);
     }
 
     self_eval->submission().modify()->touch();
 }
 
+dbo::ptr<Grader_eval>& Submission::find_grader_eval_(int sequence) const
+{
+    load_cache();
+    return items_.at(sequence).grader_eval;
+}
+
+dbo::ptr<Grader_eval>&
+Submission::find_grader_eval_(const dbo::ptr<Eval_item>& eval_item) const
+{
+    return find_grader_eval_(eval_item->sequence());
+}
+
 dbo::ptr<Grader_eval>&
 Submission::find_grader_eval_(const dbo::ptr<Self_eval>& self_eval)
 {
-    auto submission = self_eval->submission();
-    auto sequence   = self_eval->eval_item()->sequence();
-
-    submission->load_cache();
-
-    return submission->items_[sequence].grader_eval;
+    return self_eval->submission()
+                    ->find_grader_eval_(self_eval->eval_item());
 }
 
 dbo::ptr<Grader_eval>
@@ -283,8 +299,8 @@ Submission::get_grader_eval(const dbo::ptr<Self_eval>& self_eval,
 }
 
 dbo::ptr<Grader_eval>
-Submission::set_grader_eval(const Wt::Dbo::ptr<Self_eval>& self_eval,
-                            const Wt::Dbo::ptr<User>& grader,
+Submission::set_grader_eval(const dbo::ptr<Self_eval>& self_eval,
+                            const dbo::ptr<User>& grader,
                             double score,
                             std::string const& explanation)
 {
@@ -305,20 +321,41 @@ Submission::set_grader_eval(const Wt::Dbo::ptr<Self_eval>& self_eval,
     return result;
 }
 
-void Submission::retract_grader_eval(const dbo::ptr<Grader_eval>& grader_eval)
+void Submission::hold_grader_eval(int sequence) const
 {
-    if (grader_eval->eval_item()->is_graded_automatically()) {
-        return;
-    }
+    load_cache();
+    auto& item = items_.at(sequence);
 
+    if (!item.eval_item->is_graded_automatically()) {
+        auto grader_eval_m = item.grader_eval.modify();
+        grader_eval_m->set_status(Grader_eval::Status::held_back);
+    }
+}
+
+void Submission::retract_grader_eval(int sequence) const
+{
+    load_cache();
+    auto& item = items_.at(sequence);
+
+    if (!item.eval_item->is_graded_automatically()) {
+        item.grader_eval.remove();
+        item.grader_eval = {};
+    }
+}
+
+void Submission::hold_grader_eval(const dbo::ptr<Grader_eval>& grader_eval)
+{
     auto submission = grader_eval->submission();
     auto sequence   = grader_eval->eval_item()->sequence();
+    submission->hold_grader_eval(sequence);
+    submission.modify()->touch();
+}
 
-    submission->load_cache();
-
-    submission->items_[sequence].grader_eval.remove();
-    submission->items_[sequence].grader_eval = {};
-
+void Submission::retract_grader_eval(const dbo::ptr<Grader_eval>& grader_eval)
+{
+    auto submission = grader_eval->submission();
+    auto sequence   = grader_eval->eval_item()->sequence();
+    submission->retract_grader_eval(sequence);
     submission.modify()->touch();
 }
 
@@ -330,7 +367,7 @@ void Submission::touch()
 
 void Submission::light_touch() const
 {
-    is_loaded_ = false;
+    clear_cache();
 }
 
 dbo::ptr<Submission>
@@ -347,9 +384,9 @@ Submission::find_by_assignment_and_user(dbo::Session& session,
 }
 
 dbo::ptr<Submission>
-Submission::find_by_assignment_number_and_user(Wt::Dbo::Session& session,
+Submission::find_by_assignment_number_and_user(dbo::Session& session,
                                                int assignment_number,
-                                               const Wt::Dbo::ptr<User>& user)
+                                               const dbo::ptr<User>& user)
 {
     return session.find<Submission>()
                   .where("user1_id = ? OR user2_id = ?")
@@ -395,7 +432,7 @@ bool Submission::can_view_eval(const dbo::ptr<User>& user) const
             (user == user1_ || user == user2_));
 }
 
-void Submission::check_can_view(const Wt::Dbo::ptr<User>& user) const
+void Submission::check_can_view(const dbo::ptr<User>& user) const
 {
     if (user->can_admin()) return;
 
@@ -403,7 +440,7 @@ void Submission::check_can_view(const Wt::Dbo::ptr<User>& user) const
         throw Access_check_failed("That isn’t yours.");
 }
 
-void Submission::check_can_submit(const Wt::Dbo::ptr<User>& user) const
+void Submission::check_can_submit(const dbo::ptr<User>& user) const
 {
     if (user->can_admin()) return;
 
@@ -413,7 +450,7 @@ void Submission::check_can_submit(const Wt::Dbo::ptr<User>& user) const
         throw Access_check_failed("Submission is closed.");
 }
 
-void Submission::check_can_eval(const Wt::Dbo::ptr<User>& user) const
+void Submission::check_can_eval(const dbo::ptr<User>& user) const
 {
     if (user->can_admin()) return;
 
@@ -423,7 +460,7 @@ void Submission::check_can_eval(const Wt::Dbo::ptr<User>& user) const
         throw Access_check_failed("Self evaluation is closed.");
 }
 
-void Submission::check_can_view_eval(const Wt::Dbo::ptr<User>& user) const
+void Submission::check_can_view_eval(const dbo::ptr<User>& user) const
 {
     if (user->can_admin()) return;
 
@@ -445,7 +482,7 @@ std::string Submission::eval_url() const
 }
 
 std::string
-Submission::url_for_user(const Wt::Dbo::ptr<User>& principal, bool eval) const
+Submission::url_for_user(const dbo::ptr<User>& principal, bool eval) const
 {
     std::ostringstream result;
 
@@ -509,12 +546,19 @@ Submission::Grading_status Submission::grading_status() const
 
 void Submission::load_cache() const
 {
-    if (is_loaded_) return;
+    if (!is_loaded_) reload_cache();
+}
 
-    double total_grade = 0;
+void Submission::clear_cache() const
+{
+    is_loaded_ = false;
+}
 
+void Submission::reload_cache() const
+{
     item_count_  = 0;
     point_value_ = 0;
+    items_.clear();
 
     for (const auto& eval_item : assignment()->eval_items()) {
         ++item_count_;
@@ -524,6 +568,7 @@ void Submission::load_cache() const
         items_[sequence].eval_item = eval_item;
     }
 
+    double total_grade       = 0;
     size_t self_eval_count   = 0;
     size_t grader_eval_count = 0;
 
@@ -548,17 +593,8 @@ void Submission::load_cache() const
                                                 grader_eval_count);
     grading_status_ = grading_status_given_counts_(self_eval_count,
                                                    grader_eval_count);
-
-    // TODO: delete
-    //grading_status_ = grader_eval_count == self_eval_count
-    //                                                   ? Grading_status::complete
-    //                : grader_eval_count > 2 && in_eval_period()
-    //                                                   ? Grading_status::regrade
-    //                /* otherwise */                    : Grading_status::incomplete;
-
-    grade_ = clean_grade(total_grade, point_value_);
-
-    is_loaded_ = true;
+    grade_          = clean_grade(total_grade, point_value_);
+    is_loaded_      = true;
 }
 
 int Submission::assignment_number() const

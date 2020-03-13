@@ -6,35 +6,41 @@
 #include "../../../model/Self_eval.h"
 #include "../../../Session.h"
 
-Self_eval_item_widget::Self_eval_item_widget(const Submission::Item& model, Evaluation_view& main,
-                                             Session& session)
+Self_eval_item_widget::Self_eval_item_widget(
+        const Submission::Item& model,
+        Evaluation_view& main,
+        Session& session)
         : Single_eval_item_widget(model, main, session)
 {
-    auto response_widget = Response_widget::create(model.eval_item->type());
-    response_widget_ = response_widget.get();
-    addWidget(std::move(response_widget));
-
-    if (model.self_eval) {
-        response_widget_->set_value(model.self_eval->score());
-        response_widget_->set_explanation(model.self_eval->explanation());
+    {
+        auto response_widget = Response_widget::create(model.eval_item->type());
+        response_widget_ = response_widget.get();
+        addWidget(std::move(response_widget));
     }
 
-    response_widget_->changed().connect(this,
-                                        &Self_eval_item_widget::validate_);
+    if (model.self_eval) {
+        response_widget_->set_initial_value(model.self_eval->score());
+        response_widget_->set_initial_explanation(model.self_eval->explanation());
+    }
+
+    response_widget_->changed().connect([=]{ validate_(); });
 
     auto buttons = addNew<Wt::WContainerWidget>();
     buttons->setStyleClass("buttons");
 
-    if (model.grader_eval && model.grader_eval->score() == 1) {
-        response_widget_->setDisabled(true);
-        save_button_ = buttons->addNew<Wt::WPushButton>("Back");
-        save_button_->clicked().connect(this,
-                                        &Self_eval_item_widget::back_action_);
+    auto save_label = model.eval_item->is_informational()? "Continue" : "Save";
+    save_button_ = buttons->addNew<Wt::WPushButton>(save_label);
+    back_button_ = buttons->addNew<Wt::WPushButton>("Back");
+    save_button_->clicked().connect([=]{ save_action_(); });
+    back_button_->clicked().connect([=]{ back_action_(); });
+
+    if (model.self_eval && model.self_eval->frozen()) {
+        save_button_->hide();
+        response_widget_->freeze();
     } else {
-        auto label = model.eval_item->is_informational()? "Continue" : "Save";
-        save_button_ = buttons->addNew<Wt::WPushButton>(label);
-        save_button_->clicked().connect(this,
-                                        &Self_eval_item_widget::save_action_);
+        back_button_->hide();
+        if (model.self_eval && model.self_eval->frozen_score())
+            response_widget_->freeze_value();
     }
 
     if (model_.grader_eval) {
@@ -69,6 +75,15 @@ void Self_eval_item_widget::back_action_()
 
 void Self_eval_item_widget::validate_()
 {
-    save_button_->setEnabled(response_widget_->is_ready());
+    if (!save_button_) return;
+
+    if (response_widget_->has_changed()) {
+        back_button_->hide();
+        save_button_->show();
+        save_button_->setEnabled(response_widget_->is_valid());
+    } else {
+        save_button_->hide();
+        back_button_->setHidden(!response_widget_->is_valid());
+    }
 }
 

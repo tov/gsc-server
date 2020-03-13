@@ -25,7 +25,8 @@ void List_eval_item_widget::add_buttons_()
     auto focus_btn = buttons->addNew<Wt::WPushButton>();
 
     if (main_.submission()->can_eval(session_.user())
-        && ! model_.eval_item->is_informational()) {
+        && !model_.eval_item->is_informational()
+        && !(model_.self_eval && model_.self_eval->frozen())) {
         focus_btn->setText("Edit");
     } else {
         focus_btn->setText("View");
@@ -52,7 +53,7 @@ void List_eval_item_widget::add_scores_()
         self.score = "[not set]";
     }
 
-    if (model_.grader_eval) {
+    if (model_.grader_eval && model_.grader_eval->is_ready()) {
         grader = model_.grader_eval->score_owner(cxt);
 
         if (model_.grader_eval->score() < model_.self_eval->score())

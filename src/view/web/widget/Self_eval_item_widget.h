@@ -14,6 +14,7 @@ public:
 private:
     Response_widget* response_widget_;
     Wt::WPushButton* save_button_;
+    Wt::WPushButton* back_button_;
 
     void save_action_();
     void back_action_();

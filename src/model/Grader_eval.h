@@ -45,6 +45,8 @@ public:
     const dbo::ptr<User>& grader() const { return grader_; }
     void set_grader(const dbo::ptr<User>& grader) { grader_ = grader; }
 
+    bool is_ready() const { return status() == Status::ready; }
+
     Score_owner score_owner(Viewing_context const& cxt) const override;
 
     const Wt::Dbo::ptr<Eval_item>& eval_item() const override;

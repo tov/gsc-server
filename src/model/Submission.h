@@ -82,6 +82,8 @@ public:
     Grading_status grading_status() const;
 
     void load_cache() const;
+    void clear_cache() const;
+    void reload_cache() const;
 
     bool extended() const;
     bool eval_extended() const;
@@ -154,6 +156,10 @@ public:
                     double score,
                     const std::string& explanation = "");
 
+    void hold_grader_eval(int sequence) const;
+    void retract_grader_eval(int sequence) const;
+
+    static void hold_grader_eval(const Wt::Dbo::ptr<Grader_eval>&);
     static void retract_grader_eval(const Wt::Dbo::ptr<Grader_eval>&);
 
     static bool join_together(Wt::Dbo::ptr<Submission> keep,
@@ -209,6 +215,12 @@ private:
 
     // cached separately
     mutable int byte_count_ = -1;
+
+    Wt::Dbo::ptr<Grader_eval>&
+    find_grader_eval_(int sequence) const;
+
+    Wt::Dbo::ptr<Grader_eval>&
+    find_grader_eval_(const Wt::Dbo::ptr<Eval_item>&) const;
 
     static Wt::Dbo::ptr<Grader_eval>&
     find_grader_eval_(const Wt::Dbo::ptr<Self_eval>&);

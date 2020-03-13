@@ -27,6 +27,9 @@ public:
     dbo::ptr<Grader_eval> grader_eval() const { return grader_eval_.lock(); }
     const std::string& permalink() const { return permalink_; }
 
+    bool frozen() const;
+    bool frozen_score() const;
+
     std::string eval_url() const;
     std::string grade_url() const;
 

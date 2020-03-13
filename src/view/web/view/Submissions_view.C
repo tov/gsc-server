@@ -177,12 +177,6 @@ void Submissions_view::Row_view::update()
             status += " ago";
             set_eval_action("View");
             set_action_style_class("btn btn-link");
-            {
-                dbo::Transaction transaction(session_);
-                if (model_.submission->is_graded()) {
-                    grade_->setText(model_.submission->grade_string());
-                }
-            }
             break;
         }
     }
@@ -193,6 +187,11 @@ void Submissions_view::Row_view::update()
             model_.submission->effective_due_date() < now ? "past" : "");
     row_->elementAt(EVAL_DATE)->setStyleClass(
             model_.submission->effective_eval_date() < now ? "past" : "");
+
+    dbo::Transaction transaction(session_);
+    if (model_.submission->is_graded()) {
+        grade_->setText(model_.submission->grade_string());
+    }
 }
 
 void Submissions_view::Row_view::action()

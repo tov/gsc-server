@@ -56,6 +56,18 @@ Self_eval::Self_eval(const dbo::ptr<Eval_item>& eval_item,
           permalink_(create_permalink(permalink_size))
 { }
 
+bool Self_eval::frozen() const
+{
+    return grader_eval() && grader_eval()->score() == 1;
+}
+
+bool Self_eval::frozen_score() const
+{
+    return grader_eval()
+           && eval_item()->type() == Eval_item::Type::Boolean
+           && score() == 1;
+}
+
 std::string Self_eval::eval_url() const
 {
     std::ostringstream fmt;
@@ -194,4 +206,3 @@ Score_owner Self_eval::score_owner(Viewing_context const& cxt) const
     WString owner = submission_owner_string(*submission(), cxt);
     return {score, owner};
 }
-
