@@ -461,6 +461,10 @@ table .invalid {
     margin:        1em 0.25em;
     padding:       5px 10px;
     border-radius: $radius 0 $radius 0;
+
+    .detail {
+        display: none;
+    }
 }
 
 .list-eval-item.has-been-docked {
