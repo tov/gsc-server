@@ -31,8 +31,8 @@ void Base_eval_item_widget::retract_action_()
 
 void Base_eval_item_widget::add_item_heading_()
 {
-    auto h4 = addNew<Wt::WTemplate>("<h4>${heading} ${number} "
-                                    "<small>(${value})</small></h4>");
+    auto h3 = addNew<Wt::WTemplate>("<h3>${heading} ${number} "
+                                    "<small>(${value})</small></h3>");
     auto const& item = model_.eval_item;
 
     char const* heading = item->is_informational()? "Information" : "Question";
@@ -40,9 +40,9 @@ void Base_eval_item_widget::add_item_heading_()
     std::string number = std::to_string(item->sequence());
     std::string value = item->absolute_value_str();
 
-    h4->bindString("heading", heading);
-    h4->bindString("number", number);
-    h4->bindString("value", value);
+    h3->bindString("heading", heading);
+    h3->bindString("number", number);
+    h3->bindString("value", value);
 }
 
 void Base_eval_item_widget::add_question_()

@@ -1,21 +1,36 @@
+@import url('https://fonts.googleapis.com/css2?family=Fira+Sans:ital,wght@0,400;0,700;1,400;1,700&family=Raleway:ital,wght@0,100;0,200;0,300;0,500;1,100;1,200;1,300;1,500&display=swap');
+
 $tt-fam:                   "Menlo", monospace;
-$sf-fam:                   "Helvetica Neue", sans-serif;
+$hd-fam:                   "Raleway", "Helvetica Neue", sans-serif;
+$sf-fam:                   "Fira Sans", "Helvetica", sans-serif;
 
-$sf-h1:                    200 50px $sf-fam;
-$sf-h2:                    200 40px $sf-fam;
-$sf-h3:                    300 28px $sf-fam;
+$h1-size:                  50px;
+$h2-size:                  40px;
+$h3-size:                  28px;
+$h4-size:                  22px;
+$h5-size:                  16px;
+$h6-size:                  16px;
+$body-size:                16px;
+$small-size:               13px;
 
-$sf-h4:                    500 20px $sf-fam;
-$tt-h4:                    20px $tt-fam;
+$sf-h1:                    100 $h1-size $hd-fam;
+$sf-h2:                    200 $h2-size $hd-fam;
+$sf-h3:                    300 $h3-size $hd-fam;
+$sf-h4:                    300 $h4-size $hd-fam;
+$sf-h5:                    500 $h5-size $hd-fam;
+$sf-h6:                    500 $h6-size $hd-fam;
 
-$sf-bd:                    400 20px $sf-fam;
-$tt-bd:                    16px $tt-fam;
+$tt-head:                  $h5-size $tt-fam;
 
-$sf-sm:                    400 16px $sf-fam;
-$tt-sm:                    13px $tt-fam;
+$sf-body:                  $body-size $sf-fam;
+$tt-body:                  $body-size $tt-fam;
 
-$sf-ls:                    400 11px/11px $sf-fam;
-$tt-ls:                    13px/14px $tt-fam;
+$sf-small:                 $small-size $sf-fam;
+$tt-small:                 $small-size $tt-fam;
+
+$tt-listing:               13px/14px $tt-fam;
+
+$sf-tiny:                  11px/11px $sf-fam;
 
 $nu-purple:                #3B2F77;
 
@@ -50,7 +65,7 @@ $single-file-loss:         2 * ($file-viewer-gutter + $file-viewer-border-width)
 $single-file-width:        $file-viewer-width - $single-file-loss;
 
 body {
-    font: $sf-bd;
+    font: $sf-body;
 }
 
 h1 {
@@ -79,6 +94,23 @@ h1 {
 
 h2 {
     font: $sf-h2;
+}
+
+h3 {
+    font: $sf-h3;
+}
+
+h4 {
+    font: $sf-h4;
+}
+
+h5 {
+    font:            $sf-h5;
+}
+
+h6 {
+    font:       $sf-h6;
+    text-decoration: underline;
 }
 
 code {
@@ -152,7 +184,7 @@ table .invalid {
 
         td {
             padding: 3px 6px;
-            font:    $sf-sm;
+            font:    $sf-small;
         }
 
         td.numeric {
@@ -313,7 +345,7 @@ table .invalid {
 
             thead th {
                 padding: 6px 0;
-                font:    $tt-h4;
+                font:    $tt-head;
             }
         }
 
@@ -327,13 +359,13 @@ table .invalid {
                 padding:        $code-number-padding;
                 vertical-align: baseline;
                 text-align:     center;
-                font:           $sf-ls;
+                font:           $sf-tiny;
                 color:          white;
                 overflow-x:     visible;
             }
 
             td.code-line {
-                font:    $tt-ls;
+                font:    $tt-listing;
                 padding: $code-line-padding;
 
                 span {
@@ -416,7 +448,7 @@ table .invalid {
     table {
         a {
             text-decoration: none;
-            font:            $tt-bd;
+            font:            $tt-body;
         }
 
         a:hover {
@@ -639,14 +671,14 @@ table .invalid {
 }
 
 .username, .input-monospace {
-    font: $tt-h4;
+    font: $tt-head;
 }
 
 .date-edit,
 .time-edit {
     display:       inline;
     padding:       0 6px;
-    font:          $tt-sm;
+    font:          $tt-small;
     text-overflow: ellipsis;
 }
 
@@ -654,7 +686,7 @@ input.username,
 .points-edit {
     display: inline;
     padding: 0 4px;
-    font:    $tt-ls;
+    font:    $tt-listing;
 }
 
 .points-edit {
@@ -707,7 +739,7 @@ $hlog-skip:                10px;
 $hlog-indent:              72px;
 
 .html-single-file-viewer .html-file-contents {
-    font: $sf-sm;
+    font: $sf-small;
 
     .test-case {
         margin:           12px 6px;
@@ -720,7 +752,7 @@ $hlog-indent:              72px;
     h3, // deprecated
     summary {
         display:          list-item;
-        font:             $sf-bd;
+        font:             $sf-body;
         margin:           0;
         padding:          6px;
         color:            white;
@@ -808,7 +840,7 @@ code.io-lines {
     padding:       $hlog-gap;
     border:        1px solid #AAA;
     border-radius: 2px;
-    font:          $tt-ls;
+    font:          $tt-listing;
 }
 
 code.grep_output,
@@ -889,7 +921,7 @@ code.io-lines {
             content:     '# ' $description;
             position:    absolute;
             margin-left: 1em;
-            font:        $tt-ls;
+            font:        $tt-listing;
             font-style:  italic;
             color:       yellow;
         }

@@ -66,7 +66,7 @@ void Edit_eval_item::view_mode_()
 
     auto templ = addNew<Wt::WTemplate>(
             "<div class='question'>"
-            "<h5>Question ${sequence} <small>(${type}, ${value})</small></h5>"
+            "<h3>Item ${sequence} <small>(${type}, ${value})</small></h3>"
             "<p>${prompt}</p>"
             "</div>"
             );
@@ -92,7 +92,7 @@ void Edit_eval_item::edit_mode_()
     clear();
 
     std::ostringstream title;
-    title << "<h5>Question " << eval_item_->sequence() << "</h5>";
+    title << "<h3>Item " << eval_item_->sequence() << "</h3>";
     addNew<Wt::WText>(title.str());
 
     prompt_ = addNew<Wt::WTextArea>(eval_item_->prompt());
@@ -218,7 +218,7 @@ void Edit_assignment_view::fewer_()
         real_fewer_();
     } else {
         std::ostringstream message;
-        message << "Question " << eval_item->sequence() << " currently has "
+        message << "Eval item " << eval_item->sequence() << " currently has "
                 << self_eval_count << " self eval(s). "
                 << "Are you sure you want to delete it?";;
 
