@@ -74,25 +74,55 @@ static int count_lines(const Bytes& bytes)
     return result;
 }
 
-static regex const config_file_re("Makefile|CMakeLists\\.txt|.*\\.md", regex_constants::icase);
-static regex const log_file_re(".*\\.h?log|.*-log\\.[^.]*", regex_constants::icase);
-static regex const resource_file_re(".*\\.(?:in|out|err|txt)");
-static regex const test_file_re("test.*|.*test\\.[^.]*", regex_constants::icase);
+#define OR          "|"
+#define BASE(X)     X ".*" OR ".*" X "\\.[^.]*"
+#define EXT(X)      ".*\\." X
+
+namespace re {
+namespace {
+
+using namespace regex_constants;
+
+regex const config_file(
+        "Makefile"
+        OR "CMakeLists\\.txt"
+        OR EXT("md"),
+        icase);
+
+regex const log_file(
+        BASE("screenshot")
+        OR EXT("h?log")
+        OR ".*-log\\.[^.]*",
+        icase);
+
+regex const resource_file(
+        EXT("in")
+        OR EXT("out")
+        OR EXT("err")
+        OR EXT("txt"),
+        icase);
+
+regex const test_file(
+        BASE("test"),
+        icase);
+
+}
+}
 
 static File_purpose classify_file_type(string const& media_type,
                                        string const& filename)
 {
-    if (regex_match(filename, config_file_re))
+    if (regex_match(filename, re::config_file))
         return File_purpose::config;
 
-    if (regex_match(filename, log_file_re))
+    if (regex_match(filename, re::log_file))
         return File_purpose::log;
 
-    if (regex_match(filename, resource_file_re)
+    if (regex_match(filename, re::resource_file)
         || media_type != "text/plain")
         return File_purpose::resource;
 
-    if (regex_match(filename, test_file_re))
+    if (regex_match(filename, re::test_file))
         return File_purpose::test;
     else
         return File_purpose::source;
