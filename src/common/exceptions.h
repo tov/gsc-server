@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Wt/dbo/ptr.h>
+#include <Wt/Dbo/ptr.h>
 
 #include <array>
 #include <stdexcept>
