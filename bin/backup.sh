@@ -4,31 +4,87 @@ set -e
 
 dir=gsc-backups
 localdir=$HOME/$dir
-filename=cs211-$(date +%Y%m%d-%H%M%S)
+file=cs211-$(date +%Y%m%d-%H%M%S).psql
 host=login.eecs.northwestern.edu
 gpg_recipient=jesse.tov@gmail.com
 gpg_public_key=0xC5668BA5047AE6BD
 
-gpg_encrypt () {
-    gpg --recipient "$gpg_recipient" \
-        --trusted-key "$gpg_public_key" \
-        --enable-progress-filter \
-        --encrypt "$1"
+if [ "$(date +%N)" = N ]; then
+    date_fmt=%s
+    time_fmt=%ds
+else
+    date_fmt=%s.%N
+    time_fmt=%.2fs
+fi
+
+gpgz () {
+    gpg --compress-level 7 --output - "$@"
+}
+
+time_stamp () {
+    date +"$date_fmt"
+}
+
+reset_timer () {
+    timer_base=$(time_stamp)
+}
+
+elapsed_time () {
+    echo "$(time_stamp) - $timer_base" | bc -l
+}
+
+PROGRESS="\r%s... $time_fmt "
+COMPLETE="\r%s... done ($time_fmt).\n"
+STEP_START=256
+STEP_MAX=1048576
+STEP_FACTOR=2
+
+progress_meter () (
+    exec >&2
+
+    step_size=$STEP_START
+
+    reset_timer
+
+    while [ -n "$(head -c $step_size | sed 's/[.\n]*/x/')" ]; do
+        printf "$PROGRESS" "$1" $(elapsed_time)
+
+        test $step_size -gt $STEP_MAX ||
+            : $(( step_size *= STEP_FACTOR ))
+    done
+
+    printf "$COMPLETE" "$1" $(elapsed_time)
+)
+
+progress_output () {
+    local descr; descr=$1; shift
+    local target; target=$1; shift
+
+    "$@" | tee "$target" | progress_meter "$descr"
+}
+
+progress_around () {
+    local descr; descr=$1; shift
+
+    reset_timer
+    printf>&2 "$PROGRESS" "$descr" 0
+    "$@"
+    printf>&2 "$COMPLETE" "$descr" $(elapsed_time)
 }
 
 mkdir -p $localdir
 cd $localdir
 
-echo>&2 Dumping database:
-sudo -u gsc pg_dump gsc > $filename.psql
-echo>&2 Encrypting:
-gpg --sign -z 5 --encrypt --recipient "$gpg_recipient" \
-    --output $filename.psql.bz2.gpg $filename.psql
-# echo>&2 Compressing:
-# bzip2 -v $filename.psql
-# echo>&2 Encrypting:
-# gpg --encrypt 
-rm $filename.psql
+progress_around "Authenticating" \
+    sudo -u gsc true
 
-echo>&2 Synchronizing:
-rsync --progress -av $localdir $host:
+progress_output "Dumping database" $file \
+    sudo -u gsc pg_dump gsc
+
+progress_output "Encrypting" $file.gpg \
+    gpgz --sign --recipient "$gpg_recipient" --encrypt $file
+
+rm $file
+
+progress_around "Synchronizing" \
+    rsync --times --progress $localdir/*.gpg $host:$dir/
