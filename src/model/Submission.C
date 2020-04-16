@@ -549,6 +549,7 @@ void Submission::load_cache() const
 void Submission::clear_cache() const
 {
     is_loaded_ = false;
+    byte_count_ = -1;
 }
 
 void Submission::reload_cache() const
