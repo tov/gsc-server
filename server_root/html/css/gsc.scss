@@ -753,7 +753,6 @@ $hlog-indent:              72px;
         background-color: #EEE;
     }
 
-    h3, // deprecated
     summary {
         display:          list-item;
         font:             $sf-body;
@@ -834,8 +833,6 @@ $hlog-indent:              72px;
     }
 }
 
-code.grep_output, // deprecated in favor of code.grep-output
-code.io_lines, // deprecated in favor of code.io-lines
 code.grep-output,
 code.io-lines {
     display:       block;
@@ -847,7 +844,6 @@ code.io-lines {
     font:          $tt-listing;
 }
 
-code.grep_output,
 code.grep-output {
     color:            $deep-grey;
     background-color: #FFD;
@@ -864,7 +860,6 @@ code.grep-output {
     }
 }
 
-code.io_lines,
 code.io-lines {
     $io-bg-color:     #345;
     $io-bg-step:      2px;
