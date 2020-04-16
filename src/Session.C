@@ -324,14 +324,7 @@ bool Session::authenticate_from_environment()
 
 void Session::become_user(const dbo::ptr<User>& user)
 {
-    login_.logout();
-    auth_info_ = nullptr;
-
-    auto user_id = std::to_string(user.id());
-    auto auth_user = users().findWithId(user_id);
-    login_.login(auth_user);
-
-    Navigate::to("/");
+    redirect_with_whoami(user->name(), "/");
 }
 
 auto authn_result<Auth::User>::lift(

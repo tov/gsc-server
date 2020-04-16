@@ -41,15 +41,23 @@ optional<string> param_whoami()
         return nullopt;
 }
 
-void redirect_with_whoami(string const& whoami)
+void redirect_with_whoami(std::string const& uri,
+                          std::string const& whoami)
 {
     auto app = Wt::WApplication::instance();
     if (!app) return;
 
     ostringstream target;
-    target << '/' << app->bookmarkUrl() << "?whoami=" << whoami;
+    target << '/' << uri << "?whoami=" << whoami;
     app->redirect(target.str());
     app->quit();
+}
+
+void redirect_with_whoami(string const& whoami)
+{
+    auto app = Wt::WApplication::instance();
+    if (!app) return;
+    redirect_with_whoami(app->bookmarkUrl(), whoami);
 }
 
 optional<string> env_remote_user()
