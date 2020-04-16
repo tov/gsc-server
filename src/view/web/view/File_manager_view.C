@@ -86,8 +86,7 @@ Quota_display::Quota_display(Submission_context& context)
         : Wt::WTemplate(quota_display_template)
         , context_{context}
 {
-    field_ = bindWidget("bytes", std::make_unique<Wt::WText>());
-    reload();
+    field_ = bindNew<Wt::WText>("bytes");
 }
 
 void Quota_display::reload()
@@ -109,8 +108,6 @@ Date_list::Date_list(Submission_context& context)
     due_date_ = elementAt(0, 1)->addNew<Wt::WText>();
     eval_date_ = elementAt(1, 1)->addNew<Wt::WText>();
     last_modified_ = elementAt(2, 1)->addNew<Wt::WText>();
-
-    reload();
 }
 
 void Date_list::reload()
@@ -184,7 +181,7 @@ void File_uploader::uploaded_()
             std::string const& client_file_name = file.clientFileName();
 #ifdef GSC_USE_FILESYSTEM
             std::filesystem::path filepath(client_file_name);
-        std::string filename = filepath.filename().string();
+            std::string filename = filepath.filename().string();
 #else // GSC_USE_FILESYSTEM
             size_t slash_pos = client_file_name.rfind('/');
             size_t start_pos = slash_pos == std::string::npos ? 0 : slash_pos + 1;
@@ -248,13 +245,21 @@ File_manager_view::File_manager_view(const Wt::Dbo::ptr<Submission>& submission,
     quota_display_     = right_column_->addNew<Quota_display>(context());
 #endif // GSC_SHOW_QUOTA
     date_list_         = right_column_->addNew<Date_list>(context());
+
+    on_change_();
 }
 
 void File_manager_view::on_change()
 {
+    on_change_();
+}
+
+void File_manager_view::on_change_()
+{
     dbo::Transaction transaction(session());
-    date_list_->reload();
 #ifdef GSC_SHOW_QUOTA
     quota_display_->reload();
 #endif // GSC_SHOW_QUOTA
+    date_list_->reload();
 }
+
