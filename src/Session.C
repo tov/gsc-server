@@ -307,14 +307,19 @@ bool Session::authenticate_from_environment()
 {
     dbo::Transaction transaction(dbo());
 
-    if (auto wt_user = find_from_environment<auth_user_t>();
-            wt_user.isValid())
+    auto auth_user = find_from_environment<auth_user_t>();
+    if (!auth_user.isValid()) return false;
+
+    std::optional<std::string> whoami;
+    if (users().find(auth_user)->user()->can_admin()
+        && (whoami = param_whoami()).has_value())
     {
-        login().login(wt_user);
-        return true;
+        auth_user = find_by_login<auth_user_t>(whoami.value(), true);
+        if (!auth_user.isValid()) return false;
     }
 
-    return false;
+    login().login(auth_user);
+    return true;
 }
 
 void Session::become_user(const dbo::ptr<User>& user)

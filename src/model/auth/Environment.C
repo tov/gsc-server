@@ -4,7 +4,7 @@
 #include "Wt/WApplication.h"
 #include "Wt/WEnvironment.h"
 
-using std::string;
+using namespace std;
 
 #ifdef GSC_AUTH_OPEN_AM
 namespace {
@@ -29,34 +29,50 @@ string Param::lookup(Wt::WEnvironment const& env) const
 }
 #endif // GSC_AUTH_OPEN_AM
 
-std::optional<string> env_remote_user()
+optional<string> param_whoami()
 {
     auto app = Wt::WApplication::instance();
-    if (!app) return {};
+    if (!app) return nullopt;
 
-    auto const& env = app->environment();
-
-#ifdef GSC_AUTH_DEBUG
-    if (string const* whoami = env.getParameter("whoami")) {
+    string const* whoami = app->environment().getParameter("whoami");
+    if (whoami)
         return {*whoami};
-    } else {
-        std::ostringstream target;
-        target << '/' << app->bookmarkUrl() << "?whoami=admin";
-        app->redirect(target.str());
-        app->quit();
-    }
+    else
+        return nullopt;
+}
+
+void redirect_with_whoami(string const& whoami)
+{
+    auto app = Wt::WApplication::instance();
+    if (!app) return;
+
+    ostringstream target;
+    target << '/' << app->bookmarkUrl() << "?whoami=" << whoami;
+    app->redirect(target.str());
+    app->quit();
+}
+
+optional<string> env_remote_user()
+{
+#ifdef GSC_AUTH_DEBUG
+    if (auto whoami = param_whoami())
+        return whoami;
+    else
+        redirect_with_whoami("admin");
 #endif
 
 #ifdef GSC_AUTH_OPEN_AM
-    if (auth_type_param.lookup(env) == open_am_auth_type) {
-        if (string username = remote_user_param.lookup(env);
-                !username.empty())
-        {
-            return {username};
-        }
-    }
+    auto app = Wt::WApplication::instance();
+    if (!app) return nullopt;
+
+    auto const& env = app->environment();
+
+    if (auth_type_param.lookup(env) != open_am_auth_type) return nullopt;
+
+    string username = remote_user_param.lookup(env);
+    if (!username.empty()) return optional(username);
 #endif // GSC_AUTH_OPEN_AM
 
-    return {};
+    return nullopt;
 }
 
