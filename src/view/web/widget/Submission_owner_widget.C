@@ -101,9 +101,9 @@ void Submission_owner_widget::update_admin_()
                             submission()->assignment());
                     transaction2.commit();
                     notify(joined);
-                } catch (Submission::Join_collision const& exn) {
-                    auto note = Notification("Cannot Join Submissions");
-                    exn.write_html(note);
+                } catch (Html_error const& exn) {
+                    auto note = Notification(exn.title());
+                    exn.write_body_html(note);
                 }
             } else {
                 edit->setText("");

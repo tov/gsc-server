@@ -91,3 +91,40 @@ percentage::operator Wt::WString() const
 {
     return operator std::string();
 }
+
+namespace html {
+
+std::ostream& operator<<(std::ostream& o, Escape x)
+{
+    for (char c : x.raw) {
+        switch (c) {
+            case '<':
+                o << "&lt;";
+                break;
+            case '>':
+                o << "&gt;";
+                break;
+            case '&':
+                o << "&amp;";
+                break;
+            case '"':
+                o << "&quot;";
+                break;
+            case '\'':
+                o << "&apos;";
+                break;
+            default:
+                o << c;
+                break;
+        }
+    }
+
+    return o;
+}
+
+std::ostream& operator<<(std::ostream& o, Filename x)
+{
+    return o << "<code>" << Escape{x.filename} << "</code>";
+}
+
+}

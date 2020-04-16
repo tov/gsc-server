@@ -177,42 +177,30 @@ void File_uploader::uploaded_()
     if (!submission->can_submit(session.user()))
         return;
 
-    for (auto& file : upload_->uploadedFiles()) {
-        std::ifstream spool(file.spoolFileName());
+    try {
+        for (auto& file : upload_->uploadedFiles()) {
+            std::ifstream spool(file.spoolFileName());
 
-        std::string const& client_file_name = file.clientFileName();
+            std::string const& client_file_name = file.clientFileName();
 #ifdef GSC_USE_FILESYSTEM
-        std::filesystem::path filepath(client_file_name);
+            std::filesystem::path filepath(client_file_name);
         std::string filename = filepath.filename().string();
 #else // GSC_USE_FILESYSTEM
-        size_t slash_pos = client_file_name.rfind('/');
-        size_t start_pos = slash_pos == std::string::npos ? 0 : slash_pos + 1;
-        std::string filename = client_file_name.substr(start_pos);
+            size_t slash_pos = client_file_name.rfind('/');
+            size_t start_pos = slash_pos == std::string::npos ? 0 : slash_pos + 1;
+            std::string filename = client_file_name.substr(start_pos);
 #endif // GSC_USE_FILESYSTEM
 
-        spool.seekg(0, std::ios::end);
-        int file_size = spool.tellg();
-        spool.seekg(0, std::ios::beg);
+            spool.seekg(0, std::ios::end);
+            int file_size = spool.tellg();
+            spool.seekg(0, std::ios::beg);
 
-        if (file_size > File_meta::max_byte_count) {
-            Notification("File Too Large")
-                    << "File ‘" << filename << "’ cannot be uploaded because it is "
-                    << with_commas(file_size) << " bytes, which exceeds the per-file quota of "
-                    << with_commas(File_meta::max_byte_count) << " bytes.";
-            break;
+            Bytes contents{spool, file_size};
+            File_meta::upload(filename, contents, submission, session.user());
         }
-
-        if (! submission->has_sufficient_space(file_size, filename)) {
-            Notification("File Quota Exceeded")
-                    << "File ‘" << filename << "’ cannot be uploaded because its size of "
-                    << with_commas(file_size) << " bytes exceeds your remaining quota of "
-                    << with_commas(submission->remaining_space()) << " bytes.";
-            break;
-        }
-
-        Bytes contents{spool, file_size};
-
-        File_meta::upload(filename, contents, submission, session.user());
+    } catch (Html_error const& exn) {
+        auto note = Notification(exn.title());
+        exn.write_body_html(note);
     }
 
     context_.notify();
@@ -225,7 +213,7 @@ void File_uploader::too_large_(long size)
     Notification("Files Too Large")
             << "Files cannot be uploaded because their total size ("
             << with_commas(size)
-            << " bytes) exceeds the per-upload quota of "
+            << " bytes) exceeds the per-upload limit of "
             << with_commas(max_size)
             << " bytes.";
     reset_();

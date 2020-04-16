@@ -112,4 +112,22 @@ with_commas<T>::operator Wt::WString() const
     return operator std::string();
 }
 
+namespace html
+{
+
+struct Escape
+{
+    std::string const& raw;
+};
+
+std::ostream& operator<<(std::ostream&, Escape);
+
+struct Filename
+{
+    std::string const& filename;
+};
+
+std::ostream& operator<<(std::ostream&, Filename);
+
+}
 

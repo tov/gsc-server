@@ -125,18 +125,10 @@ void Partner_confirmer_widget::accept_()
     try {
         dbo::Transaction transaction(context_.session());
         auto joint_submission = request_->confirm(context_.session());
-        transaction.commit();
-
-        if (joint_submission) {
-            context_.notify(joint_submission);
-        } else {
-            Notification("Error")
-                    << "That partner request has been withdrawn :(";
-        }
-
-    } catch (Submission::Join_collision const& exn) {
-        auto note = Notification("Cannot Join Submissions");
-        exn.write_html(note);
+        context_.notify(joint_submission);
+    } catch (Html_error const& exn) {
+        auto note = Notification(exn.title());
+        exn.write_body_html(note);
     }
 }
 
@@ -204,9 +196,9 @@ void Partner_requestor_widget::submit_()
         if (request) context_.notify();
         else error_(message.str());
 
-    } catch (Submission::Join_collision const& exn) {
-        auto note = Notification("Cannot Join Submissions");
-        exn.write_html(note);
+    } catch (Html_error const& exn) {
+        auto note = Notification(exn.title());
+        exn.write_body_html(note);
     }
 }
 

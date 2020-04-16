@@ -24,6 +24,7 @@ enum class File_purpose
     config,
     resource,
     log,
+    forbidden,
 };
 
 template<>
@@ -38,9 +39,9 @@ class File_meta
 public:
     File_meta() = default;
     File_meta(const std::string& name, const std::string& media_type,
-              const dbo::ptr<Submission>& submission,
-              const dbo::ptr<User>& uploader,
-              int line_count, int byte_count);
+              File_purpose purpose, const dbo::ptr<User>& uploader,
+              int line_count, int byte_count,
+              const dbo::ptr<Submission>& submission);
 
     const std::string& name() const
     { return name_; }

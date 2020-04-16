@@ -51,9 +51,6 @@ public:
         Wt::Dbo::ptr<Grader_eval> grader_eval;
     };
 
-    class Join_collision;
-    class Move_collision;
-
     using Items = std::vector<Item>;
 
     Submission() {};
@@ -245,34 +242,6 @@ public:
         Wt::Dbo::field(a, last_modified_, "last_modified");
         Wt::Dbo::field(a, bytes_quota_, "bytes_quota");
     }
-};
-
-class Submission::Join_collision : public std::runtime_error {
-public:
-    using submission_t = Wt::Dbo::ptr<Submission>;
-    using filenames_t  = std::vector<std::string>;
-
-    Join_collision(submission_t, submission_t, filenames_t);
-
-    filenames_t const& filenames() const { return filenames_; }
-
-    std::ostream& write_html(std::ostream&) const;
-
-private:
-    std::array<submission_t, 2> submissions_;
-    filenames_t filenames_;
-};
-
-class Submission::Move_collision : public std::runtime_error {
-public:
-    using submission_t = Wt::Dbo::ptr<Submission>;
-    using filename_t = std::string;
-
-    Move_collision(submission_t, filename_t, submission_t, filename_t);
-
-private:
-    std::array<submission_t, 2> submissions_;
-    std::array<filename_t, 2> filenames_;
 };
 
 struct Viewing_context

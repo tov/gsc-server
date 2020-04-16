@@ -15,7 +15,6 @@
 #include <algorithm>
 #include <cctype>
 #include <regex>
-#include <sstream>
 
 namespace J = Json;
 
@@ -29,12 +28,14 @@ char const* Enum<File_purpose>::show(File_purpose purpose)
         case File_purpose::resource: return "resource";
         case File_purpose::source: return "source";
         case File_purpose::test: return "test";
+        case File_purpose::forbidden: return "forbidden";
     }
 }
 
 static regex const config_re("config", regex_constants::icase);
 static regex const log_re("log", regex_constants::icase);
 static regex const resource_re("resource", regex_constants::icase);
+static regex const source_re("source", regex_constants::icase);
 static regex const test_re("test", regex_constants::icase);
 
 File_purpose Enum<File_purpose>::read(const char* purpose)
@@ -55,7 +56,10 @@ File_purpose Enum<File_purpose>::read(const char* purpose)
     if (match(test_re))
         return File_purpose::test;
 
-    return File_purpose::source;
+    if (match(source_re))
+        return File_purpose::source;
+
+    return File_purpose::forbidden;
 }
 
 static int count_lines(const Bytes& bytes)
@@ -106,12 +110,22 @@ regex const test_file(
         BASE("test"),
         icase);
 
+regex const forbidden_file(
+        EXT("o")
+        OR EXT("exe")
+        OR "[.].*"
+        OR "[^.]*",
+        icase);
+
 }
 }
 
 static File_purpose classify_file_type(string const& media_type,
                                        string const& filename)
 {
+    if (regex_match(filename, re::forbidden_file))
+        return File_purpose::forbidden;
+
     if (regex_match(filename, re::config_file))
         return File_purpose::config;
 
@@ -130,12 +144,13 @@ static File_purpose classify_file_type(string const& media_type,
 
 const int File_meta::max_byte_count = 5 * 1024 * 1024;
 
-File_meta::File_meta(const string &name, const string &media_type,
-                     const dbo::ptr<Submission> &submission, const dbo::ptr<User> &uploader,
-                     int line_count, int byte_count)
+File_meta::File_meta(const std::string& name, const std::string& media_type,
+                     File_purpose purpose, const dbo::ptr<User>& uploader,
+                     int line_count, int byte_count,
+                     const dbo::ptr<Submission>& submission)
         : name_{name}
         , media_type_{media_type}
-        , purpose_{classify_file_type(media_type, name)}
+        , purpose_{purpose}
         , submission_{submission}
         , uploader_{uploader}
         , line_count_{line_count}
@@ -151,16 +166,29 @@ File_meta::upload(const string &name, const Bytes &contents,
     dbo::Session& session = *submission.session();
     dbo::Transaction transaction(session);
 
+    auto byte_count = contents.size();
+    auto media_type = Media_type_registry::instance().lookup(name);
+    auto purpose    = classify_file_type(media_type, name);
+
+    if (purpose == File_purpose::forbidden)
+        throw Bad_file_type_error(name);
+
+    if (byte_count > File_meta::max_byte_count)
+        throw File_too_large_error(name, byte_count, File_meta::max_byte_count);
+
+    if (! submission->has_sufficient_space(byte_count, name))
+        throw Would_exceed_quota_error(name, byte_count, submission->remaining_space());
+
     for (auto file : submission->source_files()) {
         if (file->name_ == name) file.remove();
     }
 
-    auto media_type = Media_type_registry::instance().lookup(name);
     auto line_count = media_type == "text/plain"? count_lines(contents) : 0;
 
     dbo::ptr<File_meta> result =
-            session.addNew<File_meta>(name, media_type, submission, uploader,
-                                      line_count, contents.size());
+            session.addNew<File_meta>(name, media_type, purpose,
+                                      uploader, line_count,
+                                      byte_count, submission);
     session.addNew<File_data>(result, contents);
 
     submission.modify()->touch();
@@ -179,8 +207,7 @@ void File_meta::move(const dbo::ptr<Submission>& dst_owner,
 
     if (auto file = dst_owner->find_file_by_name(dst_name)) {
         if (!overwrite)
-            throw Submission::Move_collision(submission(), name(),
-                                             dst_owner, dst_name);
+            throw Move_collision_error(submission(), name(), dst_owner, dst_name);
 
         file.remove();
     }

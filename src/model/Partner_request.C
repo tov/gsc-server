@@ -125,7 +125,7 @@ Partner_request::confirm(dbo::Session& session) const
     // Confirm that the request hasn't been cancelled
     auto self = Partner_request::find_by_requestor_and_requestee(
             session, requestor_, requestee_, assignment_);
-    if (!self) return {};
+    if (!self) throw Withdrawn_partner_request_error{};
 
     return confirm(session, requestor_, requestee_, assignment_);
 }
@@ -247,7 +247,7 @@ Partner_request::confirm(dbo::Session& session,
         delete_requests(session, user2, assignment);
         return submission1;
     } else {
-        return {};
+        throw Withdrawn_partner_request_error{};
     }
 }
 

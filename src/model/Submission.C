@@ -14,7 +14,6 @@
 
 #include <Wt/WDateTime.h>
 #include <Wt/Dbo/Impl.h>
-#include <Wt/Utils.h>
 
 #include <algorithm>
 #include <functional>
@@ -33,9 +32,7 @@ Submission::Submission(const dbo::ptr<User>& user,
         , eval_date_(assignment->eval_date())
         , last_modified_(Wt::WDateTime::currentDateTime())
         , bytes_quota_(initial_bytes_quota)
-{
-
-}
+{ }
 
 Source_file_vec Submission::source_files_sorted() const
 {
@@ -675,7 +672,7 @@ void ensure_disjoint(dbo::ptr<Submission> const& sub1,
             file.remove();
         }
     } else {
-        throw Submission::Join_collision(sub1, sub2, partition.precious);
+        throw Join_collision_error(sub1, sub2, partition.precious);
     }
 }
 
@@ -859,96 +856,3 @@ char const* Enum<Submission::Eval_status>::show(Submission::Eval_status status)
             return "complete";
     }
 }
-
-static std::string join_error_message_(dbo::ptr<Submission> const& o1,
-                                       dbo::ptr<Submission> const& o2,
-                                       vector<string> const& names)
-{
-    ostringstream oss;
-
-    auto fmt = [&](auto const& o) {
-        oss << " - " << o->owner_string() << " hw" << o->assignment_number()
-            << "\n";
-    };
-
-    oss << "Submission Collision Error\n\n";
-    oss << "Problem: These submissions can’t be unified:\n";
-    fmt(o1);
-    fmt(o2);
-    oss << "Reason:  These file names are common to both submissions:\n";
-    for (auto const& name : names) {
-        oss << " - " << name << "\n";
-    }
-
-    return oss.str();
-}
-
-Submission::Join_collision::Join_collision(submission_t o1,
-                                           submission_t o2,
-                                           filenames_t filenames)
-        : std::runtime_error{join_error_message_(o1, o2, filenames)}
-        , submissions_{move(o1), move(o2)}
-        , filenames_{move(filenames)}
-{ }
-
-std::ostream& Submission::Join_collision::write_html(std::ostream& note) const
-{
-    note << "<p>";
-
-    bool singular = filenames().size() == 1;
-
-    note    << "File submitted by you and "
-            << submissions_[1]->user1()->name()
-            << " have the same "
-            << (singular? "name" : "names")
-            << ":</p><ul>";
-
-    for (auto const& name : filenames()) {
-        note << "<li><tt>" << Wt::Utils::htmlEncode(name) << "</tt></li>";
-    }
-
-    note    << "</ul><p>Before this partnership can be registered, "
-            << "you and your prospective partner must ensure that your "
-            << "submissions do not have any filenames in common. ";
-
-    if (submissions_[0]->assignment()->web_allowed()) {
-        note    << "You should delete or rename the files, ";
-    } else {
-        note    << "You should rename the files using <code>gsc mv</code> "
-                << "or delete them using <code>gsc rm</code>, ";
-    }
-
-    note    << "then try again.</p>";
-
-    return note;
-}
-
-static std::string move_error_message_(dbo::ptr<Submission> const& o1,
-                                       string const& s1,
-                                       dbo::ptr<Submission> const& o2,
-                                       string const& s2)
-{
-    ostringstream oss;
-
-    auto fmt = [&](auto const& descr, auto const& o, auto const& s) {
-        oss << " - " << descr << ": hw" << o->assignment_number() << ':' << s
-            << '\n';
-    };
-
-    oss << "Submission Collision Error\n\n";
-    oss << "Problem: File cannot be renamed:\n";
-    fmt("source", o1, s1);
-    fmt("target", o2, s2);
-    oss << "Reason:  The target already exists.\n";
-
-    return oss.str();
-}
-
-Submission::Move_collision::Move_collision(submission_t o1,
-                                           filename_t s1,
-                                           submission_t o2,
-                                           filename_t s2)
-        : std::runtime_error(move_error_message_(o1, s1, o2, s2))
-        , submissions_{o1, o2}
-        , filenames_{s1, s2}
-{ }
