@@ -9,6 +9,34 @@
 
 DBO_INSTANTIATE_TEMPLATES(Partner_request)
 
+namespace s {
+namespace {
+
+struct user
+{
+    dbo::ptr<User> const& data;
+    const char          * const before = "User";
+};
+
+std::ostream& operator<<(std::ostream& o, user u)
+{
+    return o << u.before << " ‘" << u.data->name() << "’";
+}
+
+struct hw
+{
+    dbo::ptr<Assignment> const& data;
+    const char                * const before = "hw";
+};
+
+std::ostream& operator<<(std::ostream& o, hw h)
+{
+    return o << h.before << h.data->number();
+}
+
+}
+}
+
 dbo::ptr<Partner_request>
 Partner_request::create(dbo::Session& session,
                         const dbo::ptr<User>& requestor,
@@ -16,6 +44,11 @@ Partner_request::create(dbo::Session& session,
                         const dbo::ptr<Assignment>& assignment,
                         std::ostream& message)
 {
+    if (! assignment->partner()) {
+        message << s::hw{assignment, "HW"} << " does not allow partners.";
+        return {};
+    }
+
     if (requestor == requestee) {
         message << "You cannot be your own partner.";
         return {};
@@ -23,13 +56,40 @@ Partner_request::create(dbo::Session& session,
 
     auto my_submission = Submission::find_by_assignment_and_user(session, assignment, requestor);
 
-    if (my_submission->user2()) {
-        message << "You already have a partner for hw" << assignment->number() << ".";
+    if (auto user2 = my_submission->user2()) {
+        if (user2 == requestee) {
+            message << s::user{requestee, "User"}
+                    << " is already your partner for "
+                    << s::hw{assignment} << ".";
+        } else {
+            message << "You already have a different partner for "
+                    << s::hw{assignment} << ".";
+        }
+
+        return {};
+    }
+
+    if (Partner_request::find_by_requestor_and_requestee(
+            session, requestor, requestee, assignment)) {
+        message << "You already have an outgoing partner request to "
+                << s::user{requestee} << " for "
+                << s::hw{assignment} << ".";
+        return {};
+    }
+
+    if (Partner_request::find_by_requestor_and_requestee(
+            session, requestee, requestor, assignment)) {
+        message << s::user{requestee, "User"}
+                << " has already sent you a partner request for "
+                << s::hw{assignment}
+                << "; you should accept it.";
         return {};
     }
 
     if (!my_submission->can_submit(requestor)) {
-        message << "You cannot modify your hw" << assignment->number() << " submission.";
+        message << "You cannot modify your "
+                << s::hw{assignment}
+                << " submission now.";
         return {};
     }
 
@@ -39,20 +99,20 @@ Partner_request::create(dbo::Session& session,
     }
 
     if (requestee->role() != User::Role::Student) {
-        message << "User ‘" << requestee->name() << "’ is not a student.";
+        message << s::user{requestee, "User"} << " is not a student.";
         return {};
     }
 
     auto other_submission = Submission::find_by_assignment_and_user(session, assignment, requestee);
 
     if (other_submission->user2() || !other_submission->can_submit(requestee)) {
-        message << "User ‘" << requestee->name() << "’ is not available.";
+        message << s::user{requestee, "User"} << " is not available.";
         return {};
     }
 
     if (Partner_request::find_by_requestor_and_assignment(session, requestor, assignment)) {
         message << "You already have an outgoing partner request for "
-                << assignment->name() << ".";
+                << s::hw{assignment} << ".";
         return {};
     }
 
