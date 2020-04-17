@@ -23,11 +23,9 @@
 #include "view/game/HangmanWidget.h"
 #include "view/game/HighScoresWidget.h"
 
-#include <Wt/date/tz.h>
-#include <Wt/date/date.h>
+#include <Wt/Date/tz.h>
 #include <Wt/WBootstrapTheme.h>
 #include <Wt/WEnvironment.h>
-//#include <Wt/WLocalDateTime.h>
 #include <Wt/WLocale.h>
 #include <Wt/WWidget.h>
 
