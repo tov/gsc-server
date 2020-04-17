@@ -17,8 +17,6 @@ double clean_grade(double numerator, double denominator = 1.0);
 
 void set_time_zone(Wt::WLocale& locale);
 
-Wt::WString http_format(Wt::WDateTime const& datetime);
-
 Wt::WString json_format(Wt::WDateTime const& datetime);
 
 ///
