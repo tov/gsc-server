@@ -1,16 +1,13 @@
 #include "Edit_assignment_view.h"
 #include "../Confirmation_dialog.h"
+#include "../widget/Eval_item_type_chooser.h"
 #include "../../../model/Assignment.h"
-#include "../../../model/Eval_item.h"
 #include "../../../Session.h"
+#include "../../../common/util.h"
 
-#include <Wt/WBreak.h>
-#include <Wt/WButtonGroup.h>
 #include <Wt/WLineEdit.h>
 #include <Wt/WPushButton.h>
-#include <Wt/WRadioButton.h>
 #include <Wt/WTemplate.h>
-#include <Wt/WText.h>
 #include <Wt/WTextArea.h>
 
 #include <cstdlib>
@@ -31,11 +28,12 @@ private:
 
     Wt::WTextArea* prompt_;
     Wt::WLineEdit* value_;
-    std::shared_ptr<Wt::WButtonGroup> type_;
+    Eval_item_type_chooser* type_;
 
     void view_mode_();
     void edit_mode_();
 
+    void cancel_action_();
     void save_action_();
     void edit_action_();
 
@@ -51,8 +49,6 @@ Edit_eval_item::Edit_eval_item(const dbo::ptr<Eval_item>& eval_item,
           session_(session),
           in_edit_mode_(false)
 {
-    setStyleClass("edit-eval-item");
-
     if (eval_item->prompt().empty())
         edit_mode_();
     else
@@ -64,26 +60,24 @@ void Edit_eval_item::view_mode_()
     in_edit_mode_ = false;
     clear();
 
-    auto templ = addNew<Wt::WTemplate>(
-            "<div class='question'>"
-            "<h3>Item ${sequence} <small>(${type}, ${value})</small></h3>"
-            "<p>${prompt}</p>"
+    auto templ = addNew<WTemplate>(
+            "<div class='edit-eval-item'>"
+              "<h3>Item ${sequence} <small>(${type}, ${value})</small></h3>"
+              "<table class='edit-eval-item-table'>"
+                "<tr><th>&nbsp;</th><td>${prompt}</td></tr>"
+                "<tr><th>&nbsp;</th><td class='buttons-inline'>"
+                  "${edit}"
+                "</td></tr>"
+              "</table>"
             "</div>"
-            );
+    );
 
-    std::string sequence =
-            std::to_string(eval_item_->sequence());
-    templ->bindWidget("sequence", std::make_unique<Wt::WText>(sequence));
-
-    std::string type = stringify(eval_item_->type());
-    templ->bindWidget("type", std::make_unique<Wt::WText>(type));
-
-    templ->bindWidget("value", std::make_unique<Wt::WText>(eval_item_->absolute_value_str()));
-
-    templ->bindWidget("prompt", std::make_unique<Wt::WText>(eval_item_->prompt()));
-
-    auto edit_button = addNew<Wt::WPushButton>("Edit");
-    edit_button->clicked().connect(this, &Edit_eval_item::edit_action_);
+    templ->bindInt("sequence", eval_item_->sequence());
+    templ->bindString("type", stringify(eval_item_->type()));
+    templ->bindString("value", eval_item_->absolute_value_str());
+    templ->bindString("prompt", eval_item_->prompt());
+    templ->bindNew<WPushButton>("edit", "Edit")
+         ->clicked().connect(this, &Edit_eval_item::edit_action_);
 }
 
 void Edit_eval_item::edit_mode_()
@@ -91,48 +85,54 @@ void Edit_eval_item::edit_mode_()
     in_edit_mode_ = true;
     clear();
 
-    std::ostringstream title;
-    title << "<h3>Item " << eval_item_->sequence() << "</h3>";
-    addNew<Wt::WText>(title.str());
+    auto templ = addNew<WTemplate>(
+            "<div class='edit-eval-item'>"
+              "<h3>Item ${sequence}</h3>"
+              "<table class='edit-eval-item-table'>"
+                "<tr><th>Type</th><td>${type}</td></tr>"
+                "<tr><th>Value</th><td>${value}</td></tr>"
+                "<tr><th>Prompt</th><td>${prompt}</td></tr>"
+                "<tr><th>&nbsp;</th><td class='buttons-inline'>"
+                  "${save} ${cancel}"
+                "</td></tr>"
+              "</table>"
+            "</div>"
+    );
 
-    prompt_ = addNew<Wt::WTextArea>(eval_item_->prompt());
-    prompt_->setStyleClass("prompt");
-    addNew<Wt::WBreak>();
+    templ->bindInt("sequence", eval_item_->sequence());
 
-    addNew<Wt::WText>("Relative value: ");
-    value_ = addNew<Wt::WLineEdit>(eval_item_->relative_value_str());
-    value_->setStyleClass("relative-value");
+    prompt_ = templ->bindNew<WTextArea>(
+            "prompt", eval_item_->prompt());
+    prompt_->setStyleClass("prompt-edit");
 
-    addNew<Wt::WBreak>();
-    addNew<Wt::WText>("Type: ");
-    type_ = std::make_shared<Wt::WButtonGroup>();
-    type_->addButton(addNew<Wt::WRadioButton>("Boolean"));
-    type_->addButton(addNew<Wt::WRadioButton>("Scale"));
-    type_->addButton(addNew<Wt::WRadioButton>("Informational"));
+    value_  = templ->bindNew<WLineEdit>(
+            "value", eval_item_->relative_value_str());
+    value_->setStyleClass("relative-value-edit");
 
-    switch (eval_item_->type()) {
-        case Eval_item::Type::Boolean:
-            type_->setSelectedButtonIndex(0);
-            break;
-        case Eval_item::Type::Scale:
-            type_->setSelectedButtonIndex(1);
-            break;
-        case Eval_item::Type::Informational:
-            type_->setSelectedButtonIndex(2);
-            break;
-    }
+    type_   = templ->bindNew<Eval_item_type_chooser>(
+            "type", eval_item_->type());
 
-    addNew<Wt::WBreak>();
+    templ->bindNew<WPushButton>("save", "Save")
+         ->clicked().connect(this, &Edit_eval_item::save_action_);
 
-    auto save_button = addNew<Wt::WPushButton>("Save");
-    save_button->clicked().connect(this, &Edit_eval_item::save_action_);
+    templ->bindNew<WPushButton>("cancel", "Cancel")
+         ->clicked().connect(this, &Edit_eval_item::cancel_action_);
+}
+
+void Edit_eval_item::cancel_action_()
+{
+    dbo::Transaction transaction(session_);
+
+    view_mode_();
+    main_.reload_all();
 }
 
 void Edit_eval_item::save_action_()
 {
+    dbo::Transaction transaction(session_);
+
     save_();
 
-    dbo::Transaction transaction(session_);
     view_mode_();
     main_.reload_all();
 }
@@ -140,24 +140,17 @@ void Edit_eval_item::save_action_()
 void Edit_eval_item::edit_action_()
 {
     dbo::Transaction transaction(session_);
+
     edit_mode_();
 }
 
 void Edit_eval_item::save_()
 {
-    Eval_item::Type type = Eval_item::Type::Boolean;
-    switch (type_->selectedButtonIndex()) {
-        case 1: type = Eval_item::Type::Scale; break;
-        case 2: type = Eval_item::Type::Informational; break;
-        default: break;
-    }
-
-    dbo::Transaction transaction(session_);
+    Eval_item::Type type = type_->get_value();
     auto eval_item = eval_item_.modify();
     eval_item->set_prompt(prompt_->text().toUTF8());
     eval_item->set_relative_value(value_->text().toUTF8());
     eval_item->set_type(type);
-    transaction.commit();
 
     value_->setText(eval_item->relative_value_str());
 }
@@ -176,13 +169,12 @@ Edit_assignment_view::Edit_assignment_view(const dbo::ptr<Assignment>& assignmen
 
     container_ = addNew<Wt::WContainerWidget>();
 
-    dbo::Transaction transaction(session_);
     for (const auto& eval_item : assignment_->eval_items())
         add_item_(eval_item);
-    transaction.commit();
 
     auto buttons = addNew<Wt::WContainerWidget>();
     buttons->setStyleClass("buttons");
+
     auto more = buttons->addNew<Wt::WPushButton>("More");
     auto fewer = buttons->addNew<Wt::WPushButton>("Fewer");
 
@@ -193,6 +185,7 @@ Edit_assignment_view::Edit_assignment_view(const dbo::ptr<Assignment>& assignmen
 void Edit_assignment_view::more_()
 {
     dbo::Transaction transaction(session_);
+
     int sequence = (int)assignment_->eval_items().size() + 1;
     auto eval_item = session_.addNew<Eval_item>(assignment_, sequence);
     add_item_(eval_item);
@@ -206,12 +199,13 @@ void Edit_assignment_view::add_item_(const dbo::ptr<Eval_item>& eval_item)
 
 void Edit_assignment_view::fewer_()
 {
+    dbo::Transaction transaction(session_);
+
     if (items_.empty()) return;
 
     auto eval_item = items_.back()->eval_item_;
-
-    dbo::Transaction transaction(session_);
     auto self_eval_count = eval_item->self_evals().size();
+
     transaction.commit();
 
     if (self_eval_count == 0) {
@@ -229,12 +223,11 @@ void Edit_assignment_view::fewer_()
 
 void Edit_assignment_view::real_fewer_()
 {
+    dbo::Transaction transaction(session_);
+
     if (items_.empty()) return;
 
-    dbo::Transaction transaction(session_);
     items_.back()->eval_item_.remove();
-    transaction.commit();
-
     container_->removeChild(items_.back());
     items_.pop_back();
 }

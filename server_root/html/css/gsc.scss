@@ -1,76 +1,76 @@
 @import url('https://fonts.googleapis.com/css2?family=Fira+Sans:ital,wght@0,400;0,700;1,400;1,700&family=Raleway:ital,wght@0,100;0,200;0,300;0,500;1,100;1,200;1,300;1,500&display=swap');
 
-$tt-fam:                   "Menlo", monospace;
-$hd-fam:                   "Raleway", "Helvetica Neue", sans-serif;
-$sf-fam:                   "Fira Sans", "Helvetica", sans-serif;
+$tt-fam: "Menlo", monospace;
+$hd-fam: "Raleway", "Helvetica Neue", sans-serif;
+$sf-fam: "Fira Sans", "Helvetica", sans-serif;
 
-$h1-size:                  50px;
-$h2-size:                  40px;
-$h3-size:                  28px;
-$h4-size:                  22px;
-$h5-size:                  16px;
-$h6-size:                  16px;
-$body-size:                16px;
-$small-size:               13px;
+$h1-size: 50px;
+$h2-size: 40px;
+$h3-size: 28px;
+$h4-size: 22px;
+$h5-size: 16px;
+$h6-size: 16px;
+$body-size: 16px;
+$small-size: 13px;
 
-$sf-h1:                    100 $h1-size $hd-fam;
-$sf-h2:                    200 $h2-size $hd-fam;
-$sf-h3:                    300 $h3-size $hd-fam;
-$sf-h4:                    300 $h4-size $hd-fam;
-$sf-h5:                    500 $h5-size $hd-fam;
-$sf-h6:                    500 $h6-size $hd-fam;
+$sf-h1: 100 $h1-size $hd-fam;
+$sf-h2: 200 $h2-size $hd-fam;
+$sf-h3: 300 $h3-size $hd-fam;
+$sf-h4: 300 $h4-size $hd-fam;
+$sf-h5: 500 $h5-size $hd-fam;
+$sf-h6: 500 $h6-size $hd-fam;
 
-$tt-head:                  $h5-size $tt-fam;
+$tt-head: $h5-size $tt-fam;
 
-$sf-body:                  $body-size $sf-fam;
-$tt-body:                  $body-size $tt-fam;
+$sf-body: $body-size $sf-fam;
+$tt-body: $body-size $tt-fam;
 
-$sf-small:                 $small-size $sf-fam;
-$tt-small:                 $small-size $tt-fam;
+$sf-small: $small-size $sf-fam;
+$tt-small: $small-size $tt-fam;
 
-$tt-listing:               13px/14px $tt-fam;
+$tt-listing: 13px/14px $tt-fam;
 
-$sf-tiny:                  11px/11px $sf-fam;
+$sf-tiny: 11px/11px $sf-fam;
 
-$nu-purple:                #3B2F77;
+$nu-purple: #3B2F77;
 
-$deep-grey:                #333;
-$dark-grey:                #555;
-$medium-grey:              #999;
+$deep-grey: #333;
+$dark-grey: #555;
+$medium-grey: #999;
 
-$primary-highlight:        #FF0;
-$secondary-highlight:      #FCF;
-$docked-highlight:         #FCD;
-$explanation-highlight:    #CDF;
+$primary-highlight: #FF0;
+$secondary-highlight: #FCF;
+$docked-highlight: #FCD;
+$explanation-highlight: #CDF;
 
-$radius:                   15px;
-$inverse-bg:               $nu-purple;
-$inverse-fg:               white;
-$highlight-bg:             adjust-color($nu-purple, $lightness: 58%);
+$radius: 15px;
+$inverse-bg: $nu-purple;
+$inverse-fg: white;
+$highlight-bg: adjust-color($nu-purple, $lightness: 58%);
 
-$file-viewer-width:        750px;
-$code-number-width:        40px;
-$file-viewer-gutter:       10px;
+$file-viewer-width: 750px;
+$code-number-width: 40px;
+$file-viewer-gutter: 10px;
 
-$code-line-vskip:          4px;
-$code-line-hpad:           6px;
-$code-number-hpad:         3px;
-$fudge-pixels:             4px;
+$code-line-vskip: 4px;
+$code-line-hpad: 6px;
+$code-number-hpad: 3px;
+$fudge-pixels: 4px;
 
-$code-line-padding:        0 $code-line-hpad $code-line-vskip $code-line-hpad;
-$code-number-padding:      0 $code-number-hpad $code-line-vskip $code-number-hpad;
+$code-line-padding: 0 $code-line-hpad $code-line-vskip $code-line-hpad;
+$code-number-padding: 0 $code-number-hpad $code-line-vskip $code-number-hpad;
 
 $file-viewer-border-width: 2px;
-$single-file-loss:         2 * ($file-viewer-gutter + $file-viewer-border-width);
-$single-file-width:        $file-viewer-width - $single-file-loss;
+$single-file-loss: 2 * ($file-viewer-gutter + $file-viewer-border-width);
+$single-file-width: $file-viewer-width - $single-file-loss;
 
 body {
     font: $sf-body;
 }
 
 h1 {
-    font:    $sf-h1;
-    margin:  0 1ex;
+    font: $sf-h1;
+    margin: 0 1ex;
     padding: 0;
 
     small {
@@ -79,7 +79,7 @@ h1 {
 
     .home-link, .header-nav-link {
         cursor: pointer;
-        color:  $medium-grey;
+        color: $medium-grey;
     }
 
     .home-link:hover,
@@ -105,28 +105,28 @@ h4 {
 }
 
 h5 {
-    font:            $sf-h5;
+    font: $sf-h5;
 }
 
 h6 {
-    font:       $sf-h6;
+    font: $sf-h6;
     text-decoration: underline;
 }
 
 code {
-    font-family:      $tt-fam;
-    font-size:        90%;
-    color:            inherit;
+    font-family: $tt-fam;
+    font-size: 90%;
+    color: inherit;
     background-color: inherit;
-    border:           0;
-    margin:           0;
-    padding:          0;
+    border: 0;
+    margin: 0;
+    padding: 0;
 }
 
 var {
     font-family: $tt-fam;
-    font-style:  italic;
-    font-size:   90%;
+    font-style: italic;
+    font-size: 90%;
 }
 
 table .invalid {
@@ -142,7 +142,7 @@ table .invalid {
 .submissions-view {
     table, // deprecate this; require .fancy
     table.fancy {
-        margin:          1em auto;
+        margin: 1em auto;
         border-collapse: collapse;
 
         thead th {
@@ -164,13 +164,13 @@ table .invalid {
 
         th, td {
             vertical-align: middle;
-            border:         0;
+            border: 0;
         }
 
         th {
-            padding:    5px 10px;
-            font:       $sf-h3;
-            color:      $inverse-fg;
+            padding: 5px 10px;
+            font: $sf-h3;
+            color: $inverse-fg;
             background: $inverse-bg;
 
             a {
@@ -184,17 +184,17 @@ table .invalid {
 
         td {
             padding: 3px 6px;
-            font:    $sf-small;
+            font: $sf-small;
         }
 
         td.numeric {
-            text-align:  right;
+            text-align: right;
             font-family: $tt-fam;
         }
 
         td > input, td > button {
             display: block;
-            margin:  0 auto;
+            margin: 0 auto;
         }
 
         input {
@@ -206,9 +206,9 @@ table .invalid {
 .admin-view table {
     td {
         select, input {
-            display:      inline;
+            display: inline;
             margin-right: 10px;
-            width:        120px;
+            width: 120px;
         }
     }
 }
@@ -229,11 +229,11 @@ table .invalid {
 
         button {
             display: block;
-            margin:  0 auto;
+            margin: 0 auto;
         }
 
         input {
-            width:  100px;
+            width: 100px;
             margin: 0;
         }
     }
@@ -243,14 +243,14 @@ table .invalid {
     }
 
     .partner-notification {
-        margin:     1em;
+        margin: 1em;
         text-align: center;
     }
 }
 
 .assignments-view {
     table {
-        margin:         1em auto;
+        margin: 1em auto;
         vertical-align: middle;
 
         input {
@@ -268,67 +268,95 @@ table .invalid {
 }
 
 .submission-owner-widget {
-    width:      240px;
+    width: 240px;
     text-align: center;
-    margin:     0 auto 1em auto;
+    margin: 0 auto 1em auto;
 }
 
 .edit-eval-item {
-    .prompt {
-        width:  600px;
-        height: 6em;
+    margin: 0 auto;
+    width: 800px;
+}
+
+.edit-eval-item-table {
+    width: 100%;
+    table-layout: fixed;
+
+    > tbody > tr > {
+        * {
+            border: none;
+            vertical-align: top;
+            padding: 0.5ex 1ex;
+        }
+
+        th {
+            width: 15%;
+            text-align: right;
+        }
+
+        td {
+            width: 85%;
+            text-align: left;
+        }
     }
 
-    .relative-value {
-        width: 30px;
+    .prompt-edit {
+        font: $tt-small;
+        height: 20em;
+    }
+
+    .relative-value-edit {
+        text-align: right;
+        width: 10em;
+        font: $tt-small;
     }
 }
 
 .right-column {
-    position:   fixed;
-    top:        0;
-    right:      15px;
-    bottom:     0;
-    left:       $file-viewer-width + 30px;
-    padding:    80px 0 0 0;
+    position: fixed;
+    top: 0;
+    right: 15px;
+    bottom: 0;
+    left: $file-viewer-width + 30px;
+    padding: 80px 0 0 0;
     overflow-y: auto;
 }
 
 .file-viewer {
-    position:         fixed;
-    top:              80px;
-    bottom:           15px;
-    left:             15px;
-    width:            $file-viewer-width;
+    position: fixed;
+    top: 80px;
+    bottom: 15px;
+    left: 15px;
+    width: $file-viewer-width;
 
-    border:           $file-viewer-border-width outset $highlight-bg;
+    border: $file-viewer-border-width outset $highlight-bg;
     background-color: $highlight-bg;
-    padding:          0;
+    padding: 0;
 
     select {
-        position:         absolute;
-        font:             $sf-h4;
-        height:           40px;
-        margin:           0;
-        border:           0;
-        border-radius:    0;
+        position: absolute;
+        font: $sf-h4;
+        height: 40px;
+        margin: 0;
+        border: 0;
+        border-radius: 0;
         background-color: transparent;
     }
 
     .file-viewer-area {
-        position:   absolute;
-        padding:    0;
-        top:        40px;
-        bottom:     0;
-        left:       $file-viewer-gutter;
-        right:      $file-viewer-gutter;
+        position: absolute;
+        padding: 0;
+        top: 40px;
+        bottom: 0;
+        left: $file-viewer-gutter;
+        right: $file-viewer-gutter;
         overflow-y: auto;
 
         .single-file-viewer {
-            width:            $single-file-width;
-            margin:           $file-viewer-gutter auto;
+            width: $single-file-width;
+            margin: $file-viewer-gutter auto;
             background-color: white;
-            border-radius:    $radius 0;
+            border-radius: $radius 0;
 
             .html-file-contents {
                 width: $single-file-width;
@@ -339,13 +367,13 @@ table .invalid {
             }
 
             th {
-                margin:         0;
+                margin: 0;
                 vertical-align: middle;
             }
 
             thead th {
                 padding: 6px 0;
-                font:    $tt-head;
+                font: $tt-head;
             }
         }
 
@@ -355,26 +383,26 @@ table .invalid {
             }
 
             th.code-number {
-                width:          $code-number-width;
-                padding:        $code-number-padding;
+                width: $code-number-width;
+                padding: $code-number-padding;
                 vertical-align: baseline;
-                text-align:     center;
-                font:           $sf-tiny;
-                color:          white;
-                overflow-x:     visible;
+                text-align: center;
+                font: $sf-tiny;
+                color: white;
+                overflow-x: visible;
             }
 
             td.code-line {
-                font:    $tt-listing;
+                font: $tt-listing;
                 padding: $code-line-padding;
 
                 span {
                     vertical-align: baseline;
-                    display:        block;
-                    max-width:      80ch;
-                    white-space:    pre-wrap;
-                    word-break:     break-all;
-                    color:          #A00;
+                    display: block;
+                    max-width: 80ch;
+                    white-space: pre-wrap;
+                    word-break: break-all;
+                    color: #A00;
                 }
 
                 span:first-line {
@@ -383,23 +411,23 @@ table .invalid {
             }
 
             tr.student-highlight, tr.grader-highlight {
-                color:  black;
+                color: black;
                 border: 1px dotted;
 
                 th.code-number {
-                    color:            inherit;
+                    color: inherit;
                     background-color: inherit;
                 }
             }
 
             tr.student-highlight {
                 background-color: $primary-highlight;
-                border-color:     $primary-highlight;
+                border-color: $primary-highlight;
             }
 
             tr.grader-highlight {
                 background-color: $secondary-highlight;
-                border-color:     $secondary-highlight;
+                border-color: $secondary-highlight;
             }
         }
     }
@@ -411,7 +439,7 @@ table .invalid {
     }
 
     .explanation {
-        width:  100%;
+        width: 100%;
         height: 8em;
     }
 
@@ -423,16 +451,16 @@ table .invalid {
 .evaluation-view {
     .score {
         text-align: center;
-        margin:     1ex;
+        margin: 1ex;
     }
 
     table.scores {
-        margin-left:  auto;
+        margin-left: auto;
         margin-right: auto;
 
         th {
-            padding:    0 1em 0 0;
-            border:     0;
+            padding: 0 1em 0 0;
+            border: 0;
             text-align: left;
         }
     }
@@ -440,7 +468,7 @@ table .invalid {
 
 .grading-view .status {
     text-align: center;
-    font-size:  smaller;
+    font-size: smaller;
 }
 
 
@@ -448,7 +476,7 @@ table .invalid {
     table {
         a {
             text-decoration: none;
-            font:            $tt-body;
+            font: $tt-body;
         }
 
         a:hover {
@@ -458,8 +486,8 @@ table .invalid {
 }
 
 .list-eval-item {
-    margin:        1em 0.25em;
-    padding:       5px 10px;
+    margin: 1em 0.25em;
+    padding: 5px 10px;
     border-radius: $radius 0 $radius 0;
 
     .detail {
@@ -500,7 +528,7 @@ table .invalid {
 }
 
 .date-list {
-    margin:    1em auto;
+    margin: 1em auto;
     font-size: small;
 }
 
@@ -510,60 +538,60 @@ table .invalid {
 
 .file-uploader {
     position: relative;
-    display:  block;
-    width:    100px;
-    margin:   10px auto;
+    display: block;
+    width: 100px;
+    margin: 10px auto;
 }
 
 .file-uploader input[type=file] {
     position: absolute;
-    top:      0;
-    left:     0;
-    width:    100%;
-    height:   100%;
-    opacity:  0;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
 }
 
 .backup-file-uploader {
     margin: 0 auto 1em auto;
-    width:  60%;
+    width: 60%;
 }
 
 .backup-file-uploader input {
     display: block;
-    margin:  0 auto 0 0;
+    margin: 0 auto 0 0;
 }
 
 .backup-file-uploader button {
     display: block;
-    margin:  0 0 0 auto;
+    margin: 0 0 0 auto;
 }
 
 .progress-holder > * {
     visibility: visible;
-    position:   fixed;
-    top:        40%;
-    left:       25%;
-    right:      25%;
-    width:      50%;
+    position: fixed;
+    top: 40%;
+    left: 25%;
+    right: 25%;
+    width: 50%;
 }
 
 .highscores table {
-    width:         60ex;
-    margin-top:    20px;
+    width: 60ex;
+    margin-top: 20px;
     margin-bottom: 20px;
 
-    border-style:  solid;
-    border-color:  $dark-grey;
-    border-width:  2px;
-    color:         $deep-grey;
+    border-style: solid;
+    border-color: $dark-grey;
+    border-width: 2px;
+    color: $deep-grey;
 }
 
 .highscores td, th {
     border-style: solid;
     border-width: 1px;
     border-color: $medium-grey;
-    padding:      3px;
+    padding: 3px;
 }
 
 .highscores th {
@@ -571,8 +599,8 @@ table .invalid {
 }
 
 .highscores tr#self {
-    font-style:   italic;
-    font-weight:  bold;
+    font-style: italic;
+    font-weight: bold;
     font-variant: normal;
 }
 
@@ -586,8 +614,8 @@ table .invalid {
 
 .wordcontainer {
     border-style: solid;
-    font-family:  monospace;
-    font-size:    xx-large;
+    font-family: monospace;
+    font-size: xx-large;
 }
 
 .hangman-widget select {
@@ -601,46 +629,46 @@ table .invalid {
 }
 
 .buttons {
-    margin:     1em 0;
+    margin: 1em 0;
     text-align: center;
 }
 
 .dialog-buttons {
-    margin:     1em 0;
+    margin: 1em 0;
     text-align: right;
 }
 
 .gsc-auth-logged-in, .gsc-auth-not-logged-in {
-    position:         fixed;
-    top:              10px;
-    right:            10px;
-    font-size:        125%;
-    z-index:          1000;
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    font-size: 125%;
+    z-index: 1000;
     background-color: white;
 }
 
 .line-link {
-    color:           darkred;
-    cursor:          pointer;
+    color: darkred;
+    cursor: pointer;
     text-decoration: underline;
 }
 
 .broken-line-link {
-    color:           darkred;
-    cursor:          not-allowed;
+    color: darkred;
+    cursor: not-allowed;
     text-decoration: wavy black line-through;
 }
 
 .submission-grade {
     text-align: center;
-    font-size:  200%;
+    font-size: 200%;
 }
 
 .partner-notification {
-    border:                 1px solid;
+    border: 1px solid;
     border-top-left-radius: $radius;
-    margin-bottom:          1em;
-    padding:                0.5em;
+    margin-bottom: 1em;
+    padding: 0.5em;
 
     .buttons {
         margin: 0.5em 0;
@@ -648,30 +676,30 @@ table .invalid {
 }
 
 .partner-confirmer {
-    border-color:     darkred;
+    border-color: darkred;
     background-color: #FCC;
 }
 
 .partner-pending {
-    border-color:     darkorange;
+    border-color: darkorange;
     background-color: #FFC;
 }
 
 .partner-requestor {
-    border-color:     darkgreen;
+    border-color: darkgreen;
     background-color: #CFC;
 }
 
 .quota-display {
-    width:      100%;
-    margin:     10px auto;
+    width: 100%;
+    margin: 10px auto;
     text-align: center;
 }
 
 #api-key-input {
     text-overflow: ellipsis;
-    width:         10ex;
-    cursor:        grab;
+    width: 10ex;
+    cursor: grab;
 }
 
 .username, .input-monospace {
@@ -680,9 +708,9 @@ table .invalid {
 
 .date-edit,
 .time-edit {
-    display:       inline;
-    padding:       0 6px;
-    font:          $tt-small;
+    display: inline;
+    padding: 0 6px;
+    font: $tt-small;
     text-overflow: ellipsis;
 }
 
@@ -690,12 +718,12 @@ input.username,
 .points-edit {
     display: inline;
     padding: 0 4px;
-    font:    $tt-listing;
+    font: $tt-listing;
 }
 
 .points-edit {
     text-align: center;
-    width:      3em;
+    width: 3em;
 }
 
 input.username {
@@ -703,14 +731,14 @@ input.username {
 }
 
 .date-edit {
-    border-right-style:         hidden;
-    border-top-right-radius:    0;
+    border-right-style: hidden;
+    border-top-right-radius: 0;
     border-bottom-right-radius: 0;
 }
 
 .time-edit {
-    border-left-style:         hidden;
-    border-top-left-radius:    0;
+    border-left-style: hidden;
+    border-top-left-radius: 0;
     border-bottom-left-radius: 0;
 }
 
@@ -738,40 +766,40 @@ input.username {
     display: inline;
 }
 
-$hlog-gap:                 6px;
-$hlog-skip:                10px;
-$hlog-indent:              72px;
+$hlog-gap: 6px;
+$hlog-skip: 10px;
+$hlog-indent: 72px;
 
 .html-single-file-viewer .html-file-contents {
     font: $sf-small;
 
     .test-case {
-        margin:           12px 6px;
-        padding:          0;
-        border:           2px solid #AAA;
-        border-radius:    2px;
+        margin: 12px 6px;
+        padding: 0;
+        border: 2px solid #AAA;
+        border-radius: 2px;
         background-color: #EEE;
     }
 
     summary {
-        display:          list-item;
-        font:             $sf-body;
-        margin:           0;
-        padding:          6px;
-        color:            white;
+        display: list-item;
+        font: $sf-body;
+        margin: 0;
+        padding: 6px;
+        color: white;
         background-color: $dark-grey;
 
         h3 {
             display: inline;
-            font:    inherit;
-            margin:  0;
+            font: inherit;
+            margin: 0;
             padding: 0;
         }
     }
 
     .test-case-body {
         h4, p {
-            margin:  $hlog-skip $hlog-indent $hlog-gap $hlog-gap;
+            margin: $hlog-skip $hlog-indent $hlog-gap $hlog-gap;
             padding: 0;
         }
 
@@ -781,7 +809,7 @@ $hlog-indent:              72px;
 
         h4.error {
             font-weight: 800;
-            color:       #933;
+            color: #933;
         }
 
         .passed strong {
@@ -806,24 +834,24 @@ $hlog-indent:              72px;
     }
 
     table.points-summary {
-        margin:           1em auto;
-        min-width:        60%;
+        margin: 1em auto;
+        min-width: 60%;
 
-        border-radius:    $radius 0;
-        color:            $dark-grey;
+        border-radius: $radius 0;
+        color: $dark-grey;
         background-color: $highlight-bg;
 
         thead th {
             font-weight: 300;
-            font-size:   200%;
-            width:       auto;
+            font-size: 200%;
+            width: auto;
         }
 
         th {
-            font-weight:      300;
-            font-size:        150%;
-            margin:           0;
-            color:            white;
+            font-weight: 300;
+            font-size: 150%;
+            margin: 0;
+            color: white;
             background-color: $dark-grey;
         }
 
@@ -835,24 +863,24 @@ $hlog-indent:              72px;
 
 code.grep-output,
 code.io-lines {
-    display:       block;
+    display: block;
     //max-width:     calc(100% - 2 * #{$hlog-gap});
-    margin:        $hlog-gap;
-    padding:       $hlog-gap;
-    border:        1px solid #AAA;
+    margin: $hlog-gap;
+    padding: $hlog-gap;
+    border: 1px solid #AAA;
     border-radius: 2px;
-    font:          $tt-listing;
+    font: $tt-listing;
 }
 
 code.grep-output {
-    color:            $deep-grey;
+    color: $deep-grey;
     background-color: #FFD;
-    white-space:      pre-wrap;
-    overflow-wrap:    break-word;
+    white-space: pre-wrap;
+    overflow-wrap: break-word;
 
     strong {
         font-weight: normal;
-        color:       #C00;
+        color: #C00;
     }
 
     small {
@@ -861,11 +889,11 @@ code.grep-output {
 }
 
 code.io-lines {
-    $io-bg-color:     #345;
-    $io-bg-step:      2px;
+    $io-bg-color: #345;
+    $io-bg-step: 2px;
 
     ::selection {
-        color:            white !important;
+        color: white !important;
         background-color: $nu-purple !important;
     }
 
@@ -875,12 +903,12 @@ code.io-lines {
 
     @mixin term-io-line($sel, $color, $redir) {
         #{$sel} {
-            position:      relative;
-            display:       block;
-            white-space:   pre-wrap;
+            position: relative;
+            display: block;
+            white-space: pre-wrap;
             overflow-wrap: break-word;
-            overflow:      hidden;
-            color:         adjust-color($color, $saturation: -20%, $lightness: -20%);
+            overflow: hidden;
+            color: adjust-color($color, $saturation: -20%, $lightness: -20%);
         }
 
         #{$sel}:not(:last-child) {
@@ -892,41 +920,41 @@ code.io-lines {
         }
 
         #{$sel}:hover:after {
-            content:          $redir;
-            display:          inline;
-            position:         absolute;
-            right:            0;
-            bottom:           0;
-            padding:          $io-bg-step;
-            border:           $io-bg-step solid alpha($io-bg-color, -0.5);
-            margin-bottom:    -2 * $io-bg-step;
-            color:            white !important;
+            content: $redir;
+            display: inline;
+            position: absolute;
+            right: 0;
+            bottom: 0;
+            padding: $io-bg-step;
+            border: $io-bg-step solid alpha($io-bg-color, -0.5);
+            margin-bottom: -2 * $io-bg-step;
+            color: white !important;
             background-color: alpha($io-bg-color, -0.25);
-            vertical-align:   baseline;
+            vertical-align: baseline;
         }
     }
 
     @mixin hover-highlight($sel, $description, $extra-hspace: 0) {
         #{$sel} {
-            position:    relative;
-            border:      1px dotted pink;
-            color:       white;
-            margin:      0 $extra-hspace;
-            padding:     0 $extra-hspace;
+            position: relative;
+            border: 1px dotted pink;
+            color: white;
+            margin: 0 $extra-hspace;
+            padding: 0 $extra-hspace;
             white-space: pre;
         }
 
         #{$sel}:hover:after {
-            content:     '# ' $description;
-            position:    absolute;
+            content: '# ' $description;
+            position: absolute;
             margin-left: 1em;
-            font:        $tt-listing;
-            font-style:  italic;
-            color:       yellow;
+            font: $tt-listing;
+            font-style: italic;
+            color: yellow;
         }
     }
 
-    color:            white;
+    color: white;
     background-color: $io-bg-color;
 
     @include term-io-line('.stdin', #ADA, '<&0');

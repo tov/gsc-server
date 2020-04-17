@@ -77,6 +77,7 @@ set(WWW_SRC_FILES
         src/view/web/widget/Auth_widget.C
         src/view/web/widget/Base_eval_item_widget.C
         src/view/web/widget/Date_time_edit.C
+        src/view/web/widget/Eval_item_type_chooser.C
         src/view/web/widget/Explanation_edit_widget.C
         src/view/web/widget/Explanation_view_widget.C
         src/view/web/widget/File_list_widget.C
