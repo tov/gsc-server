@@ -4,7 +4,6 @@
 
 #include <Wt/WDateTime.h>
 #include <Wt/WLocalDateTime.h>
-#include <Wt/WLocale.h>
 #include <Wt/WString.h>
 
 #include <iomanip>
@@ -14,8 +13,6 @@
 #include <string>
 
 double clean_grade(double numerator, double denominator = 1.0);
-
-void set_time_zone(Wt::WLocale& locale);
 
 Wt::WString json_format(Wt::WDateTime const& datetime);
 

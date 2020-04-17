@@ -6,7 +6,6 @@
 #include <Wt/Dbo/ptr.h>
 #include <Wt/Dbo/SqlConnectionPool.h>
 #include <Wt/WApplication.h>
-#include <Wt/WLocale.h>
 
 #include <memory>
 #include <regex>

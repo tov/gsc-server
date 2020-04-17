@@ -4,7 +4,6 @@
 
 #include <Wt/Http/Request.h>
 #include <Wt/Http/Response.h>
-#include <Wt/WLocale.h>
 #include <Wt/WResource.h>
 
 namespace api {
@@ -19,7 +18,6 @@ public:
 
 private:
     Wt::Dbo::SqlConnectionPool& pool_;
-    Wt::WLocale locale_;
 };
 
 } // end namespace api

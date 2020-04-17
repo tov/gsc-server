@@ -4,7 +4,6 @@
 #include "view/api/Endpoint.h"
 
 #include <Wt/Dbo/SqlConnectionPool.h>
-#include <Wt/WLocale.h>
 #include <Wt/WServer.h>
 #include <Wt/WString.h>
 

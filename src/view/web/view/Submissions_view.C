@@ -211,10 +211,6 @@ public:
 
 namespace {
 
-char const
-        *const DATETIME_FMT_EOD = "dddd, MMMM d",
-        *const DATETIME_FMT_ANY = "ddd MM/dd '@' h:mm AP";
-
 bool is_eod(WTime const& time)
 {
     return time.hour() == 23 && time.minute() == 59;
@@ -223,10 +219,12 @@ bool is_eod(WTime const& time)
 WString friendly_due_date(Wt::WDateTime const& date_time)
 {
     auto local_time = date_time.toLocalTime();
-    auto fmt        = is_eod(local_time.time())
-                      ? DATETIME_FMT_EOD
-                      : DATETIME_FMT_ANY;
-    return local_time.toString(fmt);
+    return local_time.toString();
+
+    //if (is_eod(local_time.time())) {
+    //    return local_time.toString("dddd d MMM (Z)");
+    //} else {
+    //}
 }
 
 } // end anonymous namespace

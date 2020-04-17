@@ -13,6 +13,8 @@ struct Config
             = "https://websso.it.northwestern.edu/amserver/UI/Logout";
 
     std::string gsc_base_url = "http://localhost:9090/";
+
+    std::string server_time_zone = "America/Chicago";
 };
 
 extern Config const CONFIG;

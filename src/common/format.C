@@ -4,7 +4,6 @@
 
 #include <cmath>
 
-#define SERVER_TIME_ZONE "America/Chicago"
 #define JSON_DATE_FMT "yyyy-MM-dd'T'hh:mm:ss.zzzZ"
 
 double constexpr grade_epsilon = 1E-3;
@@ -18,16 +17,9 @@ double clean_grade(double num, double den) {
     else return 0;
 }
 
-void set_time_zone(Wt::WLocale& locale)
-{
-    auto time_zone = date::locate_zone(SERVER_TIME_ZONE);
-    locale.setTimeZone(time_zone);
-}
-
 Wt::WString json_format(Wt::WDateTime const& datetime)
 {
-    Wt::WLocalDateTime local = datetime.toLocalTime();
-    return local.toString(JSON_DATE_FMT);
+    return datetime.toString(JSON_DATE_FMT, false);
 }
 
 using Precision_guard = Basic_guard<

@@ -1,5 +1,6 @@
 #include "Application_controller.h"
 
+#include "Config.h"
 #include "common/format.h"
 #include "common/util.h"
 #include "model/auth/User.h"
@@ -22,9 +23,15 @@
 #include "view/game/HangmanWidget.h"
 #include "view/game/HighScoresWidget.h"
 
+#include <Wt/date/tz.h>
+#include <Wt/date/date.h>
 #include <Wt/WBootstrapTheme.h>
+#include <Wt/WEnvironment.h>
+//#include <Wt/WLocalDateTime.h>
+#include <Wt/WLocale.h>
 #include <Wt/WWidget.h>
 
+#include <algorithm>
 #include <cstdlib>
 #include <fstream>
 #include <sstream>
@@ -87,6 +94,25 @@ static std::string hashedResource(char const* filename)
     return result_path.str();
 }
 
+static date::time_zone const* find_time_zone(WEnvironment const& env)
+{
+    WLogger log;
+
+    if (env.javaScript()) {
+        if (string tz_name = env.timeZoneName(); !tz_name.empty())
+            if (auto tz = date::locate_zone(tz_name))
+                return tz;
+
+        // Or this for old IE:
+        // chrono::minutes tz_offset = env.timeZoneOffset();
+    }
+
+    if (auto tz = date::locate_zone(CONFIG.server_time_zone))
+        return tz;
+
+    return date::zoned_traits<date::time_zone const*>::default_zone();
+}
+
 Application_controller::Application_controller(Wt::Dbo::SqlConnectionPool& pool,
                                                const Wt::WEnvironment& env)
         : WApplication(env), session_(pool)
@@ -109,9 +135,20 @@ Application_controller::Application_controller(Wt::Dbo::SqlConnectionPool& pool,
     require(hashedResource("js/gsc.js"));
     //require("https://cdnjs.cloudflare.com/ajax/libs/markdown-it/10.0.0/markdown-it.min.js");
 
-    // There ought to be a way to pick this up from the environment.
     auto locale = this->locale();
-    set_time_zone(locale);
+    auto time_zone = find_time_zone(environment());
+    locale.setTimeZone(time_zone);
+
+    auto now = chrono::system_clock::now();
+    string abbrev = time_zone->get_info(now).abbrev;
+
+    if (any_of(abbrev.begin(), abbrev.end(), [](char c) { return isalpha(c); })) {
+        abbrev = "'" + abbrev + "'";
+    } else {
+        abbrev = "Z";
+    }
+
+    locale.setDateTimeFormat("ddd dd MMM '@' h:mmap (" + abbrev + ")");
     setLocale(locale);
 
     // Try to use OpenAM login info.
