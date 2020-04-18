@@ -11,10 +11,73 @@
 #include <locale>
 #include <sstream>
 #include <string>
+#include <string_view>
 
 double clean_grade(double numerator, double denominator = 1.0);
 
-Wt::WString json_format(Wt::WDateTime const& datetime);
+template<class T>
+struct JSON_traits;
+
+template<>
+struct JSON_traits<Wt::WDateTime>
+{
+    static Wt::WString format(Wt::WDateTime const&);
+    static bool parse(Wt::WDateTime&, Wt::WString const&);
+};
+
+template<class T>
+struct JSON
+{
+    static Wt::WString format(T const&);
+
+    static bool parse(T&, Wt::WString const&);
+    static bool parse(T&, std::string const&);
+    static bool parse(T&, std::string&&);
+    static bool parse(T&, std::string_view);
+};
+
+template<class T>
+Wt::WString json_format(const T& val)
+{
+    return JSON<T>::format(val);
+}
+
+template<class T, class U>
+bool json_parse(T& dst, U&& src)
+{
+    return JSON<T>::parse(dst, std::forward<U>(src));
+}
+
+template<class T>
+Wt::WString JSON<T>::format(const T& val)
+{
+    return JSON_traits<T>::format(val);
+}
+
+template<class T>
+bool JSON<T>::parse(T& out, const Wt::WString& str)
+{
+    return JSON_traits<T>::parse(out, str);
+}
+
+template<class T>
+bool JSON<T>::parse(T& out, std::string&& str)
+{
+    return parse(out, Wt::WString::fromUTF8(move(str)));
+}
+
+template<class T>
+bool JSON<T>::parse(T& out, const std::string& str)
+{
+    return parse(out, Wt::WString::fromUTF8(str));
+}
+
+template<class T>
+bool JSON<T>::parse(T& out, std::string_view str)
+{
+    return parse(out, std::string(str));
+}
+
 
 ///
 /// Percentages
@@ -53,7 +116,7 @@ using Imbue_guard = Basic_guard<
 
 std::locale make_comma_locale(std::locale const& old = std::locale());
 
-template <typename T>
+template<typename T>
 struct with_commas
 {
     explicit with_commas(T const& value) : ptr(&value) { }
@@ -67,7 +130,7 @@ struct with_commas
     T const* ptr;
 };
 
-template <typename T>
+template<typename T>
 std::ostream& format_with_commas(std::ostream& o, T const& value)
 {
     return with_commas<T>::format(o, value);
@@ -76,7 +139,7 @@ std::ostream& format_with_commas(std::ostream& o, T const& value)
 template<typename T>
 with_commas(T const&) -> with_commas<T>;
 
-template <typename T>
+template<typename T>
 std::ostream& with_commas<T>::format(std::ostream& o, T const& value)
 {
     Imbue_guard guard{o, make_comma_locale(o.getloc())};
@@ -84,13 +147,13 @@ std::ostream& with_commas<T>::format(std::ostream& o, T const& value)
     return o;
 }
 
-template <typename T>
+template<typename T>
 std::ostream& operator<<(std::ostream& o, with_commas<T> wc)
 {
     return with_commas<T>::format(o, *wc.ptr);
 }
 
-template <typename T>
+template<typename T>
 with_commas<T>::operator std::string() const
 {
     static std::locale const comma_locale = make_comma_locale();
@@ -101,7 +164,7 @@ with_commas<T>::operator std::string() const
     return o.str();
 }
 
-template <typename T>
+template<typename T>
 with_commas<T>::operator Wt::WString() const
 {
     return operator std::string();

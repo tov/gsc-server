@@ -769,6 +769,27 @@ J::Object Submission::to_json(bool brief) const
     return result;
 }
 
+optional<WDateTime>
+Submission::set_due_date(string_view date_string)
+{
+    if (WDateTime date; json_parse(date, date_string)) {
+        set_due_date(date);
+        return {date};
+    } else {
+        return nullopt;
+    }
+}
+
+optional<WDateTime>
+Submission::set_eval_date(string_view date_string)
+{
+    if (WDateTime date; json_parse(date, date_string)) {
+        set_eval_date(date);
+        return {date};
+    } else {
+        return nullopt;
+    }
+}
 
 void Submission::clear_files()
 {

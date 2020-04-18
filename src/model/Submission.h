@@ -9,9 +9,11 @@
 #include <Wt/WDateTime.h>
 
 #include <array>
+#include <optional>
 #include <set>
 #include <stdexcept>
 #include <string>
+#include <string_view>
 #include <vector>
 
 class Assignment;
@@ -189,6 +191,14 @@ public:
     std::string files_rest_uri() const;
     std::string evals_rest_uri() const;
     Wt::Json::Object to_json(bool brief = false) const;
+
+    //  Tries to parse an ISO 8601 datetime. Returns nullopt for parse error.
+    std::optional<Wt::WDateTime>
+    set_due_date(std::string_view date_string);
+
+    //  Tries to parse an ISO 8601 datetime. Returns nullopt for parse error.
+    std::optional<Wt::WDateTime>
+    set_eval_date(std::string_view date_string);
 
 private:
     Wt::Dbo::ptr<User>       user1_;

@@ -578,25 +578,33 @@ void Submissions_1::do_patch_(Request_body body, const Resource::Context &contex
         for (auto const& pair : object) {
             if (pair.first == "due_date") {
                 std::string time_spec = pair.second;
-                auto local_time = Wt::WLocalDateTime::fromString(time_spec);
 
-                if (local_time.isValid()) {
-                    submission_.modify()->set_due_date(local_time.toUTC());
-                    result.success() << "Modified due date to " << local_time.toString() << ".";
+                if (auto res = submission_.modify()->set_due_date(time_spec);
+                        res.has_value()) {
+                    result.success()
+                            << "Modified due date to "
+                            << res->toString()
+                            << " UTC";
                 } else {
-                    result.failure() << "Could not parse timespec ‘" << time_spec << "’.";
+                    result.failure()
+                            << "Could not parse timespec ‘"
+                            << time_spec << "’";
                 }
             }
 
             else if (pair.first == "eval_date") {
                 std::string time_spec = pair.second;
-                auto local_time = Wt::WLocalDateTime::fromString(time_spec);
 
-                if (local_time.isValid()) {
-                    submission_.modify()->set_eval_date(local_time.toUTC());
-                    result.success() << "Modified eval date to " << local_time.toString() << ".";
+                if (auto res = submission_.modify()->set_eval_date(time_spec);
+                        res.has_value()) {
+                    result.success()
+                            << "Modified eval date to "
+                            << res->toString()
+                            << " UTC";
                 } else {
-                    result.failure() << "Could not parse timespec ‘" << time_spec << "’.";
+                    result.failure()
+                            << "Could not parse timespec ‘"
+                            << time_spec << "’";
                 }
             }
 

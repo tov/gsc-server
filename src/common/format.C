@@ -1,4 +1,6 @@
 #include "format.h"
+#include "util.h"
+
 #include <Wt/Date/tz.h>
 #include <Wt/WString.h>
 
@@ -11,15 +13,24 @@ double constexpr grade_epsilon = 1E-3;
 double clean_grade(double num, double den) {
     if (den < grade_epsilon)
         return 0;
-    else if (double grade = num / den;
+
+    if (double grade = num / den;
             std::isnormal(grade) && grade >= grade_epsilon)
         return grade;
-    else return 0;
+    else
+        return 0;
 }
 
-Wt::WString json_format(Wt::WDateTime const& datetime)
+WString
+JSON_traits<WDateTime>::format(WDateTime const& datetime)
 {
     return datetime.toString(JSON_DATE_FMT, false);
+}
+
+bool JSON_traits<WDateTime>::parse(WDateTime& out, WString const& str)
+{
+    out = WDateTime::fromString(str, JSON_DATE_FMT);
+    return out.isValid();
 }
 
 using Precision_guard = Basic_guard<
