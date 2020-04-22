@@ -963,7 +963,9 @@ code.io-lines {
     @include term-io-line('.stdlog', #DD9, '>&3');
 
     @include hover-highlight('.control-char', 'control character');
-    @include hover-highlight('.no-newline', 'no final newline', $extra-hspace: 1px);
+    @include hover-highlight('.invalid-byte', 'invalid byte');
+    @include hover-highlight('.no-newline', 'no final newline',
+                             $extra-hspace: 1px);
     @include hover-highlight('.trailing-ws', 'trailing whitespace');
 }
 
