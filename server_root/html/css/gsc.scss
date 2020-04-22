@@ -907,7 +907,7 @@ code.io-lines {
             display: block;
             white-space: pre-wrap;
             overflow-wrap: break-word;
-            overflow: hidden;
+            overflow: visible;
             color: adjust-color($color, $saturation: -20%, $lightness: -20%);
         }
 
@@ -947,11 +947,11 @@ code.io-lines {
         #{$sel}:hover:after {
             content: '# ' $description;
             position: absolute;
-            margin-left: 1em;
-            font: $tt-listing;
-            font-style: italic;
-            color: yellow;
-            background: inherit;
+            bottom: 1.5em;
+            left: 1.5em;
+            color: white;
+            background: darkred;
+            z-index: 100;
         }
     }
 
