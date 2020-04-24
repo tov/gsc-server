@@ -797,16 +797,46 @@ void Submission::clear_files()
     is_loaded_ = false;
 }
 
-bool Submission::divorce()
+void Submission::give_back_files(const Wt::Dbo::ptr<Submission>& dst_submission)
 {
-    if (user2()) {
-        set_user2({});
-        clear_files();
-        touch();
-        return true;
-    } else {
-        return false;
+    auto const& src_user = user1();
+    auto const& dst_user = dst_submission->user1();
+
+    vector<dbo::ptr<File_meta>> whose_are_these;
+
+    for (auto const& file : source_files_) {
+        if (file->uploader() != src_user) {
+            if (file->uploader() == dst_user) {
+                source_files_.erase(file);
+                dst_submission.modify()->source_files_.insert(file);
+            } else if (file->uploader() != src_user) {
+                if (file->purpose() != File_purpose::log) {
+                    whose_are_these.push_back(file);
+                    dbo::ptr(file).remove();
+                }
+                // TODO: this is dumb. move it inside the `if` above here
+            }
+        }
     }
+
+    if (!whose_are_these.empty()) {
+        throw Whose_files_are_these{whose_are_these};
+    }
+
+    is_loaded_ = false;
+}
+
+void Submission::divorce()
+{
+    auto old_user2 = user2();
+    if (! old_user2)
+        throw No_partner_to_separate{user1()->name()};
+
+    set_user2({});
+    auto other = session()->addNew<Submission>(old_user2, assignment());
+    give_back_files(other);
+
+    touch();
 }
 
 Self_eval_vec Submission::self_eval_vec() const

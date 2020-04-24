@@ -1,7 +1,8 @@
 #include "Submission_owner_widget.h"
+#include "Partner_notification_widget.h"
 #include "../Confirmation_dialog.h"
 #include "../Notification.h"
-#include "Partner_notification_widget.h"
+#include "../../../common/format.h"
 
 #include "../../../model/auth/User.h"
 #include "../../../model/Assignment.h"
@@ -78,7 +79,7 @@ void Submission_owner_widget::update_admin_()
         button->clicked().connect([=]() {
             Confirmation_dialog::create(
                     "Are you sure you want to break up this partnership? "
-                    "Their submission will be cleared, and they will have "
+                    "Their submission will be split, and they may have "
                     "to resubmit."
             ).accepted().connect([=]() { break_up_partnership_(); });
         });
