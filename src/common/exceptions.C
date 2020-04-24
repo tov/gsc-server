@@ -136,6 +136,75 @@ static std::string move_collision_msg_(dbo::ptr<Submission> const& o1,
     return oss.str();
 }
 
+const char* Generic_html_error::title() const
+{
+    return "Runtime error";
+}
+
+ostream& Generic_html_error::write_body_html(ostream& note) const
+{
+    return note << html::Escape{what()};
+}
+
+const char* No_partner_to_separate::title() const
+{
+    return "Separation Error";
+}
+
+ostream& No_partner_to_separate::write_body_html(ostream& note) const
+{
+    return note
+            << "<p>"
+            << "The submission’s only owner is " << username_
+            << ".</p>";
+}
+
+static std::string no_partner_to_separate_msg_(string const& username)
+{
+    ostringstream oss;
+
+    oss << "Partnership Separation Error\n\n";
+    oss << "The submission's only owner is" << username << ".\n";
+
+    return oss.str();
+}
+
+const char* Whose_files_are_these::title() const
+{
+    return "Separation Error";
+}
+
+ostream& Whose_files_are_these::write_body_html(ostream& note) const
+{
+    using namespace html;
+    using namespace elt;
+
+    note << "<p>";
+    note << "These files do not belong to either partner:";
+    note << "</p>";
+
+    note << "<ul>";
+
+    for (auto const& file : lost_files_) {
+        note << "<li>" << Filename{file->name()} << "</li>";
+    }
+
+    return note << "</ul>";
+}
+
+static std::string whose_files_are_these_msg_(Source_file_vec const& files)
+{
+    ostringstream oss;
+
+    oss << "Partnership Separation Error\n\n";
+    oss << "Problem: These files do not belong to either partner:\n";
+    for (auto const& file : files) {
+        oss << " - " << file->name() << "\n";
+    }
+
+    return oss.str();
+}
+
 const char* Bad_file_type_error::title() const
 {
     return "Bad File Type";
@@ -234,6 +303,9 @@ static string withdrawn_partner_request_msg_()
     return oss.str();
 }
 
+Generic_html_error::Generic_html_error(const std::runtime_error& exn)
+        : Html_error{exn}
+{ }
 
 Join_collision_error::Join_collision_error(submission_t o1,
                                            submission_t o2,
@@ -250,6 +322,16 @@ Move_collision_error::Move_collision_error(submission_t o1,
         : Html_error{move_collision_msg_(o1, s1, o2, s2)}
         , submissions_{o1, o2}
         , filenames_{s1, s2}
+{ }
+
+No_partner_to_separate::No_partner_to_separate(string username)
+        : Html_error{no_partner_to_separate_msg_(username)}
+        , username_{move(username)}
+{ }
+
+Whose_files_are_these::Whose_files_are_these(Source_file_vec files)
+        : Html_error{whose_files_are_these_msg_(files)}
+        , lost_files_{move(files)}
 { }
 
 Bad_file_type_error::Bad_file_type_error(string filename)

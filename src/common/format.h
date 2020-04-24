@@ -170,8 +170,77 @@ with_commas<T>::operator Wt::WString() const
     return operator std::string();
 }
 
+template<class Fn>
+struct Group
+{
+    Fn fn;
+
+    explicit Group(Fn fn)
+            : fn{std::move(fn)}
+    { }
+};
+
+template<class Fn>
+Group<Fn> group(Fn fn)
+{
+    return Group<Fn>{std::move(fn)};
+}
+
+template<class Fn>
+std::ostream& operator<<(std::ostream& os, Group<Fn> const& group)
+{
+    (void) group.fn(os);
+    return os;
+}
+
 namespace html
 {
+
+namespace tag
+{
+constexpr char const li[] = "li";
+constexpr char const p[] = "p";
+constexpr char const ul[] = "ul";
+}
+
+namespace elt
+{
+
+template<const char* tag, class Body>
+struct Elt
+{
+    Body body;
+
+    explicit Elt(Body body)
+            : body{std::move(body)}
+    { }
+};
+
+template<const char* tag, class Body>
+std::ostream& operator<<(std::ostream& os, Elt<tag, Body> element)
+{
+    os << "<" << tag << ">";
+
+    return os << "</" << tag << ">";
+}
+
+template <class T>
+struct li : Elt<tag::li, T>
+{
+    li(T body)
+            : Elt<tag::li, T>::Elt{std::move(body)}
+    { }
+};
+
+template <class T>
+struct p : Elt<tag::p, T>
+{ using Elt<tag::p, T>::Elt; };
+
+template <class T>
+struct ul : Elt<tag::ul, T>
+{ using Elt<tag::ul, T>::Elt; };
+
+}
 
 struct Escape
 {
