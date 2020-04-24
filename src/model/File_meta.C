@@ -79,43 +79,46 @@ static int count_lines(const Bytes& bytes)
 }
 
 #define OR          "|"
-#define BASE(X)     X ".*" OR ".*" X "\\.[^.]*"
-#define EXT(X)      ".*\\." X
+#define BASE(X)     "((" X ".*" ")" OR "(" "[^.].*" X "\\.[^.]*" "))"
+#define EXT(X)      "([^.].*[.]" X ")"
 
 namespace re {
 namespace {
 
 using namespace regex_constants;
 
+constexpr syntax_option_type opt = icase | nosubs;
+
 regex const config_file(
         "Makefile"
         OR "CMakeLists\\.txt"
+        OR ".gitignore"
         OR EXT("md"),
-        icase);
+        opt);
 
 regex const log_file(
         BASE("screenshot")
         OR EXT("h?log")
-        OR ".*-log\\.[^.]*",
-        icase);
+        OR "[^.].*[-.]log[.][^.]*",
+        opt);
 
 regex const resource_file(
         EXT("in")
         OR EXT("out")
         OR EXT("err")
         OR EXT("txt"),
-        icase);
+        opt);
 
 regex const test_file(
         BASE("test"),
-        icase);
+        opt);
 
 regex const forbidden_file(
-        EXT("o")
+        "[.].*"         // starts with dot
+        OR EXT("o")
         OR EXT("exe")
-        OR "[.].*"
-        OR "[^.]*",
-        icase);
+        OR "[^.]*",     // no dot
+        opt);
 
 }
 }
@@ -123,14 +126,16 @@ regex const forbidden_file(
 static File_purpose classify_file_type(string const& media_type,
                                        string const& filename)
 {
-    if (regex_match(filename, re::forbidden_file))
-        return File_purpose::forbidden;
-
     if (regex_match(filename, re::config_file))
         return File_purpose::config;
 
     if (regex_match(filename, re::log_file))
         return File_purpose::log;
+
+    if (regex_match(filename, re::forbidden_file)) {
+        std::cerr << "WHY NOT\n";
+        return File_purpose::forbidden;
+    }
 
     if (regex_match(filename, re::resource_file)
         || media_type != "text/plain")
@@ -138,8 +143,9 @@ static File_purpose classify_file_type(string const& media_type,
 
     if (regex_match(filename, re::test_file))
         return File_purpose::test;
-    else
-        return File_purpose::source;
+
+    return File_purpose::source;
+
 }
 
 const int File_meta::max_byte_count = 5 * 1024 * 1024;
