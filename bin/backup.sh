@@ -46,7 +46,7 @@ progress_meter () (
 
     reset_timer
 
-    while [ -n "$(head -c $step_size | sed 's/[.\n]*/x/')" ]; do
+    while [ -n "$(head -c $step_size | tr '\0-\177' x)" ]; do
         printf "$PROGRESS" "$1" $(elapsed_time)
 
         test $step_size -gt $STEP_MAX ||
