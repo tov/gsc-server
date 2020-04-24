@@ -92,23 +92,19 @@ void Submission_owner_widget::update_admin_()
         edit->setStyleClass("username");
         edit->setPlaceholderText("(make it so)");
         edit->enterPressed().connect([=]() {
-            dbo::Transaction transaction2(session());
+            html_try<Notification>([=] {
+                auto guard = dbo::Transaction(session());
 
-            if (auto user2 = User::find_by_name(session(), edit->text().toUTF8())) {
-                try {
+                if (auto user2 = User::find_by_name(session(), edit->text().toUTF8())) {
                     auto joined = Partner_request::confirm(
                             session(),
                             submission()->user1(), user2,
                             submission()->assignment());
-                    transaction2.commit();
                     notify(joined);
-                } catch (Html_error const& exn) {
-                    auto note = Notification(exn.title());
-                    exn.write_body_html(note);
+                } else {
+                    edit->setText("");
                 }
-            } else {
-                edit->setText("");
-            }
+            });
         });
     }
 }
@@ -156,10 +152,11 @@ void Submission_owner_widget::update_student_()
 
 void Submission_owner_widget::break_up_partnership_()
 {
-    dbo::Transaction transaction(session());
-    submission().modify()->divorce();
-    transaction.commit();
-    notify();
+    html_try<Notification>([=] {
+        auto guard = dbo::Transaction(session());
+        submission().modify()->divorce();
+        notify();
+    });
 }
 
 void Submission_owner_widget::on_change()
