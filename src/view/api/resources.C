@@ -615,10 +615,13 @@ void Submissions_1::do_patch_(Request_body body, const Resource::Context &contex
             }
 
             else if (pair.first == "owner2") {
-                if (submission_.modify()->divorce())
-                    result.success() << "Divorced succeeded.";
-                else
-                    result.failure() << "Divorced failed; submission is solo already.";
+                try {
+                    auto guard = dbo::Transaction(context.session);
+                    submission_.modify()->divorce();
+                    result.success() << "Departnering succeeded.";
+                } catch (runtime_error const& exn) {
+                    result.failure() << exn.what();
+                }
             }
 
             else {
