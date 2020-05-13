@@ -133,6 +133,38 @@ table .invalid {
     border: 3px dotted red;
 }
 
+table.plain {
+    margin: 1em 2em;
+    border: solid #666;
+    border-width: 3px 0;
+
+    thead {
+        border-bottom: 2px solid #999;
+    }
+
+    tbody tr {
+        border-top: 1px solid #ccc;
+    }
+
+    tbody tr:first-child {
+        border-top: none;
+    }
+
+    th, td {
+        vertical-align: top;
+        padding: 2px 4px;
+        border: 0;
+    }
+
+    th {
+        text-align: center;
+    }
+
+    td {
+        text-align: left;
+    }
+}
+
 .admin-view,
 .assignments-view,
 .file-list,
