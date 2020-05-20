@@ -28,8 +28,6 @@
 class Abstract_grading_widget : public Wt::WCompositeWidget
 {
 public:
-    Abstract_grading_widget(const dbo::ptr<Grader_eval>&, Session&);
-
     // Creates an object of the correct derived class as determined by the
     // Type of the Grader_eval.
     static std::unique_ptr<Abstract_grading_widget>
@@ -38,6 +36,8 @@ public:
     ~Abstract_grading_widget() override;
 
 protected:
+    Abstract_grading_widget(const dbo::ptr<Grader_eval>&, Session&);
+
     // The Grader_eval we are editing.
     dbo::ptr<Grader_eval> model_;
     Session& session_;
