@@ -1,5 +1,6 @@
 #include "Session.h"
 
+#include "Config.h"
 #include "Navigate.h"
 #include "common/env_var.h"
 #include "model/auth/Api_key.h"
@@ -269,9 +270,10 @@ std::unique_ptr<dbo::SqlConnectionPool>
 Db_session::createConnectionPool(const std::string& db)
 {
     auto connection = std::make_unique<dbo::backend::Postgres>(db);
-//    connection->setProperty("show-queries", "true");
-    return std::make_unique<dbo::FixedSqlConnectionPool>(std::move(connection),
-                                                         10);
+    if (CONFIG.show_queries)
+        connection->setProperty("show-queries", "true");
+    return std::make_unique<dbo::FixedSqlConnectionPool>(
+            std::move(connection), 10);
 }
 
 void Db_session::create_index_(const char* table, const char* field, bool unique)
