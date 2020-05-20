@@ -1,7 +1,0 @@
-<component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="gsc-auth" type="CMakeRunConfiguration" factoryName="Application" WORKING_DIR="file://$PROJECT_DIR$/server_root" PASS_PARENT_ENVS_2="true" PROJECT_NAME="gsc" TARGET_NAME="gsc-auth" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="gsc" RUN_TARGET_NAME="gsc-auth">
-    <method v="2">
-      <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-    </method>
-  </configuration>
-</component>
