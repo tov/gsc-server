@@ -30,13 +30,13 @@ class Abstract_grading_widget : public Wt::WCompositeWidget
 public:
     // Creates an object of the correct derived class as determined by the
     // Type of the Grader_eval.
-    static std::unique_ptr<Abstract_grading_widget>
-    create(const dbo::ptr<Grader_eval>&, Session&);
+    static unique_ptr<Abstract_grading_widget>
+    create(dbo::ptr<Grader_eval>, Session&);
 
     ~Abstract_grading_widget() override;
 
 protected:
-    Abstract_grading_widget(const dbo::ptr<Grader_eval>&, Session&);
+    Abstract_grading_widget(dbo::ptr<Grader_eval>, Session&);
 
     // The Grader_eval we are editing.
     dbo::ptr<Grader_eval> model_;
@@ -63,7 +63,7 @@ private:
 class Boolean_grading_widget : public Abstract_grading_widget
 {
 public:
-    Boolean_grading_widget(const dbo::ptr<Grader_eval>&, Session&);
+    Boolean_grading_widget(dbo::ptr<Grader_eval>, Session&);
 
 private:
     void yes_action_();
@@ -74,7 +74,7 @@ private:
 class Scale_grading_widget : public Abstract_grading_widget
 {
 public:
-    Scale_grading_widget(const dbo::ptr<Grader_eval>&, Session&);
+    Scale_grading_widget(dbo::ptr<Grader_eval>, Session&);
 
 protected:
     // Saves the Grader_eval in held-back status with current score.
@@ -94,27 +94,27 @@ private:
     void save_(Grader_eval::Status);
 };
 
-std::unique_ptr<Abstract_grading_widget>
-Abstract_grading_widget::create(const dbo::ptr<Grader_eval>& grader_eval, Session& session)
+unique_ptr<Abstract_grading_widget>
+Abstract_grading_widget::create(dbo::ptr<Grader_eval> model, Session& session)
 {
-    switch (grader_eval->self_eval()->eval_item()->type()) {
+    switch (model->self_eval()->eval_item()->type()) {
         case Eval_item::Type::Boolean:
-            return std::make_unique<Boolean_grading_widget>(grader_eval, session);
+            return std::make_unique<Boolean_grading_widget>(move(model), session);
         case Eval_item::Type::Scale:
         case Eval_item::Type::Informational:
-            return std::make_unique<Scale_grading_widget>(grader_eval, session);
+            return std::make_unique<Scale_grading_widget>(move(model), session);
     }
 }
 
-Abstract_grading_widget::Abstract_grading_widget(const dbo::ptr<Grader_eval>& model,
+Abstract_grading_widget::Abstract_grading_widget(dbo::ptr<Grader_eval> model,
                                                  Session& session)
-        : model_(model),
+        : model_(move(model)),
           session_(session)
 {
     auto impl = setNewImplementation<Wt::WContainerWidget>();
 
     explanation_ = impl->addNew<Explanation_edit_widget>();
-    explanation_->setText(model->explanation());
+    explanation_->setText(model_->explanation());
     explanation_->setFocus();
 
     buttons_ = impl->addNew<Wt::WContainerWidget>();
@@ -157,9 +157,9 @@ void Abstract_grading_widget::save_(Grader_eval::Status status, double score)
     Navigate::to("/grade");
 }
 
-Boolean_grading_widget::Boolean_grading_widget(const dbo::ptr<Grader_eval>& model,
+Boolean_grading_widget::Boolean_grading_widget(dbo::ptr<Grader_eval> model,
                                                Session& session)
-        : Abstract_grading_widget(model, session)
+        : Abstract_grading_widget(move(model), session)
 {
     auto yes_button = buttons_->addNew<Wt::WPushButton>("Yes");
     yes_button->clicked().connect(this, &Boolean_grading_widget::yes_action_);
@@ -179,11 +179,11 @@ void Boolean_grading_widget::no_action_()
     save_(Grader_eval::Status::ready, 0);
 }
 
-Scale_grading_widget::Scale_grading_widget(const dbo::ptr<Grader_eval>& model, Session& session)
-        : Abstract_grading_widget(model, session)
+Scale_grading_widget::Scale_grading_widget(dbo::ptr<Grader_eval> model, Session& session)
+        : Abstract_grading_widget(move(model), session)
 {
     edit_ = buttons_->addNew<Unit_line_edit>();
-    edit_->set_value(model->score());
+    edit_->set_value(model_->score());
     edit_->setStyleClass("unit-edit");
 
     apply_button_ = buttons_->addNew<Wt::WPushButton>("Apply");

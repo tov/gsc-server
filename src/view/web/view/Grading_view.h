@@ -10,7 +10,7 @@ class Session;
 class Grading_view : public File_view_base
 {
 public:
-    Grading_view(const Wt::Dbo::ptr<Self_eval>, Session&);
+    Grading_view(Wt::Dbo::ptr<Self_eval> const&, Session&);
 
 private:
     Wt::Dbo::ptr<Self_eval> model_;
