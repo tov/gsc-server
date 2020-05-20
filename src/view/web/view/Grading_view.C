@@ -276,7 +276,8 @@ Grading_view::Grading_view(dbo::ptr<Self_eval> const& self_eval,
     widget->bindString("pct_value", eval_item->absolute_value_str());
     widget->bindString("homework", assignment->name());
     widget->bindString("question", eval_item->prompt());
-    widget->bindString("self_grade", eval_item->format_score(self_eval->score()));
+    widget->bindString("self_grade",
+                       eval_item->format_score(self_eval->score(), true));
     widget->bindNew<Explanation_view_widget>(
             "self_explanation", self_eval->explanation(),
             file_viewer(), "student-highlight");

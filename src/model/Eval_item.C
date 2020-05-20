@@ -18,7 +18,8 @@ namespace J = Wt::Json;
 DBO_INSTANTIATE_TEMPLATES(Eval_item)
 
 Eval_item::Eval_item(const dbo::ptr<Assignment>& assignment, int sequence)
-        : assignment_(assignment), sequence_(sequence)
+        : assignment_(assignment),
+          sequence_(sequence)
 {
 
 }
@@ -35,17 +36,23 @@ void Eval_item::set_relative_value(const std::string& s)
     set_relative_value(atof(s.data()));
 }
 
-std::string Eval_item::format_score(double score) const
+std::string Eval_item::format_score(double score, bool for_grader) const
 {
-    if (type() == Type::Boolean) {
+    switch (type()) {
+    case Type::Boolean:
         if (score == 0) return "No";
         if (score == 1) return "Yes";
+        else            return percentage(score);
+
+    case Type::Scale:
+        if (for_grader)
+            return "✓";
+        else
+            return percentage(score);
+
+    case Type::Informational:
+        return "✓";
     }
-
-    if (is_informational() && relative_value() == 0)
-        return "Okay";
-
-    return percentage(score);
 }
 
 bool Eval_item::is_informational() const
@@ -75,18 +82,19 @@ J::Object Eval_item::to_json(dbo::ptr<Submission> const& as_part_of,
 {
     J::Object result;
 
-    result["uri"]               = J::Value(rest_uri(as_part_of));
-    result["sequence"]          = J::Value(sequence());
-    result["submission_uri"]    = J::Value(as_part_of->rest_uri());
-    result["type"]              = J::Value(stringify(type()));
+    result["uri"]            = J::Value(rest_uri(as_part_of));
+    result["sequence"]       = J::Value(sequence());
+    result["submission_uri"] = J::Value(as_part_of->rest_uri());
+    result["type"]           = J::Value(stringify(type()));
 
     if (!brief) {
-        result["prompt"]            = J::Value(prompt());
-        result["value"]             = J::Value(relative_value());
+        result["prompt"] = J::Value(prompt());
+        result["value"]  = J::Value(relative_value());
 
         // Get the self eval, creating it if the type is informational.
         auto self_eval = Submission::get_self_eval(sequence(), as_part_of,
-                                                   type() == Type::Informational);
+                                                   type() ==
+                                                   Type::Informational);
         if (self_eval) {
             result["self_eval"] = self_eval->to_json({as_seen_by});
 
@@ -108,35 +116,42 @@ bool Eval_item::is_graded_automatically() const
 std::ostream& operator<<(std::ostream& o, Eval_item::Type type)
 {
     switch (type) {
-        case Eval_item::Type::Boolean:
-            return o << "Boolean";
-        case Eval_item::Type::Scale:
-            return o << "Scale";
-        case Eval_item::Type::Informational:
-            return o << "Informational";
+    case Eval_item::Type::Boolean:
+        return o << "Boolean";
+    case Eval_item::Type::Scale:
+        return o << "Scale";
+    case Eval_item::Type::Informational:
+        return o << "Informational";
     }
 }
 
-char const *Enum<Eval_item::Type>::show(Eval_item::Type type) {
+char const* Enum<Eval_item::Type>::show(Eval_item::Type type)
+{
     using T = Eval_item::Type;
 
     switch (type) {
-        case T::Boolean:       return "boolean";
-        case T::Scale:         return "scale";
-        case T::Informational: return "informational";
+    case T::Boolean:
+        return "boolean";
+    case T::Scale:
+        return "scale";
+    case T::Informational:
+        return "informational";
     }
 }
 
 namespace rc = std::regex_constants;
 
 static std::regex const boolean_re("boolean", rc::icase);
+
 static std::regex const scale_re("scale", rc::icase);
+
 static std::regex const informational_re("informational", rc::icase);
 
-Eval_item::Type Enum<Eval_item::Type>::read(const char* type) {
+Eval_item::Type Enum<Eval_item::Type>::read(const char* type)
+{
     using T = Eval_item::Type;
 
-    auto match = [=] (auto re) {
+    auto match = [=](auto re) {
         return std::regex_match(type, re);
     };
 

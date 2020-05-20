@@ -50,7 +50,7 @@ public:
     double absolute_value() const;
     std::string absolute_value_str(int precision = 3) const;
 
-    std::string format_score(double) const;
+    std::string format_score(double, bool for_grader = false) const;
 
     bool is_informational() const;
     bool is_graded_automatically() const;
