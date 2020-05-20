@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Fira+Sans:ital,wght@0,400;0,700;1,400;1,700&family=Raleway:ital,wght@0,100;0,200;0,300;0,500;1,100;1,200;1,300;1,500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Fira+Sans:ital,wght@0,400;0,700;1,400;1,700&family=Raleway:ital,wght@0,100;0,200;0,300;0,500;0,700;1,100;1,200;1,300;1,500&display=swap');
 
 $tt-fam: "Menlo", monospace;
 $hd-fam: "Raleway", "Helvetica Neue", sans-serif;
@@ -1007,8 +1007,9 @@ span.txt-only {
 }
 
 .supertitle {
+    font: 700 .9em $hd-fam;
+    color: $dark-grey;
     margin-bottom: 0;
-    color: $nu-purple;
 }
 
 .supertitle + * {
