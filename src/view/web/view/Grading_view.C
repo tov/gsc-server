@@ -124,8 +124,7 @@ Abstract_grading_widget::Abstract_grading_widget(dbo::ptr<Grader_eval> model,
 void Abstract_grading_widget::add_hold_button()
 {
     hold_button_ = buttons_->addNew<Wt::WPushButton>("Hold");
-    hold_button_->clicked().connect(this,
-                                    &Abstract_grading_widget::hold_action_);
+    hold_button_->clicked().connect([=] {hold_action_();});
 }
 
 Abstract_grading_widget::~Abstract_grading_widget()
@@ -162,9 +161,9 @@ Boolean_grading_widget::Boolean_grading_widget(dbo::ptr<Grader_eval> model,
         : Abstract_grading_widget(move(model), session)
 {
     auto yes_button = buttons_->addNew<Wt::WPushButton>("Yes");
-    yes_button->clicked().connect(this, &Boolean_grading_widget::yes_action_);
+    yes_button->clicked().connect([=] {yes_action_();});
     auto no_button = buttons_->addNew<Wt::WPushButton>("No");
-    no_button->clicked().connect(this, &Boolean_grading_widget::no_action_);
+    no_button->clicked().connect([=] {no_action_();});
 
     add_hold_button();
 }
@@ -187,13 +186,12 @@ Scale_grading_widget::Scale_grading_widget(dbo::ptr<Grader_eval> model, Session&
     edit_->setStyleClass("unit-edit");
 
     apply_button_ = buttons_->addNew<Wt::WPushButton>("Apply");
-    apply_button_->clicked().connect(this,
-                                     &Scale_grading_widget::apply_action_);
+    apply_button_->clicked().connect([=] {apply_action_();});
 
     add_hold_button();
 
-    edit_->valid().connect(this, &Scale_grading_widget::enable_buttons_);
-    edit_->invalid().connect(this, &Scale_grading_widget::disable_buttons_);
+    edit_->valid().connect([=] {enable_buttons_();});
+    edit_->invalid().connect([=] {disable_buttons_();});
 }
 
 void Scale_grading_widget::disable_buttons_()
