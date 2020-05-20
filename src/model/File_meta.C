@@ -133,7 +133,6 @@ static File_purpose classify_file_type(string const& media_type,
         return File_purpose::log;
 
     if (regex_match(filename, re::forbidden_file)) {
-        std::cerr << "WHY NOT\n";
         return File_purpose::forbidden;
     }
 
