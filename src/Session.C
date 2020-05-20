@@ -134,7 +134,7 @@ void Db_session::populate_test_data_()
         auto exam2 = addNew<Exam_grade>(user, 2);
         exam2.modify()->set_points_and_possible(37, 50);
 
-        for (auto asst : assts) {
+        for (auto const& asst : assts) {
             auto submission = addNew<Submission>(user, asst);
             File_meta::upload("file.h",
                               Bytes("#pragma once\n"),
@@ -276,7 +276,7 @@ Db_session::createConnectionPool(const std::string& db)
             std::move(connection), 10);
 }
 
-void Db_session::create_index_(const char* table, const char* field, bool unique)
+void Db_session::create_index_(const char* table, const char* field, bool unique) const
 {
     std::ostringstream query;
     query << "CREATE ";

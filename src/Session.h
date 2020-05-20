@@ -178,7 +178,7 @@ private:
     std::unique_ptr<User_database> users_;
     mutable dbo_t dbo_;
 
-    void create_index_(const char* table, const char* field, bool unique = true);
+    void create_index_(const char* table, const char* field, bool unique = true) const;
 
     void initialize_session_();
     void populate_test_data_();

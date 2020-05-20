@@ -35,7 +35,7 @@ public:
     static std::unique_ptr<Abstract_grading_widget>
     create(const dbo::ptr<Grader_eval>&, Session&);
 
-    virtual ~Abstract_grading_widget();
+    ~Abstract_grading_widget() override;
 
 protected:
     // The Grader_eval we are editing.
