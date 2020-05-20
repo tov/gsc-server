@@ -1006,3 +1006,12 @@ span.txt-only {
     display: none;
 }
 
+.supertitle {
+    margin-bottom: 0;
+    color: $nu-purple;
+}
+
+.supertitle + * {
+    margin-top: 0;
+}
+

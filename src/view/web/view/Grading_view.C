@@ -228,13 +228,15 @@ void Scale_grading_widget::save_(Grader_eval::Status status)
     }
 }
 
-Grading_view::Grading_view(const Wt::Dbo::ptr<Self_eval> self_eval, Session& session0)
+Grading_view::Grading_view(dbo::ptr<Self_eval> const& self_eval,
+                           Session& session0)
         : File_view_base(self_eval->submission(), session0),
           model_(self_eval)
 {
     auto widget = right_column_->addNew<Wt::WTemplate>(
         "<div class='grading-view'>"
-          "<h3>Question ${sequence} <small>${homework}</small></h3>"
+        "<h5 class='supertitle'>${homework}</h5>"
+        "<h3>Question ${sequence} <small>(${pct_value})</small></h3>"
           "<div class='question'>${question}</div>"
           "<h4>Self evaluation</h4>"
           "<p class='answer'><strong>${self_grade}.</strong> "
@@ -271,6 +273,7 @@ Grading_view::Grading_view(const Wt::Dbo::ptr<Self_eval> self_eval, Session& ses
     }
 
     widget->bindString("sequence", sequence);
+    widget->bindString("pct_value", eval_item->absolute_value_str());
     widget->bindString("homework", assignment->name());
     widget->bindString("question", eval_item->prompt());
     widget->bindString("self_grade", eval_item->format_score(self_eval->score()));
