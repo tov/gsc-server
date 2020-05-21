@@ -87,4 +87,5 @@ progress_output "Encrypting" $file.gpg \
 rm $file
 
 progress_around "Synchronizing" \
-    rsync --times --progress $localdir/*.gpg $host:$dir/
+    rsync --times --human-readable --progress \
+        $localdir/*.gpg $host:$dir/
