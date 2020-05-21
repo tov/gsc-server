@@ -1,56 +1,111 @@
-@import url('https://fonts.googleapis.com/css2?family=Fira+Sans:ital,wght@0,400;0,700;1,400;1,700&family=Raleway:ital,wght@0,100;0,200;0,300;0,500;0,700;1,100;1,200;1,300;1,500&display=swap');
+@import url("https://use.typekit.net/djw0bln.css");
 
-$tt-fam: "Menlo", monospace;
-$hd-fam: "Raleway", "Helvetica Neue", sans-serif;
-$sf-fam: "Fira Sans", "Helvetica", sans-serif;
+///
+/// Fonts
+///
 
-$h1-size: 50px;
-$h2-size: 40px;
-$h3-size: 28px;
-$h4-size: 22px;
-$h5-size: 16px;
-$h6-size: 16px;
-$body-size: 16px;
-$small-size: 13px;
+$hd-fam: "neue-haas-grotesk-display", sans-serif;
+$sf-fam: "neue-haas-grotesk-text", sans-serif;
+$tt-fam: "input-mono-narrow", monospace;
+$tt-fam-condensed: "input-mono-condensed", monospace;
 
-$sf-h1: 100 $h1-size $hd-fam;
-$sf-h2: 200 $h2-size $hd-fam;
-$sf-h3: 300 $h3-size $hd-fam;
-$sf-h4: 300 $h4-size $hd-fam;
-$sf-h5: 500 $h5-size $hd-fam;
-$sf-h6: 500 $h6-size $hd-fam;
+$body-size:  16px;
 
-$tt-head: $h5-size $tt-fam;
+@mixin body-text {
+    font: $body-size $sf-fam;
+}
 
-$sf-body: $body-size $sf-fam;
-$tt-body: $body-size $tt-fam;
+@mixin small-text {
+    font: 13px $sf-fam;
+}
 
-$sf-small: $small-size $sf-fam;
-$tt-small: $small-size $tt-fam;
+@mixin tiny-text {
+    font: 11px/11px $sf-fam;
+}
 
-$tt-listing: 13px/14px $tt-fam;
+@mixin inline-code {
+    font: 95% $tt-fam;
+}
 
-$sf-tiny: 11px/11px $sf-fam;
+@mixin small-code {
+    font: 14px $tt-fam-condensed;
+}
+
+@mixin listing-code {
+    font: 14px/15px $tt-fam;
+}
+
+@mixin h1-text {
+    font: 300 40px $hd-fam;
+}
+
+@mixin h2-text {
+    font: 200 40px $hd-fam;
+    letter-spacing: 1px;
+}
+
+@mixin h3-text {
+    font: 300 28px $hd-fam;
+}
+
+@mixin h4-text {
+    font: 300 22px $hd-fam;
+}
+
+@mixin h5-text {
+    font: 500 $body-size $hd-fam;
+}
+
+@mixin h6-text {
+    font: 500 $body-size $hd-fam;
+    text-decoration: underline;
+}
+
+///
+/// Colors
+///
+
+@function alpha($base, $alpha) {
+    @return adjust-color($base, $alpha: $alpha);
+}
+
+@function lighten($base, $value: 50%) {
+    @return adjust-color($base, $lightness: $value);
+}
+
+@function saturate($base, $value: 50%) {
+    @return adjust-color($base, $saturation: $value);
+}
 
 $nu-purple: #3B2F77;
-
-$deep-grey: #333;
-$dark-grey: #555;
-$medium-grey: #999;
+$purple-gray: saturate(lighten($nu-purple, 30%), -25%);
+$purple-tint: lighten($nu-purple, 58%);
+$dark-gray: #555;
+$medium-gray: #999;
 
 $primary-highlight: #FF0;
 $secondary-highlight: #FCF;
 $docked-highlight: #FCD;
 $explanation-highlight: #CDF;
 
-$radius: 15px;
-$inverse-bg: $nu-purple;
-$inverse-fg: white;
-$highlight-bg: adjust-color($nu-purple, $lightness: 58%);
+@mixin grep-color {
+    color:            #333;
+    background-color: #FFD;
+    strong {
+        color: #C00;
+        font-weight: inherit;
+    }
+}
 
+///
+/// Sizes
+///
+
+$radius: 15px;
 $file-viewer-width: 750px;
 $code-number-width: 40px;
 $file-viewer-gutter: 10px;
+$file-viewer-select-height: 40px;
 
 $code-line-vskip: 4px;
 $code-line-hpad: 6px;
@@ -60,26 +115,111 @@ $fudge-pixels: 4px;
 $code-line-padding: 0 $code-line-hpad $code-line-vskip $code-line-hpad;
 $code-number-padding: 0 $code-number-hpad $code-line-vskip $code-number-hpad;
 
-$file-viewer-border-width: 2px;
+$file-viewer-border-width: 1px;
+$file-viewer-border-radius: $radius / 3;
 $single-file-loss: 2 * ($file-viewer-gutter + $file-viewer-border-width);
 $single-file-width: $file-viewer-width - $single-file-loss;
 
+
+///
+/// Styles
+///
+
+@mixin round-table($top-left: $radius, $bottom-left: $radius) {
+    thead, tbody:nth-child(2) {
+        tr:first-child th:first-child {
+            border-top-left-radius: $top-left;
+        }
+    }
+
+    tbody:nth-child(2) {
+        tr:last-child th:first-child {
+            border-bottom-left-radius: $bottom-left;
+        }
+    }
+}
+
+@mixin fancify($special-bg:    $nu-purple,
+               $special-fg:    white,
+               $anchor-hover:  lightyellow,
+               $highlight-bg:  $purple-tint) {
+
+    @include round-table;
+    margin:          1em auto;
+    border-collapse: collapse;
+
+    thead th {
+        text-align: center;
+    }
+
+    th, td {
+        vertical-align: middle;
+        border: 0;
+    }
+
+    td {
+        padding: 3px 6px;
+        @include small-text;
+    }
+
+    td.numeric {
+        font-family: $tt-fam;
+        text-align: right;
+    }
+
+    th {
+        @include     h3-text;
+        padding:     5px 10px;
+        color:       $special-fg;
+        background:  $special-bg;
+
+        a {
+            color:           $special-fg;
+            text-decoration: none;
+        }
+
+        a:hover {
+            color:           $anchor-hover;
+            text-decoration: underline;
+        }
+    }
+
+    input {
+        margin: 0;
+    }
+
+    td > input, td > button {
+        display: block;
+        margin: 0 auto;
+    }
+}
+
+
+///
+/// Selectors
+///
+
 body {
-    font: $sf-body;
+    @include body-text;
 }
 
 h1 {
-    font: $sf-h1;
+    @include h1-text;
     margin: 0 1ex;
     padding: 0;
 
     small {
-        font: $sf-h2;
+        @include h2-text;
     }
 
-    .home-link, .header-nav-link {
+    .home-link {
         cursor: pointer;
-        color: $medium-grey;
+        color: $purple-gray;
+    }
+
+    .header-nav-link {
+        cursor: pointer;
+        color: $medium-gray;
     }
 
     .home-link:hover,
@@ -93,30 +233,28 @@ h1 {
 }
 
 h2 {
-    font: $sf-h2;
+    @include h2-text;
 }
 
 h3 {
-    font: $sf-h3;
+    @include h3-text;
 }
 
 h4 {
-    font: $sf-h4;
+    @include h4-text;
 }
 
 h5 {
-    font: $sf-h5;
+    @include h5-text;
 }
 
 h6 {
-    font: $sf-h6;
-    text-decoration: underline;
+    @include h6-text;
 }
 
 code {
-    font-family: $tt-fam;
-    font-size: 90%;
-    color: inherit;
+    @include inline-code;
+    color:         inherit;
     background-color: inherit;
     border: 0;
     margin: 0;
@@ -124,9 +262,8 @@ code {
 }
 
 var {
-    font-family: $tt-fam;
+    @include inline-code;
     font-style: italic;
-    font-size: 90%;
 }
 
 table .invalid {
@@ -165,6 +302,7 @@ table.plain {
     }
 }
 
+// deprecate this; require .fancy
 .admin-view,
 .assignments-view,
 .file-list,
@@ -172,67 +310,13 @@ table.plain {
 .grading-stats-view,
 .profile-view,
 .submissions-view {
-    table, // deprecate this; require .fancy
-    table.fancy {
-        margin: 1em auto;
-        border-collapse: collapse;
-
-        thead th {
-            text-align: center;
-        }
-
-        thead,
-        tbody:nth-child(2) {
-            tr:first-child th:first-child {
-                border-top-left-radius: $radius;
-            }
-        }
-
-        tbody:nth-child(2) {
-            tr:last-child th:first-child {
-                border-bottom-left-radius: $radius;
-            }
-        }
-
-        th, td {
-            vertical-align: middle;
-            border: 0;
-        }
-
-        th {
-            padding: 5px 10px;
-            font: $sf-h3;
-            color: $inverse-fg;
-            background: $inverse-bg;
-
-            a {
-                color: white;
-            }
-
-            a:hover {
-                color: lightyellow;;
-            }
-        }
-
-        td {
-            padding: 3px 6px;
-            font: $sf-small;
-        }
-
-        td.numeric {
-            text-align: right;
-            font-family: $tt-fam;
-        }
-
-        td > input, td > button {
-            display: block;
-            margin: 0 auto;
-        }
-
-        input {
-            margin: 0;
-        }
+    table {
+        @include fancify;
     }
+}
+
+table.fancy {
+    @include fancify;
 }
 
 .admin-view table {
@@ -310,6 +394,13 @@ table.plain {
     width: 800px;
 }
 
+@mixin mono-edit {
+    @include small-code;
+    display: inline;
+    padding: 0 6px;
+    text-overflow: ellipsis;
+}
+
 .edit-eval-item-table {
     width: 100%;
     table-layout: fixed;
@@ -333,14 +424,14 @@ table.plain {
     }
 
     .prompt-edit {
-        font: $tt-small;
+        @include mono-edit;
         height: 20em;
     }
 
     .relative-value-edit {
+        @include mono-edit;
         text-align: right;
         width: 10em;
-        font: $tt-small;
     }
 }
 
@@ -360,107 +451,105 @@ table.plain {
     bottom: 15px;
     left: 15px;
     width: $file-viewer-width;
-
-    border: $file-viewer-border-width outset $highlight-bg;
-    background-color: $highlight-bg;
     padding: 0;
 
     select {
-        position: absolute;
-        font: $sf-h4;
-        height: 40px;
         margin: 0;
-        border: 0;
-        border-radius: 0;
-        background-color: transparent;
+        height: $file-viewer-select-height;
+        @include body-text;
+        font-size: 0.5 * $file-viewer-select-height;
     }
 
     .file-viewer-area {
         position: absolute;
         padding: 0;
-        top: 40px;
+        top: $file-viewer-select-height;
         bottom: 0;
-        left: $file-viewer-gutter;
-        right: $file-viewer-gutter;
+        border: $file-viewer-border-width solid lightgray;
+        border-radius: $file-viewer-border-radius;
+        background-color: $purple-tint;
         overflow-y: auto;
+    }
 
-        .single-file-viewer {
+    .single-file-viewer {
+        width: $single-file-width;
+        margin: $file-viewer-gutter;
+        background-color: white;
+        border-radius: $radius 0;
+        overflow-x: hidden;
+
+        .html-file-contents {
             width: $single-file-width;
-            margin: $file-viewer-gutter auto;
-            background-color: white;
-            border-radius: $radius 0;
+        }
 
-            .html-file-contents {
-                width: $single-file-width;
+        table {
+            margin: 0;
+        }
+
+        th {
+            margin: 0;
+            vertical-align: middle;
+        }
+
+        thead th {
+            @include inline-code;
+            padding: 6px 0;
+        }
+    }
+
+    .line-single-file-viewer {
+        > table {
+            width: $single-file-width;
+        }
+
+        th.code-number {
+            width: $code-number-width;
+            padding: $code-number-padding;
+            vertical-align: baseline;
+            text-align: center;
+            @include tiny-text;
+            color: white;
+            overflow-x: visible;
+        }
+
+        td.code-line {
+            @include listing-code;
+            padding: $code-line-padding;
+
+            span {
+                vertical-align: baseline;
+                display: block;
+                max-width: 80ch;
+                // XXX?:
+                // width: 80ch;
+                white-space: pre-wrap;
+                word-break: break-all;
+                color: #A00;
             }
 
-            table {
-                margin: 0;
-            }
-
-            th {
-                margin: 0;
-                vertical-align: middle;
-            }
-
-            thead th {
-                padding: 6px 0;
-                font: $tt-head;
+            span:first-line {
+                color: black;
             }
         }
 
-        .line-single-file-viewer {
-            > table {
-                width: $single-file-width;
-            }
+        tr.student-highlight, tr.grader-highlight {
+            color: black;
+            border: 1px dotted;
 
             th.code-number {
-                width: $code-number-width;
-                padding: $code-number-padding;
-                vertical-align: baseline;
-                text-align: center;
-                font: $sf-tiny;
-                color: white;
-                overflow-x: visible;
+                color: inherit;
+                background-color: inherit;
             }
+        }
 
-            td.code-line {
-                font: $tt-listing;
-                padding: $code-line-padding;
+        tr.student-highlight {
+            background-color: $primary-highlight;
+            border-color: $primary-highlight;
+        }
 
-                span {
-                    vertical-align: baseline;
-                    display: block;
-                    max-width: 80ch;
-                    white-space: pre-wrap;
-                    word-break: break-all;
-                    color: #A00;
-                }
-
-                span:first-line {
-                    color: black;
-                }
-            }
-
-            tr.student-highlight, tr.grader-highlight {
-                color: black;
-                border: 1px dotted;
-
-                th.code-number {
-                    color: inherit;
-                    background-color: inherit;
-                }
-            }
-
-            tr.student-highlight {
-                background-color: $primary-highlight;
-                border-color: $primary-highlight;
-            }
-
-            tr.grader-highlight {
-                background-color: $secondary-highlight;
-                border-color: $secondary-highlight;
-            }
+        tr.grader-highlight {
+            background-color: $secondary-highlight;
+            border-color: $secondary-highlight;
         }
     }
 }
@@ -504,16 +593,11 @@ table.plain {
 }
 
 
-.file-list {
-    table {
-        a {
-            text-decoration: none;
-            font: $tt-body;
-        }
+.file-list tbody th {
+    font-size: inherit;
 
-        a:hover {
-            text-decoration: underline;
-        }
+    a {
+        @include inline-code;
     }
 }
 
@@ -614,15 +698,15 @@ table.plain {
     margin-bottom: 20px;
 
     border-style: solid;
-    border-color: $dark-grey;
+    border-color: $dark-gray;
     border-width: 2px;
-    color: $deep-grey;
+    color: $dark-gray;
 }
 
 .highscores td, th {
     border-style: solid;
     border-width: 1px;
-    border-color: $medium-grey;
+    border-color: $medium-gray;
     padding: 3px;
 }
 
@@ -735,22 +819,14 @@ table.plain {
 }
 
 .username, .input-monospace {
-    font: $tt-head;
-}
-
-.date-edit,
-.time-edit {
-    display: inline;
-    padding: 0 6px;
-    font: $tt-small;
-    text-overflow: ellipsis;
+    @include inline-code;
 }
 
 input.username,
-.points-edit {
-    display: inline;
-    padding: 0 4px;
-    font: $tt-listing;
+.points-edit,
+.date-edit,
+.time-edit {
+    @include mono-edit;
 }
 
 .points-edit {
@@ -803,7 +879,7 @@ $hlog-skip: 10px;
 $hlog-indent: 72px;
 
 .html-single-file-viewer .html-file-contents {
-    font: $sf-small;
+    @include small-text;
 
     .test-case {
         margin: 12px 6px;
@@ -815,11 +891,11 @@ $hlog-indent: 72px;
 
     summary {
         display: list-item;
-        font: $sf-body;
+        @include body-text;
         margin: 0;
         padding: 6px;
         color: white;
-        background-color: $dark-grey;
+        background-color: $dark-gray;
 
         h3 {
             display: inline;
@@ -870,8 +946,8 @@ $hlog-indent: 72px;
         min-width: 60%;
 
         border-radius: $radius 0;
-        color: $dark-grey;
-        background-color: $highlight-bg;
+        color: $dark-gray;
+        background-color: $purple-tint;
 
         thead th {
             font-weight: 300;
@@ -884,7 +960,7 @@ $hlog-indent: 72px;
             font-size: 150%;
             margin: 0;
             color: white;
-            background-color: $dark-grey;
+            background-color: $dark-gray;
         }
 
         td {
@@ -895,25 +971,19 @@ $hlog-indent: 72px;
 
 code.grep-output,
 code.io-lines {
+    @include listing-code;
     display: block;
-    //max-width:     calc(100% - 2 * #{$hlog-gap});
     margin: $hlog-gap;
     padding: $hlog-gap;
     border: 1px solid #AAA;
     border-radius: 2px;
-    font: $tt-listing;
+    //max-width:     calc(100% - 2 * #{$hlog-gap});
 }
 
 code.grep-output {
-    color: $deep-grey;
-    background-color: #FFD;
+    @include grep-color;
     white-space: pre-wrap;
     overflow-wrap: break-word;
-
-    strong {
-        font-weight: normal;
-        color: #C00;
-    }
 
     small {
         opacity: 50%;
@@ -929,17 +999,14 @@ code.io-lines {
         background-color: $nu-purple !important;
     }
 
-    @function alpha($base, $alpha) {
-        @return adjust-color($base, $alpha: $alpha);
-    }
-
     @mixin term-io-line($sel, $color, $redir) {
         #{$sel} {
             position: relative;
             display: block;
+            width: 80ch;
             white-space: pre-wrap;
             overflow-wrap: break-word;
-            overflow: visible;
+            word-break: break-word;
             color: adjust-color($color, $saturation: -20%, $lightness: -20%);
         }
 
@@ -1008,7 +1075,7 @@ span.txt-only {
 
 .supertitle {
     font: 700 .9em $hd-fam;
-    color: $dark-grey;
+    color: $dark-gray;
     margin-bottom: 0;
 }
 
