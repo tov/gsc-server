@@ -126,7 +126,7 @@ Application_controller::Application_controller(Wt::Dbo::SqlConnectionPool& pool,
 
     useStyleSheet(hashedResource("css/gsc.css"));
 
-    requireJQuery("js/jquery-3.4.1.min.js");
+    requireJQuery("js/jquery-3.5.1.min.js");
     require("js/jquery-ui-1.12.1.min.js");
     require(hashedResource("js/loader.js"));
     require(hashedResource("js/pre-gsc.js"));
