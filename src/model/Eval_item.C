@@ -44,14 +44,11 @@ std::string Eval_item::format_score(double score, bool for_grader) const
         if (score == 1) return "Yes";
         else            return percentage(score);
 
-    case Type::Scale:
+    default:
         if (for_grader)
             return "✓";
         else
             return percentage(score);
-
-    case Type::Informational:
-        return "✓";
     }
 }
 
