@@ -21,12 +21,14 @@ double Abstract_evaluation::normalize_score(double score)
 void Abstract_evaluation::set_explanation(const std::string& explanation)
 {
     explanation_ = explanation;
+    touch_();
 }
 
 void Abstract_evaluation::set_score(double score)
 {
     score_ = normalize_score(score);
     submission()->light_touch();
+    touch_();
 }
 
 const dbo::ptr<Assignment>& Abstract_evaluation::assignment() const
