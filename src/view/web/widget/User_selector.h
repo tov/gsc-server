@@ -37,8 +37,8 @@ public:
     DELEGATE(edit_, keyWentUp,)
     DELEGATE(edit_, textInput,)
     DELEGATE(edit_, text, const)
-    DELEGATE(edit_, setText,);
-    DELEGATE(edit_, setFocus,);
+    DELEGATE(edit_, setText,)
+    DELEGATE(edit_, setFocus,)
 
 private:
     Session& session_;

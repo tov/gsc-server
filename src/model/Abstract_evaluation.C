@@ -52,4 +52,3 @@ Wt::Json::Object Abstract_evaluation::to_json() const {
 
     return result;
 }
-

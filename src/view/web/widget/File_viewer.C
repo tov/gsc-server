@@ -209,7 +209,7 @@ void File_viewer::show_line(int line_number) const
 
 void File_viewer::set_line_style(int line, const WString& style)
 {
-    if (0 < line && line < lines_.size())
+    if (0 < line && line < (int) lines_.size())
         lines_[line]->setStyleClass(style);
 }
 

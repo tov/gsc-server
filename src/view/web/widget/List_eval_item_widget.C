@@ -37,9 +37,7 @@ void List_eval_item_widget::add_buttons_()
 
 void List_eval_item_widget::add_scores_()
 {
-    auto current_user = session_.user();
-
-    Viewing_context cxt {current_user};
+    Viewing_context cxt {session_.user()};
 
     Score_owner self;
     Score_owner grader;

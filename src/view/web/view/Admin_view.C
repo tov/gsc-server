@@ -75,9 +75,9 @@ void Submission_chooser::update()
 
 void Submission_chooser::go()
 {
-    auto current_index = combo_->currentIndex();
+    int current_index = combo_->currentIndex();
 
-    if (current_index < submissions_.size()) {
+    if (current_index < (int)submissions_.size()) {
         dbo::Transaction transaction(session_);
 
         auto submission = submissions_[size_t(current_index)];

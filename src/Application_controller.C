@@ -94,8 +94,6 @@ static std::string hashedResource(char const* filename)
 
 static date::time_zone const* find_time_zone(WEnvironment const& env)
 {
-    WLogger log;
-
     if (env.javaScript()) {
         if (string tz_name = env.timeZoneName(); !tz_name.empty())
             if (auto tz = date::locate_zone(tz_name))

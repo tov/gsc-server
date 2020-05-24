@@ -254,8 +254,8 @@ Grading_view::Grading_view(dbo::ptr<Self_eval> const& self_eval,
 
     std::string sequence =
             std::to_string(eval_item->sequence());
-    auto grading_widget = Abstract_grading_widget::create(grader_eval,
-                                                          session());
+    auto grading_widget = Abstract_grading_widget::create(
+            grader_eval, session());
 
     std::string status;
     switch (grader_eval->status()) {

@@ -91,7 +91,7 @@ void Base_eval_item_widget::add_navigation_(bool focus)
     list_btn->setFocus(focus);
     list_btn->clicked().connect(std::bind([=]() { main_.go_default(); }));
 
-    if (sequence < main_.submission()->item_count()) {
+    if (sequence < (int)main_.submission()->item_count()) {
         next_btn->clicked().connect(std::bind([=]() {
             main_.go_to((unsigned) (sequence + 1));
         }));
