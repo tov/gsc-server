@@ -50,10 +50,11 @@ public:
 
     const dbo::ptr<Assignment>& assignment() const;
 
+    Time_stamp const& time_stamp() const { return time_stamp_; }
+
     Wt::Json::Object to_json() const;
 
     virtual ~Abstract_evaluation() = default;
-
 
 protected:
     virtual void touch_();
