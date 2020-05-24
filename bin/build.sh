@@ -20,6 +20,6 @@ esac
 build_dir=build.$1
 shift
 
-cmake -S . -B $build_dir -DCMAKE_BUILD_TYPE=$cmake_type
-cmake --build $build_dir --target "$@" -- -j 6
+cmake -S . -B $build_dir -DCMAKE_BUILD_TYPE=$cmake_type -G Ninja
+cmake --build $build_dir --target "$@"
 chmod -R a+rX $build_dir
