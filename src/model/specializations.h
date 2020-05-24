@@ -7,10 +7,13 @@ class Bytes;
 class File_data;
 class File_meta;
 enum class File_purpose;
+class Time_stamp;
 class User;
 class User_stats;
 
 namespace Wt {
+
+class WDateTime;
 
 namespace Dbo {
 
@@ -69,6 +72,22 @@ struct sql_value_traits<File_purpose, void>
                      SqlStatement *statement, int column, int size);
 
     static bool read(File_purpose& v,
+                     SqlStatement *statement, int column, int size);
+};
+
+template<>
+struct sql_value_traits<Time_stamp, void>
+{
+    using repr_trait = sql_value_traits<Wt::WDateTime, void>;
+
+    static const bool specialized = true;
+
+    static const char *type(SqlConnection *conn, int size);
+
+    static void bind(const Time_stamp& v,
+                     SqlStatement *statement, int column, int size);
+
+    static bool read(Time_stamp& v,
                      SqlStatement *statement, int column, int size);
 };
 
