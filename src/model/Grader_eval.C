@@ -21,7 +21,8 @@ DBO_INSTANTIATE_TEMPLATES(Grader_eval)
 
 Grader_eval::Grader_eval(const dbo::ptr<Self_eval>& self_eval,
                          const dbo::ptr<User>& grader)
-        : self_eval_(self_eval),
+        : Abstract_evaluation(0),
+          self_eval_(self_eval),
           grader_(grader),
           status_(static_cast<int>(Status::editing))
 { }

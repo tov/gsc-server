@@ -1,11 +1,13 @@
 #pragma once
 
-#include <string>
+#include "util/Time_stamp.h"
 
 #include <Wt/Json/Object.h>
 #include <Wt/WDateTime.h>
 #include <Wt/Dbo/Field.h>
 #include <Wt/Dbo/ptr.h>
+
+#include <string>
 
 namespace dbo = Wt::Dbo;
 
@@ -16,6 +18,7 @@ class Self_eval;
 class Submission;
 struct Viewing_context;
 
+
 struct Score_owner {
     Wt::WString score, owner;
 };
@@ -23,11 +26,15 @@ struct Score_owner {
 class Abstract_evaluation
 {
 public:
-    explicit Abstract_evaluation(double score = 0,
-                                 const std::string& explanation = "")
-          : explanation_(explanation)
-          , score_(normalize_score(score))
+    Abstract_evaluation()
+        : time_stamp_(nullptr)
     { }
+
+    explicit Abstract_evaluation(double score,
+                                 const std::string& explanation = "")
+        : score_(normalize_score(score)),
+          explanation_(explanation)
+   { }
 
     const std::string& explanation() const { return explanation_; }
     void set_explanation(const std::string&);
@@ -63,7 +70,7 @@ protected:
     }
 
 private:
-    std::string         explanation_;
+    Time_stamp          time_stamp_;
     double              score_;
-    Wt::WDateTime       time_stamp_;
+    std::string         explanation_;
 };

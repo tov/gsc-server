@@ -41,7 +41,7 @@ std::string Abstract_evaluation::plain_score_string() const
 
 void Abstract_evaluation::touch_()
 {
-    time_stamp_ = Wt::WDateTime::currentDateTime();
+    time_stamp_.touch();
 }
 
 Wt::Json::Object Abstract_evaluation::to_json() const {
