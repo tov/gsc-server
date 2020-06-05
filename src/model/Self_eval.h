@@ -39,10 +39,8 @@ public:
             dbo::Session&,
             const std::string&);
 
-    static std::string find_ungraded_permalink(
-            dbo::Session&,
-            const dbo::ptr<User>&,
-            bool include_informational = true);
+    static string find_ungraded_permalink(dbo::Session& dbo,
+                                          const dbo::ptr<User>& user);
 
     static dbo::collection<dbo::ptr<Self_eval>>
     find_with_grade_status(Grader_eval::Status, dbo::Session&);
