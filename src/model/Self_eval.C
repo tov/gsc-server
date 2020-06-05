@@ -86,7 +86,7 @@ std::string Self_eval::grade_url() const
 
 dbo::ptr<Self_eval>
 Self_eval::find_by_permalink(dbo::Session& dbo,
-                             const std::string& permalink)
+                             std::string const& permalink)
 {
     return dbo.find<Self_eval>()
               .where("permalink = ?").bind(permalink);

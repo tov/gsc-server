@@ -380,7 +380,6 @@ Submissions_view::Submissions_view(const dbo::ptr<User>& user, Session& session)
 
 void Submissions_view::reload_()
 {
-    using columns = Row_view::columns;
     clear();
 
     addNew<Partner_notification_widget>(

@@ -84,4 +84,7 @@ void Admin_response_widget::set_model_(const Abstract_evaluation* model)
     }
 }
 
-
+void Admin_response_widget::load()
+{
+    WCompositeWidget::load();
+}

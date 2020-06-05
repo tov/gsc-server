@@ -12,7 +12,7 @@
 #include <optional>
 #include <string>
 
-class Auth_token;
+struct Auth_token;
 class Exam_grade;
 class Submission;
 class Partner_request;

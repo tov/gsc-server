@@ -29,6 +29,9 @@ public:
 
     void setFocus(bool focus) override;
 
+    // Avoid hiding this by overriding.
+    void load() override;
+
 private:
     struct {
         std::string explanation;

@@ -5,7 +5,7 @@
 
 namespace dbo = Wt::Dbo;
 
-class Auth_token;
+struct Auth_token;
 class User;
 
 namespace Wt {

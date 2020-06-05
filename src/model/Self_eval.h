@@ -35,12 +35,11 @@ public:
 
     Score_owner score_owner(Viewing_context const& cxt) const override;
 
-    static dbo::ptr<Self_eval> find_by_permalink(
-            dbo::Session&,
-            const std::string&);
+    static dbo::ptr<Self_eval>
+    find_by_permalink(dbo::Session&, std::string const&);
 
-    static string find_ungraded_permalink(dbo::Session& dbo,
-                                          const dbo::ptr<User>& user);
+    static std::string
+    find_ungraded_permalink(dbo::Session&, dbo::ptr<User> const&);
 
     static dbo::collection<dbo::ptr<Self_eval>>
     find_with_grade_status(Grader_eval::Status, dbo::Session&);

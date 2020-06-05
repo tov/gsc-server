@@ -38,7 +38,6 @@ void List_eval_item_widget::add_buttons_()
 void List_eval_item_widget::add_scores_()
 {
     auto current_user = session_.user();
-    auto role = current_user->role();
 
     Viewing_context cxt {current_user};
 

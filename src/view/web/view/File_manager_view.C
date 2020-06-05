@@ -148,7 +148,7 @@ void File_uploader::reset_()
 
     if (Wt::WApplication::instance()->environment().ajax()) {
         setStyleClass("file-uploader btn btn-success");
-        auto label = addNew<Wt::WText>("Upload files...");
+        addNew<Wt::WText>("Upload files...");
         upload_->changed().connect([=] { start_upload_(); });
     } else {
         setStyleClass("backup-file-uploader");
@@ -226,9 +226,8 @@ File_manager_view::File_manager_view(const Wt::Dbo::ptr<Submission>& submission,
                       || user->can_admin();
     bool can_modify = can_submit && can_web;
 
-    auto submission_owner =
-           right_column_->addNew<Submission_owner_widget>(
-                    submission, session, changed());
+    right_column_->addNew<Submission_owner_widget>(
+            submission, session, changed());
 
     auto file_list = std::make_unique<File_list_widget>(
             submission, can_modify, session, changed());

@@ -149,18 +149,21 @@ static File_purpose classify_file_type(string const& media_type,
 
 const int File_meta::max_byte_count = 5 * 1024 * 1024;
 
-File_meta::File_meta(const std::string& name, const std::string& media_type,
-                     File_purpose purpose, const dbo::ptr<User>& uploader,
-                     int line_count, int byte_count,
-                     const dbo::ptr<Submission>& submission)
-        : name_{name}
-        , media_type_{media_type}
-        , purpose_{purpose}
-        , submission_{submission}
-        , uploader_{uploader}
-        , line_count_{line_count}
-        , byte_count_{byte_count}
-        , time_stamp_{WDateTime::currentDateTime()}
+File_meta::File_meta(std::string const& name,
+                     std::string const& media_type,
+                     File_purpose purpose,
+                     dbo::ptr<User> const& uploader,
+                     int line_count,
+                     int byte_count,
+                     dbo::ptr<Submission> const& submission)
+        : name_{name},
+          time_stamp_{WDateTime::currentDateTime()},
+          line_count_{line_count},
+          byte_count_{byte_count},
+          submission_{submission},
+          media_type_{media_type},
+          purpose_{purpose},
+          uploader_{uploader}
 { }
 
 dbo::ptr<File_meta>

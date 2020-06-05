@@ -6,7 +6,7 @@
 #include <vector>
 
 template <class T>
-class Enum;
+struct Enum;
 
 template <class T>
 char const* stringify(T value)

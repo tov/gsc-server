@@ -14,7 +14,7 @@ class Eval_item;
 class User;
 class Self_eval;
 class Submission;
-class Viewing_context;
+struct Viewing_context;
 
 struct Score_owner {
     Wt::WString score, owner;
@@ -25,8 +25,8 @@ class Abstract_evaluation
 public:
     explicit Abstract_evaluation(double score = 0,
                                  const std::string& explanation = "")
-        : score_(normalize_score(score)),
-          explanation_(explanation)
+          : explanation_(explanation)
+          , score_(normalize_score(score))
     { }
 
     const std::string& explanation() const { return explanation_; }

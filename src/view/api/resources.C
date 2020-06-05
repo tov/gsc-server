@@ -1082,7 +1082,7 @@ std::unique_ptr<Resource> Resource::create(std::string const& method,
 {
     auto resource = dispatch_(path_info);
     resource->method_ = method;
-    return std::move(resource);
+    return resource;
 }
 
 class Whoami : public Resource
