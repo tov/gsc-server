@@ -127,7 +127,7 @@ Self_eval::find_ungraded_permalink(dbo::Session& dbo,
             "   AND b.due_date < utc_now()"
             "   AND a.eval_date < utc_now()"
             "   AND b.eval_date < utc_now()"
-            " ORDER BY a.number, e.sequence"
+            " ORDER BY a.number, e.sequence, random()"
             " LIMIT 1"
     ).resultValue();
 }
