@@ -19,6 +19,7 @@
 
 namespace api {
 
+#ifdef GSC_AUTH_PASSWORD
 static const std::regex authorization_pat(" *basic ([^ ]+) *",
                                           std::regex_constants::icase);
 
@@ -46,6 +47,7 @@ parse_authorization(const std::string& header_value)
     std::string password(colon + 1, decoded.end());
     return Credentials{username, password};
 }
+#endif // GSC_AUTH_PASSWORD
 
 Request_handler::Request_handler(Db_session& session,
                                  Wt::Http::Request const& request,
