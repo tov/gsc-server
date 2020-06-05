@@ -211,6 +211,7 @@ public:
 
 namespace {
 
+[[maybe_unused]]
 bool is_eod(WTime const& time)
 {
     return time.hour() == 23 && time.minute() == 59;

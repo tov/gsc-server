@@ -149,6 +149,7 @@ public:
     EventSignal<>& enterPressed() { return combo_->enterPressed(); }
 
 private:
+    [[maybe_unused]]
     Session& session_;
     WComboBox* combo_;
 };
