@@ -8,8 +8,8 @@ namespace J = Wt::Json;
 namespace api {
 
 Result_proxy::Result_proxy(Result_array &array, std::string const& status)
-        : array_{&array}
-        , status_{status}
+        : status_{status}
+        , array_{&array}
 { }
 
 Result_proxy::~Result_proxy() noexcept(false)
