@@ -29,7 +29,7 @@ char Char_generator::operator()()
         return value - 10 + 'a';
 }
 
-Char_generator random_char;
+thread_local Char_generator random_char;
 
 }
 
