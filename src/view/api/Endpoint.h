@@ -11,7 +11,7 @@ namespace api {
 class Endpoint : public Wt::WResource
 {
 public:
-    Endpoint(Wt::Dbo::SqlConnectionPool& pool);
+    explicit Endpoint(Wt::Dbo::SqlConnectionPool& pool);
 
     void handleRequest(Wt::Http::Request const&,
                        Wt::Http::Response&) override;
