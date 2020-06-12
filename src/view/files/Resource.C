@@ -25,7 +25,7 @@ void denied(string const& message = "Can't touch this")
     throw Http_status(403, message);
 }
 
-const regex pat("/([^/]+)/(\\d+)/([^/]+)");
+const regex pat("(?:/files)?/([^/]+)/(\\d+)/([^/]+)");
 
 struct File_request
 {
