@@ -40,7 +40,7 @@ File_request::File_request(string const& path_info)
 {
     smatch sm;
     if (!regex_match(path_info, sm, pat))
-        not_found("Bad URI format");
+        not_found("Bad URI format: " + path_info);
 
     owner_name = string(sm[1].first, sm[1].second);
     assignment = atoi(&*sm[2].first);
