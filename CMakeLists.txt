@@ -46,12 +46,14 @@ set(WWW_SRC_FILES
         src/gscd.C
         src/Application_controller.C
         src/Navigate.h
-        src/view/api/Endpoint.C
-        src/view/api/Http_status.C
+        src/view/Resource_base.C
+        src/view/Http_status.C
+        src/view/api/Resource.C
         src/view/api/Request_body.C
         src/view/api/Request_handler.C
         src/view/api/Result_array.C
         src/view/api/resources.C
+        src/view/files/Resource.C
         src/view/web/Confirmation_dialog.C
         src/view/web/Notification.C
         src/view/web/PageTitle.C

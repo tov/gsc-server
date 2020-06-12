@@ -139,9 +139,10 @@ public:
 
     template <typename T>
     authn_result_t<T>
-    find_from_environment(bool create = true)
+    find_from_environment(bool create = true,
+                          Environment const& env = App_environment())
     {
-        if (auto remote_user = env_remote_user()) {
+        if (auto remote_user = env_remote_user(env)) {
             return find_by_login<T>(*remote_user, create);
         } else {
             return {};
@@ -200,7 +201,7 @@ public:
     int find_ranking();
     void add_to_score(int s);
 
-    bool authenticate_from_environment();
+    bool authenticate_from_environment(Environment const& = App_environment{});
 
 private:
     Wt::Auth::Login login_;

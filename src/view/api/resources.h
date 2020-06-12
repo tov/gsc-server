@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../Resource_base.h"
 #include "../../common/paths.h"
 #include "../../Session.h"
 #include "../../model/File_data.h"
@@ -31,14 +32,14 @@ public:
     };
 
     // Parses the URI into the resource.
-    static std::unique_ptr<Resource> create(std::string const& method,
-                                            std::string const& path_info);
+    static std::unique_ptr<Resource>
+    create(std::string const& method,
+           std::string const& path_info);
 
     // Processes the request, building the response.
-    void process(Wt::Http::Request const& request, Context const&);
-
-    // Sends the response.
-    void send(Wt::Http::Response&) const;
+    void process(Wt::Http::Request const&,
+                 Resource_response&,
+                 Context const&);
 
     virtual ~Resource() = default;
 

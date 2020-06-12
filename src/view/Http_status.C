@@ -10,8 +10,6 @@
 
 namespace J = Wt::Json;
 
-namespace api {
-
 Http_status::Http_status(int status_code, std::string message)
         : std::runtime_error{exception_message_(status_code)},
           status_code_{status_code}, message_{std::move(message)} {}
@@ -81,4 +79,3 @@ Http_error::~Http_error() noexcept(false)
     throw Http_status{status_code_, message_.str()};
 }
 
-} // end namespace api

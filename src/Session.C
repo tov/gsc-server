@@ -305,16 +305,16 @@ void Db_session::map_classes()
     mapClass<User_stats>("user_stats");
 }
 
-bool Session::authenticate_from_environment()
+bool Session::authenticate_from_environment(Environment const& env)
 {
     dbo::Transaction transaction(dbo());
 
-    auto auth_user = find_from_environment<auth_user_t>();
+    auto auth_user = find_from_environment<auth_user_t>(false, env);
     if (!auth_user.isValid()) return false;
 
     std::optional<std::string> whoami;
     if (users().find(auth_user)->user()->can_admin()
-        && (whoami = param_whoami()).has_value())
+        && (whoami = param_whoami(env)).has_value())
     {
         auth_user = find_by_login<auth_user_t>(whoami.value(), true);
         if (!auth_user.isValid()) return false;

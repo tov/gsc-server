@@ -1,5 +1,5 @@
 #include "Request_handler.h"
-#include "Http_status.h"
+#include "../Http_status.h"
 #include "../../common/env_var.h"
 #include "../../common/stringify.h"
 #include "../../model/auth/Api_key.h"
@@ -50,11 +50,9 @@ parse_authorization(const std::string& header_value)
 #endif // GSC_AUTH_PASSWORD
 
 Request_handler::Request_handler(Db_session& session,
-                                 Wt::Http::Request const& request,
-                                 Wt::Http::Response& response)
+                                 Wt::Http::Request const& request)
         : session_{session}
         , request_{request}
-        , response_{response}
         , path_info_{request_.pathInfo()}
         , method_{request.method()}
 {
@@ -226,7 +224,8 @@ dbo::ptr<User> Request_handler::authenticate_by_password_() const
 
 dbo::ptr<User> Request_handler::authenticate_by_open_am_() const
 {
-    if (auto auth_info = session_.find_from_environment<Auth_info>(false))
+    if (auto auth_info = session_.find_from_environment<Auth_info>(false,
+                                                                   App_environment()))
         return auth_info->user();
     else
         return nullptr;

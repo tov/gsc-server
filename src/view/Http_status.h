@@ -4,13 +4,9 @@
 #include <stdexcept>
 #include <string>
 
-namespace Wt {
-    namespace Http {
-        class Response;
-    }
+namespace Wt::Http {
+class Response;
 }
-
-namespace api {
 
 struct Http_status : std::runtime_error
 {
@@ -45,4 +41,3 @@ private:
     std::ostringstream message_;
 };
 
-} // end namespace api

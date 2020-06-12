@@ -1,11 +1,12 @@
 #include "resources.h"
-#include "Http_status.h"
-#include "../../common/paths.h"
-#include "../../common/util.h"
 #include "Request_body.h"
 #include "Request_handler.h"
 #include "Result_array.h"
+#include "../Http_status.h"
 #include "../../Session.h"
+#include "../../common/paths.h"
+#include "../../common/util.h"
+
 #include "../../model/auth/User.h"
 #include "../../model/Assignment.h"
 #include "../../model/Eval_item.h"
@@ -73,16 +74,6 @@ void Resource::not_found()
 void Resource::not_supported()
 {
     Http_error{405} << "The resource does not support that method";
-}
-
-void Resource::send(Wt::Http::Response& response) const
-{
-    if (content_type.empty()) {
-        Http_status{500, "No content type"}.respond(response);
-    } else {
-        response.setMimeType(content_type);
-        response.out().write((const char *)contents.data(), contents.size());
-    }
 }
 
 class Grades_csv : public Resource
@@ -1137,6 +1128,7 @@ std::unique_ptr<Resource> Resource::dispatch_(std::string path_info)
 }
 
 void Resource::process(Wt::Http::Request const& request,
+                       Resource_response& response,
                        Context const& context)
 try {
     load_(context);
@@ -1157,6 +1149,9 @@ try {
     else if (method_ == "PUT")
         do_put_(body, context);
     else not_supported();
+
+    response.content_type = move(content_type);
+    response.contents     = move(contents);
 
 } catch (Resource_not_found const&) {
     not_found();
