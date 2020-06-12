@@ -911,6 +911,10 @@ $hlog-indent: 72px;
             padding: 0;
         }
 
+        p.screenshot {
+            margin: $hlog-skip $hlog-gap;
+        }
+
         h4.test-result {
             margin: 0 0 $hlog-skip $hlog-indent;
         }
@@ -1084,7 +1088,6 @@ span.txt-only {
 }
 
 p.screenshot {
-    margin: 1em 0;
     text-align: center;
 
     a {
@@ -1092,12 +1095,13 @@ p.screenshot {
     }
 
     img {
-        max-width: $single-file-width;
-        border: 2px solid $purple-tint;
+        max-width: 0.8 * $single-file-width;
+        border:    2px dotted $nu-purple;
+        padding:   2px;
     }
 
     a:hover img {
-        border-color: $nu-purple;
+        border-style: solid;
     }
 }
 
