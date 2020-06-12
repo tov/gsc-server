@@ -1083,3 +1083,22 @@ span.txt-only {
     margin-top: 0;
 }
 
+p.screenshot {
+    margin: 1em 0;
+    text-align: center;
+
+    a {
+        text-decoration: none;
+    }
+
+    img {
+        max-width: $single-file-width;
+        border: 2px solid $purple-tint;
+    }
+
+    a:hover img {
+        border-color: $nu-purple;
+    }
+}
+
+
