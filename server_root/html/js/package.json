@@ -4,7 +4,7 @@
   "main": "gsc.js",
   "author": "Jesse A. Tov",
   "dependencies": {
-    "jquery": "^3.5.1",
+    "jquery": "^3.5.0",
     "jquery-ui": "^1.12.1"
   },
   "devDependencies": {
