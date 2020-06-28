@@ -4,12 +4,12 @@
   "main": "gsc.js",
   "author": "Jesse A. Tov",
   "dependencies": {
-    "jquery": "^3.4.1",
+    "jquery": "^3.5.1",
     "jquery-ui": "^1.12.1"
   },
   "devDependencies": {
     "typescript": "^3.7.5",
-    "@types/jquery": "^3.3.31",
+    "@types/jquery": "^3.5",
     "@types/jqueryui": "^1.12.10"
   }
 }
