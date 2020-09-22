@@ -1,2 +1,15 @@
 There needs to be a symlink from html/resources to the resources
 directory in the Wt source tree.
+
+## Link errors
+
+To avoid link errors, GSC and Wt need to be compiled with the same C++
+standard. GSC uses C++17, so we need to configure Wt to use C++17 as
+well. You can do this by passing CMake `DCMAKE_CXX_STANDARD=17` when
+configuring the project:
+
+```console
+$ cmake -S . -B build -G Ninja \
+    -DCMAKE_CXX_STANDARD=17 -DCMAKE_BUILD_TYPE=Release
+```
+
