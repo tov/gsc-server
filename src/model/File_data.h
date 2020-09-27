@@ -1,7 +1,6 @@
 #pragma once
 
 #include "specializations.h"
-
 #include <Wt/Dbo/Types.h>
 #include <Wt/Dbo/WtSqlTraits.h>
 #include <Wt/WDateTime.h>
@@ -35,20 +34,16 @@ public:
             : file_meta_(file_meta),
               contents_(contents) {}
 
-    const dbo::ptr<File_meta>& file_meta() const { return file_meta_; }
-    const Bytes& contents() const { return contents_; }
+	File_data(const dbo::ptr<File_meta>& file_meta)
+			: file_meta_(file_meta) {}
 
+	const dbo::ptr<File_meta>& file_meta() const { return file_meta_; }
+	const Bytes& contents() const { return contents_; }
+	int write_and_commit();
+	int delete_and_commit();
+	int populate_contents();
+	
 private:
-    dbo::ptr<File_meta> file_meta_;
+	dbo::ptr<File_meta> file_meta_;
     Bytes contents_;
-
-public:
-    template<typename Action>
-    void persist(Action& a)
-    {
-        dbo::id(a, file_meta_, "file_meta", dbo::OnDeleteCascade);
-        dbo::field(a, contents_, "contents");
-    }
 };
-
-DBO_EXTERN_TEMPLATES(File_data)

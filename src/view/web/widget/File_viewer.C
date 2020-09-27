@@ -58,7 +58,9 @@ Base_file_viewer::Base_file_viewer(
 
 string Base_file_viewer::contents_() const
 {
-    return string(file_meta_->file_data().lock()->contents());
+	std::unique_ptr<File_data> file_data = std::make_unique<File_data>(file_meta_);
+	file_data->populate_contents();
+    return string(file_data->contents());
 }
 
 WTableRow* Base_file_viewer::row_at(int row_no)

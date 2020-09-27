@@ -187,17 +187,18 @@ File_meta::upload(const string &name, const Bytes &contents,
     if (! submission->has_sufficient_space(byte_count, name))
         throw Would_exceed_quota_error(name, byte_count, submission->remaining_space());
 
-    for (auto file : submission->source_files()) {
-        if (file->name_ == name) file.remove();
-    }
+    //for (auto file : submission->source_files()) {
+    //    if (file->name_ == name) file.remove();
+    //}
 
     auto line_count = media_type == "text/plain"? count_lines(contents) : 0;
 
     dbo::ptr<File_meta> result =
             session.addNew<File_meta>(name, media_type, purpose,
                                       uploader, line_count,
-                                      byte_count, submission);
-    session.addNew<File_data>(result, contents);
+                                      byte_count, submission);	
+	std::unique_ptr<File_data> file_data = std::make_unique<File_data>(result, contents); 
+	file_data->write_and_commit();
 
     submission.modify()->touch();
 
@@ -216,7 +217,8 @@ void File_meta::move(const dbo::ptr<Submission>& dst_owner,
     if (auto file = dst_owner->find_file_by_name(dst_name)) {
         if (!overwrite)
             throw Move_collision_error(submission(), name(), dst_owner, dst_name);
-
+		std::unique_ptr<File_data> file_data = std::make_unique<File_data>(file);
+		file_data->delete_and_commit();
         file.remove();
     }
 

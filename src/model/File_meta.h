@@ -11,8 +11,6 @@
 
 namespace dbo = Wt::Dbo;
 
-class File_data;
-
 class User;
 
 class Submission;
@@ -51,9 +49,6 @@ public:
 
     File_purpose const& purpose() const
     { return purpose_; }
-
-    const dbo::weak_ptr<File_data>& file_data() const
-    { return file_data_; }
 
     int line_count() const
     { return line_count_; }
@@ -116,7 +111,6 @@ private:
     dbo::ptr<Submission>     submission_;
     std::string              media_type_;
     File_purpose             purpose_;
-    dbo::weak_ptr<File_data> file_data_;
     dbo::ptr<User>           uploader_;
 
 public:
@@ -130,7 +124,6 @@ public:
         dbo::field(a, line_count_, "line_count");
         dbo::field(a, byte_count_, "byte_count");
         dbo::belongsTo(a, submission_, "submission", dbo::OnDeleteCascade);
-        dbo::hasOne(a, file_data_, "file_meta");
         dbo::belongsTo(a, uploader_, "uploader", dbo::OnDeleteSetNull);
     }
 };

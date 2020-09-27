@@ -4,7 +4,7 @@
 
 class Assignment;
 class Bytes;
-class File_data;
+//class File_data;
 class File_meta;
 enum class File_purpose;
 class Time_stamp;
@@ -35,13 +35,13 @@ struct dbo_traits<User_stats> : public dbo_default_traits
 };
 
 // File_data uses its file_meta foreign key as id.
-template<>
+/*template<>
 struct dbo_traits<File_data> : public dbo_default_traits
 {
     using IdType = ptr<File_meta>;
     static IdType invalidId() { return IdType(); }
     static const char* surrogateIdField() { return nullptr; }
-};
+};*/
 
 template<>
 struct sql_value_traits<Bytes, void>

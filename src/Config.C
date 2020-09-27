@@ -14,4 +14,6 @@ Config::Config()
     , websso_logout_url {
         "https://prd-nusso.it.northwestern.edu/nusso/XUI/#logout"
     }
+	, gsc_repo {"var/"}
+
 { }
