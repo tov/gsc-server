@@ -129,7 +129,8 @@ void File_resource::handleRequest(const Wt::Http::Request& request,
                                   Wt::Http::Response& response)
 {
     Wt::Dbo::Transaction transaction(*source_file_.session());
-    Wt::Dbo::ptr<File_data> text = source_file_->file_data().lock();
+	std::unique_ptr<File_data> text = std::make_unique<File_data>(source_file_);
+	text->populate_contents();
     transaction.commit();
 
     response.setMimeType(source_file_->media_type());
@@ -147,6 +148,8 @@ void File_deleter::go()
     Wt::Dbo::Transaction transaction(context_.session());
     if (source_file_->submission()->can_submit(context_.session().user())) {
         source_file_->submission().modify()->touch();
+		std::unique_ptr<File_data> text = std::make_unique<File_data>(source_file_);
+		text->delete_and_commit();
         source_file_.remove();
         transaction.commit();
 

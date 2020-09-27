@@ -9,6 +9,7 @@
 #include "model/Assignment.h"
 #include "model/Eval_item.h"
 #include "model/Exam_grade.h"
+class index;
 #include "model/File_data.h"
 #include "model/File_meta.h"
 #include "model/Grader_eval.h"
@@ -295,7 +296,7 @@ void Db_session::map_classes()
     mapClass<Auth_info::AuthTokenType>("auth_token");
     mapClass<Eval_item>("eval_item");
     mapClass<Exam_grade>("exam_grade");
-    mapClass<File_data>("file_data");
+    //mapClass<File_data>("file_data");
     mapClass<File_meta>("file_meta");
     mapClass<Grader_eval>("grader_eval");
     mapClass<Partner_request>("partner_request");

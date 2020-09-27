@@ -75,8 +75,9 @@ Resource::handleRequest(Wt::Http::Request const& request,
     if (!file_meta)
         not_found("No such file");
 
-    auto file_data = file_meta->file_data().lock();
-    if (!file_data)
+	std::unique_ptr<File_data> file_data = std::make_unique<File_data>(file_meta);
+	
+    if (!file_data->populate_contents())
         not_found("File data absent");
 
     response.content_type = file_meta->media_type();
