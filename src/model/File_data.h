@@ -50,5 +50,9 @@ private:
 	git_repository* repo_init_(std::string repo_path);
 	bool repo_add_commit_(git_repository *repo, const char* repo_path, 
 					const char* committer, int update = 0);
-	static std::mutex mtx_;
+	static std::unordered_map<std::string, std::mutex*> mtx_map_;
+	static std::mutex access_global_;
+
+	std::mutex* get_mutex_(std::string repo_path);
+
 };
