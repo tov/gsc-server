@@ -12,6 +12,8 @@
 #include <optional>
 #include <string>
 
+#define MAX_CALL_ME_LENGTH  64
+
 struct Auth_token;
 class Exam_grade;
 class Submission;
@@ -66,6 +68,9 @@ public:
     void set_role(Role r) { role_ = Role_info::to_repr(r); }
 
     const char* role_string() const { return stringify(role()); }
+
+    std::string const& call_me() const { return call_me_; }
+    void set_call_me(std::string const&);
 
     bool can_grade() const;
     bool can_admin() const;

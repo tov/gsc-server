@@ -29,6 +29,11 @@ User::User(const std::string& name, Role role)
         , role_(static_cast<int>(role))
 {}
 
+void User::set_call_me(std::string const& s)
+{
+    call_me_ = s;
+}
+
 bool User::can_grade() const
 {
     return role() == User::Role::Grader || role() == User::Role::Admin;
