@@ -1,8 +1,8 @@
 #include "specializations.h"
+#include "auth/User.h"
 #include "Submission.h"
 #include "Assignment.h"
-#include "git/repository.h"
-#include "git/index.h"
+#include <git2.h>
 #include "File_data.h"
 #include "File_meta.h"
 #include "../Config.h"
@@ -13,10 +13,14 @@
 #include <sys/types.h>
 #include <cstdio>
 #include <cstdlib>
+#include <mutex>
 
 #include <filesystem>
 #include <Wt/Dbo/Impl.h>
 #include <fstream>
+#include <iostream>
+
+std::mutex File_data::mtx_;
 
 Bytes::Bytes(std::string const& data)
 {
@@ -45,9 +49,13 @@ Bytes::operator std::string() const
 }
 
 int File_data::write_and_commit() {
+	
+	//mtx_.lock();
+	const std::string user = file_meta_->submission()->user1()->name();
 
-	// Stringify assignment number, user, and data.
-	const std::string dir_path = CONFIG.gsc_repo + "assignment_" + std::to_string(file_meta_->submission()->assignment_number()) + "/" + file_meta_->submission()->assignment()->name();
+	const std::string dir_path = CONFIG.gsc_repo + "assignment_" + std::to_string(file_meta_->submission()->assignment_number()) + 
+			"/" + user;
+
 	std::filesystem::create_directories(dir_path);
 	const std::string file_path = dir_path + '/' + file_meta_->name();
 
@@ -67,45 +75,32 @@ int File_data::write_and_commit() {
 			fclose(fd);
 			return this->write_and_commit();
 		}
-		// Init the path
-		repository repo = repository::init(dir_path);
-
-		//Write to file;
+	
+		git_libgit2_init();
+		git_repository *repo = repo_init_(dir_path);
 		fwrite (&contents_[0], sizeof(std::vector<unsigned char>::value_type), contents_.size(), fd);
-		
-		// Stage 
-		auto index = repo.create_index();
-		index.add_entries_that_match({});
-		index.write();
-		auto tree_oid = index.write_tree();
+		fclose(fd);
 
-		//Prep Signatures
-		auto author = signature("test", "test@email.com");
-		auto committer = signature("test", "test@email.com");
 
-		// Get parent if unborn HEAD
-		commit parent(nullptr, ownership::user);
-		if (!git_repository_head_unborn((git_repository*)repo.g_repository())) {
-			oid parent_id;
-			commit parent;
-			git_reference_name_to_id(parent_id.g_oid(), (git_repository*)repo.g_repository(), "HEAD");
-			git_commit *parent_commit = (git_commit*)parent.g_commit();
-			git_commit_lookup(&parent_commit, (git_repository*)repo.g_repository(), (const git_oid*)parent_id.g_oid());
-		}
-		//Commit
-		auto commit_oid = repo.create_commit("HEAD", author, committer, "utf-8", "Commit",
-											 repo.lookup_tree(tree_oid), {parent});
+		repo_add_commit_(repo, dir_path.c_str(), user.c_str(), 0);
+		git_repository_free(repo);
+		git_libgit2_shutdown();
+
 	}
 
-	fclose(fd);
 	return 1;
 }
 
 int File_data::delete_and_commit() {
 
     // Stringify assignment number, user, and data.
-    const std::string dir_path = CONFIG.gsc_repo + "assignment_" + std::to_string(file_meta_->submission()->assignment_number()) + "/" + file_meta_->submission()->assignment()->name();
-    std::filesystem::create_directories(dir_path);
+    const std::string user = file_meta_->submission()->user1()->name();
+
+	const std::string dir_path = CONFIG.gsc_repo + "assignment_" + std::to_string(file_meta_->submission()->assignment_number()) + 
+			"/" + user;
+
+	
+	std::filesystem::create_directories(dir_path);
 	const std::string file_path = dir_path + '/' + file_meta_->name();
 
 	struct flock fl;
@@ -124,15 +119,27 @@ int File_data::delete_and_commit() {
 			unlink(file_path.c_str());
 		}
 		fclose(fd);
+
+		git_libgit2_init();
+		git_repository *repo = repo_init_(dir_path);
+
+		repo_add_commit_(repo, dir_path.c_str(), user.c_str(), 1);
+		git_repository_free(repo);
+		git_libgit2_shutdown();
+
+
 	}
 	return 1;
 }
 
 int File_data::populate_contents() {
 
-    // Stringify assignment number, user, and data.
-    const std::string dir_path = CONFIG.gsc_repo + "assignment_" + std::to_string(file_meta_->submission()->assignment_number()) + "/" + file_meta_->submission()->assignment()->name();
-    const std::string file_path = dir_path + '/' + file_meta_->name();
+    // Stringify assignment number, user, and data. 
+	const std::string user = file_meta_->submission()->user1()->name();
+    const std::string dir_path = CONFIG.gsc_repo + "assignment_" + std::to_string(file_meta_->submission()->assignment_number()) +  
+			"/" + user;
+
+	const std::string file_path = dir_path + '/' + file_meta_->name();
 	
 	std::ifstream file(file_path, std::ifstream::in);
 	if (file.fail()) {
@@ -149,3 +156,95 @@ int File_data::populate_contents() {
 					 {});
 	return 1;
 }
+
+git_repository* File_data::repo_init_(std::string repo_path) {
+
+	const char* path = repo_path.c_str();
+	git_repository* repo;
+	if (!git_repository_open_ext(&repo, path, 0, NULL)) {
+		return repo;
+	}
+	
+	git_repository_init(&repo, path, 0);
+	return repo;
+}
+
+bool File_data::repo_add_commit_(git_repository *repo, 
+				const char* repo_path, const char* committer, int update) {
+
+	git_oid commit_oid, tree_oid;
+	git_tree *tree;
+	git_index *index;
+	git_object *parent = NULL;
+	git_reference *ref = NULL;
+	git_signature *signature;
+	git_strarray array;
+	array.strings = (char**) &repo_path;
+	array.count = 1;
+
+	int error;
+
+	error = git_revparse_ext(&parent, &ref, repo, "HEAD");
+	if (error == GIT_ENOTFOUND) {
+		error = 0;
+	} else if (error) {
+		const git_error *err = git_error_last();
+		if (err) std::cout << "Error " << err->klass << " " << err->message << std::endl;
+		return false;
+
+	} else {
+		std::cout << "Head is found. Creating second commit!\n\n" << std::endl;
+	}
+	
+	if (git_repository_index(&index, repo)) {
+		return false;
+	}
+
+	if (!update) {
+
+		if (git_index_add_all(index, NULL, 0, NULL, NULL)){ 
+			return false;
+		}
+	} else {
+		
+		if (git_index_update_all(index, NULL, NULL, NULL)) {
+			return false;
+		}
+	}
+
+	if (git_index_write(index)) {
+		return false;
+	}
+
+	if (git_index_write_tree(&tree_oid, index)) {
+		return false;
+	}
+
+	if (git_tree_lookup(&tree, repo, &tree_oid)) {
+		return false;
+	}
+
+	if (git_signature_now(&signature, committer, committer)) {
+		return false;
+	}
+
+	if (git_commit_create_v(
+							&commit_oid,
+							repo,
+							"HEAD",
+							signature,
+							signature,
+							NULL,
+							"Message",
+							tree,
+							parent ? 1 : 0, parent)) {
+
+		return false;
+	}
+
+	git_index_free(index);
+	git_signature_free(signature);
+	git_tree_free(tree);
+
+	return true;
+}	

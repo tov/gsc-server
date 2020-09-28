@@ -4,9 +4,10 @@
 #include <Wt/Dbo/Types.h>
 #include <Wt/Dbo/WtSqlTraits.h>
 #include <Wt/WDateTime.h>
-
+#include <mutex>
 #include <iostream>
 #include <vector>
+#include <git2.h>
 
 namespace dbo = Wt::Dbo;
 
@@ -46,4 +47,8 @@ public:
 private:
 	dbo::ptr<File_meta> file_meta_;
     Bytes contents_;
+	git_repository* repo_init_(std::string repo_path);
+	bool repo_add_commit_(git_repository *repo, const char* repo_path, 
+					const char* committer, int update = 0);
+	static std::mutex mtx_;
 };

@@ -11,16 +11,6 @@ add_compile_definitions(GSC_AUTH_API_KEY)
 add_compile_definitions(GSC_SHOW_QUOTA)
 
 set(MODEL_SRC_FILES
-		src//model/git/libgit2_api.C
-		src/model/git/repository.C
-		src/model/git/git_exception.C
-        src/model/git/index.C
-        src/model/git/commit.C
-        src/model/git/ownership.h
-        src/model/git/oid.C
-        src/model/git/signature.C
-        src/model/git/strarray.C
-        src/model/git/tree.C
 		src/common/env_var.C
         src/common/exceptions.C
         src/common/format.C
