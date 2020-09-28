@@ -187,9 +187,11 @@ File_meta::upload(const string &name, const Bytes &contents,
     if (! submission->has_sufficient_space(byte_count, name))
         throw Would_exceed_quota_error(name, byte_count, submission->remaining_space());
 
-    //for (auto file : submission->source_files()) {
-    //    if (file->name_ == name) file.remove();
-    //}
+     for (auto file : submission->source_files()) {
+       if (file->name_ == name) {
+			file.remove();
+	   }
+    }
 
     auto line_count = media_type == "text/plain"? count_lines(contents) : 0;
 
