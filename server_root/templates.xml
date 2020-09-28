@@ -36,6 +36,10 @@
           <td>${login-name}</td>
         </tr>
         <tr>
+          <th>Preferred Name</th>
+          <td>${call-me}</td>
+        </tr>
+        <tr>
           <th>Role</th>
           <td>${role}</td>
         </tr>

@@ -36,6 +36,7 @@ Profile_view::Profile_view(dbo::ptr<User> const& user, Session& session)
 
     impl_->setStyleClass("profile-view");
     impl_->bindString("login-name", user->name());
+    impl_->bindNew<Call_me>("call-me", *this);
     impl_->bindString("role", user->role_string());
     impl_->bindNew<Api_key_widget>("api-key", user_, session_);
 }
