@@ -7,12 +7,8 @@
 #include "File_meta.h"
 #include "../Config.h"
 
-#include <unistd.h>
-#include <fcntl.h>
 #include <sys/stat.h>
 #include <sys/types.h>
-#include <cstdio>
-#include <cstdlib>
 #include <mutex>
 
 #include <filesystem>
@@ -20,7 +16,8 @@
 #include <fstream>
 #include <iostream>
 
-std::mutex File_data::mtx_;
+std::unordered_map<std::string, std::mutex*> File_data::mtx_map_;
+std::mutex File_data::access_global_;
 
 Bytes::Bytes(std::string const& data)
 {
@@ -50,43 +47,31 @@ Bytes::operator std::string() const
 
 int File_data::write_and_commit() {
 	
-	//mtx_.lock();
 	const std::string user = file_meta_->submission()->user1()->name();
 
 	const std::string dir_path = CONFIG.gsc_repo + "assignment_" + std::to_string(file_meta_->submission()->assignment_number()) + 
 			"/" + user;
 
+
 	std::filesystem::create_directories(dir_path);
 	const std::string file_path = dir_path + '/' + file_meta_->name();
-
-	struct flock fl;
-	fl.l_type = F_WRLCK;
-	fl.l_whence = SEEK_SET;
-	fl.l_start = 0;
-	fl.l_len = 0;
-	FILE* fd = fopen(file_path.c_str(), "w+");
-	if (fcntl(fileno(fd), F_SETLKW, &fl) == -1) {
-		return 0;
-	} else {
-		//Acquired lock successfully
-		struct stat st0;
-		fstat(fileno(fd), &st0);
-		if (!st0.st_nlink) {
-			fclose(fd);
-			return this->write_and_commit();
-		}
 	
-		git_libgit2_init();
-		git_repository *repo = repo_init_(dir_path);
-		fwrite (&contents_[0], sizeof(std::vector<unsigned char>::value_type), contents_.size(), fd);
-		fclose(fd);
+	std::mutex* repo_mtx = get_mutex_(dir_path);
+	std::lock_guard<std::mutex> lock(*repo_mtx);
+	
+	std::ofstream file(file_path, std::ios::out);
 
+	git_libgit2_init();
+	git_repository *repo = repo_init_(dir_path);
 
-		repo_add_commit_(repo, dir_path.c_str(), user.c_str(), 0);
-		git_repository_free(repo);
-		git_libgit2_shutdown();
-
+	for (const auto &b : contents_) {
+		file << b;
 	}
+	file.close();
+
+	repo_add_commit_(repo, dir_path.c_str(), user.c_str(), 0);
+	git_repository_free(repo);
+	git_libgit2_shutdown();
 
 	return 1;
 }
@@ -95,40 +80,26 @@ int File_data::delete_and_commit() {
 
     // Stringify assignment number, user, and data.
     const std::string user = file_meta_->submission()->user1()->name();
-
+	
 	const std::string dir_path = CONFIG.gsc_repo + "assignment_" + std::to_string(file_meta_->submission()->assignment_number()) + 
 			"/" + user;
 
 	
 	std::filesystem::create_directories(dir_path);
 	const std::string file_path = dir_path + '/' + file_meta_->name();
+	
+	std::mutex *repo_mtx = get_mutex_(dir_path);
+    std::lock_guard<std::mutex> lock(*repo_mtx);
+	
+	git_libgit2_init();
+	git_repository *repo = repo_init_(dir_path);
+	
+	std::remove(file_path.c_str());
+	
+	repo_add_commit_(repo, dir_path.c_str(), user.c_str(), 1);
+	git_repository_free(repo);
+	git_libgit2_shutdown();
 
-	struct flock fl;
-    fl.l_type = F_WRLCK;
-    fl.l_whence = SEEK_SET;
-    fl.l_start = 0;
-    fl.l_len = 0;
-
-	FILE* fd = fopen(file_path.c_str(), "w+");
-	if (fcntl(fileno(fd), F_SETLKW, &fl) == -1) {			
-		return 0;
-	} else {
-		struct stat st0;
-		fstat(fileno(fd), &st0);
-		if (st0.st_nlink) {
-			unlink(file_path.c_str());
-		}
-		fclose(fd);
-
-		git_libgit2_init();
-		git_repository *repo = repo_init_(dir_path);
-
-		repo_add_commit_(repo, dir_path.c_str(), user.c_str(), 1);
-		git_repository_free(repo);
-		git_libgit2_shutdown();
-
-
-	}
 	return 1;
 }
 
@@ -136,11 +107,12 @@ int File_data::populate_contents() {
 
     // Stringify assignment number, user, and data. 
 	const std::string user = file_meta_->submission()->user1()->name();
-    const std::string dir_path = CONFIG.gsc_repo + "assignment_" + std::to_string(file_meta_->submission()->assignment_number()) +  
+    const std::string dir_path = CONFIG.gsc_repo + "assignment_" + 
+			std::to_string(file_meta_->submission()->assignment_number()) +  
 			"/" + user;
 
 	const std::string file_path = dir_path + '/' + file_meta_->name();
-	
+
 	std::ifstream file(file_path, std::ifstream::in);
 	if (file.fail()) {
 		return 0;
@@ -247,4 +219,18 @@ bool File_data::repo_add_commit_(git_repository *repo,
 	git_tree_free(tree);
 
 	return true;
+}	
+
+std::mutex* File_data::get_mutex_(std::string repo_path) {
+
+	const std::lock_guard<std::mutex> lock(access_global_);
+	
+	if (mtx_map_.count(repo_path)){
+		return mtx_map_[repo_path];
+	}
+	
+	mtx_map_[repo_path] = new std::mutex();
+
+	return mtx_map_[repo_path];
+
 }	
