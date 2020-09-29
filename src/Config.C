@@ -4,6 +4,7 @@ const Config CONFIG;
 
 Config::Config()
     : reward_for_no     { 0.2 }
+    , auto_create_accounts { true }
     , show_queries      { false }
     , gsc_base_url      { "http://localhost:9090/" }
     , server_time_zone  { "America/Chicago" }

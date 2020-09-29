@@ -309,7 +309,8 @@ bool Session::authenticate_from_environment(Environment const& env)
 {
     dbo::Transaction transaction(dbo());
 
-    auto auth_user = find_from_environment<auth_user_t>(false, env);
+    auto auth_user = find_from_environment<auth_user_t>(
+            CONFIG.auto_create_accounts, env);
     if (!auth_user.isValid()) return false;
 
     std::optional<std::string> whoami;
