@@ -1,45 +1,56 @@
 #!/bin/sh
 
-set -e
+set -eux
 
 cd "$(dirname $0)"/..
 
-for_dirs_upward () (
-    local dir
-    dir=$(cd "$1"; pwd); shift
+BASE=/home/gsc
+BUILD_TYPE=debug
 
-    while "$@" "$dir" && [ "$dir" != / ]; do
-        dir=$(dirname "$dir")
-    done
-)
-
-publish_dirs () {
-    local dir
-
-    for dir; do
-        sudo chmod -R a+rX "$dir"
-        for_dirs_upward "$dir" sudo chmod -f a+x
-    done
-}
-
-gsc_install () {
+install_suid () {
     sudo install -v -o gsc -m 4555 "$@"
 }
 
-if [ "$1" = "-d" ]; then
-    build_type=debug
-else
-    build_type=release
-fi
+install_to () {
+    rsync \
+        --recursive \
+        --links --copy-unsafe-links \
+        server_root/ \
+        "$1"
 
-# Require password up front
-sudo true
+    chmod -R a+rX "$1"
 
-make -C server_root/html
-publish_dirs server_root 3rdparty/wt/resources
+    install_suid build.$BUILD_TYPE/gscd-fcgi "$1/gscd.fcgi"
+    install_suid build.$BUILD_TYPE/gsc-auth "$1/gsc-auth"
+}
 
-bin/build.sh $build_type gscd-fcgi gsc-auth
-gsc_install build.$build_type/gscd-fcgi server_root/gscd.fcgi
-gsc_install build.$build_type/gsc-auth server_root/gsc-auth
+stage () {
+    link=${1:-staging}
+    tree=${2:-deploy-$(date +%Y%m%d-%H%M%S)}
+    install_to "$BASE/$tree"
+    rm -f "$BASE/$link"
+    ln -s "$tree" "$BASE/$link"
+}
 
-sudo service apache2 restart
+unstage () {
+    link=${1:-staging}
+    rm -Rf "$(realpath $BASE/$link/)"
+    rm -f "$BASE/$link"
+}
+
+deploy () {
+    src=${1:-staging}
+    dst=${2:-production}
+    src_tree=$(realpath "$BASE/$src")
+    dst_tree=$(realpath "$BASE/$dst" 2>/dev/null || true)
+
+    rm -f "$BASE/$dst"
+    ln -s "$src_tree" "$BASE/$dst"
+
+    if [ -n "$dst_tree" ]; then
+        rm -f "$BASE/$src"
+        ln -s "$dst_tree" "$BASE/$src"
+    fi
+}
+
+"$@"
