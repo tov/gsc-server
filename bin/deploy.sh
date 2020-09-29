@@ -5,7 +5,7 @@ set -eux
 cd "$(dirname $0)"/..
 
 BASE=/home/gsc
-BUILD_TYPE=debug
+BUILD_TYPE=release
 
 install_suid () {
     sudo install -v -o gsc -m 4555 "$@"
