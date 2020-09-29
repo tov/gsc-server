@@ -20,22 +20,27 @@
       <input type="text"
              id="api-key-input"
              class="input-monospace"
-             onclick="selectCopyId('api-key-input')"
+             onclick="GSC.selectCopyId('api-key-input')"
              value="${key}"
              readonly="readonly"
-      />${copy-button}${regenerate-button}
+      /><button
+            class="btn btn-primary"
+            onclick="GSC.selectCopyId('api-key-input')"
+      ><span class="glyphicon glyphicon-copy"
+             aria-hidden="true"></span>
+        Copy</button>${regenerate-button}
     </div>
   </message>
 
   <message id="gsc.template.simple-view-widget">
     <div class="simple-view-widget buttons-inline">
-      ${value}${edit-button}<span style="clear: both;"></span>
+      ${value}${edit-button}
     </div>
   </message>
 
   <message id="gsc.template.simple-edit-widget">
     <div class="simple-edit-widget buttons-inline">
-      ${edit}${save-button}${cancel-button}<span style="clear: both;"></span>
+      ${edit}${save-button}${cancel-button}
     </div>
   </message>
 

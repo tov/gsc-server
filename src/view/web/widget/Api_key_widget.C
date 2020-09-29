@@ -22,10 +22,6 @@ Api_key_widget::Api_key_widget(dbo::ptr<User> const& user, Session& session)
 {
     impl_ = setNewImplementation<WTemplate>(templates::widget);
 
-    auto copy_button = impl_->bindNew<Glyph_button>("copy-button", "copy", "Copy");
-    copy_button->setStyleClass("btn btn-primary");
-    copy_button->clicked().connect([=]{ copy_(); });
-
     auto regen_button = impl_->bindNew<Glyph_button>("regenerate-button",
                                                      "alert", "Regenerate");
     regen_button->setStyleClass("btn btn-danger");
