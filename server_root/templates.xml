@@ -27,6 +27,18 @@
     </div>
   </message>
 
+  <message id="gsc.template.simple-view-widget">
+    <div class="simple-view-widget buttons-inline">
+      ${value}${edit-button}<span style="clear: both;"></span>
+    </div>
+  </message>
+
+  <message id="gsc.template.simple-edit-widget">
+    <div class="simple-edit-widget buttons-inline">
+      ${edit}${save-button}${cancel-button}<span style="clear: both;"></span>
+    </div>
+  </message>
+
   <message id="gsc.template.profile-table">
     <table class="profile-table">
       <colgroup/>
@@ -36,12 +48,12 @@
           <td>${login-name}</td>
         </tr>
         <tr>
-          <th>Preferred Name</th>
-          <td>${call-me}</td>
-        </tr>
-        <tr>
           <th>Role</th>
           <td>${role}</td>
+        </tr>
+        <tr>
+          <th>Preferred Name</th>
+          <td>${call-me}</td>
         </tr>
         <tr>
           <th>API Key</th>

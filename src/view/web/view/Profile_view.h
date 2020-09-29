@@ -15,7 +15,7 @@ class Profile_view : public Wt::WCompositeWidget
 public:
     Profile_view(Wt::Dbo::ptr<User> const&, Session&);
 
-    class Call_me;
+    class Call_me_widget;
 
 private:
     Wt::Dbo::ptr<User> user_;

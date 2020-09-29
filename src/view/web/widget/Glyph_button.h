@@ -20,6 +20,7 @@ public:
 
     Wt::WString styleClass() const override;
     void setStyleClass(WT_USTRING const& styleClass) override;
+    void setEnabled(bool enabled);
 
     Wt::Signal<>& clicked() { return clicked_; }
 

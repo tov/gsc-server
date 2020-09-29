@@ -123,7 +123,7 @@ public:
         dbo::field(a, name_, "name", 16);
         dbo::field(a, role_, "role");
 
-        dbo::field(a, call_me_, "call_me");
+        dbo::field(a, call_me_, "call_me", MAX_CALL_ME_LENGTH);
 
         dbo::hasMany(a, submissions1_, dbo::ManyToOne, "user1");
         dbo::hasMany(a, submissions2_, dbo::ManyToOne, "user2");

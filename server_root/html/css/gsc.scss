@@ -814,8 +814,26 @@ table.fancy {
 
 #api-key-input {
     text-overflow: ellipsis;
-    width: 10ex;
+    width: 20ex;
     cursor: grab;
+}
+
+.simple-view-widget, .simple-edit-widget {
+    width: 100%;
+
+    input, button {
+        display: inline;
+    }
+
+    input[type="text"] {
+        width: 23ex;
+    }
+}
+
+.simple-view-widget input[type="text"] {
+    background-color: white;
+    border-color: white;
+    cursor: pointer;
 }
 
 .username, .input-monospace {

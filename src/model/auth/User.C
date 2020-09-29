@@ -32,6 +32,9 @@ User::User(const std::string& name, Role role)
 void User::set_call_me(std::string const& s)
 {
     call_me_ = s;
+
+    if (call_me_.size() > MAX_CALL_ME_LENGTH)
+        call_me_.resize(MAX_CALL_ME_LENGTH);
 }
 
 bool User::can_grade() const

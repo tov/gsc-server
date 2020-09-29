@@ -34,3 +34,8 @@ void Glyph_button::setStyleClass(WT_USTRING const& styleClass)
     WCompositeWidget::setStyleClass(styleClass);
 }
 
+void Glyph_button::setEnabled(bool enabled)
+{
+    impl_->setEnabled(enabled);
+}
+
