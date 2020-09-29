@@ -42,7 +42,7 @@ public:
 	const Bytes& contents() const { return contents_; }
 	int write_and_commit();
 	int delete_and_commit();
-	int populate_contents();
+	bool populate_contents();
 	
 private:
 	dbo::ptr<File_meta> file_meta_;
@@ -50,9 +50,5 @@ private:
 	git_repository* repo_init_(std::string repo_path);
 	bool repo_add_commit_(git_repository *repo, const char* repo_path, 
 					const char* committer, int update = 0);
-	static std::unordered_map<std::string, std::mutex*> mtx_map_;
-	static std::mutex access_global_;
-
-	std::mutex* get_mutex_(std::string repo_path);
 
 };

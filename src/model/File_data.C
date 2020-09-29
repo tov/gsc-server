@@ -9,15 +9,14 @@
 
 #include <sys/stat.h>
 #include <sys/types.h>
-#include <mutex>
 
 #include <filesystem>
 #include <Wt/Dbo/Impl.h>
 #include <fstream>
 #include <iostream>
-
-std::unordered_map<std::string, std::mutex*> File_data::mtx_map_;
-std::mutex File_data::access_global_;
+#include <fcntl.h>
+#include <unistd.h>
+#include <cstdio>
 
 Bytes::Bytes(std::string const& data)
 {
@@ -48,7 +47,6 @@ Bytes::operator std::string() const
 int File_data::write_and_commit() {
 	
 	const std::string user = file_meta_->submission()->user1()->name();
-
 	const std::string dir_path = CONFIG.gsc_repo + "assignment_" + std::to_string(file_meta_->submission()->assignment_number()) + 
 			"/" + user;
 
@@ -56,9 +54,18 @@ int File_data::write_and_commit() {
 	std::filesystem::create_directories(dir_path);
 	const std::string file_path = dir_path + '/' + file_meta_->name();
 	
-	std::mutex* repo_mtx = get_mutex_(dir_path);
-	std::lock_guard<std::mutex> lock(*repo_mtx);
-	
+	struct flock fl;
+	fl.l_type = F_WRLCK;
+	fl.l_whence = SEEK_SET;
+	fl.l_start = 0;
+	fl.l_len = 0;
+
+	std::string lock_path = dir_path + "/gitlock";
+	FILE *lock_fd = fopen(lock_path.c_str(), "w+");
+	if (fcntl(fileno(lock_fd), F_SETLKW, &fl) == -1) {
+		return 0;
+	}
+
 	std::ofstream file(file_path, std::ios::out);
 
 	git_libgit2_init();
@@ -72,7 +79,7 @@ int File_data::write_and_commit() {
 	repo_add_commit_(repo, dir_path.c_str(), user.c_str(), 0);
 	git_repository_free(repo);
 	git_libgit2_shutdown();
-
+	fclose(lock_fd);
 	return 1;
 }
 
@@ -87,9 +94,18 @@ int File_data::delete_and_commit() {
 	
 	std::filesystem::create_directories(dir_path);
 	const std::string file_path = dir_path + '/' + file_meta_->name();
+
+	struct flock fl;
+	fl.l_type = F_WRLCK;
+	fl.l_whence = SEEK_SET;
+	fl.l_start = 0;
+	fl.l_len = 0;
 	
-	std::mutex *repo_mtx = get_mutex_(dir_path);
-    std::lock_guard<std::mutex> lock(*repo_mtx);
+	std::string lock_path = dir_path + "/gitlock";
+	FILE *lock_fd = fopen(lock_path.c_str(), "w+");
+	if (fcntl(fileno(lock_fd), F_SETLKW, &fl) == -1) {
+		return 0;
+	}
 	
 	git_libgit2_init();
 	git_repository *repo = repo_init_(dir_path);
@@ -99,23 +115,24 @@ int File_data::delete_and_commit() {
 	repo_add_commit_(repo, dir_path.c_str(), user.c_str(), 1);
 	git_repository_free(repo);
 	git_libgit2_shutdown();
+	fclose(lock_fd);
 
 	return 1;
 }
 
-int File_data::populate_contents() {
+bool File_data::populate_contents() {
 
     // Stringify assignment number, user, and data. 
 	const std::string user = file_meta_->submission()->user1()->name();
     const std::string dir_path = CONFIG.gsc_repo + "assignment_" + 
-			std::to_string(file_meta_->submission()->assignment_number()) +  
-			"/" + user;
+            std::to_string(file_meta_->submission()->assignment_number()) +  
+            "/" + user;
 
 	const std::string file_path = dir_path + '/' + file_meta_->name();
 
 	std::ifstream file(file_path, std::ifstream::in);
 	if (file.fail()) {
-		return 0;
+		return false;;
 	}
 	std::streampos fileSize;
 	file.seekg(0, std::ios::end);
@@ -126,7 +143,7 @@ int File_data::populate_contents() {
 	contents_.insert(contents_.begin(),
 					 std::istream_iterator<unsigned char>(file),
 					 {});
-	return 1;
+	return true;
 }
 
 git_repository* File_data::repo_init_(std::string repo_path) {
@@ -158,46 +175,50 @@ bool File_data::repo_add_commit_(git_repository *repo,
 
 	error = git_revparse_ext(&parent, &ref, repo, "HEAD");
 	if (error == GIT_ENOTFOUND) {
-		error = 0;
+		error = 1;
+		goto EXIT;
 	} else if (error) {
-		const git_error *err = git_error_last();
-		if (err) std::cout << "Error " << err->klass << " " << err->message << std::endl;
-		return false;
-
-	} else {
-		std::cout << "Head is found. Creating second commit!\n\n" << std::endl;
+		error = 1;
+		goto EXIT;
 	}
 	
 	if (git_repository_index(&index, repo)) {
-		return false;
+		error = 1;
+		goto EXIT;
 	}
 
 	if (!update) {
 
 		if (git_index_add_all(index, NULL, 0, NULL, NULL)){ 
-			return false;
+			error = 1;
+			goto EXIT;
 		}
 	} else {
 		
 		if (git_index_update_all(index, NULL, NULL, NULL)) {
-			return false;
+			error = 1;
+			goto EXIT;
 		}
 	}
 
 	if (git_index_write(index)) {
-		return false;
+		error = 1;
+		goto EXIT;
 	}
 
 	if (git_index_write_tree(&tree_oid, index)) {
-		return false;
+		error = 1;
+		goto EXIT;
 	}
 
 	if (git_tree_lookup(&tree, repo, &tree_oid)) {
-		return false;
+		error = 1;
+		goto EXIT;
 	}
 
 	if (git_signature_now(&signature, committer, committer)) {
-		return false;
+		error = 1;
+		goto EXIT;
 	}
 
 	if (git_commit_create_v(
@@ -211,26 +232,15 @@ bool File_data::repo_add_commit_(git_repository *repo,
 							tree,
 							parent ? 1 : 0, parent)) {
 
-		return false;
+		error = 1;
+		goto EXIT;
 	}
 
-	git_index_free(index);
-	git_signature_free(signature);
-	git_tree_free(tree);
+	EXIT:
+		git_index_free(index);
+		git_signature_free(signature);
+		git_tree_free(tree);
 
-	return true;
+	return error;
 }	
 
-std::mutex* File_data::get_mutex_(std::string repo_path) {
-
-	const std::lock_guard<std::mutex> lock(access_global_);
-	
-	if (mtx_map_.count(repo_path)){
-		return mtx_map_[repo_path];
-	}
-	
-	mtx_map_[repo_path] = new std::mutex();
-
-	return mtx_map_[repo_path];
-
-}	
