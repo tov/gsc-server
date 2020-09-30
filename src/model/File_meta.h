@@ -76,6 +76,8 @@ public:
     void reclassify();
     void reclassify(File_purpose);
 
+    bool is_line_numbered() const;
+
     bool is_automatically_deletable() const;
 
     static Wt::Dbo::ptr<File_meta>

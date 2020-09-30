@@ -239,9 +239,20 @@ void File_meta::reclassify(File_purpose purpose)
     purpose_ = purpose;
 }
 
+bool File_meta::is_line_numbered() const
+{
+    return line_count_ > 0 && !is_automatically_deletable();
+}
+
 bool File_meta::is_automatically_deletable() const
 {
     return purpose() == File_purpose::log;
+}
+
+static bool display_before(File_purpose a, File_purpose b)
+{
+    auto first = File_purpose::log;
+    return b != first && (a < b || a == first);
 }
 
 bool operator<(const File_meta& a, const File_meta& b)
@@ -250,8 +261,8 @@ bool operator<(const File_meta& a, const File_meta& b)
     auto b_type = b.purpose();
 
     // sort by type first:
-    if (a_type < b_type) return true;
-    if (a_type > b_type) return false;
+    if (display_before(a_type, b_type)) return true;
+    if (display_before(b_type, a_type)) return false;
 
     return lexicographical_compare(
             a.name().begin(), a.name().end(),

@@ -106,7 +106,9 @@ Line_file_viewer<R>::Line_file_viewer(
         vector<WTableRow*>& lines,
         const File_viewer* viewer,
         Renderer renderer)
-        : Base_file_viewer(source_file, "line", true)
+        : Base_file_viewer(source_file,
+                           "line",
+                           source_file->is_line_numbered())
 {
     istringstream file_stream(contents_());
     string        line;
@@ -114,12 +116,19 @@ Line_file_viewer<R>::Line_file_viewer(
 
     while (getline(file_stream, line)) {
         auto tr = row_at(row_no);
-        auto th = tr->elementAt(0);
-        auto td = tr->elementAt(1);
 
-        th->template addNew<WText>(to_string(line_number));
-        th->setStyleClass("code-number");
-        renderer(td, line);
+        if (source_file->is_line_numbered()) {
+            auto th = tr->elementAt(0);
+            auto td = tr->elementAt(1);
+
+            th->template addNew<WText>(to_string(line_number));
+            th->setStyleClass("code-number");
+            renderer(td, line);
+        } else {
+            auto td = tr->elementAt(0);
+            renderer(td, line);
+
+        }
 
         lines.push_back(tr);
         ++row_no;
