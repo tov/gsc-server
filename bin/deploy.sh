@@ -6,6 +6,7 @@ cd "$(dirname $0)"/..
 
 BASE=/home/gsc
 BUILD_TYPE=release
+BUILD_DIR=build.$BUILD_TYPE
 
 install_suid () {
     sudo install -v -o gsc -m 4555 "$@"
@@ -20,8 +21,9 @@ install_to () {
 
     chmod -R a+rX "$1"
 
-    install_suid build.$BUILD_TYPE/gscd-fcgi "$1/gscd.fcgi"
-    install_suid build.$BUILD_TYPE/gsc-auth "$1/gsc-auth"
+    cmake --build $BUILD_DIR
+    install_suid $BUILD_DIR/gscd-fcgi "$1/gscd.fcgi"
+    install_suid $BUILD_DIR/gsc-auth "$1/gsc-auth"
 }
 
 stage () {
