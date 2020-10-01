@@ -3,7 +3,7 @@
 const Config CONFIG;
 
 Config::Config()
-    : reward_for_no     { 0.2 }
+    : reward_for_no     { 0.5 }
     , auto_create_accounts { true }
     , show_queries      { false }
     , gsc_base_url      { "http://localhost:9090/" }
