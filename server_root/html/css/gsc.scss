@@ -1123,4 +1123,32 @@ p.screenshot {
     }
 }
 
+table.payoff {
+    td, th {
+        text-align: center;
+        padding: 4px;
+    }
+
+    .incorrect {
+        background-color: pink;
+    }
+
+    .correct {
+        background-color: lightgreen;
+    }
+
+    .bonus {
+        background-color: lightyellow;
+        font-weight: bold;
+    }
+
+    .top-head, .side-head {
+        vertical-align: bottom;
+        font-style: italic;
+    }
+
+    .side-head {
+        transform: rotate(-90deg);
+    }
+}
 
