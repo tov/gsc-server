@@ -705,8 +705,9 @@ void Submissions_1_files_2::do_get_(const Resource::Context& context)
 
     content_type = file_meta_->media_type();
 	std::unique_ptr<File_data> file_data = std::make_unique<File_data>(file_meta_);
-	file_data->populate_contents();
-    contents = file_data->contents();
+	if (file_data->populate_contents()) {
+        contents = file_data->contents();
+    }
 }
 
 void Submissions_1_files_2::do_patch_(Request_body body, Context const& context)

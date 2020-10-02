@@ -44,6 +44,7 @@ Bytes::operator std::string() const
     return result;
 }
 
+// return 0 on success
 int File_data::write_and_commit() {
 	
 	const std::string user = file_meta_->submission()->user1()->name();
@@ -62,27 +63,47 @@ int File_data::write_and_commit() {
 
 	std::string lock_path = dir_path + "/gitlock";
 	FILE *lock_fd = fopen(lock_path.c_str(), "w+");
-	if (fcntl(fileno(lock_fd), F_SETLKW, &fl) == -1) {
-		return 0;
+	if (!lock_fd) {
+        return 1;
+    }
+
+    if (fcntl(fileno(lock_fd), F_SETLKW, &fl) == -1) {
+		return 1;
 	}
 
+    
 	std::ofstream file(file_path, std::ios::out);
+    if (file.fail()) {
+        return 1;
+    }
 
 	git_libgit2_init();
 	git_repository *repo = repo_init_(dir_path);
+    int error = 0;
+
+    if (!repo) {
+        error = 1;
+        goto EXIT;
+    }
 
 	for (const auto &b : contents_) {
 		file << b;
 	}
-	file.close();
 
-	repo_add_commit_(repo, dir_path.c_str(), user.c_str(), 0);
-	git_repository_free(repo);
-	git_libgit2_shutdown();
-	fclose(lock_fd);
-	return 1;
+	file.close();
+	if (repo_add_commit_(repo, dir_path.c_str(), user.c_str(), 0)) {
+        error = 1;
+        goto EXIT;        
+    }
+    
+    EXIT:
+        git_repository_free(repo);
+	    git_libgit2_shutdown();
+	    fclose(lock_fd);
+	    return error;
 }
 
+// return 0 on success
 int File_data::delete_and_commit() {
 
     // Stringify assignment number, user, and data.
@@ -103,23 +124,42 @@ int File_data::delete_and_commit() {
 	
 	std::string lock_path = dir_path + "/gitlock";
 	FILE *lock_fd = fopen(lock_path.c_str(), "w+");
-	if (fcntl(fileno(lock_fd), F_SETLKW, &fl) == -1) {
-		return 0;
+	if (lock_fd == NULL) {
+        return 1;
+    }
+
+    if (fcntl(fileno(lock_fd), F_SETLKW, &fl) == -1) {
+		return 1;
 	}
 	
 	git_libgit2_init();
-	git_repository *repo = repo_init_(dir_path);
-	
-	std::remove(file_path.c_str());
-	
-	repo_add_commit_(repo, dir_path.c_str(), user.c_str(), 1);
-	git_repository_free(repo);
-	git_libgit2_shutdown();
-	fclose(lock_fd);
+	git_repository *repo;
+    int error = 0;
 
-	return 1;
+    if (!(repo = repo_init_(dir_path))) {
+        error = 1;
+        goto EXIT;
+    } 
+	
+    if (std::remove(file_path.c_str())) {
+        error = 1;
+        goto EXIT;
+    }
+	
+	if (repo_add_commit_(repo, dir_path.c_str(), user.c_str(), 1)) {
+        error = 1;
+        goto EXIT;
+    }
+	
+    EXIT:
+        git_repository_free(repo);
+	    git_libgit2_shutdown();
+	    fclose(lock_fd);
+
+	return true;
 }
 
+// Returns true on success
 bool File_data::populate_contents() {
 
     // Stringify assignment number, user, and data. 
@@ -132,8 +172,9 @@ bool File_data::populate_contents() {
 
 	std::ifstream file(file_path, std::ifstream::in);
 	if (file.fail()) {
-		return false;;
+		return false;
 	}
+
 	std::streampos fileSize;
 	file.seekg(0, std::ios::end);
 	fileSize = file.tellg();
@@ -154,11 +195,14 @@ git_repository* File_data::repo_init_(std::string repo_path) {
 		return repo;
 	}
 	
-	git_repository_init(&repo, path, 0);
-	return repo;
+	if (!git_repository_init(&repo, path, 0)) {
+	    return repo;
+    }
+    return NULL;
 }
 
-bool File_data::repo_add_commit_(git_repository *repo, 
+// returns 0 on success
+int File_data::repo_add_commit_(git_repository *repo, 
 				const char* repo_path, const char* committer, int update) {
 
 	git_oid commit_oid, tree_oid;
@@ -176,12 +220,13 @@ bool File_data::repo_add_commit_(git_repository *repo,
 	error = git_revparse_ext(&parent, &ref, repo, "HEAD");
 	if (error == GIT_ENOTFOUND) {
 		error = 1;
-		goto EXIT;
 	} else if (error) {
 		error = 1;
-		goto EXIT;
+		return error;
 	}
 	
+    error = 0;
+
 	if (git_repository_index(&index, repo)) {
 		error = 1;
 		goto EXIT;
@@ -243,4 +288,3 @@ bool File_data::repo_add_commit_(git_repository *repo,
 
 	return error;
 }	
-

@@ -48,7 +48,7 @@ private:
 	dbo::ptr<File_meta> file_meta_;
     Bytes contents_;
 	git_repository* repo_init_(std::string repo_path);
-	bool repo_add_commit_(git_repository *repo, const char* repo_path, 
+	int repo_add_commit_(git_repository *repo, const char* repo_path, 
 					const char* committer, int update = 0);
 
 };

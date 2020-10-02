@@ -200,7 +200,10 @@ File_meta::upload(const string &name, const Bytes &contents,
                                       uploader, line_count,
                                       byte_count, submission);	
 	std::unique_ptr<File_data> file_data = std::make_unique<File_data>(result, contents); 
-	file_data->write_and_commit();
+	
+    if (file_data->write_and_commit()) {
+        throw File_operation_error();
+    }
 
     submission.modify()->touch();
 
@@ -220,7 +223,9 @@ void File_meta::move(const dbo::ptr<Submission>& dst_owner,
         if (!overwrite)
             throw Move_collision_error(submission(), name(), dst_owner, dst_name);
 		std::unique_ptr<File_data> file_data = std::make_unique<File_data>(file);
-		file_data->delete_and_commit();
+		if (file_data->delete_and_commit()) {
+            throw File_operation_error();
+        }
         file.remove();
     }
 

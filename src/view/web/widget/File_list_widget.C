@@ -130,11 +130,17 @@ void File_resource::handleRequest(const Wt::Http::Request& request,
 {
     Wt::Dbo::Transaction transaction(*source_file_.session());
 	std::unique_ptr<File_data> text = std::make_unique<File_data>(source_file_);
-	text->populate_contents();
-    transaction.commit();
-
-    response.setMimeType(source_file_->media_type());
-    text->contents().write(response.out());
+	
+    if (text->populate_contents()) {
+        transaction.commit();
+        response.setMimeType(source_file_->media_type());
+        text->contents().write(response.out());
+    } else {
+        
+        response.setMimeType("plain/text");
+        response.out() << "The file you requested could not be found!" << std::endl;
+    }
+    
 }
 
 File_deleter::File_deleter(const Wt::Dbo::ptr<File_meta>& source_file,
@@ -149,10 +155,11 @@ void File_deleter::go()
     if (source_file_->submission()->can_submit(context_.session().user())) {
         source_file_->submission().modify()->touch();
 		std::unique_ptr<File_data> text = std::make_unique<File_data>(source_file_);
-		text->delete_and_commit();
-        source_file_.remove();
-        transaction.commit();
-
+		if (!text->delete_and_commit()) {
+            source_file_.remove();
+            transaction.commit();
+        } 
+        // TODO: Raise a notification here if delete and commit could not succeed. 
         context_.notify();
     }
 }

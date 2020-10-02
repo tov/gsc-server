@@ -174,3 +174,12 @@ public:
     std::ostream& write_body_html(std::ostream&) const override;
 };
 
+class File_operation_error : public Html_error
+{
+public:
+    File_operation_error();
+
+    virtual const char* title() const override;
+    std::ostream& write_body_html(std::ostream&) const override;
+};
+

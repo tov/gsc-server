@@ -303,6 +303,26 @@ static string withdrawn_partner_request_msg_()
     return oss.str();
 }
 
+const char* File_operation_error::title() const 
+{
+    return "File operation Error";
+}
+
+std::ostream&
+File_operation_error::write_body_html(std::ostream& note) const 
+{
+    return note << "Something unexpected happened while performing a file operation.";
+}
+
+static string file_operation_msg_()
+{
+    ostringstream oss;
+    oss << "File Operation Error\n\n";
+    oss << "Something unexpected happened while performing a file operation.\n";
+
+    return oss.str();
+}
+
 Generic_html_error::Generic_html_error(const std::runtime_error& exn)
         : Html_error{exn}
 { }
@@ -351,3 +371,6 @@ Withdrawn_partner_request_error::Withdrawn_partner_request_error()
         : Html_error{withdrawn_partner_request_msg_()}
 { }
 
+File_operation_error::File_operation_error()
+        : Html_error{file_operation_msg_()}
+{ }
