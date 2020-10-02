@@ -1,0 +1,8 @@
+## Schema
+1. Replace File_meta with Submission_version to reflect scores associated with commits
+
+## Web Interface
+1. Add buttons for changing roles in Admin page.
+2. Provide clearer indicators for grades.
+3. Organize/Reorganize widgets in a cleaner fashion.
+
