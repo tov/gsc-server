@@ -6,3 +6,10 @@
 2. Provide clearer indicators for grades.
 3. Organize/Reorganize widgets in a cleaner fashion.
 
+## Code
+1. Set a standard format for source code formatting - Astyle/clang-format
+2. Set a standard C++ specification to use -- C++17?
+
+## Testing, Build Integration
+1. Create a test suite to test GSC-server.
+2. Use Travis CI for Integration tests.
