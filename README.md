@@ -2,8 +2,8 @@
 A simple web-based server application written in C++ that allows students to turn in their source files for class assignments.
 
 ## Building the GSC-Server.
-`$ mkdir build && cd build`
-`$ cmake ../`
+`$ mkdir build && cd build`\
+`$ cmake ../`\
 `$ make`
 
 ## Features
