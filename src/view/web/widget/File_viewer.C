@@ -15,8 +15,7 @@
 
 #include <sstream>
 
-class Base_file_viewer : public WContainerWidget
-{
+class Base_file_viewer : public WContainerWidget {
 protected:
     Base_file_viewer(dbo::ptr<File_meta> const&,
                      std::string file_type,
@@ -32,11 +31,10 @@ private:
 };
 
 Base_file_viewer::Base_file_viewer(
-        dbo::ptr<File_meta> const& source_file,
-        std::string file_type,
-        bool numbered)
-        : file_meta_(source_file)
-{
+    dbo::ptr<File_meta> const& source_file,
+    std::string file_type,
+    bool numbered)
+    : file_meta_(source_file) {
     auto container = addNew<WContainerWidget>();
     file_type += "-single-file-viewer single-file-viewer";
     container->setStyleClass(file_type);
@@ -56,64 +54,57 @@ Base_file_viewer::Base_file_viewer(
     file_name->setStyleClass("filename");
 }
 
-string Base_file_viewer::contents_() const
-{
-	std::unique_ptr<File_data> file_data = std::make_unique<File_data>(file_meta_);
-	if (file_data->populate_contents()) { 
+string Base_file_viewer::contents_() const {
+    std::unique_ptr<File_data> file_data = std::make_unique<File_data>(file_meta_);
+    if (file_data->populate_contents()) {
         return string(file_data->contents());
     }
     return string("");
 }
 
-WTableRow* Base_file_viewer::row_at(int row_no)
-{
+WTableRow* Base_file_viewer::row_at(int row_no) {
     return table_->rowAt(row_no + 1);
 }
 
-WTableCell* Base_file_viewer::element_at(int row_no, int col_no)
-{
+WTableCell* Base_file_viewer::element_at(int row_no, int col_no) {
     return table_->elementAt(row_no + 1, col_no);
 }
 
-class Html_file_viewer : public Base_file_viewer
-{
+class Html_file_viewer : public Base_file_viewer {
 public:
     Html_file_viewer(dbo::ptr<File_meta> const& source_file);
 };
 
 Html_file_viewer::Html_file_viewer(dbo::ptr<File_meta> const& source_file)
-        : Base_file_viewer(source_file, "html", false)
-{
+    : Base_file_viewer(source_file, "html", false) {
     auto td = element_at(0, 0);
     td->addNew<WText>(contents_());
     td->setStyleClass("html-file-contents");
 }
 
 template <typename R>
-class Line_file_viewer : public Base_file_viewer
-{
+class Line_file_viewer : public Base_file_viewer {
 public:
     using Renderer = R;
 
     Line_file_viewer(
-            const dbo::ptr<File_meta>& source_file,
-            int& line_number,
-            vector<WTableRow*>& lines,
-            const File_viewer* viewer,
-            Renderer = Renderer{});
-};
-
-template <typename R>
-Line_file_viewer<R>::Line_file_viewer(
         const dbo::ptr<File_meta>& source_file,
         int& line_number,
         vector<WTableRow*>& lines,
         const File_viewer* viewer,
-        Renderer renderer)
-        : Base_file_viewer(source_file,
-                           "line",
-                           source_file->is_line_numbered())
-{
+        Renderer = Renderer{});
+};
+
+template <typename R>
+Line_file_viewer<R>::Line_file_viewer(
+    const dbo::ptr<File_meta>& source_file,
+    int& line_number,
+    vector<WTableRow*>& lines,
+    const File_viewer* viewer,
+    Renderer renderer)
+    : Base_file_viewer(source_file,
+                       "line",
+                       source_file->is_line_numbered()) {
     istringstream file_stream(contents_());
     string        line;
     int           row_no = 1;
@@ -140,12 +131,10 @@ Line_file_viewer<R>::Line_file_viewer(
     }
 }
 
-struct Plain_text_line_renderer
-{
+struct Plain_text_line_renderer {
     Plain_text_line_renderer() = default;
 
-    void operator()(WTableCell* td, string const& line) const
-    {
+    void operator()(WTableCell* td, string const& line) const {
         td->addNew<WText>(WString::fromUTF8(line), TextFormat::Plain);
         td->setStyleClass("code-line");
     }
@@ -154,8 +143,7 @@ struct Plain_text_line_renderer
 using Plain_text_file_viewer = Line_file_viewer<Plain_text_line_renderer>;
 
 File_viewer::File_viewer(Submission_context& context)
-        : Submission_context{context}
-{
+    : Submission_context{context} {
     impl_ = setNewImplementation<WContainerWidget>();
 
     file_selector_ = impl_->addNew<WComboBox>();
@@ -173,13 +161,11 @@ File_viewer::File_viewer(Submission_context& context)
     reload_();
 }
 
-void File_viewer::on_change()
-{
+void File_viewer::on_change() {
     reload_();
 }
 
-void File_viewer::reload_()
-{
+void File_viewer::reload_() {
     file_selector_->clear();
     file_contents_->clear();
 
@@ -194,7 +180,7 @@ void File_viewer::reload_()
     for (const auto& file : files) {
         if (file->media_type() == "text/plain") {
             file_contents_->addNew<Plain_text_file_viewer>(
-                    file, line_number, lines_, this);
+                file, line_number, lines_, this);
         }
 
         else if (file->media_type() == "text/x-html-log"
@@ -212,41 +198,36 @@ void File_viewer::reload_()
     doJavaScript(script.str());
 }
 
-void File_viewer::show_line(int line_number) const
-{
+void File_viewer::show_line(int line_number) const {
     ostringstream script;
     script << "GSC.FileViewer.forId('" << id()
-            << "').showLine(" << line_number << ")";
+           << "').showLine(" << line_number << ")";
     WApplication::instance()->doJavaScript(script.str());
 }
 
-void File_viewer::set_line_style(int line, const WString& style)
-{
+void File_viewer::set_line_style(int line, const WString& style) {
     if (0 < line && line < (int) lines_.size())
         lines_[line]->setStyleClass(style);
 }
 
 File_viewer::Highlighter
-File_viewer::highlighter(Wt::WString style)
-{
+File_viewer::highlighter(Wt::WString style) {
     return Highlighter(move(style), this);
 }
 
 File_viewer::Highlighter::Highlighter(
-        WString style,
-        File_viewer* viewer)
-        : style_(move(style))
-        , viewer_(viewer)
-        , first_(0)
+    WString style,
+    File_viewer* viewer)
+    : style_(move(style))
+    , viewer_(viewer)
+    , first_(0)
 { }
 
-File_viewer::Highlighter::~Highlighter()
-{
+File_viewer::Highlighter::~Highlighter() {
     if (first_) viewer_->show_line(first_);
 }
 
-void File_viewer::Highlighter::highlight(int line)
-{
+void File_viewer::Highlighter::highlight(int line) {
     viewer_->set_line_style(line, style_);
 
     if (!first_ || line < first_) first_ = line;

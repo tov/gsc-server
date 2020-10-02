@@ -37,8 +37,7 @@ namespace api {
 namespace resources {
 
 // Helper struct for consuming JSON in the order of our choice.
-struct Key_eater
-{
+struct Key_eater {
     J::Object& json;
 
     template <class F>
@@ -53,8 +52,7 @@ struct Key_eater
 
 
 template <class T>
-std::unique_ptr<T> match(std::string const& path_info)
-{
+std::unique_ptr<T> match(std::string const& path_info) {
     using uri_type = typename T::uri_type;
 
     std::smatch sm;
@@ -66,18 +64,15 @@ std::unique_ptr<T> match(std::string const& path_info)
     }
 }
 
-void Resource::not_found()
-{
+void Resource::not_found() {
     Http_error{404} << "The named resource does not exist";
 }
 
-void Resource::not_supported()
-{
+void Resource::not_supported() {
     Http_error{405} << "The resource does not support that method";
 }
 
-class Grades_csv : public Resource
-{
+class Grades_csv : public Resource {
 public:
     using uri_type = paths::Grades_csv;
 
@@ -106,18 +101,18 @@ void Grades_csv::load_(const Resource::Context& context) {
     auto& dbo = context.session.dbo();
 
     const auto assigns_q = dbo.find<Assignment>()
-            .orderBy("number")
-            .resultList();
+                           .orderBy("number")
+                           .resultList();
     const auto exams_q = dbo.query<int>("SELECT DISTINCT number FROM exam_grade")
-            .orderBy("number")
-            .resultList();
+                         .orderBy("number")
+                         .resultList();
 
     assigns_.assign(assigns_q.begin(), assigns_q.end());
     exams_.assign(exams_q.begin(), exams_q.end());
 
     auto users = dbo.find<User>()
-            .where("role = ?").bind(int(User::Role::Student))
-            .resultList();
+                 .where("role = ?").bind(int(User::Role::Student))
+                 .resultList();
 
     for (auto const& user : users) {
         Exam_scores user_exams;
@@ -143,8 +138,7 @@ static double lookup_or_0(std::map<int, double> const& map, int key) {
     return iter == map.end() ? 0.0 : iter->second;
 }
 
-void Grades_csv::do_get_(const Context& context)
-{
+void Grades_csv::do_get_(const Context& context) {
     std::ostringstream o;
 
     o << "username";
@@ -173,8 +167,7 @@ void Grades_csv::do_get_(const Context& context)
     contents = Bytes(o.str());
 }
 
-class Users : public Resource
-{
+class Users : public Resource {
 public:
     using uri_type = paths::Users;
 
@@ -189,15 +182,13 @@ private:
     dbo::collection<dbo::ptr<User>> users_;
 };
 
-void Users::load_(Context const& context)
-{
+void Users::load_(Context const& context) {
     context.user->check_can_admin();
 
     users_ = context.session.find<User>();
 }
 
-void Users::do_get_(Context const&)
-{
+void Users::do_get_(Context const&) {
     J::Array result;
 
     for (auto const& user : users_)
@@ -206,13 +197,12 @@ void Users::do_get_(Context const&)
     use_json(result);
 }
 
-class Users_1 : public Resource
-{
+class Users_1 : public Resource {
 public:
     using uri_type = paths::Users_1;
 
     explicit Users_1(uri_type&& uri)
-            : uri_{std::move(uri)}
+        : uri_{std::move(uri)}
     { }
 
     void load_(Context const&) override;
@@ -228,8 +218,7 @@ private:
 };
 
 dbo::ptr<User>
-Resource::load_user(Context const& context, std::string const& username)
-{
+Resource::load_user(Context const& context, std::string const& username) {
     context.user->check_can_view(username);
 
     auto user = User::find_by_name(context.session, username);
@@ -239,16 +228,14 @@ Resource::load_user(Context const& context, std::string const& username)
 }
 
 Wt::Dbo::ptr<Assignment>
-Resource::load_assignment(const Resource::Context& context, int number)
-{
+Resource::load_assignment(const Resource::Context& context, int number) {
     auto result = Assignment::find_by_number(context.session, number);
     if (result) return result;
     not_found();
 }
 
 Wt::Dbo::ptr<Submission>
-Resource::load_submission(Context const& context, int submission_id)
-{
+Resource::load_submission(Context const& context, int submission_id) {
     auto submission = Submission::find_by_id(context.session, submission_id);
     if (!submission) not_found();
     submission->check_can_view(context.user);
@@ -256,8 +243,7 @@ Resource::load_submission(Context const& context, int submission_id)
 }
 
 Wt::Dbo::ptr<Eval_item>
-Resource::load_eval_item(Context const& context, dbo::ptr<Submission> const& as_part_of, int sequence)
-{
+Resource::load_eval_item(Context const& context, dbo::ptr<Submission> const& as_part_of, int sequence) {
     auto eval_item = as_part_of->assignment()->find_eval_item(context.session, sequence);
     if (!eval_item) not_found();
     return eval_item;
@@ -267,38 +253,33 @@ Resource::load_eval_item(Context const& context, dbo::ptr<Submission> const& as_
 Wt::Dbo::ptr<Self_eval>
 Resource::load_self_eval(Context const& context,
                          Wt::Dbo::ptr<Submission> const& submission,
-                         Wt::Dbo::ptr<Eval_item> const& eval_item)
-{
+                         Wt::Dbo::ptr<Eval_item> const& eval_item) {
     return Submission::get_self_eval(
-            eval_item, submission,
-            eval_item->type() == Eval_item::Type::Informational);
+               eval_item, submission,
+               eval_item->type() == Eval_item::Type::Informational);
 }
 
-void Users_1::load_(Context const& context)
-{
+void Users_1::load_(Context const& context) {
     user_ = load_user(context, uri_.name);
 }
 
-void Users_1::do_get_(Context const&)
-{
+void Users_1::do_get_(Context const&) {
     use_json(user_->to_json());
 }
 
-void Users_1::do_delete_(Context const& context)
-{
+void Users_1::do_delete_(Context const& context) {
     context.user->check_can_admin();
 
     user_.remove();
     success();
 }
 
-void Users_1::do_patch_(Request_body body, Context const& context)
-{
+void Users_1::do_patch_(Request_body body, Context const& context) {
     Result_array result;
 
     try {
         auto json = std::move(body).read_json();
-        
+
         J::Object const& object = json;
 
         for (auto const& pair : object) {
@@ -338,12 +319,12 @@ void Users_1::do_patch_(Request_body body, Context const& context)
                     if (possible == 0) {
                         exam_grade.remove();
                         nested.success() << "Removed exam " << number << " grade for "
-                                << user_->name() << ".";
+                                         << user_->name() << ".";
                     } else {
                         exam_grade.modify()->set_points_and_possible(points, possible);
                         nested.success() << "Set exam " << number << " grade for "
-                                << user_->name() << " to "
-                                << points << " / " << possible << ".";
+                                         << user_->name() << " to "
+                                         << points << " / " << possible << ".";
                     }
                 }
 
@@ -379,86 +360,86 @@ void Users_1::do_patch_(Request_body body, Context const& context)
                     }
 
                     switch (status) {
-                        case S::outgoing: {
-                            // Check for an incoming request, and if it exists, accept it.
-                            auto incoming = Partner_request::find_by_requestor_and_assignment(
-                                    context.session, other, hw);
+                    case S::outgoing: {
+                        // Check for an incoming request, and if it exists, accept it.
+                        auto incoming = Partner_request::find_by_requestor_and_assignment(
+                                            context.session, other, hw);
 
-                            if (incoming && incoming->requestee() == user_) {
-                                if (incoming->confirm(context.session)) {
-                                    nested.success()
-                                            << "Requested and confirmed partnership with "
-                                            << user_and_hw << ".";
-                                    break;
-                                }
+                        if (incoming && incoming->requestee() == user_) {
+                            if (incoming->confirm(context.session)) {
+                                nested.success()
+                                        << "Requested and confirmed partnership with "
+                                        << user_and_hw << ".";
+                                break;
                             }
+                        }
 
-                            std::ostringstream reason;
-                            auto request_ptr = Partner_request::create(
-                                    context.session, user_, other, hw, reason);
-                            if (!request_ptr) throw Http_status{403, reason.str()};
+                        std::ostringstream reason;
+                        auto request_ptr = Partner_request::create(
+                                               context.session, user_, other, hw, reason);
+                        if (!request_ptr) throw Http_status{403, reason.str()};
 
-                            nested.success()
-                                    << "Requested partnership with "
+                        nested.success()
+                                << "Requested partnership with "
+                                << user_and_hw << ".";
+                        break;
+                    }
+
+                    case S::incoming:
+                        nested.failure() << "You cannot create an incoming partner request.";
+                        break;
+
+                    case S::accepted: {
+                        auto request_ptr = Partner_request::find_by_requestor_and_requestee(
+                                               context.session, other, user_, hw);
+                        if (request_ptr) {
+                            auto submission = request_ptr.modify()->confirm(context.session);
+                            if (submission) {
+                                nested.success()
+                                        << "Accepted partner request from "
+                                        << user_and_hw << ".";
+                            } else {
+                                nested.failure()
+                                        << "Could not accept partner request from"
+                                        << user_and_hw << ".";
+                            }
+                        } else {
+                            nested.failure()
+                                    << "You don’t have an incoming partner request from "
                                     << user_and_hw << ".";
-                            break;
+                        }
+                        break;
+                    }
+
+                    case S::canceled: {
+                        auto outgoing = Partner_request::find_by_requestor_and_requestee(
+                                            context.session, user_, other, hw);
+                        auto incoming = Partner_request::find_by_requestor_and_requestee(
+                                            context.session, other, user_, hw);
+
+                        if (incoming && outgoing) {
+                            nested.success()
+                                    << "Removed incoming partner request from "
+                                    << user_and_hw
+                                    << " and outgoing partner request to "
+                                    << user_and_hw << ".";
+                        } else if (incoming) {
+                            nested.success()
+                                    << "Removed incoming partner request from "
+                                    << user_and_hw << ".";
+                        } else if (outgoing) {
+                            nested.success()
+                                    << "Removed outgoing partner request to "
+                                    << user_and_hw << ".";
+                        } else {
+                            nested.failure()
+                                    << "No partners requests to remove from/to "
+                                    << user_and_hw << ".";
                         }
 
-                        case S::incoming:
-                            nested.failure() << "You cannot create an incoming partner request.";
-                            break;
-
-                        case S::accepted: {
-                            auto request_ptr = Partner_request::find_by_requestor_and_requestee(
-                                    context.session, other, user_, hw);
-                            if (request_ptr) {
-                                auto submission = request_ptr.modify()->confirm(context.session);
-                                if (submission) {
-                                    nested.success()
-                                            << "Accepted partner request from "
-                                            << user_and_hw << ".";
-                                } else {
-                                    nested.failure()
-                                            << "Could not accept partner request from"
-                                            << user_and_hw << ".";
-                                }
-                            } else {
-                                nested.failure()
-                                        << "You don’t have an incoming partner request from "
-                                        << user_and_hw << ".";
-                            }
-                            break;
-                        }
-
-                        case S::canceled: {
-                            auto outgoing = Partner_request::find_by_requestor_and_requestee(
-                                    context.session, user_, other, hw);
-                            auto incoming = Partner_request::find_by_requestor_and_requestee(
-                                    context.session, other, user_, hw);
-
-                            if (incoming && outgoing) {
-                                nested.success()
-                                        << "Removed incoming partner request from "
-                                        << user_and_hw
-                                        << " and outgoing partner request to "
-                                        << user_and_hw << ".";
-                            } else if (incoming) {
-                                nested.success()
-                                        << "Removed incoming partner request from "
-                                        << user_and_hw << ".";
-                            } else if (outgoing) {
-                                nested.success()
-                                        << "Removed outgoing partner request to "
-                                        << user_and_hw << ".";
-                            } else {
-                                nested.failure()
-                                        << "No partners requests to remove from/to "
-                                        << user_and_hw << ".";
-                            }
-
-                            incoming.remove();
-                            outgoing.remove();
-                        }
+                        incoming.remove();
+                        outgoing.remove();
+                    }
                     }
                 }
 
@@ -480,13 +461,12 @@ void Users_1::do_patch_(Request_body body, Context const& context)
     use_json(result);
 }
 
-class Users_1_submissions : public Resource
-{
+class Users_1_submissions : public Resource {
 public:
     using uri_type = paths::Users_1_submissions;
 
     explicit Users_1_submissions(uri_type&& uri)
-            : uri_{std::move(uri)}
+        : uri_{std::move(uri)}
     { }
 
     void load_(Context const&) override;
@@ -501,14 +481,12 @@ private:
     std::vector<dbo::ptr<Submission>> submissions_;
 };
 
-void Users_1_submissions::load_(Context const& context)
-{
+void Users_1_submissions::load_(Context const& context) {
     user_ = load_user(context, uri_.name);
     submissions_ = user_->submissions();
 }
 
-void Users_1_submissions::do_get_(const Resource::Context& context)
-{
+void Users_1_submissions::do_get_(const Resource::Context& context) {
     J::Array result;
     for (const auto& each : submissions_) {
         result.push_back(each->to_json(true));
@@ -516,13 +494,12 @@ void Users_1_submissions::do_get_(const Resource::Context& context)
     use_json(result);
 }
 
-class Submissions_1 : public Resource
-{
+class Submissions_1 : public Resource {
 public:
     using uri_type = paths::Submissions_1;
 
     explicit Submissions_1(uri_type&& uri)
-            : uri_{std::move(uri)}
+        : uri_{std::move(uri)}
     { }
 
     void load_(Context const&) override;
@@ -538,26 +515,22 @@ private:
     dbo::ptr<Submission> submission_;
 };
 
-void Submissions_1::load_(const Context& context)
-{
+void Submissions_1::load_(const Context& context) {
     submission_ = load_submission(context, uri_.submission_id);
 }
 
-void Submissions_1::do_delete_(const Context& context)
-{
+void Submissions_1::do_delete_(const Context& context) {
     submission_->check_can_submit(context.user);
 
     submission_.remove();
     success();
 }
 
-void Submissions_1::do_get_(const Context& context)
-{
+void Submissions_1::do_get_(const Context& context) {
     use_json(submission_->to_json());
 }
 
-void Submissions_1::do_patch_(Request_body body, const Resource::Context &context)
-{
+void Submissions_1::do_patch_(Request_body body, const Resource::Context &context) {
     context.user->check_can_admin();
 
     Result_array result;
@@ -628,13 +601,12 @@ void Submissions_1::do_patch_(Request_body body, const Resource::Context &contex
     use_json(result);
 }
 
-class Submissions_1_files : public Resource
-{
+class Submissions_1_files : public Resource {
 public:
     using uri_type = paths::Submissions_1_files;
 
     explicit Submissions_1_files(uri_type&& uri)
-            : uri_{std::move(uri)}
+        : uri_{std::move(uri)}
     { }
 
     void load_(Context const&) override;
@@ -647,28 +619,25 @@ private:
     std::vector<dbo::ptr<File_meta>> file_metas_;
 };
 
-void Submissions_1_files::load_(Context const& context)
-{
+void Submissions_1_files::load_(Context const& context) {
     auto submission = load_submission(context, uri_.submission_id);
     auto file_metas = submission->source_files_sorted();
     file_metas_.assign(file_metas.begin(), file_metas.end());
 }
 
-void Submissions_1_files::do_get_(const Resource::Context& context)
-{
+void Submissions_1_files::do_get_(const Resource::Context& context) {
     J::Array json;
     for (auto const& each : file_metas_)
         json.push_back(each->to_json());
     use_json(json);
 }
 
-class Submissions_1_files_2 : public Resource
-{
+class Submissions_1_files_2 : public Resource {
 public:
     using uri_type = paths::Submissions_1_files_2;
 
     explicit Submissions_1_files_2(uri_type&& uri)
-            : uri_{std::move(uri)}
+        : uri_{std::move(uri)}
     { }
 
     void load_(Context const&) override;
@@ -686,32 +655,28 @@ private:
     dbo::ptr<File_meta> file_meta_;
 };
 
-void Submissions_1_files_2::load_(Context const& context)
-{
+void Submissions_1_files_2::load_(Context const& context) {
     submission_ = load_submission(context, uri_.submission_id);
     file_meta_ = submission_->find_file_by_name(uri_.filename);
 }
 
-void Submissions_1_files_2::do_delete_(const Resource::Context& context)
-{
+void Submissions_1_files_2::do_delete_(const Resource::Context& context) {
     if (file_meta_)
         file_meta_.remove();
     success();
 }
 
-void Submissions_1_files_2::do_get_(const Resource::Context& context)
-{
+void Submissions_1_files_2::do_get_(const Resource::Context& context) {
     if (!file_meta_) not_found();
 
     content_type = file_meta_->media_type();
-	std::unique_ptr<File_data> file_data = std::make_unique<File_data>(file_meta_);
-	if (file_data->populate_contents()) {
+    std::unique_ptr<File_data> file_data = std::make_unique<File_data>(file_meta_);
+    if (file_data->populate_contents()) {
         contents = file_data->contents();
     }
 }
 
-void Submissions_1_files_2::do_patch_(Request_body body, Context const& context)
-{
+void Submissions_1_files_2::do_patch_(Request_body body, Context const& context) {
     if (!file_meta_) not_found();
 
     try {
@@ -737,7 +702,7 @@ void Submissions_1_files_2::do_patch_(Request_body body, Context const& context)
         processor.take("assignment_number", [&](int value) {
             if (submission_->assignment_number() != value) {
                 owner = Submission::find_by_assignment_number_and_user(
-                        context.session, value, context.user);
+                            context.session, value, context.user);
                 owner->check_can_submit(context.user);
             }
         });
@@ -784,29 +749,27 @@ void Submissions_1_files_2::do_patch_(Request_body body, Context const& context)
 }
 
 void Submissions_1_files_2::do_put_(
-        Request_body body, const Resource::Context& context)
-{
+    Request_body body, const Resource::Context& context) {
     submission_->check_can_submit(context.user);
 
     if (!submission_->has_sufficient_space(body.size(), uri_.filename))
         throw Http_status{413, "Upload would exceed quota"};
 
     auto file_meta = File_meta::upload(
-            uri_.filename,
-            std::move(body).read_bytes(),
-            submission_,
-            context.user);
+                         uri_.filename,
+                         std::move(body).read_bytes(),
+                         submission_,
+                         context.user);
 
     use_json(file_meta->to_json());
 }
 
-class Submissions_1_evals : public Resource
-{
+class Submissions_1_evals : public Resource {
 public:
     using uri_type = paths::Submissions_1_evals;
 
     explicit Submissions_1_evals(uri_type&& uri)
-            : uri_{std::move(uri)}
+        : uri_{std::move(uri)}
     { }
 
     void load_(Context const&) override;
@@ -821,14 +784,12 @@ private:
     std::vector<dbo::ptr<Eval_item>> eval_items_;
 };
 
-void Submissions_1_evals::load_(Context const& context)
-{
+void Submissions_1_evals::load_(Context const& context) {
     submission_ = load_submission(context, uri_.submission_id);
     eval_items_ = submission_->assignment()->eval_item_vec();
 }
 
-void Submissions_1_evals::do_get_(const Resource::Context& context)
-{
+void Submissions_1_evals::do_get_(const Resource::Context& context) {
     J::Array json;
 
     for (auto const& each : eval_items_)
@@ -838,13 +799,12 @@ void Submissions_1_evals::do_get_(const Resource::Context& context)
     use_json(json);
 }
 
-class Submissions_1_evals_2 : public Resource
-{
+class Submissions_1_evals_2 : public Resource {
 public:
     using uri_type = paths::Submissions_1_evals_2;
 
     explicit Submissions_1_evals_2(uri_type&& uri)
-            : uri_{std::move(uri)}
+        : uri_{std::move(uri)}
     { }
 
     void load_(Context const&) override;
@@ -859,24 +819,21 @@ private:
     dbo::ptr<Eval_item> eval_item_;
 };
 
-void Submissions_1_evals_2::load_(Context const& context)
-{
+void Submissions_1_evals_2::load_(Context const& context) {
     submission_ = load_submission(context, uri_.submission_id);
     eval_item_  = load_eval_item(context, submission_, uri_.sequence);
 }
 
-void Submissions_1_evals_2::do_get_(const Context& context)
-{
+void Submissions_1_evals_2::do_get_(const Context& context) {
     use_json(eval_item_->to_json(submission_, context.user));
 }
 
-class Submissions_1_evals_2_self : public Resource
-{
+class Submissions_1_evals_2_self : public Resource {
 public:
     using uri_type = paths::Submissions_1_evals_2_self;
 
     explicit Submissions_1_evals_2_self(uri_type&& uri)
-            : uri_{std::move(uri)}
+        : uri_{std::move(uri)}
     { }
 
     void load_(Context const&) override;
@@ -894,31 +851,27 @@ private:
     dbo::ptr<Self_eval> self_eval_;
 };
 
-void Submissions_1_evals_2_self::load_(Context const& context)
-{
+void Submissions_1_evals_2_self::load_(Context const& context) {
     submission_ = load_submission(context, uri_.submission_id);
     eval_item_  = load_eval_item(context, submission_, uri_.sequence);
     self_eval_  = load_self_eval(context, submission_, eval_item_);
 }
 
-void Submissions_1_evals_2_self::do_get_(Resource::Context const& context)
-{
+void Submissions_1_evals_2_self::do_get_(Resource::Context const& context) {
     if (!self_eval_)
         not_found();
 
     use_json(self_eval_->to_json({context.user}));
 }
 
-void Submissions_1_evals_2_self::do_delete_(Resource::Context const& context)
-{
+void Submissions_1_evals_2_self::do_delete_(Resource::Context const& context) {
     submission_->check_can_eval(context.user);
 
     self_eval_.remove();
     success();
 }
 
-void Submissions_1_evals_2_self::do_put_(Request_body body, Resource::Context const& context)
-{
+void Submissions_1_evals_2_self::do_put_(Request_body body, Resource::Context const& context) {
     submission_->check_can_eval(context.user);
 
     try {
@@ -944,13 +897,12 @@ void Submissions_1_evals_2_self::do_put_(Request_body body, Resource::Context co
     use_json(self_eval_->to_json({context.user}));
 }
 
-class Submissions_1_evals_2_grader : public Resource
-{
+class Submissions_1_evals_2_grader : public Resource {
 public:
     using uri_type = paths::Submissions_1_evals_2_grader;
 
     explicit Submissions_1_evals_2_grader(uri_type&& uri)
-            : uri_{std::move(uri)}
+        : uri_{std::move(uri)}
     { }
 
     void load_(Context const&) override;
@@ -970,8 +922,7 @@ private:
     dbo::ptr<Grader_eval> grader_eval_;
 };
 
-void Submissions_1_evals_2_grader::load_(Context const& context)
-{
+void Submissions_1_evals_2_grader::load_(Context const& context) {
     submission_  = load_submission(context, uri_.submission_id);
     eval_item_   = load_eval_item(context, submission_, uri_.sequence);
     self_eval_   = load_self_eval(context, submission_, eval_item_);
@@ -982,24 +933,21 @@ void Submissions_1_evals_2_grader::load_(Context const& context)
     grader_eval_ = self_eval_->grader_eval();
 }
 
-void Submissions_1_evals_2_grader::do_get_(Resource::Context const& context)
-{
+void Submissions_1_evals_2_grader::do_get_(Resource::Context const& context) {
     if (!grader_eval_) not_found();
     grader_eval_->check_can_view(context.user);
 
     use_json(grader_eval_->to_json({context.user}));
 }
 
-void Submissions_1_evals_2_grader::do_delete_(Resource::Context const& context)
-{
+void Submissions_1_evals_2_grader::do_delete_(Resource::Context const& context) {
     context.user->check_can_grade();
 
     grader_eval_.remove();
     success();
 }
 
-void Submissions_1_evals_2_grader::do_put_(Request_body body, Resource::Context const& context)
-{
+void Submissions_1_evals_2_grader::do_put_(Request_body body, Resource::Context const& context) {
     context.user->check_can_grade();
 
     try {
@@ -1031,13 +979,12 @@ void Submissions_1_evals_2_grader::do_put_(Request_body body, Resource::Context 
     use_json(grader_eval_->to_json({context.user}));
 }
 
-class Submissions_hw1 : public Resource
-{
+class Submissions_hw1 : public Resource {
 public:
     using uri_type = paths::Submissions_hw1;
 
     explicit Submissions_hw1(uri_type&& uri)
-            : uri_{std::move(uri)}
+        : uri_{std::move(uri)}
     { }
 
     void load_(Context const&) override;
@@ -1051,8 +998,7 @@ private:
     std::vector<dbo::ptr<Submission>> submissions_;
 };
 
-void Submissions_hw1::load_(Context const& context)
-{
+void Submissions_hw1::load_(Context const& context) {
     context.user->check_can_admin();
 
     auto assignment = load_assignment(context, uri_.assignment_number);
@@ -1061,8 +1007,7 @@ void Submissions_hw1::load_(Context const& context)
               std::back_inserter(submissions_));
 }
 
-void Submissions_hw1::do_get_(Resource::Context const& context)
-{
+void Submissions_hw1::do_get_(Resource::Context const& context) {
     J::Array result;
 
     for (const auto& submission : submissions_)
@@ -1072,15 +1017,13 @@ void Submissions_hw1::do_get_(Resource::Context const& context)
 }
 
 std::unique_ptr<Resource> Resource::create(std::string const& method,
-                                           std::string const& path_info)
-{
+        std::string const& path_info) {
     auto resource = dispatch_(path_info);
     resource->method_ = method;
     return resource;
 }
 
-class Whoami : public Resource
-{
+class Whoami : public Resource {
 public:
     using uri_type = paths::Whoami;
 
@@ -1109,8 +1052,7 @@ void Whoami::do_get_(const Resource::Context&) {
                                 if (resource) return resource;          \
                             } while(false)
 
-std::unique_ptr<Resource> Resource::dispatch_(std::string path_info)
-{
+std::unique_ptr<Resource> Resource::dispatch_(std::string path_info) {
     std::smatch sm;
 
     dispatch_to(Grades_csv);
@@ -1162,28 +1104,23 @@ try {
     throw Http_status{403, e.what()};
 }
 
-void Resource::do_delete_(Context const&)
-{
+void Resource::do_delete_(Context const&) {
     not_supported();
 }
 
-void Resource::do_get_(Context const&)
-{
+void Resource::do_get_(Context const&) {
     not_supported();
 }
 
-void Resource::do_patch_(Request_body, Context const&)
-{
+void Resource::do_patch_(Request_body, Context const&) {
     not_supported();
 }
 
-void Resource::do_post_(Request_body, Context const&)
-{
+void Resource::do_post_(Request_body, Context const&) {
     not_supported();
 }
 
-void Resource::do_put_(Request_body, Context const&)
-{
+void Resource::do_put_(Request_body, Context const&) {
     not_supported();
 }
 

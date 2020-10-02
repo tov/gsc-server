@@ -15,8 +15,7 @@ class User;
 
 class Submission;
 
-enum class File_purpose
-{
+enum class File_purpose {
     source,
     test,
     config,
@@ -26,14 +25,12 @@ enum class File_purpose
 };
 
 template<>
-struct Enum<File_purpose>
-{
+struct Enum<File_purpose> {
     static char const* show(File_purpose);
     static File_purpose read(const char*);
 };
 
-class File_meta
-{
+class File_meta {
 public:
     File_meta() = default;
     File_meta(const std::string& name, const std::string& media_type,
@@ -41,26 +38,33 @@ public:
               int line_count, int byte_count,
               const dbo::ptr<Submission>& submission);
 
-    const std::string& name() const
-    { return name_; }
+    const std::string& name() const {
+        return name_;
+    }
 
-    std::string const& media_type() const
-    { return media_type_; }
+    std::string const& media_type() const {
+        return media_type_;
+    }
 
-    File_purpose const& purpose() const
-    { return purpose_; }
+    File_purpose const& purpose() const {
+        return purpose_;
+    }
 
-    int line_count() const
-    { return line_count_; }
+    int line_count() const {
+        return line_count_;
+    }
 
-    int byte_count() const
-    { return byte_count_; }
+    int byte_count() const {
+        return byte_count_;
+    }
 
-    const dbo::ptr<Submission>& submission() const
-    { return submission_; }
+    const dbo::ptr<Submission>& submission() const {
+        return submission_;
+    }
 
-    const dbo::ptr<User>& uploader() const
-    { return uploader_; }
+    const dbo::ptr<User>& uploader() const {
+        return uploader_;
+    }
 
     void move(const dbo::ptr<Submission>&,
               const std::string&,
@@ -86,17 +90,15 @@ public:
     Wt::Json::Object to_json(bool brief = false) const;
 
     template<class Less_string = std::less<std::string>>
-    struct Less_by_name
-    {
+    struct Less_by_name {
         Less_by_name() = default;
 
         explicit Less_by_name(Less_string less_string)
-                : less_string(std::move(less_string))
+            : less_string(std::move(less_string))
         { }
 
         size_t operator()(Wt::Dbo::ptr<File_meta> const& a,
-                          Wt::Dbo::ptr<File_meta> const& b) const
-        {
+                          Wt::Dbo::ptr<File_meta> const& b) const {
             return less_string(a->name(), b->name());
         }
 
@@ -115,8 +117,7 @@ private:
 
 public:
     template<typename Action>
-    void persist(Action& a)
-    {
+    void persist(Action& a) {
         dbo::field(a, name_, "name");
         dbo::field(a, media_type_, "media_type");
         dbo::field(a, purpose_, "purpose");

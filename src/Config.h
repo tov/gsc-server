@@ -12,6 +12,7 @@ struct Config
     std::string websso_login_url;
     std::string websso_logout_url;
     std::string gsc_repo;
+    std::string git_lockfile;
 
     Config();
 };

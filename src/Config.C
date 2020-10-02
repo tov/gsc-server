@@ -15,5 +15,5 @@ Config::Config()
         "https://prd-nusso.it.northwestern.edu/nusso/XUI/#logout"
     }
 	, gsc_repo {"../../var/"}
-
+    , git_lockfile {"gitlock"}
 { }

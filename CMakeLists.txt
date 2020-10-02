@@ -11,7 +11,7 @@ add_compile_definitions(GSC_AUTH_API_KEY)
 add_compile_definitions(GSC_SHOW_QUOTA)
 
 set(MODEL_SRC_FILES
-		src/common/env_var.C
+        src/common/env_var.C
         src/common/exceptions.C
         src/common/format.C
         src/common/paths.C
