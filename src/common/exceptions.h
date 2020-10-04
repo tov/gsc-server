@@ -3,38 +3,35 @@
 #include <Wt/Dbo/ptr.h>
 
 #include <array>
-#include <stdexcept>
 #include <iostream>
+#include <stdexcept>
 #include <string>
 
 class File_meta;
 class Submission;
 
-struct Access_check_failed : public std::runtime_error
-{
+struct Access_check_failed : public std::runtime_error {
     using runtime_error::runtime_error;
 };
 
-struct Resource_not_found : public std::runtime_error
-{
+struct Resource_not_found : public std::runtime_error {
     Resource_not_found()
-            : runtime_error("resource not found") { }
+        : runtime_error("resource not found")
+    {}
 };
 
-struct Html_error : public std::runtime_error
-{
+struct Html_error : public std::runtime_error {
     using runtime_error::runtime_error;
 
     explicit Html_error(runtime_error const& exn)
-            : runtime_error{exn}
-    { }
+        : runtime_error{exn}
+    {}
 
-    virtual const char* title() const = 0;
+    virtual const char* title() const                          = 0;
     virtual std::ostream& write_body_html(std::ostream&) const = 0;
 };
 
-struct Generic_html_error : Html_error
-{
+struct Generic_html_error : Html_error {
     explicit Generic_html_error(std::runtime_error const&);
 
     const char* title() const override;
@@ -42,20 +39,21 @@ struct Generic_html_error : Html_error
 };
 
 template<class OpenNote, class Fn>
-void html_try(Fn&& action) {
+void html_try(Fn&& action)
+{
     try {
         action();
     } catch (Html_error const& exn) {
         auto note = OpenNote(exn.title());
         exn.write_body_html(note);
     } catch (std::runtime_error const& rte) {
-        auto exn = Generic_html_error{rte};
+        auto exn  = Generic_html_error{rte};
         auto note = OpenNote(exn.title());
         exn.write_body_html(note);
     }
 }
 
-class No_partner_to_separate: public Html_error
+class No_partner_to_separate : public Html_error
 {
 public:
     No_partner_to_separate(std::string);
@@ -85,7 +83,7 @@ class Move_collision_error : public Html_error
 {
 public:
     using submission_t = Wt::Dbo::ptr<Submission>;
-    using filename_t = std::string;
+    using filename_t   = std::string;
 
     Move_collision_error(submission_t, filename_t, submission_t, filename_t);
 
@@ -174,3 +172,11 @@ public:
     std::ostream& write_body_html(std::ostream&) const override;
 };
 
+class File_operation_error : public Html_error
+{
+public:
+    File_operation_error();
+
+    virtual const char* title() const override;
+    std::ostream& write_body_html(std::ostream&) const override;
+};

@@ -1,7 +1,9 @@
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake")
 cmake_minimum_required(VERSION 3.15)
 project(gsc CXX)
 
 include(cmake/helpers.cmake)
+include(cmake/Findlibgit2.cmake)
 
 include_directories(3rdparty/xxint)
 
@@ -35,7 +37,8 @@ set(MODEL_SRC_FILES
         src/model/Self_eval.C
         src/model/Submission.C
         src/model/util/Explanation_parser.C
-        src/model/util/Time_stamp.C)
+        src/model/util/Time_stamp.C
+		)
 
 set(CLI_SRC_FILES
         ${MODEL_SRC_FILES}
@@ -106,7 +109,9 @@ find_package(Wt REQUIRED
         COMPONENTS wt dbo dbopostgres
         OPTIONAL_COMPONENTS wthttp wtfcgi)
 
-set(LIBRARIES Wt::Wt Wt::Dbo Wt::DboPostgres)
+find_package(libgit2 REQUIRED)
+
+set(LIBRARIES Wt::Wt Wt::Dbo Wt::DboPostgres git2)
 
 if(TARGET Wt::HTTP)
     add_program(gscd ${WWW_SRC_FILES})

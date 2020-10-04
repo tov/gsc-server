@@ -1,7 +1,7 @@
 #pragma once
 
-#include "specializations.h"
 #include "../common/stringify.h"
+#include "specializations.h"
 
 #include <Wt/Dbo/Types.h>
 #include <Wt/Dbo/WtSqlTraits.h>
@@ -10,8 +10,6 @@
 #include <string>
 
 namespace dbo = Wt::Dbo;
-
-class File_data;
 
 class User;
 
@@ -28,8 +26,7 @@ enum class File_purpose
 };
 
 template<>
-struct Enum<File_purpose>
-{
+struct Enum<File_purpose> {
     static char const* show(File_purpose);
     static File_purpose read(const char*);
 };
@@ -43,32 +40,21 @@ public:
               int line_count, int byte_count,
               const dbo::ptr<Submission>& submission);
 
-    const std::string& name() const
-    { return name_; }
+    const std::string& name() const { return name_; }
 
-    std::string const& media_type() const
-    { return media_type_; }
+    std::string const& media_type() const { return media_type_; }
 
-    File_purpose const& purpose() const
-    { return purpose_; }
+    File_purpose const& purpose() const { return purpose_; }
 
-    const dbo::weak_ptr<File_data>& file_data() const
-    { return file_data_; }
+    int line_count() const { return line_count_; }
 
-    int line_count() const
-    { return line_count_; }
+    int byte_count() const { return byte_count_; }
 
-    int byte_count() const
-    { return byte_count_; }
+    const dbo::ptr<Submission>& submission() const { return submission_; }
 
-    const dbo::ptr<Submission>& submission() const
-    { return submission_; }
+    const dbo::ptr<User>& uploader() const { return uploader_; }
 
-    const dbo::ptr<User>& uploader() const
-    { return uploader_; }
-
-    void move(const dbo::ptr<Submission>&,
-              const std::string&,
+    void move(const dbo::ptr<Submission>&, const std::string&,
               bool overwrite = false);
 
     void set_media_type(const std::string& media_type);
@@ -80,10 +66,10 @@ public:
 
     bool is_automatically_deletable() const;
 
-    static Wt::Dbo::ptr<File_meta>
-    upload(const std::string& name, const Bytes& contents,
-           const dbo::ptr<Submission>&,
-           const dbo::ptr<User>& uploader);
+    static Wt::Dbo::ptr<File_meta> upload(const std::string& name,
+                                          const Bytes& contents,
+                                          const dbo::ptr<Submission>&,
+                                          const dbo::ptr<User>& uploader);
 
     static const int max_byte_count;
 
@@ -91,13 +77,12 @@ public:
     Wt::Json::Object to_json(bool brief = false) const;
 
     template<class Less_string = std::less<std::string>>
-    struct Less_by_name
-    {
+    struct Less_by_name {
         Less_by_name() = default;
 
         explicit Less_by_name(Less_string less_string)
-                : less_string(std::move(less_string))
-        { }
+            : less_string(std::move(less_string))
+        {}
 
         size_t operator()(Wt::Dbo::ptr<File_meta> const& a,
                           Wt::Dbo::ptr<File_meta> const& b) const
@@ -109,15 +94,14 @@ public:
     };
 
 private:
-    std::string              name_;
-    Wt::WDateTime            time_stamp_;
-    int                      line_count_;
-    int                      byte_count_;
-    dbo::ptr<Submission>     submission_;
-    std::string              media_type_;
-    File_purpose             purpose_;
-    dbo::weak_ptr<File_data> file_data_;
-    dbo::ptr<User>           uploader_;
+    std::string name_;
+    Wt::WDateTime time_stamp_;
+    int line_count_;
+    int byte_count_;
+    dbo::ptr<Submission> submission_;
+    std::string media_type_;
+    File_purpose purpose_;
+    dbo::ptr<User> uploader_;
 
 public:
     template<typename Action>
@@ -130,7 +114,6 @@ public:
         dbo::field(a, line_count_, "line_count");
         dbo::field(a, byte_count_, "byte_count");
         dbo::belongsTo(a, submission_, "submission", dbo::OnDeleteCascade);
-        dbo::hasOne(a, file_data_, "file_meta");
         dbo::belongsTo(a, uploader_, "uploader", dbo::OnDeleteSetNull);
     }
 };
