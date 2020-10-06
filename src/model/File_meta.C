@@ -92,6 +92,7 @@ constexpr syntax_option_type opt = icase | nosubs;
 regex const config_file(
         "Makefile"
         OR "CMakeLists\\.txt"
+        OR "goal\\.txt"
         OR ".gitignore"
         OR EXT("md"),
         opt);
