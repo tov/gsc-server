@@ -1,7 +1,7 @@
 #pragma once
 
-#include <Wt/WCompositeWidget.h>
 #include <Wt/Dbo/ptr.h>
+#include <Wt/WCompositeWidget.h>
 
 namespace Wt {
 class WTemplate;
@@ -10,15 +10,14 @@ class WTemplate;
 class User;
 class Session;
 
-class Profile_view : public Wt::WCompositeWidget
-{
+class Profile_view : public Wt::WCompositeWidget {
 public:
-    Profile_view(Wt::Dbo::ptr<User> const&, Session&);
+  Profile_view(Wt::Dbo::ptr<User> const &, Session &);
 
-    class Call_me_widget;
+  class Call_me_widget;
 
 private:
-    Wt::Dbo::ptr<User> user_;
-    Session& session_;
-    Wt::WTemplate* impl_;
+  Wt::Dbo::ptr<User> user_;
+  Session &session_;
+  Wt::WTemplate *impl_;
 };

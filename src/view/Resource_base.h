@@ -8,30 +8,26 @@
 
 class Session;
 
-struct Resource_response
-{
-    std::string content_type;
-    std::vector<unsigned char> contents;
+struct Resource_response {
+  std::string content_type;
+  std::vector<unsigned char> contents;
 
-    void send(Wt::Http::Response&) const;
+  void send(Wt::Http::Response &) const;
 };
 
-class Resource_base : public Wt::WResource
-{
+class Resource_base : public Wt::WResource {
 public:
-    using Response = Resource_response;
+  using Response = Resource_response;
 
-    explicit Resource_base(Wt::Dbo::SqlConnectionPool&);
+  explicit Resource_base(Wt::Dbo::SqlConnectionPool &);
 
 protected:
-    virtual void
-    handleRequest(Wt::Http::Request const&, Response&, Session&) = 0;
+  virtual void handleRequest(Wt::Http::Request const &, Response &,
+                             Session &) = 0;
 
 public:
-    void
-    handleRequest(Wt::Http::Request const&, Wt::Http::Response&) final;
+  void handleRequest(Wt::Http::Request const &, Wt::Http::Response &) final;
 
 private:
-    Wt::Dbo::SqlConnectionPool& pool_;
+  Wt::Dbo::SqlConnectionPool &pool_;
 };
-

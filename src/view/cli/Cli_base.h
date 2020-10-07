@@ -11,34 +11,31 @@
 
 namespace cli {
 
-class User_not_found : std::runtime_error
-{
+class User_not_found : std::runtime_error {
 public:
-    explicit User_not_found(std::string const&);
-    std::string const& user_name();
+  explicit User_not_found(std::string const &);
+  std::string const &user_name();
 
 private:
-    std::string user_name_;
+  std::string user_name_;
 };
 
-class Cli_base
-{
+class Cli_base {
 public:
-    explicit Cli_base(bool show_queries = false);
+  explicit Cli_base(bool show_queries = false);
 
 protected:
-    Db_session& session() { return session_; }
+  Db_session &session() { return session_; }
 
-    Wt::Dbo::ptr<Auth_info> find_user(std::string const&);
+  Wt::Dbo::ptr<Auth_info> find_user(std::string const &);
 
 private:
-    Db_session session_;
+  Db_session session_;
 
-    static const char* get_db_string_();
+  static const char *get_db_string_();
 
-    static std::unique_ptr<Wt::Dbo::SqlConnection>
-    get_db_conn_(bool show_queries);
+  static std::unique_ptr<Wt::Dbo::SqlConnection>
+  get_db_conn_(bool show_queries);
 };
 
 } // end namespace cli
-

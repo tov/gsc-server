@@ -4,20 +4,19 @@
 
 #include <Wt/WDateTime.h>
 
-class Time_stamp
-{
-    friend Wt::Dbo::sql_value_traits<Time_stamp, void>;
+class Time_stamp {
+  friend Wt::Dbo::sql_value_traits<Time_stamp, void>;
 
 public:
-    Time_stamp();
-    explicit Time_stamp(std::nullptr_t);
+  Time_stamp();
+  explicit Time_stamp(std::nullptr_t);
 
-    void touch();
+  void touch();
 
-    Wt::WDateTime get() const { return value_; }
+  Wt::WDateTime get() const { return value_; }
 
-    operator Wt::WDateTime() const { return get(); }
+  operator Wt::WDateTime() const { return get(); }
 
 private:
-    Wt::WDateTime value_;
+  Wt::WDateTime value_;
 };

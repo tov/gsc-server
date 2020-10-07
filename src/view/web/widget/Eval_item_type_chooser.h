@@ -7,16 +7,14 @@
 
 #include <memory>
 
-class Eval_item_type_chooser : public Wt::WTemplate
-{
+class Eval_item_type_chooser : public Wt::WTemplate {
 public:
-    Eval_item_type_chooser();
-    explicit Eval_item_type_chooser(Eval_item::Type);
+  Eval_item_type_chooser();
+  explicit Eval_item_type_chooser(Eval_item::Type);
 
-    void set_value(Eval_item::Type);
-    Eval_item::Type get_value() const;
+  void set_value(Eval_item::Type);
+  Eval_item::Type get_value() const;
 
 private:
-    std::shared_ptr<Wt::WButtonGroup> type_;
+  std::shared_ptr<Wt::WButtonGroup> type_;
 };
-

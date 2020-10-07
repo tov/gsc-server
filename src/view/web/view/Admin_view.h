@@ -1,15 +1,14 @@
 #pragma once
 
-#include <Wt/WContainerWidget.h>
 #include <Wt/Dbo/ptr.h>
+#include <Wt/WContainerWidget.h>
 
 class Session;
 
-class Admin_view : public Wt::WContainerWidget
-{
+class Admin_view : public Wt::WContainerWidget {
 public:
-    explicit Admin_view(Session&);
+  explicit Admin_view(Session &);
 
 private:
-    Session& session_;
+  Session &session_;
 };

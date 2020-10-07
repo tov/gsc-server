@@ -5,15 +5,13 @@
 
 class Session;
 
-class Auth_widget : public Wt::WCompositeWidget
-{
+class Auth_widget : public Wt::WCompositeWidget {
 public:
-    explicit Auth_widget(Session&);
+  explicit Auth_widget(Session &);
 
-    void reload();
+  void reload();
 
 private:
-    Wt::WTemplate* impl_;
-    Session& session_;
+  Wt::WTemplate *impl_;
+  Session &session_;
 };
-

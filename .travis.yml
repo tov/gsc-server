@@ -1,0 +1,9 @@
+dist: bionic
+language: bash
+
+before_script:
+    - sudo apt-get update
+    - sudo apt-get -y install clang-format-10
+
+script:
+    - bash util/ci/travis/test_format.sh 

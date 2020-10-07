@@ -2,6 +2,5 @@
 
 class Reloadable {
 public:
-    virtual void reload() = 0;
+  virtual void reload() = 0;
 };
-

@@ -10,11 +10,8 @@
 
 #include <string>
 
-enum Dictionary {
-  DICT_EN = 0,
-  DICT_NL = 1
-};
+enum Dictionary { DICT_EN = 0, DICT_NL = 1 };
 
 extern std::wstring RandomWord(Dictionary dictionary);
 
-#endif //DICTIONARY_H_
+#endif // DICTIONARY_H_

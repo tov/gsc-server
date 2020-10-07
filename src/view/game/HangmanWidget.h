@@ -1,5 +1,5 @@
 // This may look like C code, but it's really -*- C++ -*-
-/* 
+/*
  * Copyright (C) 2011 Emweb bvba, Heverlee, Belgium
  *
  * See the LICENSE file for terms of use.
@@ -20,29 +20,28 @@ class ImagesWidget;
 
 class LettersWidget;
 
-class HangmanWidget : public Wt::WContainerWidget
-{
+class HangmanWidget : public Wt::WContainerWidget {
 public:
-    HangmanWidget(Session& session);
+  HangmanWidget(Session &session);
 
 private:
-    Session& session_;
+  Session &session_;
 
-    Wt::WText* title_;
+  Wt::WText *title_;
 
-    WordWidget   * word_;
-    ImagesWidget * images_;
-    LettersWidget* letters_;
+  WordWidget *word_;
+  ImagesWidget *images_;
+  LettersWidget *letters_;
 
-    Wt::WText      * statusText_;
-    Wt::WComboBox  * language_;
-    Wt::WContainerWidget* buttons_;
+  Wt::WText *statusText_;
+  Wt::WComboBox *language_;
+  Wt::WContainerWidget *buttons_;
 
-    int badGuesses_;
+  int badGuesses_;
 
-    void registerGuess(char c);
+  void registerGuess(char c);
 
-    void newGame();
+  void newGame();
 };
 
-#endif //HANGMAN_WIDGET_H_
+#endif // HANGMAN_WIDGET_H_

@@ -9,7 +9,6 @@ class User;
 extern const std::string api_key_identity;
 extern const std::string api_key_name;
 
-void set_api_key_identity(Wt::Auth::User&);
+void set_api_key_identity(Wt::Auth::User &);
 
-std::string get_api_key_identity(Wt::Auth::User const&);
-
+std::string get_api_key_identity(Wt::Auth::User const &);

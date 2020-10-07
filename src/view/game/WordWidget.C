@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2011 Emweb bvba, Heverlee, Belgium
  *
  * See the LICENSE file for terms of use.
@@ -10,30 +10,25 @@
 
 using namespace Wt;
 
-WordWidget::WordWidget()
-{
-  addStyleClass("wordcontainer");
-}
+WordWidget::WordWidget() { addStyleClass("wordcontainer"); }
 
-void WordWidget::init(const std::wstring &word)
-{
+void WordWidget::init(const std::wstring &word) {
   word_ = word;
   displayedLetters_ = 0;
 
   clear();
   wordLetters_.clear();
-  for(unsigned int i = 0; i < word_.size(); ++i) {
+  for (unsigned int i = 0; i < word_.size(); ++i) {
     WText *c = addNew<WText>("-");
     wordLetters_.push_back(c);
   }
 }
 
-bool WordWidget::guess(wchar_t c)
-{
+bool WordWidget::guess(wchar_t c) {
   bool correct = false;
 
-  for(unsigned int i = 0; i < word_.size(); ++i) {
-    if(word_[i] == c) {
+  for (unsigned int i = 0; i < word_.size(); ++i) {
+    if (word_[i] == c) {
       displayedLetters_++;
       wordLetters_[i]->setText(std::wstring(1, c));
       correct = true;
@@ -43,7 +38,4 @@ bool WordWidget::guess(wchar_t c)
   return correct;
 }
 
-bool WordWidget::won()
-{
-  return displayedLetters_ == word_.size();
-}
+bool WordWidget::won() { return displayedLetters_ == word_.size(); }

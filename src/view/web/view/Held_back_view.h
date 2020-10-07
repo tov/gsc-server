@@ -4,11 +4,10 @@
 
 class Session;
 
-class Held_back_view : public Wt::WCompositeWidget
-{
+class Held_back_view : public Wt::WCompositeWidget {
 public:
-    explicit Held_back_view(Session&);
+  explicit Held_back_view(Session &);
 
 private:
-    Session& session_;
+  Session &session_;
 };

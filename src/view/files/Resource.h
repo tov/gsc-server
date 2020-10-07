@@ -4,15 +4,12 @@
 
 namespace files {
 
-class Resource : public Resource_base
-{
+class Resource : public Resource_base {
 public:
-    using Resource_base::Resource_base;
+  using Resource_base::Resource_base;
 
 protected:
-    void
-    handleRequest(Wt::Http::Request const&,
-                  Response&, Session&) override;
+  void handleRequest(Wt::Http::Request const &, Response &, Session &) override;
 };
 
 } // end namespace files

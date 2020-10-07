@@ -4,18 +4,17 @@
 
 #include <Wt/WCompositeWidget.h>
 
-class Accelerator_button : public Wt::WCompositeWidget
-{
+class Accelerator_button : public Wt::WCompositeWidget {
 public:
-    Accelerator_button(const Wt::WString&);
+  Accelerator_button(const Wt::WString &);
 
-    Wt::Signal<>& clicked() { return clicked_; }
+  Wt::Signal<> &clicked() { return clicked_; }
 
 private:
-    Wt::Signal<> clicked_;
-    char key_;
+  Wt::Signal<> clicked_;
+  char key_;
 
-    void key_press_(const Wt::WKeyEvent&);
-    void focused_key_press_(const Wt::WKeyEvent&);
-    void click_();
+  void key_press_(const Wt::WKeyEvent &);
+  void focused_key_press_(const Wt::WKeyEvent &);
+  void click_();
 };

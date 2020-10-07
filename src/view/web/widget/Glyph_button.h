@@ -11,22 +11,18 @@ namespace Wt {
 class WPushButton;
 }
 
-class Glyph_button : public Wt::WCompositeWidget
-{
+class Glyph_button : public Wt::WCompositeWidget {
 public:
-    Glyph_button(std::string const& icon,
-                 std::string const& title,
-                 bool icon_only = false);
+  Glyph_button(std::string const &icon, std::string const &title,
+               bool icon_only = false);
 
-    Wt::WString styleClass() const override;
-    void setStyleClass(WT_USTRING const& styleClass) override;
-    void setEnabled(bool enabled);
+  Wt::WString styleClass() const override;
+  void setStyleClass(WT_USTRING const &styleClass) override;
+  void setEnabled(bool enabled);
 
-    Wt::Signal<>& clicked() { return clicked_; }
+  Wt::Signal<> &clicked() { return clicked_; }
 
 private:
-    Wt::WPushButton* impl_;
-    Wt::Signal<> clicked_;
+  Wt::WPushButton *impl_;
+  Wt::Signal<> clicked_;
 };
-
-
