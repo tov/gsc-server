@@ -24,13 +24,18 @@ DBO_INSTANTIATE_TEMPLATES(Submission)
 
 static int const initial_bytes_quota = 20 * 1024 * 1024;
 
+Wt::WDateTime now_()
+{
+    return Wt::WDateTime::currentDateTime();
+}
+
 Submission::Submission(const dbo::ptr<User>& user,
                        const dbo::ptr<Assignment>& assignment)
         : user1_(user)
         , assignment_(assignment)
         , due_date_(assignment->due_date())
         , eval_date_(assignment->eval_date())
-        , last_modified_(Wt::WDateTime::currentDateTime())
+        , last_modified_(now_())
         , bytes_quota_(initial_bytes_quota)
 { }
 
@@ -104,7 +109,7 @@ bool Submission::in_eval_period() const
 
 Submission::Status Submission::status() const
 {
-    auto now = Wt::WDateTime::currentDateTime();
+    auto now = now_();
 
     if (now <= assignment()->open_date()) {
         return Status::future;
@@ -367,7 +372,7 @@ void Submission::retract_grader_eval(const dbo::ptr<Grader_eval>& grader_eval)
 
 void Submission::touch()
 {
-    last_modified_ = Wt::WDateTime::currentDateTime();
+    last_modified_ = now_();
     light_touch();
 }
 
@@ -431,10 +436,8 @@ bool Submission::can_eval(const dbo::ptr<User>& user) const
 
 bool Submission::can_view_eval(const dbo::ptr<User>& user) const
 {
-    auto now = Wt::WDateTime::currentDateTime();
-
     return user->can_admin() ||
-           (effective_due_date() < now &&
+           (effective_due_date() < now_() &&
             (user == user1_ || user == user2_));
 }
 
@@ -472,8 +475,7 @@ void Submission::check_can_view_eval(const dbo::ptr<User>& user) const
 
     check_can_view(user);
 
-    auto now = Wt::WDateTime::currentDateTime();
-    if (effective_due_date() >= now)
+    if (effective_due_date() >= now_())
         throw Access_check_failed("Too early for that!");
 }
 
