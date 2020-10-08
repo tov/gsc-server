@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../Submission_context.h"
+#include "../../../Navigate.h"
 #include "../../../model/Submission.h"
 #include "../../../common/autovector.h"
 
@@ -19,6 +20,9 @@ class User;
 class Submissions_view : public Wt::WContainerWidget
 {
 public:
+    using Status      = Submission::Status;
+    using Eval_status = Submission::Eval_status;
+
     Submissions_view(const Wt::Dbo::ptr<User>&, Session&);
 
     struct Model
@@ -30,8 +34,9 @@ public:
                  Wt::Dbo::ptr<User> const& principal);
 
             Wt::Dbo::ptr<Submission> submission;
-            size_t                   file_count  = 0;
-            Submission::Eval_status  eval_status = Submission::Eval_status::empty;
+            size_t file_count       = 0;
+            Eval_status eval_status = Eval_status::empty;
+
             Wt::Dbo::ptr<User>       principal;
         };
 
@@ -59,7 +64,7 @@ class Submissions_view::Row_view : public Wt::WObject
 public:
     enum columns
     {
-        NAME, STATUS, DUE_DATE, EVAL_DATE, GRADE, ACTION,
+        NAME, STATUS, DUE_DATE, EVAL_DATE, GRADE, FILES, EVAL,
     };
 
     using Row_model = Submissions_view::Model::Item;
@@ -77,21 +82,34 @@ protected:
              Wt::WTableRow* row);
 
     Row_model const& model_;
-    Session        & session_;
-    Wt::WTableRow  * row_;
+    Session& session_;
+    Wt::WTableRow* row_;
 
     virtual void update();
 
-    virtual void set_files_action(const char[]);
-    virtual void set_eval_action(const char[]);
-    virtual void set_action_style_class(const char[]);
+    virtual void set_files_button(const char* title, const char* style);
+    virtual void set_eval_button(const char* title, const char* style);
+
+    Wt::Dbo::ptr<Submission> const& submission() const
+    { return model_.submission; }
+
+    Wt::Dbo::ptr<Assignment> const& assignment() const
+    { return submission()->assignment(); }
 
 private:
     Wt::WText      * status_;
     Wt::WText      * grade_;
-    Wt::WPushButton* action_;
-    std::string action_url_;
+    Wt::WPushButton* files_btn_;
+    Wt::WPushButton* eval_btn_;
 
-    void action();
+    void update_styles_();
+    void update_status_();
+    void update_score_();
+    void update_buttons_();
+
+    Wt::WString get_row_style_() const;
+
+    Navigate go_files_() const;
+    Navigate go_eval_() const;
 };
 

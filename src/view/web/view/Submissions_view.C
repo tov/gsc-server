@@ -17,6 +17,68 @@
 #include <Wt/WTable.h>
 #include <Wt/WText.h>
 
+using Row_view = Submissions_view::Row_view;
+
+namespace {
+
+const char* style_if_past(WDateTime const& date)
+{
+    return date < WDateTime::currentDateTime()? "past" : "";
+}
+
+[[maybe_unused]]
+bool is_eod(WTime const& time)
+{
+    return time.hour() == 23 && time.minute() == 59;
+}
+
+WString friendly(Wt::WDateTime const& date_time)
+{
+    return date_time.toLocalTime().toString();
+
+    //if (is_eod(local_time.time())) {
+    //    return local_time.toString("dddd d MMM (Z)");
+    //} else {
+    //}
+}
+
+} // end anonymous namespace
+
+
+// Class for printing human friendly durations to or from right now.
+class Now
+{
+public:
+    Now();
+
+    WString time_to(WDateTime const&);
+    WString time_from(WDateTime const&);
+
+    static WString time_from_to(WDateTime const&, WDateTime const&);
+
+private:
+    WDateTime now_;
+};
+
+Now::Now() : now_{WDateTime::currentDateTime()}
+{ }
+
+WString Now::time_to(WDateTime const& to)
+{
+    return time_from_to(now_, to);
+}
+
+WString Now::time_from(WDateTime const& from)
+{
+    return time_from_to(from, now_);
+}
+
+WString Now::time_from_to(WDateTime const& from, WDateTime const& to)
+{
+    return from.timeTo(to, chrono::seconds{2});
+}
+
+
 Submissions_view::Model::Item::Item(
         dbo::ptr<Submission> const& submission,
         dbo::ptr<User> const& principal)
@@ -46,7 +108,7 @@ Submissions_view::Model::Model(
     }
 }
 
-Submissions_view::Row_view::Row_view(
+Row_view::Row_view(
         const Row_model& model,
         Session& session,
         WTableRow* row)
@@ -54,114 +116,104 @@ Submissions_view::Row_view::Row_view(
           session_(session),
           row_(row)
 {
-    row->elementAt(NAME)->addNew<WText>(
-            model_.submission->assignment()->name());
+    row->elementAt(NAME)->addNew<WText>(assignment()->name());
     status_ = row_->elementAt(STATUS)->addNew<WText>();
     grade_  = row_->elementAt(GRADE)->addNew<WText>();
-    action_ = row_->elementAt(ACTION)->addNew<WPushButton>();
+    files_btn_ = row_->elementAt(FILES)->addNew<WPushButton>();
+    eval_btn_ = row_->elementAt(EVAL)->addNew<WPushButton>();
+
+    files_btn_->clicked().connect(go_files_());
+    eval_btn_->clicked().connect(go_eval_());
 
     row->elementAt(GRADE)->setStyleClass("numeric");
-
-    action_->clicked().connect(this, &Submissions_view::Row_view::action);
 }
 
-void Submissions_view::Row_view::add_headings(WTableRow* row)
+void Row_view::add_headings(WTableRow* row)
 {
-    row->elementAt(NAME)     ->addNew<WText>("Homework");
     row->elementAt(STATUS)   ->addNew<WText>("Status");
     row->elementAt(DUE_DATE) ->addNew<WText>("Code Due");
     row->elementAt(EVAL_DATE)->addNew<WText>("Self-Eval Due");
     row->elementAt(GRADE)    ->addNew<WText>("Score");
-    row->elementAt(ACTION)   ->addNew<WText>("Action");
+    row->elementAt(FILES)    ->addNew<WText>("Files");
+    row->elementAt(EVAL)     ->addNew<WText>("Eval");
 }
 
-void Submissions_view::Row_view::set_files_action(const char* title)
+void Row_view::set_files_button(const char* title, const char* style)
 {
-    action_->setText(title);
-    action_url_ = model_.submission->url_for_user(model_.principal, false);
+    files_btn_->setStyleClass(style);
+    files_btn_->setText(title);
+    files_btn_->show();
 }
 
-void Submissions_view::Row_view::set_eval_action(const char* title)
+void Row_view::set_eval_button(const char* title, const char* style)
 {
-    action_->setText(title);
-    action_url_ = model_.submission->url_for_user(model_.principal, true);
+    eval_btn_->setStyleClass(style);
+    eval_btn_->setText(title);
+    eval_btn_->show();
 }
 
-void Submissions_view::Row_view::set_action_style_class(const char* style)
+void Row_view::update()
 {
-    action_->setStyleClass(style);
+    update_styles_();
+    update_status_();
+    update_score_();
+    update_buttons_();
 }
 
-void Submissions_view::Row_view::update()
+void Row_view::update_styles_()
 {
-    auto const now = WDateTime::currentDateTime();
+    row_->setStyleClass(get_row_style_());
+    row_->elementAt(DUE_DATE)
+        ->setStyleClass(style_if_past(submission()->effective_due_date()));
+    row_->elementAt(EVAL_DATE)
+        ->setStyleClass(style_if_past(submission()->effective_eval_date()));
+}
 
-    auto time_to = [&](const WDateTime& date) {
-        return now.timeTo(date, chrono::seconds{2});
-    };
-
-    action_->show();
+void Row_view::update_status_()
+{
+    Now now;
 
     WString status;
-    switch (model_.submission->status()) {
-        case Submission::Status::future:
-            row_->setStyleClass("future");
+
+    switch (submission()->status()) {
+        case Status::future:
             status += "Opens in ";
-            status += time_to(model_.submission->assignment()->open_date());
-            action_->hide();
+            status += now.time_to(assignment()->open_date());
             break;
 
-        case Submission::Status::open:
-        case Submission::Status::extended:
-            row_->setStyleClass("open");
-            if (model_.submission->assignment()->web_allowed()) {
-                set_files_action("Submit");
-            } else {
-                set_files_action("Browse");
-            }
-
+        case Status::open:
+        case Status::extended:
             if (model_.file_count == 0) {
                 status += "Due in ";
-                status += time_to(model_.submission->effective_due_date());
-                set_action_style_class("btn btn-primary");
+                status += now.time_to(submission()->effective_due_date());
             } else {
                 status += "Submitted ";
                 status += to_string(model_.file_count);
-                status += " file";
-                if (model_.file_count > 1) status += "s";
-                set_action_style_class("btn btn-info");
+                status += model_.file_count > 1 ? " files" : " file";
             }
             break;
 
-        case Submission::Status::self_eval:
-        case Submission::Status::extended_eval:
+        case Status::self_eval:
+        case Status::extended_eval:
             switch (model_.eval_status) {
-                case Submission::Eval_status::empty: {
-                    row_->setStyleClass("self-eval needed");
+                case Eval_status::empty: {
                     status += "Self-eval due in ";
-                    status += time_to(model_.submission->effective_eval_date());
-                    set_eval_action("Start");
-                    set_action_style_class("btn btn-primary");
+                    status += now.time_to(submission()->effective_eval_date());
                     break;
                 }
 
-                case Submission::Eval_status::started: {
-                    row_->setStyleClass("self-eval started");
+                case Eval_status::started: {
                     status += "Self-eval due in ";
-                    status += time_to(model_.submission->effective_eval_date());
-                    set_eval_action("Continue");
-                    set_action_style_class("btn btn-primary");
+                    status += now.time_to(submission()->effective_eval_date());
                     break;
                 }
 
-                case Submission::Eval_status::complete: {
+                case Eval_status::complete: {
                     status += "Self-eval complete";
-                    set_eval_action("Edit");
-                    set_action_style_class("btn btn-success");
                     break;
                 }
 
-                case Submission::Eval_status::overdue:
+                case Eval_status::overdue:
                     goto closed;
                     // Can't happen if the eval status is only overdue
                     // when the submission status is closed.
@@ -169,38 +221,114 @@ void Submissions_view::Row_view::update()
             break;
 
         closed:
-        case Submission::Status::closed: {
-            row_->setStyleClass("closed");
+        case Status::closed: {
             status += "Closed ";
-            status += model_.submission->effective_eval_date().timeTo(
-                    now, chrono::seconds{2});
+            status += now.time_from(submission()->effective_eval_date());
             status += " ago";
-            set_eval_action("View");
-            set_action_style_class("btn btn-link");
             break;
         }
     }
 
     status_->setText(status);
+}
 
-    row_->elementAt(DUE_DATE)->setStyleClass(
-            model_.submission->effective_due_date() < now ? "past" : "");
-    row_->elementAt(EVAL_DATE)->setStyleClass(
-            model_.submission->effective_eval_date() < now ? "past" : "");
-
+void Row_view::update_score_()
+{
     dbo::Transaction transaction(session_);
-    if (model_.submission->is_graded()) {
-        grade_->setText(model_.submission->grade_string());
+
+    if (submission()->is_graded()) {
+        grade_->setText(submission()->grade_string());
     }
 }
 
-void Submissions_view::Row_view::action()
+void Row_view::update_buttons_()
 {
-    if (!action_url_.empty())
-        WApplication::instance()->setInternalPath(action_url_, true);
+    files_btn_->hide();
+    eval_btn_->hide();
+
+    switch (submission()->status()) {
+        case Status::future:
+            break;
+
+        case Status::open:
+        case Status::extended:
+            if (assignment()->web_allowed()) {
+                set_files_button("Submit",
+                        model_.file_count == 0
+                        ? "btn btn-primary"
+                        : "btn btn-info");
+            } else {
+                set_files_button("View", "btn");
+            }
+
+            break;
+
+        case Status::self_eval:
+        case Status::extended_eval:
+            set_files_button("View", "btn");
+
+            switch (model_.eval_status) {
+                case Eval_status::empty: {
+                    set_eval_button("Start", "btn btn-primary");
+                    break;
+                }
+
+                case Eval_status::started: {
+                    set_eval_button("Continue", "btn btn-primary");
+                    break;
+                }
+
+                case Eval_status::complete: {
+                    set_eval_button("Edit", "btn btn-success");
+                    break;
+                }
+
+                case Eval_status::overdue:
+                    set_eval_button("View", "btn");
+                    break;
+            }
+            break;
+
+        case Status::closed: {
+            set_files_button("View", "btn");
+            set_eval_button("View", "btn");
+            break;
+        }
+    }
 }
 
-class Student_submissions_view_row : public Submissions_view::Row_view
+WString Row_view::get_row_style_() const
+{
+    switch (submission()->status()) {
+        case Status::future:
+            return "future";
+
+        case Status::self_eval:
+        case Status::extended_eval:
+            switch (model_.eval_status) {
+                case Eval_status::empty:
+                    return "self-eval needed";
+
+                case Eval_status::started:
+                    return "self-eval started";
+
+                case Eval_status::complete:
+                    return "";
+
+                case Eval_status::overdue:
+                    return "";
+            }
+
+        case Status::open:
+        case Status::extended:
+            return "open";
+
+        case Status::closed:
+            return "";
+    }
+}
+
+class Student_submissions_view_row : public Row_view
 {
 public:
     Student_submissions_view_row(
@@ -209,41 +337,18 @@ public:
             WTableRow* row);
 };
 
-namespace {
-
-[[maybe_unused]]
-bool is_eod(WTime const& time)
-{
-    return time.hour() == 23 && time.minute() == 59;
-}
-
-WString friendly_due_date(Wt::WDateTime const& date_time)
-{
-    auto local_time = date_time.toLocalTime();
-    return local_time.toString();
-
-    //if (is_eod(local_time.time())) {
-    //    return local_time.toString("dddd d MMM (Z)");
-    //} else {
-    //}
-}
-
-} // end anonymous namespace
-
 Student_submissions_view_row::Student_submissions_view_row(
         const Row_model& model, Session& session,
         WTableRow* row)
         : Submissions_view::Row_view(model, session, row)
 {
     row_->elementAt(DUE_DATE)->addNew<WText>(
-            friendly_due_date(
-                    model_.submission->effective_due_date()));
+            friendly(submission()->effective_due_date()));
     row_->elementAt(EVAL_DATE)->addNew<WText>(
-            friendly_due_date(
-                    model_.submission->effective_eval_date()));
+            friendly(submission()->effective_eval_date()));
 }
 
-class Admin_submissions_view_row : public Submissions_view::Row_view
+class Admin_submissions_view_row : public Row_view
 {
 public:
     Admin_submissions_view_row(
@@ -251,12 +356,11 @@ public:
             Session& session,
             WTableRow* row);
 
-    virtual void update() override;
+    void update() override;
 
 protected:
-    virtual void set_files_action(const char*) override;
-    virtual void set_eval_action(const char*) override;
-    virtual void set_action_style_class(const char*) override;
+    void set_files_button(const char*, const char*) override;
+    void set_eval_button(const char*, const char*) override;
 
     Date_time_edit* due_date_;
     Date_time_edit* eval_date_;
@@ -288,22 +392,22 @@ Admin_submissions_view_row::Admin_submissions_view_row(
 
 void Admin_submissions_view_row::update()
 {
-    Submissions_view::Row_view::update();
-    due_date_->set_date_time(model_.submission->effective_due_date());
-    eval_date_->set_date_time(model_.submission->effective_eval_date());
+    Row_view::update();
+    due_date_->set_date_time(submission()->effective_due_date());
+    eval_date_->set_date_time(submission()->effective_eval_date());
 
-    if (model_.submission->extended()) {
+    if (submission()->extended()) {
         due_date_->setStyleClass("extended");
-        auto date = model_.submission->assignment()->due_date().toLocalTime().toString();
+        auto date = friendly(assignment()->due_date());
         due_date_->setToolTip("Extended from " + date);
     } else {
         due_date_->setStyleClass("");
         due_date_->setToolTip("");
     }
 
-    if (model_.submission->eval_extended()) {
+    if (submission()->eval_extended()) {
         eval_date_->setStyleClass("extended");
-        auto date = model_.submission->assignment()->eval_date().toLocalTime().toString();
+        auto date = friendly(assignment()->eval_date());
         eval_date_->setToolTip("Extended from " + date);
     } else {
         eval_date_->setStyleClass("");
@@ -316,7 +420,7 @@ void Admin_submissions_view_row::due_date_changed_()
     if (due_date_->validate() == ValidationState::Valid) {
         due_date_->setStyleClass("");
         dbo::Transaction transaction(session_);
-        model_.submission.modify()->set_due_date(due_date_->date_time());
+        submission().modify()->set_due_date(due_date_->date_time());
         transaction.commit();
         update();
     } else {
@@ -329,7 +433,7 @@ void Admin_submissions_view_row::eval_date_changed_()
     if (eval_date_->validate() == ValidationState::Valid) {
         eval_date_->setStyleClass("");
         dbo::Transaction transaction(session_);
-        model_.submission.modify()->set_eval_date(eval_date_->date_time());
+        submission().modify()->set_eval_date(eval_date_->date_time());
         transaction.commit();
         update();
     } else {
@@ -337,25 +441,20 @@ void Admin_submissions_view_row::eval_date_changed_()
     }
 }
 
-void Admin_submissions_view_row::set_files_action(const char*)
+void Admin_submissions_view_row::set_files_button(const char*, const char*)
 {
-    Submissions_view::Row_view::set_files_action("Files");
+    Row_view::set_files_button("Go", "btn");
 }
 
-void Admin_submissions_view_row::set_eval_action(const char*)
+void Admin_submissions_view_row::set_eval_button(const char*, const char*)
 {
-    Submissions_view::Row_view::set_eval_action("Eval");
+    Row_view::set_eval_button("Go", "btn");
 }
 
-void Admin_submissions_view_row::set_action_style_class(const char*)
-{
-    Submissions_view::Row_view::set_action_style_class("btn");
-}
-
-unique_ptr<Submissions_view::Row_view>
-Submissions_view::Row_view::construct(const Row_model& model,
-                                      Session& session,
-                                      WTableRow* row)
+unique_ptr<Row_view>
+Row_view::construct(const Row_model& model,
+                    Session& session,
+                    WTableRow* row)
 {
     if (session.user()->can_admin()) {
         auto result = make_unique<Admin_submissions_view_row>(
@@ -368,6 +467,16 @@ Submissions_view::Row_view::construct(const Row_model& model,
         result->update();
         return move(result);
     }
+}
+
+Navigate Row_view::go_files_() const
+{
+    return Navigate{submission()->url_for_user(model_.principal, false)};
+}
+
+Navigate Row_view::go_eval_() const
+{
+    return Navigate{submission()->url_for_user(model_.principal, true)};
 }
 
 Submissions_view::Submissions_view(const dbo::ptr<User>& user, Session& session)
@@ -394,7 +503,7 @@ void Submissions_view::reload_()
     int row = 1;
     for (const auto& each : model_.submissions) {
         if (!each.submission) continue;
-        rows_.push_back(Submissions_view::Row_view::construct(
+        rows_.push_back(Row_view::construct(
                 each, session_, table->rowAt(row++)));
     }
 
