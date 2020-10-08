@@ -84,6 +84,9 @@ public:
     void clear_cache() const;
     void reload_cache() const;
 
+    void end_extension_now();
+    void end_eval_extension_now();
+
     bool extended() const;
     bool eval_extended() const;
     const Wt::WDateTime& open_date() const;

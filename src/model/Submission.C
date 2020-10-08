@@ -70,6 +70,22 @@ int Submission::byte_count() const
     return byte_count_;
 }
 
+void Submission::end_extension_now()
+{
+    if (status() != Status::extended) return;
+
+    set_due_date(now_());
+    light_touch();
+}
+
+void Submission::end_eval_extension_now()
+{
+    if (status() != Status::extended_eval) return;
+
+    set_due_date(now_());
+    light_touch();
+}
+
 bool Submission::extended() const
 {
     return due_date_ > assignment_->due_date();
