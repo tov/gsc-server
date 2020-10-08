@@ -51,7 +51,7 @@ void Auth_widget::reload()
 
     if (session_.authenticate_from_environment()) {
         impl_->setTemplateText(tr("gsc.template.logged-in"));
-        impl_->bindString("user-name", session_.user_name());
+        impl_->bindString("user-name", session_.user()->nice_name(false));
 
         add_button("profile-link", "user", "Profile",
                    Navigate{session_.user()->profile_url()});

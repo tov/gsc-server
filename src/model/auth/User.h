@@ -61,7 +61,6 @@ public:
                   Role role = Role::Student);
 
     const std::string& name() const { return name_; }
-
     void set_name(const std::string& name) { name_ = name; }
 
     Role role() const { return Role_info::from_repr(role_, Role::Student); }
@@ -71,6 +70,9 @@ public:
 
     std::string const& call_me() const { return call_me_; }
     void set_call_me(std::string const&);
+
+    std::string nice_name(bool with_username = true) const;
+    std::string html_name(bool with_username = true) const;
 
     bool can_grade() const;
     bool can_admin() const;

@@ -114,14 +114,12 @@ void Submission_owner_widget::update_grader_()
     std::ostringstream message;
 
     dbo::Transaction transaction(session());
-    message << "Submitted by <strong>"
-            << submission()->user1()->name()
-            << "</strong>";
+    message << "Submitted by "
+            << submission()->user1()->html_name();
 
     if (submission()->user2()) {
-        message << " and <strong>"
-                << submission()->user2()->name()
-                << "</strong>";
+        message << " and "
+                << submission()->user2()->html_name();
     }
     transaction.commit();
 
@@ -141,7 +139,7 @@ void Submission_owner_widget::update_student_()
 
         std::ostringstream message;
         message << "Partnered with <strong>"
-                << other_user->name()
+                << other_user->nice_name()
                 << "</strong>";
         impl_->addNew<Wt::WText>(message.str());
         return;

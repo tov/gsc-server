@@ -73,7 +73,7 @@ Score_owner Grader_eval::score_owner(Viewing_context const& cxt) const
 
         else if (cxt.viewer->can_grade()
                  || grader()->can_admin())
-            owner = grader()->name();
+            owner = grader()->nice_name(false);
 
         else
             owner = "Grader";

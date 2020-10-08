@@ -18,6 +18,7 @@
 #include <Wt/Auth/Identity.h>
 
 #include <algorithm>
+#include <sstream>
 #include <stdexcept>
 
 namespace J = Wt::Json;
@@ -35,6 +36,42 @@ void User::set_call_me(std::string const& s)
 
     if (call_me_.size() > MAX_CALL_ME_LENGTH)
         call_me_.resize(MAX_CALL_ME_LENGTH);
+}
+
+std::string User::nice_name(bool with_username) const
+{
+    if (call_me_.empty()) {
+        return name();
+    } else if (with_username) {
+        std::ostringstream oss;
+        oss << call_me() << " (" << name() << ")";
+        return oss.str();
+    } else {
+        return call_me();
+    }
+}
+
+std::string User::html_name(bool with_username) const
+{
+    std::ostringstream oss;
+
+    if (call_me_.empty()) {
+        oss << "<strong class='username'>"
+            << name()
+            << "</strong>";
+    } else if (with_username) {
+        oss << "<strong>"
+            << call_me()
+            << "</strong> <small>(<span class='username'>"
+            << name()
+            << "</span>)</small>";
+    } else {
+        oss << "<strong>"
+            << call_me()
+            << "</strong>";
+    }
+
+    return oss.str();
 }
 
 bool User::can_grade() const

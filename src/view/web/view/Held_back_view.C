@@ -25,7 +25,7 @@ Self_eval_table::Self_eval_table(const dbo::collection<dbo::ptr<Self_eval>>& mod
 
         auto eval_url = self_eval->eval_url();
         auto grade_url = self_eval->grade_url();
-        auto grader = self_eval->grader_eval()->grader()->name();
+        auto grader = self_eval->grader_eval()->grader()->nice_name(false);
 
         row->elementAt(0)->addNew<Wt::WAnchor>(
                 Wt::WLink(Wt::LinkType::InternalPath, eval_url),
