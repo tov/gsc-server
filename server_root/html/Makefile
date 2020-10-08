@@ -8,6 +8,14 @@ ALL = $(CSS) $(HASH:%=%.hash)
 
 all:  $(ALL)
 
+DEST_DIR ?= ~gsc/production/html
+install: $(ALL)
+	@set -e; \
+	for f in $^; do \
+	    install -dvm755 $(DEST_DIR)/$$(dirname $$f); \
+	    install -Cvm644 $$f $(DEST_DIR)/$$f; \
+	done
+
 %.css: %.scss
 	sass $< > $@ --style compressed
 
