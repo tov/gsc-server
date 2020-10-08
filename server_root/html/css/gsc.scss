@@ -520,6 +520,7 @@ table.fancy {
                 vertical-align: baseline;
                 display: block;
                 max-width: 80ch;
+                min-height: 1ex;
                 // XXX?:
                 // width: 80ch;
                 white-space: pre-wrap;
