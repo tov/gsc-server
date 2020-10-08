@@ -63,7 +63,7 @@ std::string Grader_eval::plain_score_string() const
 
 Score_owner Grader_eval::score_owner(Viewing_context const& cxt) const
 {
-    WString score, owner = "Grader";
+    WString score, owner;
 
     if (can_see_score_(cxt)) {
         score = plain_score_string();
@@ -74,6 +74,9 @@ Score_owner Grader_eval::score_owner(Viewing_context const& cxt) const
         else if (cxt.viewer->can_grade()
                  || grader()->can_admin())
             owner = grader()->name();
+
+        else
+            owner = "Grader";
     }
 
     return {score, owner};
