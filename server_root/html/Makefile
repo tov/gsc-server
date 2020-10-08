@@ -19,6 +19,10 @@ install: $(ALL)
 %.css: %.scss
 	sass $< > $@ --style compressed
 
+js/%.js: js/%.ts
+	cd js && yarn build
+	touch $@
+
 %.hash: %
 	git hash-object $< > $@
 
