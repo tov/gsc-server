@@ -118,18 +118,20 @@ Line_file_viewer<R>::Line_file_viewer(
         auto tr = row_at(row_no++);
 
         if (source_file->is_line_numbered()) {
-            auto th = tr->elementAt(0);
-            auto td = tr->elementAt(1);
+            tr->setStyleClass("numbered");
+            lines.push_back(tr);
 
+            auto th = tr->elementAt(0);
             th->template addNew<WText>(to_string(line_number++));
             th->setStyleClass("code-number");
+
+            auto td = tr->elementAt(1);
             renderer(td, line);
         } else {
             auto td = tr->elementAt(0);
             renderer(td, line);
         }
 
-        lines.push_back(tr);
     }
 }
 
