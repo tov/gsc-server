@@ -1,6 +1,6 @@
 'use strict';
 
-import $ from 'jquery'
+import * as $ from 'jquery'
 
 type Line = HTMLTableCaptionElement | JQuery<HTMLTableCaptionElement>
 type JQuerySelect = JQuery<HTMLSelectElement>
@@ -31,9 +31,11 @@ export class FileViewer {
         const viewer     = $(element)
         this._select     = viewer.find('.file-viewer-selector') as JQuerySelect
         this._scrollArea = viewer.find('.file-viewer-area')
-        this._lines      = this._scrollArea.find('td.code-line')
+        this._lines      = this._scrollArea
+                               .find('tr.numbered td.code-line')
                                .get() as [Line]
-        this._files      = this._scrollArea.find('div.single-file-viewer')
+        this._files      = this._scrollArea
+                               .find('div.single-file-viewer')
                                .get().map($) as [JQuery]
 
         this._select.on('change', this.showSelectedFile.bind(this))
@@ -72,7 +74,7 @@ export class FileViewer {
     private setupLineLinks() {
         const lineCount = this._lines.length
         $('.line-link')
-            .each((_, link) => {
+            .each((_: any, link: HTMLElement) => {
                 const number = extractNumber(link.innerText)
                 $.data(link, LINE_NUMBER_KEY, number)
                 if (number > lineCount) {

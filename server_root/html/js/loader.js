@@ -21,4 +21,3 @@ var prepareLoader = function (moduleMap) {
     };
     return exports;
 };
-//# sourceMappingURL=loader.js.map
