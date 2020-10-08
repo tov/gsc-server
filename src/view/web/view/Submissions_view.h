@@ -109,7 +109,13 @@ private:
 
     Wt::WString get_row_style_() const;
 
-    Navigate go_files_() const;
-    Navigate go_eval_() const;
+    void on_files_() const;
+    void on_eval_() const;
+
+    void confirm_eval_() const;
+    void force_eval_now_() const;
+
+    void go_files_() const;
+    void go_eval_() const;
 };
 

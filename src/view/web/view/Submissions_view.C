@@ -1,4 +1,5 @@
 #include "Submissions_view.h"
+#include "../Confirmation_dialog.h"
 #include "../widget/Date_time_edit.h"
 #include "../widget/Partner_notification_widget.h"
 #include "../../../model/auth/User.h"
@@ -122,8 +123,8 @@ Row_view::Row_view(
     files_btn_ = row_->elementAt(FILES)->addNew<WPushButton>();
     eval_btn_ = row_->elementAt(EVAL)->addNew<WPushButton>();
 
-    files_btn_->clicked().connect(go_files_());
-    eval_btn_->clicked().connect(go_eval_());
+    files_btn_->clicked().connect([this] { on_files_(); });
+    eval_btn_->clicked().connect([this] { on_eval_(); });
 
     row->elementAt(GRADE)->setStyleClass("numeric");
 }
@@ -250,8 +251,13 @@ void Row_view::update_buttons_()
         case Status::future:
             break;
 
-        case Status::open:
         case Status::extended:
+            set_eval_button("Start", "btn btn-danger");
+
+            //
+            // FALL THROUGH!
+            //
+        case Status::open:
             if (assignment()->web_allowed()) {
                 set_files_button("Submit",
                         model_.file_count == 0
@@ -260,7 +266,6 @@ void Row_view::update_buttons_()
             } else {
                 set_files_button("View", "btn");
             }
-
             break;
 
         case Status::self_eval:
@@ -469,14 +474,47 @@ Row_view::construct(const Row_model& model,
     }
 }
 
-Navigate Row_view::go_files_() const
+void Row_view::on_files_() const
 {
-    return Navigate{submission()->url_for_user(model_.principal, false)};
+    go_files_();
 }
 
-Navigate Row_view::go_eval_() const
+void Row_view::on_eval_() const
 {
-    return Navigate{submission()->url_for_user(model_.principal, true)};
+    if (submission()->status() == Status::extended)
+        confirm_eval_();
+    else
+        go_eval_();
+}
+
+void Row_view::confirm_eval_() const
+{
+
+    std::ostringstream oss;
+    oss << "Are you sure you want to end your extension for "
+        << assignment()->name()
+        << " submission?"
+        << " Please note that this action is irreversible.";
+
+    Confirmation_dialog::create(oss.str())
+        .accepted().connect([this] { force_eval_now_(); });
+}
+
+void Row_view::force_eval_now_() const
+{
+    dbo::Transaction trans(session_);
+    submission().modify()->end_extension_now();
+    go_eval_();
+}
+
+void Row_view::go_files_() const
+{
+    Navigate::to(submission()->files_url_for_user(model_.principal));
+}
+
+void Row_view::go_eval_() const
+{
+    Navigate::to(submission()->eval_url_for_user(model_.principal));
 }
 
 Submissions_view::Submissions_view(const dbo::ptr<User>& user, Session& session)
