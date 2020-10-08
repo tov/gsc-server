@@ -18,10 +18,8 @@ install_to () {
         --links --copy-unsafe-links \
         server_root/ \
         "$1"
-
     chmod -R a+rX "$1"
 
-    cmake --build $BUILD_DIR
     install_suid $BUILD_DIR/gscd-fcgi "$1/gscd.fcgi"
     install_suid $BUILD_DIR/gsc-auth "$1/gsc-auth"
 }
@@ -29,6 +27,7 @@ install_to () {
 stage () {
     link=${1:-staging}
     tree=${2:-deploy-$(date +%Y%m%d-%H%M%S)}
+    cmake --build $BUILD_DIR
     install_to "$BASE/$tree"
     rm -f "$BASE/$link"
     ln -s "$tree" "$BASE/$link"
