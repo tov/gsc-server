@@ -11,5 +11,9 @@
     "typescript": "^3.7.5",
     "@types/jquery": "^3.5",
     "@types/jqueryui": "^1.12.10"
-  }
+  },
+  "scripts": {
+    "build": "tsc"
+  },
+  "license": "GPL-2.0-only"
 }
