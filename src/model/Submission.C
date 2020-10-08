@@ -123,15 +123,13 @@ Submission::Status Submission::status() const
 }
 
 Submission::Eval_status
-Submission::eval_status_given_counts_(
-        size_t self_eval_count,
-        size_t eval_item_count) const
+Submission::eval_status_given_counts_(Eval_counts counts) const
 {
-    if (self_eval_count == eval_item_count) {
+    if (counts.self == counts.item) {
         return Eval_status::complete;
     } else if (status() == Status::closed) {
         return Eval_status::overdue;
-    } else if (self_eval_count > 0) {
+    } else if (counts.real_self > 0) {
         return Eval_status::started;
     } else {
         return Eval_status::empty;
@@ -139,16 +137,22 @@ Submission::eval_status_given_counts_(
 }
 
 Submission::Grading_status
-Submission::grading_status_given_counts_(
-        size_t grader_eval_count,
-        size_t self_eval_count) const
+Submission::grading_status_given_counts_(Eval_counts counts) const
 {
-    if (grader_eval_count == self_eval_count) {
-        return Grading_status::complete;
-    } else if (grader_eval_count > 2 && in_eval_period()) {
-        return Grading_status::regrade;
-    } else {
-        return Grading_status::incomplete;
+    switch (eval_status_given_counts_(counts)) {
+    case Eval_status::complete:
+    case Eval_status::overdue:
+        if (counts.grader == counts.self) {
+            return Grading_status::complete;
+        } else if (counts.grader > 2 && in_eval_period()) {
+            return Grading_status::regrade;
+        } else {
+            return Grading_status::incomplete;
+        }
+
+    case Eval_status::started:
+    case Eval_status::empty:
+            return Grading_status::incomplete;
     }
 }
 
@@ -158,8 +162,13 @@ Submission::Eval_status Submission::eval_status() const
         return eval_status_;
     }
 
-    return eval_status_given_counts_(self_evals_.size(),
-                                     assignment()->eval_items().size());
+    Eval_counts counts {
+        .item      = assignment()->eval_items().size(),
+        .self      = self_evals_.size(),
+        .real_self = fetch_real_self_eval_count_(),
+        .grader    = 0,
+    };
+    return eval_status_given_counts_(counts);
 }
 
 double Submission::grade() const
@@ -530,16 +539,41 @@ Submission::Grading_status Submission::grading_status() const
         return grading_status_;
     }
 
-    auto grader_eval_count = session()->query<int>(
+    Eval_counts counts {
+        .item      = assignment()->eval_items().size(),
+        .self      = self_evals_.size(),
+        .real_self = fetch_real_self_eval_count_(),
+        .grader    = fetch_grader_eval_count_(),
+    };
+    return grading_status_given_counts_(counts);
+}
+
+size_t Submission::fetch_real_self_eval_count_() const
+{
+    return session()->query<int>(
+            "SELECT COUNT(*)"
+            "  FROM self_eval"
+            " INNER JOIN eval_item ON eval_item_id = eval_item.id"
+            " WHERE submission_id = ?"
+            "   AND type <> ?")
+        .bind(id())
+        .bind(Eval_item::Type::Informational)
+        .resultValue();
+}
+
+size_t Submission::fetch_grader_eval_count_() const
+{
+    return session()->query<int>(
             "SELECT COUNT(*)"
             "  FROM self_eval s"
             " INNER JOIN grader_eval g ON g.self_eval_id = s.id"
             " WHERE s.submission_id = ?"
-            "   AND g.status = ?"
-    ).bind(id()).bind((int) Grader_eval::Status::ready).resultValue();
-
-    return grading_status_given_counts_(grader_eval_count, self_evals_.size());
+            "   AND g.status = ?")
+        .bind(id())
+        .bind(Grader_eval::Status::ready)
+        .resultValue();
 }
+
 
 void Submission::load_cache() const
 {
@@ -566,31 +600,40 @@ void Submission::reload_cache() const
         items_[sequence].eval_item = eval_item;
     }
 
-    double total_grade       = 0;
-    size_t self_eval_count   = 0;
-    size_t grader_eval_count = 0;
+    double total_grade = 0;
+
+    Eval_counts counts {
+        .item      = item_count_,
+        .self      = 0,
+        .real_self = 0,
+        .grader    = 0,
+    };
 
     for (const auto& self_eval : self_evals_) {
-        ++self_eval_count;
+        auto const& eval_item = self_eval->eval_item();
 
-        auto sequence = self_eval->eval_item()->sequence();
+        ++counts.self;
+
+        if (eval_item->type() != Eval_item::Type::Informational) {
+            ++counts.real_self;
+        }
+
+        auto sequence = eval_item->sequence();
         items_[sequence].self_eval = self_eval;
 
         auto grader_eval = self_eval->grader_eval();
         if (grader_eval) {
             items_[sequence].grader_eval = grader_eval;
             if (grader_eval->status() == Grader_eval::Status::ready) {
-                ++grader_eval_count;
-                total_grade += grader_eval->score() *
-                               self_eval->eval_item()->relative_value();
+                ++counts.grader;
+                total_grade +=
+                    grader_eval->score() * eval_item->relative_value();
             }
         }
     }
 
-    eval_status_    = eval_status_given_counts_(self_eval_count,
-                                                grader_eval_count);
-    grading_status_ = grading_status_given_counts_(self_eval_count,
-                                                   grader_eval_count);
+    eval_status_    = eval_status_given_counts_(counts);
+    grading_status_ = grading_status_given_counts_(counts);
     grade_          = clean_grade(total_grade, point_value_);
     is_loaded_      = true;
 }

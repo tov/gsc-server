@@ -233,11 +233,17 @@ private:
     static Wt::Dbo::ptr<Grader_eval>&
     find_grader_eval_(const Wt::Dbo::ptr<Self_eval>&);
 
-    Eval_status eval_status_given_counts_(size_t self_eval_count,
-                                          size_t eval_item_count) const;
+    size_t fetch_real_self_eval_count_() const;
+    size_t fetch_grader_eval_count_() const;
 
-    Grading_status grading_status_given_counts_(size_t grader_eval_count,
-                                                size_t self_eval_count) const;
+    struct Eval_counts
+    {
+        size_t item, self, real_self, grader;
+    };
+
+    Eval_status eval_status_given_counts_(Eval_counts) const;
+
+    Grading_status grading_status_given_counts_(Eval_counts) const;
 
 public:
     template<typename Action>
