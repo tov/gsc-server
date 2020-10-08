@@ -34,6 +34,9 @@ Self_eval_item_widget::Self_eval_item_widget(
     save_button_->clicked().connect([=]{ save_action_(); });
     back_button_->clicked().connect([=]{ back_action_(); });
 
+    save_button_->setStyleClass("btn btn-default");
+    back_button_->setStyleClass("btn");
+
     if (model.self_eval && model.self_eval->frozen()) {
         save_button_->hide();
         response_widget_->freeze();
