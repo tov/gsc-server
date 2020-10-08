@@ -327,7 +327,7 @@ bool Session::authenticate_from_environment(Environment const& env)
 
 void Session::become_user(const dbo::ptr<User>& user)
 {
-    redirect_with_whoami(user->name(), "/");
+    redirect_with_whoami("/", user->name());
 }
 
 auto authn_result<Auth::User>::lift(
