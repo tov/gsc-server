@@ -115,24 +115,21 @@ Line_file_viewer<R>::Line_file_viewer(
     int           row_no = 1;
 
     while (getline(file_stream, line)) {
-        auto tr = row_at(row_no);
+        auto tr = row_at(row_no++);
 
         if (source_file->is_line_numbered()) {
             auto th = tr->elementAt(0);
             auto td = tr->elementAt(1);
 
-            th->template addNew<WText>(to_string(line_number));
+            th->template addNew<WText>(to_string(line_number++));
             th->setStyleClass("code-number");
             renderer(td, line);
         } else {
             auto td = tr->elementAt(0);
             renderer(td, line);
-
         }
 
         lines.push_back(tr);
-        ++row_no;
-        ++line_number;
     }
 }
 
