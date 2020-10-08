@@ -27,6 +27,10 @@
 #  include <Wt/Auth/PasswordVerifier.h>
 #endif // GSC_AUTH_PASSWORD
 
+#ifndef GSC_ADMIN_USERNAME
+#  define GSC_ADMIN_USERNAME "jat489"
+#endif
+
 #include <Wt/Dbo/backend/Postgres.h>
 #include <Wt/Dbo/FixedSqlConnectionPool.h>
 #include <Wt/Dbo/Dbo.h>
@@ -91,7 +95,7 @@ void Db_session::initialize_db(bool test_data)
         create_index_("gsc_user", "name", false);
         create_index_("self_eval", "permalink", false);
 
-        User_auth_params params {"jat489", User::Role::Admin};
+        User_auth_params params {GSC_ADMIN_USERNAME, User::Role::Admin};
 #ifdef GSC_AUTH_PASSWORD
         params.password = get_env_var("ADMIN_PASSWORD");
 #endif // GSC_AUTH_PASSWORD
@@ -109,7 +113,7 @@ void Db_session::initialize_db(bool test_data)
 
 void Db_session::populate_test_data_()
 {
-    create_user({"jtov", User::Role::Admin});
+    create_user({"admin", User::Role::Admin});
 
     auto now = WDateTime::currentDateTime();
 
