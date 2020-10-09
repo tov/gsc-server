@@ -12,7 +12,15 @@ grader_id=${2:-1}
 score=${3:-1}
 comment="$(printf '%s\n' "${4-}" | sed "s/'/''/g")"
 
-sudo -u gsc psql -c "
+as_gsc () {
+    if [ `whoami` != gsc ]; then
+        sudo -u gsc "$@"
+    else
+        "$@"
+    fi
+}
+
+as_gsc psql -c "
     INSERT INTO grader_eval (
         version,
         self_eval_id,
