@@ -27,6 +27,7 @@ install_to () {
 stage () {
     link=${1:-staging}
     tree=${2:-deploy-$(date +%Y%m%d-%H%M%S)}
+    sudo true
     cmake --build $BUILD_DIR
     install_to "$BASE/$tree"
     rm -f "$BASE/$link"
