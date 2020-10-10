@@ -495,18 +495,32 @@ void Submission::check_can_view_eval(const dbo::ptr<User>& user) const
         throw Access_check_failed("Too early for that!");
 }
 
-std::string Submission::url(bool eval) const
-{
-    return url_for_user(user1_, eval);
-}
-
 std::string Submission::eval_url() const
 {
-    return url(true);
+    return eval_url_for_user(user1_);
+}
+
+std::string Submission::files_url() const
+{
+    return files_url_for_user(user1_);
 }
 
 std::string
-Submission::url_for_user(const dbo::ptr<User>& principal, bool eval) const
+Submission::eval_url_for_user(const dbo::ptr<User>& principal) const
+{
+    return url_for_user_(principal, "/eval");
+}
+
+std::string
+Submission::files_url_for_user(const dbo::ptr<User>& principal) const
+{
+    return url_for_user_(principal, "");
+}
+
+std::string
+Submission::url_for_user_(const dbo::ptr<User>& principal,
+                         std::string extra_path)
+const
 {
     std::ostringstream result;
 
@@ -517,7 +531,7 @@ Submission::url_for_user(const dbo::ptr<User>& principal, bool eval) const
 
     result << "/~" << owner->name();
     result << "/hw/" << assignment_->number();
-    if (eval) result << "/eval";
+    result << extra_path;
 
     return result.str();
 }

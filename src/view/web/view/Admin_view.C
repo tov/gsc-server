@@ -86,7 +86,7 @@ void Submission_chooser::go()
             case Submission::Status::future:
             case Submission::Status::open:
             case Submission::Status::extended:
-                Navigate::to(submission->url());
+                Navigate::to(submission->files_url());
 
             case Submission::Status::self_eval:
             case Submission::Status::extended_eval:

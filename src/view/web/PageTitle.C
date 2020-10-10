@@ -65,7 +65,7 @@ PageTitle PageTitle::user_hwN(const dbo::ptr<Submission>& submission,
                                  : submission->user1());
     result.plain(" › ");
     result.link(submission->assignment()->slug_string(),
-                submission->url_for_user(current_user));
+                submission->files_url_for_user(current_user));
     return result;
 }
 
@@ -75,7 +75,7 @@ PageTitle PageTitle::user_hwN_eval(const dbo::ptr<Submission>& submission,
     PageTitle result = user_hwN(submission, current_user);
     result.plain(" › ");
     result.link("Evaluation",
-                submission->url_for_user(current_user, true));
+                submission->eval_url_for_user(current_user));
     return result;
 }
 

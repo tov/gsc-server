@@ -42,7 +42,7 @@ void Evaluation_view::go_to(unsigned int index)
     dbo::Transaction transaction(session());
 
     std::ostringstream eval_url;
-    eval_url << submission()->url_for_user(principal(), true);
+    eval_url << submission()->eval_url_for_user(principal());
     eval_url << '/' << index;
     Wt::WApplication::instance()->setInternalPath(eval_url.str());
 
@@ -72,7 +72,7 @@ void Evaluation_view::go_default()
     }
 
     Wt::WApplication::instance()
-            ->setInternalPath(submission()->url_for_user(principal(), true));
+            ->setInternalPath(submission()->eval_url_for_user(principal()));
 
     right_column_->clear();
 

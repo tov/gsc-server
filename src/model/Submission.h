@@ -119,12 +119,16 @@ public:
     void check_can_eval(const Wt::Dbo::ptr <User>&) const;
     void check_can_view_eval(const Wt::Dbo::ptr<User>&) const;
 
-    std::string url(bool eval = false) const;
     std::string eval_url() const;
+    std::string files_url() const;
 
-    std::string url_for_user(const Wt::Dbo::ptr<User>&,
-                             bool eval = false) const;
+    std::string files_url_for_user(const Wt::Dbo::ptr<User>&) const;
+    std::string eval_url_for_user(const Wt::Dbo::ptr<User>&) const;
+private:
+    std::string url_for_user_(const Wt::Dbo::ptr<User>&,
+                              std::string extra_path) const;
 
+public:
     Wt::Dbo::ptr<Submission> find_this() const;
 
     Wt::Dbo::ptr<File_meta> find_file_by_name(const std::string&) const;
