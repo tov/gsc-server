@@ -75,16 +75,18 @@ progress_around () {
 mkdir -p $localdir
 cd $localdir
 
-progress_around "Authenticating" \
-    sudo -u gsc true
+if [ "${1-}" != -D ]; then
+    progress_around "Authenticating" \
+        sudo -u gsc true
 
-progress_output "Dumping database" $file \
-    sudo -u gsc pg_dump gsc
+    progress_output "Dumping database" $file \
+        sudo -u gsc pg_dump gsc
 
-progress_output "Encrypting" $file.gpg \
-    gpgz --sign --recipient "$gpg_recipient" --encrypt $file
+    progress_output "Encrypting" $file.gpg \
+        gpgz --sign --recipient "$gpg_recipient" --encrypt $file
 
-rm $file
+    rm $file
+fi
 
 progress_around "Synchronizing" \
     rsync --times --human-readable --progress \
