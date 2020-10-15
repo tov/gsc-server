@@ -922,15 +922,12 @@ void Submissions_1_evals_2_self::do_put_(Request_body body, Resource::Context co
         auto json = std::move(body).read_json();
         J::Object const& object = json;
 
-        std::string explanation = object.get("explanation");
-        double score            = object.get("score");
-
         if (!self_eval_)
             self_eval_ = Submission::get_self_eval(eval_item_, submission_, true);
 
-        auto modifiable = self_eval_.modify();
-        modifiable->set_explanation(explanation);
-        modifiable->set_score(score);
+        double score            = object.get("score");
+        std::string explanation = object.get("explanation");
+        Submission::save_self_eval(self_eval_, context.user, score, explanation);
 
     } catch (J::TypeException const& e) {
         throw Http_status{400, "PUT /submissions/_1/evals/_2/self could not understand request"};

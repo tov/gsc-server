@@ -63,7 +63,8 @@ void Self_eval_item_widget::save_action_()
     dbo::Transaction transaction(session_);
     auto self_eval = Submission::get_self_eval(model_.eval_item,
                                                main_.submission());
-    Submission::save_self_eval(self_eval, session_,
+    Submission::save_self_eval(self_eval,
+                               session_.user(),
                                response_widget_->value(),
                                response_widget_->explanation());
     transaction.commit();

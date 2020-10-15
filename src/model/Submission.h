@@ -146,10 +146,11 @@ public:
                   const Wt::Dbo::ptr<Submission>&,
                   bool create = true);
 
-    static void save_self_eval(const Wt::Dbo::ptr<Self_eval>&,
-                               Session&,
-                               double score,
-                               const std::string& explanation);
+    static void
+    save_self_eval(const Wt::Dbo::ptr<Self_eval>&,
+                   const Wt::Dbo::ptr<User>&,
+                   double score,
+                   const std::string& explanation);
 
     static void retract_self_eval(const Wt::Dbo::ptr<Self_eval>&);
 
