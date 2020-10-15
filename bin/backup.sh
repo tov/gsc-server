@@ -5,7 +5,7 @@ set -e
 dir=gsc-backups
 localdir=$HOME/$dir
 file=cs211-$(date +%Y%m%d-%H%M%S).psql
-host=login.eecs.northwestern.edu
+host=jesse@delta.eecs.northwestern.edu
 gpg_recipient=jesse.tov@gmail.com
 gpg_public_key=0xC5668BA5047AE6BD
 
