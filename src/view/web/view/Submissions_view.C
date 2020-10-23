@@ -19,6 +19,7 @@
 #include <Wt/WText.h>
 
 using Row_view = Submissions_view::Row_view;
+using Eval_status = Submission::Eval_status;
 
 namespace {
 
@@ -242,17 +243,50 @@ void Row_view::update_score_()
     }
 }
 
+static char const*
+eval_action_from_status(Eval_status status)
+{
+    switch (status) {
+    case Eval_status::empty:
+        return "Start";
+    case Eval_status::started:
+        return "Continue";
+    case Eval_status::complete:
+        return "Edit";
+    case Eval_status::overdue:
+    default:
+        return "View";
+    }
+}
+
+static char const*
+eval_button_style_from_status(Eval_status status)
+{
+    switch (status) {
+    case Eval_status::empty:
+    case Eval_status::started:
+        return "btn btn-primary";
+    case Eval_status::complete:
+        return "btn btn-success";
+    default:
+        return "btn";
+    }
+}
+
 void Row_view::update_buttons_()
 {
     files_btn_->hide();
     eval_btn_->hide();
+
+    char const* const eval_action =
+        eval_action_from_status(model_.eval_status);
 
     switch (submission()->status()) {
         case Status::future:
             break;
 
         case Status::extended:
-            set_eval_button("Start", "btn btn-danger");
+            set_eval_button(eval_action, "btn btn-danger");
 
             //
             // FALL THROUGH!
@@ -269,36 +303,18 @@ void Row_view::update_buttons_()
             break;
 
         case Status::self_eval:
-        case Status::extended_eval:
+        case Status::extended_eval: {
+            char const* style = 
+                eval_button_style_from_status(model_.eval_status);
             set_files_button("View", "btn");
-
-            switch (model_.eval_status) {
-                case Eval_status::empty: {
-                    set_eval_button("Start", "btn btn-primary");
-                    break;
-                }
-
-                case Eval_status::started: {
-                    set_eval_button("Continue", "btn btn-primary");
-                    break;
-                }
-
-                case Eval_status::complete: {
-                    set_eval_button("Edit", "btn btn-success");
-                    break;
-                }
-
-                case Eval_status::overdue:
-                    set_eval_button("View", "btn");
-                    break;
-            }
+            set_eval_button(eval_action, style);
             break;
+        }
 
-        case Status::closed: {
+        case Status::closed:
             set_files_button("View", "btn");
             set_eval_button("View", "btn");
             break;
-        }
     }
 }
 
