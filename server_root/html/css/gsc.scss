@@ -85,8 +85,8 @@ $medium-gray: #999;
 
 $primary-highlight: #FF0;
 $secondary-highlight: #FCF;
-$docked-highlight: #FCD;
-$explanation-highlight: #CDF;
+$docked-highlight: #FDE;
+$explanation-highlight: #DEF;
 
 @mixin grep-color {
     color:            #333;
@@ -381,6 +381,20 @@ table.fancy {
 
 .edit-assignment-view {
     padding: 1em;
+
+    .detail {
+        background-color: #EFE;
+    }
+
+    .but-detail {
+        display: inline;
+        background-color: #FEE;
+    }
+
+    .but-detail-block {
+        display: block;
+        background-color: #FEE;
+    }
 }
 
 .submission-owner-widget {
@@ -602,6 +616,10 @@ table.fancy {
     }
 }
 
+.but-detail, .but-detail-block {
+    display: none;
+}
+
 .list-eval-item {
     margin: 1em 0.25em;
     padding: 5px 10px;
@@ -609,6 +627,14 @@ table.fancy {
 
     .detail {
         display: none;
+    }
+
+    .but-detail {
+        display: inline;
+    }
+
+    .but-detail-block {
+        display: block;
     }
 }
 
