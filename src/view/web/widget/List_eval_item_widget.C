@@ -3,6 +3,7 @@
 #include "../../../model/Self_eval.h"
 #include "../../../model/Grader_eval.h"
 #include "../../../Session.h"
+#include "../../../common/util.h"
 
 #include <Wt/WPushButton.h>
 #include <Wt/WTemplate.h>
@@ -17,19 +18,48 @@ List_eval_item_widget::List_eval_item_widget(const Submission::Item& model, Eval
     add_buttons_();
 }
 
+static WString
+attention_class(dbo::ptr<Grader_eval> const& grader_eval)
+{
+    if (!grader_eval || !grader_eval->is_ready())
+        return "list-eval-item";
+    else if (grader_eval->score() < 1)
+        return "list-eval-item has-been-docked";
+    else if (! grader_eval->explanation().empty())
+        return "list-eval-item has-explanation";
+    else
+        return "list-eval-item has-been-graded";
+}
+
+static WString
+focus_btn_class(dbo::ptr<Grader_eval> const& grader_eval,
+                bool can_edit)
+{
+    if (!grader_eval || !grader_eval->is_ready())
+        return can_edit ? "btn btn-success" : "btn";
+    else if (grader_eval->score() < 1)
+        return can_edit ? "btn btn-primary" : "btn btn-info";
+    else if (! grader_eval->explanation().empty())
+        return "btn btn-info";
+    else
+        return "btn";
+}
+
 void List_eval_item_widget::add_buttons_()
 {
-    auto buttons = addNew<Wt::WContainerWidget>();
+    auto buttons = addNew<WContainerWidget>();
     buttons->setStyleClass("buttons");
 
-    auto focus_btn = buttons->addNew<Wt::WPushButton>();
+    auto focus_btn = buttons->addNew<WPushButton>();
 
     if (main_.submission()->can_eval(session_.user())
         && !model_.eval_item->is_informational()
         && !(model_.self_eval && model_.self_eval->frozen())) {
         focus_btn->setText("Edit");
+        focus_btn->setStyleClass(focus_btn_class(model_.grader_eval, true));
     } else {
         focus_btn->setText("View");
+        focus_btn->setStyleClass(focus_btn_class(model_.grader_eval, false));
     }
 
     focus_btn->clicked().connect(this, &List_eval_item_widget::focus_action_);
@@ -42,26 +72,15 @@ void List_eval_item_widget::add_scores_()
     Score_owner self;
     Score_owner grader;
 
-    Wt::WString attention_class = "list-eval-item";
-
     if (model_.self_eval) {
         self = model_.self_eval->score_owner(cxt);
     } else {
         self.score = "[not set]";
     }
 
-    if (model_.grader_eval && model_.grader_eval->is_ready()) {
-        grader = model_.grader_eval->score_owner(cxt);
+    setStyleClass(attention_class(model_.grader_eval));
 
-        if (model_.grader_eval->score() < model_.self_eval->score())
-            attention_class = "list-eval-item has-been-docked";
-        else if (!model_.grader_eval->explanation().empty())
-            attention_class = "list-eval-item has-explanation";
-    }
-
-    setStyleClass(attention_class);
-
-    auto table = addNew<Wt::WTemplate>(
+    auto table = addNew<WTemplate>(
             model_.eval_item->is_informational()
             ? model_.eval_item->absolute_value() == 0
               ? ""
