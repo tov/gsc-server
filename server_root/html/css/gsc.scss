@@ -934,6 +934,21 @@ $hlog-indent: 72px;
         background-color: #EEE;
     }
 
+    .test-case h3 span {
+        float: right;
+        color: #AAA;
+    }
+
+    h3.passed span em {
+        font-style: normal;
+        color: lightgreen;
+    }
+
+    h3.failed span em {
+        font-style: normal;
+        color: lightpink;
+    }
+
     summary {
         display: list-item;
         @include body-text;
@@ -951,6 +966,7 @@ $hlog-indent: 72px;
     }
 
     .test-case-body {
+        clear: right;
         h4, p {
             margin: $hlog-skip $hlog-indent $hlog-gap $hlog-gap;
             padding: 0;
