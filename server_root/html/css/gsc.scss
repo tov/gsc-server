@@ -1134,7 +1134,7 @@ code.io-lines {
     @include hover-highlight('.trailing-ws', 'trailing whitespace');
 }
 
-span.txt-only {
+.txt-only {
     display: none;
 }
 
