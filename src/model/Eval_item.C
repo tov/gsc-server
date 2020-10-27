@@ -86,7 +86,7 @@ J::Object Eval_item::to_json(dbo::ptr<Submission> const& as_part_of,
 
     if (!brief) {
         result["prompt"] = J::Value(prompt());
-        result["value"]  = J::Value(relative_value());
+        result["value"]  = J::Value(absolute_value());
 
         // Get the self eval, creating it if the type is informational.
         auto self_eval = Submission::get_self_eval(sequence(), as_part_of,
