@@ -92,29 +92,41 @@ Self_eval::find_by_permalink(dbo::Session& dbo,
               .where("permalink = ?").bind(permalink);
 }
 
-string
-Self_eval::find_ungraded_permalink(dbo::Session& dbo,
-                                   const dbo::ptr<User>& user)
+namespace {
+
+// If you've been editing for over an hour, forget about it.
+void drop_old_editing_holds(dbo::Session& dbo)
 {
     dbo.execute("DELETE FROM grader_eval"
                 " WHERE status = ?"
                 "   AND time_stamp < NOW() AT TIME ZONE 'UTC' - INTERVAL '1 hr'")
             .bind((int) Grader_eval::Status::editing);
+}
 
-    std::string current =
-            dbo.query<std::string>(
-                    "SELECT s.permalink"
-                    "  FROM self_eval s"
-                    " INNER JOIN grader_eval g ON g.self_eval_id = s.id"
-                    " WHERE g.grader_id = ?"
-                    "   AND g.status = ?"
-                    " LIMIT 1"
-            )
-               .bind(user.id())
-               .bind((int) Grader_eval::Status::editing)
-               .resultValue();
-    if (!current.empty()) return current;
+// Returns the permalink ID for the user's current editing hold, or
+// the empty string if none.
+string
+current_editing_hold(dbo::Session& dbo,
+                     dbo::ptr<User> const& user)
+{
+    return dbo.query<std::string>(
+                      "SELECT s.permalink"
+                      "  FROM self_eval s"
+                      " INNER JOIN grader_eval g ON g.self_eval_id = s.id"
+                      " WHERE g.grader_id = ?"
+                      "   AND g.status = ?"
+                      " LIMIT 1"
+              )
+              .bind(user.id())
+              .bind((int) Grader_eval::Status::editing)
+              .resultValue();
+}
 
+// Returns the permalink for the next self eval eligible for grading, or
+// the empty string if none.
+string
+next_eligible_permalink(dbo::Session& dbo)
+{
     return dbo.query<std::string>(
             "SELECT s.permalink"
             " FROM self_eval s"
@@ -130,6 +142,21 @@ Self_eval::find_ungraded_permalink(dbo::Session& dbo,
             " ORDER BY a.number, e.sequence, random()"
             " LIMIT 1"
     ).resultValue();
+}
+
+}
+
+string
+Self_eval::find_ungraded_permalink(dbo::Session& dbo,
+                                   const dbo::ptr<User>& user)
+{
+    drop_old_editing_holds(dbo);
+
+    if (auto current = current_editing_hold(dbo, user);
+            !current.empty())
+        return current;
+
+    return next_eligible_permalink(dbo);
 }
 
 dbo::collection<dbo::ptr<Self_eval>>
