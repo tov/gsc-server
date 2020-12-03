@@ -57,5 +57,5 @@ deploy () {
 
 "$@"
 
-sudo systemctl reload apache2
+sudo systemctl reload-or-restart apache2
 
