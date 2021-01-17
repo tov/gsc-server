@@ -19,11 +19,11 @@ field_cannot_be_set_msg(
 {
     ostringstream buf;
     buf << reason
-        << " "
+        << ": "
         << field_name
-        << ": ‘"
-        << string(bad_value)
-        << "’";
+        << " (got "
+        << Dump_JSON{bad_value}
+        << ")";
     return buf.str();
 }
 
