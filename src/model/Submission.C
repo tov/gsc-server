@@ -851,7 +851,7 @@ Submission::set_from_json(std::string_view field, Wt::Json::Value const& value)
 
         if (!set_due_date(time_spec).has_value())
             throw Cannot_set_field(
-                    "due_date", time_spec, "Could not parse timespec");
+                    "due_date", "Could not parse timespec", value);
     }
 
     else if (field == "eval_date") {
@@ -859,21 +859,22 @@ Submission::set_from_json(std::string_view field, Wt::Json::Value const& value)
 
         if (!set_eval_date(time_spec).has_value())
             throw Cannot_set_field(
-                    "eval_date", time_spec, "Could not parse timespec");
+                    "eval_date", "Could not parse timespec", value);
     }
 
     else if (field == "bytes_quota") {
         int quota = value;
 
         if (quota <= 0)
-            throw Cannot_set_field("bytes_quota", value, "Must be positive");
+            throw Cannot_set_field(
+              "bytes_quota", "Must be positive", value);
 
         set_bytes_quota(quota);
     }
 
     else if (field == "owner2") {
         if (!value.isNull())
-            throw Cannot_set_field("owner2", "Value can only be null");
+            throw Cannot_set_field("owner2", "Must be null", value);
 
         try {
             divorce();
