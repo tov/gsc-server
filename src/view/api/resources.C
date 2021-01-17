@@ -560,72 +560,25 @@ void Submissions_1::do_patch_(Request_body body, const Resource::Context &contex
 {
     context.user->check_can_admin();
 
-    Result_array result;
-
     try {
         auto json = std::move(body).read_json();
         J::Object const& object = json;
 
+        auto guard = dbo::Transaction(context.session);
+        auto submission = submission_.modify();
+
         for (auto const& pair : object) {
-            if (pair.first == "due_date") {
-                std::string time_spec = pair.second;
-
-                if (auto res = submission_.modify()->set_due_date(time_spec);
-                        res.has_value()) {
-                    result.success()
-                            << "Modified due date to "
-                            << res->toString()
-                            << " UTC";
-                } else {
-                    result.failure()
-                            << "Could not parse timespec ‘"
-                            << time_spec << "’";
-                }
-            }
-
-            else if (pair.first == "eval_date") {
-                std::string time_spec = pair.second;
-
-                if (auto res = submission_.modify()->set_eval_date(time_spec);
-                        res.has_value()) {
-                    result.success()
-                            << "Modified eval date to "
-                            << res->toString()
-                            << " UTC";
-                } else {
-                    result.failure()
-                            << "Could not parse timespec ‘"
-                            << time_spec << "’";
-                }
-            }
-
-            else if (pair.first == "bytes_quota") {
-                int bytes_quota = pair.second;
-                submission_.modify()->set_bytes_quota(bytes_quota);
-                result.success() << "Modified quota to " << bytes_quota << ".";
-            }
-
-            else if (pair.first == "owner2") {
-                try {
-                    auto guard = dbo::Transaction(context.session);
-                    submission_.modify()->divorce();
-                    result.success() << "Departnering succeeded.";
-                } catch (runtime_error const& exn) {
-                    result.failure() << exn.what();
-                }
-            }
-
-            else {
-                result.failure() << "Unknown key in JSON: ‘" << pair.first << "’.";
-            }
+            submission->set_from_json(pair.first, pair.second);
         }
+    } catch (Cannot_set_field const& e) {
+        Http_error{400} << e.what();
     } catch (Wt::Json::ParseError const& e) {
         Http_error{400} << e.what();
     } catch (Wt::Json::TypeException const& e) {
         Http_error{400} << e.what();
     }
 
-    use_json(result);
+    use_json(submission_->to_json());
 }
 
 class Submissions_1_files : public Resource
