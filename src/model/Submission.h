@@ -201,6 +201,11 @@ public:
     std::string evals_rest_uri() const;
     Wt::Json::Object to_json(bool brief = false) const;
 
+    // Tries to set `this->field` from the given JSON value. Assumes the
+    // caller has admin privileges (unchecked). Throws if the given
+    // value is bad somehow.
+    void set_from_json(std::string_view field, Wt::Json::Value const& value);
+
     //  Tries to parse an ISO 8601 datetime. Returns nullopt for parse error.
     std::optional<Wt::WDateTime>
     set_due_date(std::string_view date_string);
