@@ -224,9 +224,6 @@ const char* Whose_files_are_these::title() const
 
 ostream& Whose_files_are_these::write_body_html(ostream& note) const
 {
-    using namespace html;
-    using namespace elt;
-
     note << "<p>";
     note << "These files do not belong to either partner:";
     note << "</p>";
@@ -234,7 +231,7 @@ ostream& Whose_files_are_these::write_body_html(ostream& note) const
     note << "<ul>";
 
     for (auto const& file : lost_files_) {
-        note << "<li>" << Filename{file->name()} << "</li>";
+        note << "<li>" << html::Filename{file->name()} << "</li>";
     }
 
     return note << "</ul>";
