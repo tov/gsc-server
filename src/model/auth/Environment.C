@@ -90,7 +90,7 @@ optional<string> param_whoami(Environment const& env)
 
 optional<string> env_remote_user(Environment const& env)
 {
-    if (!env) return nullptr;
+    if (!env) return nullopt;
 
 #ifdef GSC_AUTH_DEBUG
     if (auto whoami = param_whoami(env))
