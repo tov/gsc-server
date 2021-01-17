@@ -5,6 +5,7 @@
 #include <Wt/WDateTime.h>
 #include <Wt/WLocalDateTime.h>
 #include <Wt/WString.h>
+#include <Wt/WString.h>
 
 #include <iomanip>
 #include <iostream>
@@ -23,6 +24,13 @@ struct JSON_traits<Wt::WDateTime>
 {
     static Wt::WString format(Wt::WDateTime const&);
     static bool parse(Wt::WDateTime&, Wt::WString const&);
+};
+
+template<>
+struct JSON_traits<std::string>
+{
+    static Wt::WString format(std::string const&);
+    static bool parse(std::string&, Wt::WString const&);
 };
 
 template<class T>

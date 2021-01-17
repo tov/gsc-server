@@ -33,6 +33,19 @@ bool JSON_traits<WDateTime>::parse(WDateTime& out, WString const& str)
     return out.isValid();
 }
 
+Wt::WString
+JSON_traits<std::string>::format(const std::string& s)
+{
+    return WString::fromUTF8(WString::fromUTF8(s).jsStringLiteral());
+}
+
+bool
+JSON_traits<std::string>::parse(string&, WString const&)
+{
+    // not implemented:
+    return false;
+}
+
 using Precision_guard = Basic_guard<
         std::ios_base,
         std::streamsize,
