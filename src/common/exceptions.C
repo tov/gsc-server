@@ -6,6 +6,54 @@
 #include "format.h"
 #include "util.h"
 
+#include <Wt/Json/Value.h>
+
+#include <memory>
+#include <sstream>
+
+static string
+field_cannot_be_set_msg(
+        string const&   field_name,
+        string const&   reason,
+        J::Value const& bad_value)
+{
+    ostringstream buf;
+    buf << reason
+        << " "
+        << field_name
+        << ": ‘"
+        << string(bad_value)
+        << "’";
+    return buf.str();
+}
+
+static string
+field_cannot_be_set_msg(
+        string const& field_name,
+        string const& reason)
+{
+    ostringstream buf;
+    buf << reason << ": " << field_name;
+    return buf.str();
+}
+
+Cannot_set_field::Cannot_set_field(
+        string   field_name,
+        string   reason)
+    : runtime_error(field_cannot_be_set_msg(field_name, reason))
+    , field_name(move(field_name))
+    , reason(move(reason))
+{ }
+
+Cannot_set_field::Cannot_set_field(
+        string   field_name,
+        string   reason,
+        J::Value bad_value)
+    : runtime_error(field_cannot_be_set_msg(field_name, reason, bad_value))
+    , field_name(move(field_name))
+    , reason(move(reason))
+    , bad_value(make_unique<J::Value>(move(bad_value)))
+{ }
 
 static string file_too_large_msg_(string const& filename,
                                   int needed, int allowed)
