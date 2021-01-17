@@ -2,10 +2,17 @@
 
 #include <Wt/Dbo/ptr.h>
 
+namespace Wt {
+namespace Json {
+class Value;
+}
+}
+
 #include <array>
 #include <stdexcept>
 #include <iostream>
 #include <string>
+#include <string_view>
 
 class File_meta;
 class Submission;
@@ -19,6 +26,18 @@ struct Resource_not_found : public std::runtime_error
 {
     Resource_not_found()
             : runtime_error("resource not found") { }
+};
+
+struct Cannot_set_field : public std::runtime_error
+{
+    Cannot_set_field(std::string     field_name,
+                     std::string     reason);
+    Cannot_set_field(std::string     field_name,
+                     std::string     reason,
+                     Wt::Json::Value bad_value);
+
+    std::string field_name, reason;
+    std::unique_ptr<Wt::Json::Value> bad_value;
 };
 
 struct Html_error : public std::runtime_error
