@@ -2,6 +2,7 @@
 
 #include "guard.h"
 
+#include <Wt/Json/Value.h>
 #include <Wt/WDateTime.h>
 #include <Wt/WLocalDateTime.h>
 #include <Wt/WString.h>
@@ -10,6 +11,7 @@
 #include <iomanip>
 #include <iostream>
 #include <locale>
+#include <ostream>
 #include <sstream>
 #include <string>
 #include <string_view>
@@ -178,6 +180,18 @@ with_commas<T>::operator Wt::WString() const
     return operator std::string();
 }
 
+///
+/// JSON output
+///
+
+struct Dump_JSON
+{
+    std::ostream& print(std::ostream& o) const;
+
+    Wt::Json::Value const& value;
+};
+
+std::ostream& operator<<(std::ostream& o, Dump_JSON json);
 
 
 ///
@@ -186,6 +200,7 @@ with_commas<T>::operator Wt::WString() const
 
 namespace html
 {
+
 struct Escape
 {
     std::string const& raw;

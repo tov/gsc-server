@@ -2,6 +2,9 @@
 #include "util.h"
 
 #include <Wt/Date/tz.h>
+#include <Wt/Json/Array.h>
+#include <Wt/Json/Object.h>
+#include <Wt/Json/Serializer.h>
 #include <Wt/WString.h>
 
 #include <cmath>
@@ -100,6 +103,34 @@ percentage::operator std::string() const
 percentage::operator Wt::WString() const
 {
     return operator std::string();
+}
+
+std::ostream& operator<<(ostream& o, Dump_JSON json)
+{
+    return json.print(o);
+}
+
+ostream& Dump_JSON::print(ostream& o) const
+{
+    switch (value.type()) {
+    case Json::Type::Null:
+        return o << "null";
+
+    case Json::Type::String:
+        return o << json_format(string(value));
+
+    case Json::Type::Bool:
+        return o << bool(value);
+
+    case Json::Type::Number:
+        return o << double(value);
+
+    case Json::Type::Object:
+        return o << J::serialize(J::Object(value));
+
+    case Json::Type::Array:
+        return o << J::serialize(J::Array(value));
+    }
 }
 
 namespace html {
