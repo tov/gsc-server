@@ -170,38 +170,36 @@ with_commas<T>::operator Wt::WString() const
     return operator std::string();
 }
 
-template<class Fn>
-struct Group
-{
-    Fn fn;
 
-    explicit Group(Fn fn)
-            : fn{std::move(fn)}
-    { }
-};
 
-template<class Fn>
-Group<Fn> group(Fn fn)
-{
-    return Group<Fn>{std::move(fn)};
-}
-
-template<class Fn>
-std::ostream& operator<<(std::ostream& os, Group<Fn> const& group)
-{
-    (void) group.fn(os);
-    return os;
-}
+///
+/// HTML generation
+///
 
 namespace html
 {
+struct Escape
+{
+    std::string const& raw;
+};
 
+std::ostream& operator<<(std::ostream&, Escape);
+
+struct Filename
+{
+    std::string const& filename;
+};
+
+std::ostream& operator<<(std::ostream&, Filename);
+
+// XXX NOT USED?
+/*
 namespace tag
 {
 constexpr char const li[] = "li";
 constexpr char const p[] = "p";
 constexpr char const ul[] = "ul";
-}
+}  // end namespace tag
 
 namespace elt
 {
@@ -240,21 +238,7 @@ template <class T>
 struct ul : Elt<tag::ul, T>
 { using Elt<tag::ul, T>::Elt; };
 
-}
+}  // end namespace elt
+*/
 
-struct Escape
-{
-    std::string const& raw;
-};
-
-std::ostream& operator<<(std::ostream&, Escape);
-
-struct Filename
-{
-    std::string const& filename;
-};
-
-std::ostream& operator<<(std::ostream&, Filename);
-
-}
-
+}  // end namespace html
