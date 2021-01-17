@@ -843,6 +843,50 @@ J::Object Submission::to_json(bool brief) const
     return result;
 }
 
+void
+Submission::set_from_json(std::string_view field, Wt::Json::Value const& value)
+{
+    if (field == "due_date") {
+        string time_spec = value;
+
+        if (!set_due_date(time_spec).has_value())
+            throw Cannot_set_field(
+                    "due_date", time_spec, "Could not parse timespec");
+    }
+
+    else if (field == "eval_date") {
+        string time_spec = value;
+
+        if (!set_eval_date(time_spec).has_value())
+            throw Cannot_set_field(
+                    "eval_date", time_spec, "Could not parse timespec");
+    }
+
+    else if (field == "bytes_quota") {
+        int quota = value;
+
+        if (quota <= 0)
+            throw Cannot_set_field("bytes_quota", value, "Must be positive");
+
+        set_bytes_quota(quota);
+    }
+
+    else if (field == "owner2") {
+        if (!value.isNull())
+            throw Cannot_set_field("owner2", "Value can only be null");
+
+        try {
+            divorce();
+        } catch (No_partner_to_separate const&) {
+            // ignore
+        }
+    }
+
+    else {
+        throw Cannot_set_field(string(field), "Unknown field");
+    }
+}
+
 optional<WDateTime>
 Submission::set_due_date(string_view date_string)
 {
