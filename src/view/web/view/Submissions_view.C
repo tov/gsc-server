@@ -124,8 +124,8 @@ Row_view::Row_view(
     files_btn_ = row_->elementAt(FILES)->addNew<WPushButton>();
     eval_btn_ = row_->elementAt(EVAL)->addNew<WPushButton>();
 
-    files_btn_->clicked().connect([this] { on_files_(); });
-    eval_btn_->clicked().connect([this] { on_eval_(); });
+    files_btn_->clicked().connect([this] { on_files(); });
+    eval_btn_->clicked().connect([this] { on_eval(); });
 
     row->elementAt(GRADE)->setStyleClass("numeric");
 }
@@ -292,13 +292,12 @@ void Row_view::update_buttons_()
             // FALL THROUGH!
             //
         case Status::open:
-            if (assignment()->web_allowed()) {
-                set_files_button("Submit",
-                        model_.file_count == 0
-                        ? "btn btn-primary"
-                        : "btn btn-info");
-            } else {
+            if (!assignment()->web_allowed()) {
                 set_files_button("View", "btn");
+            } else if (model_.file_count == 0) {
+                set_files_button("Upload", "btn btn-primary");
+            } else {
+                set_files_button("Modify", "btn btn-info");
             }
             break;
 
@@ -380,6 +379,8 @@ public:
     void update() override;
 
 protected:
+    void on_eval() const override;
+
     void set_files_button(const char*, const char*) override;
     void set_eval_button(const char*, const char*) override;
 
@@ -472,6 +473,11 @@ void Admin_submissions_view_row::set_eval_button(const char*, const char*)
     Row_view::set_eval_button("Go", "btn");
 }
 
+void Admin_submissions_view_row::on_eval() const
+{
+    go_eval();
+}
+
 unique_ptr<Row_view>
 Row_view::construct(const Row_model& model,
                     Session& session,
@@ -490,27 +496,29 @@ Row_view::construct(const Row_model& model,
     }
 }
 
-void Row_view::on_files_() const
+void Row_view::on_files() const
 {
-    go_files_();
+    go_files();
 }
 
-void Row_view::on_eval_() const
+void Row_view::on_eval() const
 {
     if (submission()->status() == Status::extended)
         confirm_eval_();
     else
-        go_eval_();
+        go_eval();
 }
 
 void Row_view::confirm_eval_() const
 {
 
     std::ostringstream oss;
-    oss << "Are you sure you want to end your extension for "
+    oss << "Are you sure you want to begin self evaluation for "
         << assignment()->name()
-        << " submission?"
-        << " Please note that this action is irreversible.";
+        << "? Caution: If you say yes, you will no longer be able to"
+        << " add files to your "
+        << assignment()->name()
+        << " submission.";
 
     Confirmation_dialog::create(oss.str())
         .accepted().connect([this] { force_eval_now_(); });
@@ -520,15 +528,15 @@ void Row_view::force_eval_now_() const
 {
     dbo::Transaction trans(session_);
     submission().modify()->end_extension_now();
-    go_eval_();
+    go_eval();
 }
 
-void Row_view::go_files_() const
+void Row_view::go_files() const
 {
     Navigate::to(submission()->files_url_for_user(model_.principal));
 }
 
-void Row_view::go_eval_() const
+void Row_view::go_eval() const
 {
     Navigate::to(submission()->eval_url_for_user(model_.principal));
 }

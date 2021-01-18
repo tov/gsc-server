@@ -76,6 +76,8 @@ public:
 
     static void add_headings(Wt::WTableRow*);
 
+    virtual ~Row_view() = default;
+
 protected:
     Row_view(Row_model const& model,
              Session& session,
@@ -96,12 +98,13 @@ protected:
     Wt::Dbo::ptr<Assignment> const& assignment() const
     { return submission()->assignment(); }
 
-private:
-    Wt::WText      * status_;
-    Wt::WText      * grade_;
-    Wt::WPushButton* files_btn_;
-    Wt::WPushButton* eval_btn_;
+    virtual void on_files() const;
+    virtual void on_eval() const;
 
+    void go_files() const;
+    void go_eval() const;
+
+private:
     void update_styles_();
     void update_status_();
     void update_score_();
@@ -109,13 +112,12 @@ private:
 
     Wt::WString get_row_style_() const;
 
-    void on_files_() const;
-    void on_eval_() const;
-
     void confirm_eval_() const;
     void force_eval_now_() const;
 
-    void go_files_() const;
-    void go_eval_() const;
+    Wt::WText      * status_;
+    Wt::WText      * grade_;
+    Wt::WPushButton* files_btn_;
+    Wt::WPushButton* eval_btn_;
 };
 
