@@ -28,6 +28,7 @@ main () {
     # Drop and recreate the database
     as_postgres_user dropdb $dropdb_flags $db_name
     as_postgres_user createdb $db_name
+    as_postgres_user psql -c "GRANT ALL PRIVILEGES ON DATABASE $db_name TO $db_user"
 
     # Start GSC to create tables and set password
     (
