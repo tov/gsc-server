@@ -2,8 +2,8 @@
 #include "../../common/env_var.h"
 
 #include <Wt/Dbo/backend/Postgres.h>
-#include <Wt/WLogger.h>
 
+#include <iostream>
 #include <memory>
 
 namespace dbo = Wt::Dbo;
@@ -32,7 +32,11 @@ const char* Cli_base::get_db_string_()
 std::unique_ptr<dbo::SqlConnection>
 Cli_base::get_db_conn_(bool show_queries)
 {
-    auto result = std::make_unique<dbo::backend::Postgres>(get_db_string_());
+    std::string db_string = get_db_string_();
+
+    std::cout << "Connecting to " << db_string << "\n";
+
+    auto result = std::make_unique<dbo::backend::Postgres>(db_string);
 
     if (show_queries)
         result->setProperty("show-queries", "true");
