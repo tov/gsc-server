@@ -1,3 +1,6 @@
+COURSE   ?= cs211
+DEST_DIR ?= ~gsc/$(COURSE)/html
+
 SCSS = $(wildcard css/*.scss)
 JS   = $(wildcard js/*.js)
 
@@ -8,7 +11,6 @@ ALL = $(CSS) $(HASH:%=%.hash)
 
 all:  $(ALL)
 
-DEST_DIR ?= ~gsc/production/html
 install: $(ALL)
 	@set -e; \
 	for f in $^; do \
