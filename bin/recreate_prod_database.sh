@@ -14,10 +14,6 @@ cd "$(dirname $0)"/..
 main () {
     process_args "$@"
 
-    # Set up Postgres environment
-    export POSTGRES_CONNINFO=dbname=$db_name
-    export ADMIN_PASSWORD=$admin_password
-
     # Require password up front
     if_deploy echo "Running sudo..." >&2
     if_deploy sudo true
@@ -36,7 +32,8 @@ main () {
     # Start GSC to create tables and set password
     (
     cd server_root
-    as_db_user ../build.debug/gsc-createdb $gsc_createdb_flags
+    POSTGRES_CONNINFO=dbname=$db_name ADMIN_PASSWORD=$admin_password \
+        as_db_user ../build.debug/gsc-createdb $gsc_createdb_flags
     )
 
     # Load stored procedures
@@ -50,7 +47,7 @@ as_db_user () {
     if [ $deploy_type = dev ]; then
         "$@"
     else
-        sudo -u $db_user "$@"
+        sudo -Eu $db_user "$@"
     fi
 }
 
