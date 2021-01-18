@@ -148,7 +148,7 @@ void File_uploader::reset_()
 
     if (Wt::WApplication::instance()->environment().ajax()) {
         setStyleClass("file-uploader btn btn-success");
-        addNew<Wt::WText>("Upload files...");
+        addNew<Wt::WText>("Upload files…");
         upload_->changed().connect([=] { start_upload_(); });
     } else {
         setStyleClass("backup-file-uploader");
