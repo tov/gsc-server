@@ -683,8 +683,9 @@ table.fancy {
 .file-uploader {
     position: relative;
     display: block;
-    width: 100px;
+    width: 200px;
     margin: 10px auto;
+    text-align: center;
 }
 
 .file-uploader input[type=file] {
