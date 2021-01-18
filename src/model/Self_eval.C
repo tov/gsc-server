@@ -56,17 +56,29 @@ Self_eval::Self_eval(const dbo::ptr<Eval_item>& eval_item,
           permalink_(create_permalink(permalink_size))
 { }
 
-bool Self_eval::frozen() const
+Self_eval::Freeze_status
+Self_eval::get_freeze_status() const
 {
-    return grader_eval() && grader_eval()->score() == 1;
+    if (eval_item()->is_informational())
+        return Freeze_status::full;
+
+    if (auto graded = grader_eval(); graded) {
+        if (graded->score() == 1)
+            return Freeze_status::full;
+
+        if (eval_item()->type() == Eval_item::Type::Boolean
+            && score() == 1)
+            return Freeze_status::score;
+    }
+
+    return Freeze_status::none;
 }
 
-bool Self_eval::frozen_score() const
-{
-    return grader_eval()
-           && eval_item()->type() == Eval_item::Type::Boolean
-           && score() == 1;
-}
+bool Self_eval::fully_frozen() const
+{ return get_freeze_status() == Freeze_status::full; }
+
+bool Self_eval::score_frozen() const
+{ return get_freeze_status() == Freeze_status::score; }
 
 std::string Self_eval::eval_url() const
 {

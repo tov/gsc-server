@@ -157,23 +157,17 @@ Submission::eval_status_given_counts_(Eval_counts counts) const
     }
 }
 
-Submission::Grading_status
-Submission::grading_status_given_counts_(Eval_counts counts) const
+bool
+Submission::is_ready_given_counts_(Eval_counts counts) const
 {
     switch (eval_status_given_counts_(counts)) {
     case Eval_status::complete:
     case Eval_status::overdue:
-        if (counts.grader == counts.self) {
-            return Grading_status::complete;
-        } else if (counts.grader > 2 && in_eval_period()) {
-            return Grading_status::regrade;
-        } else {
-            return Grading_status::incomplete;
-        }
+        return counts.grader == counts.self;
 
     case Eval_status::started:
     case Eval_status::empty:
-            return Grading_status::incomplete;
+        return false;
     }
 }
 
@@ -263,9 +257,9 @@ Submission::save_self_eval(const Wt::Dbo::ptr<Self_eval>& self_eval,
                            const Wt::Dbo::ptr<User>& user, double score,
                            const std::string& explanation)
 {
-    if (self_eval->frozen()) return;
+    if (self_eval->fully_frozen()) return;
 
-    bool frozen_score = self_eval->frozen_score();
+    bool frozen_score = self_eval->score_frozen();
 
     {
         auto self_eval_m = self_eval.modify();
@@ -559,15 +553,10 @@ bool Submission::is_evaluated() const
     return eval_status() == Eval_status::complete;
 }
 
-bool Submission::is_graded() const
-{
-    return grading_status() == Grading_status::complete;
-}
-
-Submission::Grading_status Submission::grading_status() const
+bool Submission::is_ready() const
 {
     if (is_loaded_) {
-        return grading_status_;
+        return is_ready_;
     }
 
     Eval_counts counts {
@@ -576,7 +565,8 @@ Submission::Grading_status Submission::grading_status() const
         .real_self = fetch_real_self_eval_count_(),
         .grader    = fetch_grader_eval_count_(),
     };
-    return grading_status_given_counts_(counts);
+
+    return is_ready_given_counts_(counts);
 }
 
 size_t Submission::fetch_real_self_eval_count_() const
@@ -664,7 +654,7 @@ void Submission::reload_cache() const
     }
 
     eval_status_    = eval_status_given_counts_(counts);
-    grading_status_ = grading_status_given_counts_(counts);
+    is_ready_       = is_ready_given_counts_(counts);
     grade_          = clean_grade(total_grade, point_value_);
     is_loaded_      = true;
 }
@@ -1026,4 +1016,19 @@ char const* Enum<Submission::Eval_status>::show(Submission::Eval_status status)
         case S::complete:
             return "complete";
     }
+}
+
+bool Submission::Item::fully_frozen() const
+{
+    return self_eval && self_eval->fully_frozen();
+}
+
+bool Submission::Item::score_frozen() const
+{
+    return self_eval && self_eval->score_frozen();
+}
+
+bool Submission::Item::is_ready() const
+{
+    return grader_eval && grader_eval->is_ready();
 }

@@ -76,7 +76,7 @@ void Evaluation_view::go_default()
 
     right_column_->clear();
 
-    if (submission()->is_graded()) {
+    if (submission()->is_ready()) {
         std::ostringstream fmt;
         fmt << "<h2 class='submission-grade'>Grade: "
             << submission()->grade_string() << "</h2>";

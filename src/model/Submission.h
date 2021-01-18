@@ -29,6 +29,11 @@ using Self_eval_vec   = std::vector<Wt::Dbo::ptr<Self_eval>>;
 using Source_files    = Wt::Dbo::collection<Wt::Dbo::ptr<File_meta>>;
 using Source_file_vec = std::vector<Wt::Dbo::ptr<File_meta>>;
 
+struct Viewing_context
+{
+    Wt::Dbo::ptr<User> viewer;
+};
+
 class Submission : public Wt::Dbo::Dbo<Submission>
 {
 public:
@@ -44,13 +49,15 @@ public:
 
     enum class Eval_status { empty, started, overdue, complete };
 
-    enum class Grading_status { incomplete, complete, regrade };
-
     struct Item
     {
         Wt::Dbo::ptr<Eval_item> eval_item;
         Wt::Dbo::ptr<Self_eval> self_eval;
         Wt::Dbo::ptr<Grader_eval> grader_eval;
+
+        bool fully_frozen() const;
+        bool score_frozen() const;
+        bool is_ready() const;
     };
 
     using Items = std::vector<Item>;
@@ -77,8 +84,7 @@ public:
     const Items& items() const;
     double point_value() const;
     bool is_evaluated() const;
-    bool is_graded() const;
-    Grading_status grading_status() const;
+    bool is_ready() const;
 
     void load_cache() const;
     void clear_cache() const;
@@ -231,7 +237,7 @@ private:
     mutable Items items_;
     mutable double point_value_;
     mutable Eval_status eval_status_;
-    mutable Grading_status grading_status_;
+    mutable bool is_ready_;
     mutable double grade_;
 
     // cached separately
@@ -256,7 +262,7 @@ private:
 
     Eval_status eval_status_given_counts_(Eval_counts) const;
 
-    Grading_status grading_status_given_counts_(Eval_counts) const;
+    bool is_ready_given_counts_(Eval_counts) const;
 
 public:
     template<typename Action>
@@ -272,11 +278,6 @@ public:
         Wt::Dbo::field(a, last_modified_, "last_modified");
         Wt::Dbo::field(a, bytes_quota_, "bytes_quota");
     }
-};
-
-struct Viewing_context
-{
-    Wt::Dbo::ptr<User> viewer;
 };
 
 template <>

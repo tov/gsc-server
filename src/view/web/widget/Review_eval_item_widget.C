@@ -17,7 +17,7 @@ Review_eval_item_widget::Review_eval_item_widget(const Submission::Item& model,
                         eval_item->format_score(self_eval->score()),
                         self_eval->explanation());
 
-        if (grader_eval && self_eval->submission()->is_graded())
+        if (grader_eval && self_eval->submission()->is_ready())
         {
             add_evaluation_("Grader evaluation",
                             eval_item->format_score(grader_eval->score()),

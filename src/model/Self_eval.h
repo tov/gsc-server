@@ -27,8 +27,16 @@ public:
     dbo::ptr<Grader_eval> grader_eval() const { return grader_eval_.lock(); }
     const std::string& permalink() const { return permalink_; }
 
-    bool frozen() const;
-    bool frozen_score() const;
+    enum class Freeze_status
+    {
+        full, score, none,
+    };
+
+    Freeze_status get_freeze_status() const;
+
+    bool fully_frozen() const;
+
+    bool score_frozen() const;
 
     std::string eval_url() const;
     std::string grade_url() const;
