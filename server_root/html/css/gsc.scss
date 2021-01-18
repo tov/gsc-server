@@ -85,8 +85,9 @@ $medium-gray: #999;
 
 $primary-highlight: #FF0;
 $secondary-highlight: #FCF;
-$docked-highlight: #FDE;
-$explanation-highlight: #DEF;
+
+$docked-highlight: #FEE;
+$explanation-border: 6px solid $purple-tint;
 
 @mixin grep-color {
     color:            #333;
@@ -636,14 +637,14 @@ table.fancy {
     .but-detail-block {
         display: block;
     }
-}
 
-.list-eval-item.has-been-docked {
-    background-color: $docked-highlight;
-}
+    &.has-been-docked {
+        background-color: $docked-highlight;
+    }
 
-.list-eval-item.has-explanation {
-    background-color: $explanation-highlight;
+    &.has-explanation {
+        border: $explanation-border;
+    }
 }
 
 .held-back {
