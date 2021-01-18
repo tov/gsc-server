@@ -6,6 +6,30 @@
 #include "../../../model/Self_eval.h"
 #include "../../../Session.h"
 
+namespace {
+
+char const* save_label(Submission::Item const& m, bool changed = false)
+{
+    if (m.eval_item->is_informational())
+        return "Okay";
+
+    if (changed || !m.self_eval)
+        return "Save";
+
+    return "[Saved]";
+}
+
+char const* back_label(Submission::Item const& m)
+{
+    if (m.fully_frozen()) {
+        return "Back";
+    } else {
+        return "Cancel";
+    }
+}
+
+}  // anonymous namespace
+
 Self_eval_item_widget::Self_eval_item_widget(
         const Submission::Item& model,
         Evaluation_view& main,
@@ -25,30 +49,34 @@ Self_eval_item_widget::Self_eval_item_widget(
 
     response_widget_->changed().connect([=]{ validate_(); });
 
+    if (model.fully_frozen()) {
+        response_widget_->freeze();
+    } else if (model.score_frozen()) {
+        response_widget_->freeze_value();
+    }
+
     auto buttons = addNew<Wt::WContainerWidget>();
     buttons->setStyleClass("buttons");
 
-    auto save_label = model.eval_item->is_informational()? "Continue" : "Save";
-    save_button_ = buttons->addNew<Wt::WPushButton>(save_label);
-    back_button_ = buttons->addNew<Wt::WPushButton>("Back");
-    save_button_->clicked().connect([=]{ save_action_(); });
-    back_button_->clicked().connect([=]{ back_action_(); });
-
-    save_button_->setStyleClass("btn btn-default");
+    back_button_ = buttons->addNew<Wt::WPushButton>(back_label(model_));
+    back_button_->clicked().connect([=] { back_action_(); });
     back_button_->setStyleClass("btn");
 
-    if (model.self_eval && model.self_eval->frozen()) {
-        save_button_->hide();
-        response_widget_->freeze();
+    save_button_ = buttons->addNew<Wt::WPushButton>(save_label(model_));
+    save_button_->clicked().connect([=] { save_action_(); });
+    save_button_->setStyleClass("btn btn-primary");
+
+    if (model.self_eval) {
+        if (model.eval_item->is_informational() || model.fully_frozen()) {
+            save_button_->hide();
+        }
     } else {
         back_button_->hide();
-        if (model.self_eval && model.self_eval->frozen_score())
-            response_widget_->freeze_value();
     }
 
-    if (model_.grader_eval) {
+    if (model.is_ready()) {
         auto score = model_.eval_item->format_score(model_.grader_eval->score());
-        add_evaluation_("Grader evaluation <small>(old)</small>",
+        add_evaluation_("Grader evaluation <small>(previous)</small>",
                         score,
                         model_.grader_eval->explanation());
     }
@@ -79,15 +107,12 @@ void Self_eval_item_widget::back_action_()
 
 void Self_eval_item_widget::validate_()
 {
-    if (!save_button_) return;
+    dbo::Transaction transaction(session_);
 
-    if (response_widget_->has_changed()) {
-        back_button_->hide();
-        save_button_->show();
-        save_button_->setEnabled(response_widget_->is_valid());
-    } else {
-        save_button_->hide();
-        back_button_->setHidden(!response_widget_->is_valid());
-    }
+    back_button_->setText(back_label(model_));
+
+    bool changed = response_widget_->has_changed();
+    save_button_->setText(save_label(model_, changed));
+    save_button_->setEnabled(changed && response_widget_->is_valid());
 }
 
