@@ -103,6 +103,20 @@ void drop_old_editing_holds(dbo::Session& dbo)
             .bind((int) Grader_eval::Status::editing);
 }
 
+#define ELIGIBLE_FROM_AND_WHERE_CLAUSE \
+    " FROM self_eval" \
+    " INNER JOIN submission" \
+    "    ON submission.id = self_eval.submission_id" \
+    " INNER JOIN eval_item" \
+    "   ON eval_item.id = self_eval.eval_item_id" \
+    " INNER JOIN assignment" \
+    "   ON assignment.number = eval_item.assignment_number" \
+    " LEFT OUTER JOIN grader_eval" \
+    "   ON grader_eval.self_eval_id = self_eval.id" \
+    " WHERE grader_eval.self_eval_id IS NULL" \
+    "   AND assignment.due_date < utc_now()" \
+    "   AND submission.due_date < utc_now()"
+
 // Returns the permalink ID for the user's current editing hold, or
 // the empty string if none.
 string
@@ -127,21 +141,22 @@ current_editing_hold(dbo::Session& dbo,
 string
 next_eligible_permalink(dbo::Session& dbo)
 {
-    return dbo.query<std::string>(
-            "SELECT s.permalink"
-            " FROM self_eval s"
-            " INNER JOIN submission b ON b.id = s.submission_id"
-            " INNER JOIN eval_item e ON s.eval_item_id = e.id"
-            " INNER JOIN assignment a ON e.assignment_number = a.number"
-            " LEFT OUTER JOIN grader_eval g ON g.self_eval_id = s.id"
-            " WHERE g.self_eval_id IS NULL"
-            "   AND a.due_date < utc_now()"
-            "   AND b.due_date < utc_now()"
-            "   AND a.eval_date < utc_now()"
-            "   AND b.eval_date < utc_now()"
-            " ORDER BY a.number, e.sequence, random()"
-            " LIMIT 1"
-    ).resultValue();
+    return dbo.query<string>(
+            "SELECT self_eval.permalink"
+            ELIGIBLE_FROM_AND_WHERE_CLAUSE
+            " ORDER BY"
+            "   self_eval.time_stamp,"
+            "   assignment.number,"
+            "   eval_item.sequence"
+            " LIMIT 1")
+              .resultValue();
+}
+
+// Returns how many self evaluations are eligible for grading.
+int count_eligible(dbo::Session& dbo)
+{
+    return dbo.query<int>("SELECT COUNT(*)"
+                          ELIGIBLE_FROM_AND_WHERE_CLAUSE);
 }
 
 }
