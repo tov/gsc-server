@@ -19,27 +19,33 @@ List_eval_item_widget::List_eval_item_widget(const Submission::Item& model, Eval
 }
 
 static WString
-attention_class(dbo::ptr<Grader_eval> const& grader_eval)
+attention_class(Submission::Item const& m)
 {
-    if (!grader_eval || !grader_eval->is_ready())
-        return "list-eval-item";
-    else if (grader_eval->score() < 1)
-        return "list-eval-item has-been-docked";
-    else if (! grader_eval->explanation().empty())
-        return "list-eval-item has-explanation";
-    else
-        return "list-eval-item has-been-graded";
+    ostringstream buf;
+
+    buf << "list-eval-item";
+
+    if (m.grader_eval && m.grader_eval->is_ready()) {
+        buf << " has-been-graded";
+
+        if (m.grader_eval->score() < m.self_eval->score())
+            buf << " has-been-docked";
+
+        if (! m.grader_eval->explanation().empty())
+            buf << " has-explanation";
+    }
+
+    return buf.str();
 }
 
 static WString
-focus_btn_class(dbo::ptr<Grader_eval> const& grader_eval,
-                bool can_edit)
+focus_btn_class(Submission::Item const& m, bool can_edit)
 {
-    if (!grader_eval || !grader_eval->is_ready())
+    if (!m.grader_eval || !m.grader_eval->is_ready())
         return can_edit ? "btn btn-success" : "btn";
-    else if (grader_eval->score() < 1)
-        return can_edit ? "btn btn-primary" : "btn btn-info";
-    else if (! grader_eval->explanation().empty())
+    else if (m.grader_eval->score() < m.self_eval->score())
+        return can_edit ? "btn btn-warning" : "btn btn-danger";
+    else if (! m.grader_eval->explanation().empty())
         return "btn btn-info";
     else
         return "btn";
@@ -52,14 +58,13 @@ void List_eval_item_widget::add_buttons_()
 
     auto focus_btn = buttons->addNew<WPushButton>();
 
-    if (main_.submission()->can_eval(session_.user())
-        && !model_.eval_item->is_informational()
-        && !(model_.self_eval && model_.self_eval->frozen())) {
-        focus_btn->setText("Edit");
-        focus_btn->setStyleClass(focus_btn_class(model_.grader_eval, true));
-    } else {
+    if (!main_.submission()->can_eval(session_.user()) ||
+            (model_.self_eval && model_.self_eval->fully_frozen())) {
         focus_btn->setText("View");
-        focus_btn->setStyleClass(focus_btn_class(model_.grader_eval, false));
+        focus_btn->setStyleClass(focus_btn_class(model_, false));
+    } else {
+        focus_btn->setText("Edit");
+        focus_btn->setStyleClass(focus_btn_class(model_, true));
     }
 
     focus_btn->clicked().connect(this, &List_eval_item_widget::focus_action_);
@@ -72,25 +77,30 @@ void List_eval_item_widget::add_scores_()
     Score_owner self;
     Score_owner grader;
 
-    if (model_.self_eval) {
-        self = model_.self_eval->score_owner(cxt);
-    } else {
+    if (!model_.self_eval) {
+        self.owner = "self evaluation";
         self.score = "[not set]";
+    } else if (!model_.eval_item->is_graded_automatically()) {
+        self = model_.self_eval->score_owner(cxt);
+
+        if (!model_.grader_eval) {
+            grader.score = "[not set]";
+        } else {
+            grader = model_.grader_eval->score_owner(cxt);
+        }
+
+        if (grader.owner.empty()) {
+            grader.owner = "grader";
+        }
     }
 
-    setStyleClass(attention_class(model_.grader_eval));
+    setStyleClass(attention_class(model_));
 
     auto table = addNew<WTemplate>(
-            model_.eval_item->is_informational()
-            ? model_.eval_item->absolute_value() == 0
-              ? ""
-              : "<table class='scores'>"
-                  "<tr><th>${grader}</th><td>${grader-score}</td></tr>"
-                "</table>"
-            : "<table class='scores'>"
-                "<tr><th>${self}</th><td>${self-score}</td></tr>"
-                "<tr><th>${grader}</th><td>${grader-score}</td></tr>"
-              "</table>"
+            "<table class='scores'>"
+              "<tr><th>${self}</th><td>${self-score}</td></tr>"
+              "<tr><th>${grader}</th><td>${grader-score}</td></tr>"
+            "</table>"
     );
 
     table->bindString("self", self.owner);
