@@ -65,33 +65,17 @@ Score_owner Grader_eval::score_owner(Viewing_context const& cxt) const
 {
     WString score, owner;
 
-    if (can_see_score_(cxt)) {
+    if (is_ready() || cxt.viewer->can_grade()) {
         score = plain_score_string();
 
         if (! grader()->can_grade())
             owner = "Auto";
 
-        else if (cxt.viewer->can_grade()
-                 || grader()->can_admin())
+        else if (cxt.viewer->can_grade() || grader()->can_admin())
             owner = grader()->nice_name(false);
-
-        else
-            owner = "Grader";
     }
 
     return {score, owner};
-}
-
-bool Grader_eval::can_see_score_(Viewing_context const& cxt) const
-{
-    auto grading_status = submission()->grading_status();
-
-    return grading_status == Submission::Grading_status::complete
-           || cxt.viewer->can_grade()
-           || ! grader()->can_grade()
-           || eval_item()->is_informational()
-           || (grading_status == Submission::Grading_status::regrade &&
-               status() == Status::ready);
 }
 
 const Wt::Dbo::ptr<Eval_item>& Grader_eval::eval_item() const

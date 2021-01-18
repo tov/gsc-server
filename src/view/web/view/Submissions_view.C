@@ -238,7 +238,7 @@ void Row_view::update_score_()
 {
     dbo::Transaction transaction(session_);
 
-    if (submission()->is_graded()) {
+    if (submission()->is_ready()) {
         grade_->setText(submission()->grade_string());
     }
 }

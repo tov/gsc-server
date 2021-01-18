@@ -69,8 +69,6 @@ private:
     dbo::ptr<User>      grader_;
     int                 status_;
 
-    bool can_see_score_(Viewing_context const& cxt) const;
-
 public:
     template<typename Action>
     void persist(Action& a)
