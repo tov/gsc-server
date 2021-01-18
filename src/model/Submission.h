@@ -78,7 +78,9 @@ public:
     const Wt::Dbo::ptr<Assignment>& assignment() const { return assignment_; }
     const Wt::Dbo::ptr<User>& user1() const { return user1_; }
     const Wt::Dbo::ptr<User>& user2() const { return user2_; }
+
     std::string owner_string() const;
+    std::string owner_string(Viewing_context const& cxt) const;
 
     size_t item_count() const;
     const Items& items() const;

@@ -215,30 +215,11 @@ J::Object Self_eval::to_json(Viewing_context const&) const {
     return result;
 }
 
-
-static string
-submission_owner_string(Submission const& submission,
-                        Viewing_context const& cxt)
-{
-    if (cxt.viewer == submission.user1()
-        || cxt.viewer == submission.user2())
-        return "You";
-
-    switch (cxt.viewer->role()) {
-        case User::Role::Student:
-            return "Other student";
-        case User::Role::Grader:
-            return "Student";
-        case User::Role::Admin:
-            return submission.owner_string();
-    }
-}
-
 Score_owner Self_eval::score_owner(Viewing_context const& cxt) const
 {
     WString score = cxt.viewer->role() != User::Role::Grader
                    ? plain_score_string()
                    : "[***]";
-    WString owner = submission_owner_string(*submission(), cxt);
+    WString owner = submission()->owner_string(cxt);
     return {score, owner};
 }

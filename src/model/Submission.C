@@ -675,6 +675,21 @@ std::string Submission::owner_string() const
     return result;
 }
 
+std::string Submission::owner_string(Viewing_context const& cxt) const
+{
+    if (cxt.viewer == user1() || cxt.viewer == user2())
+        return "you";
+
+    switch (cxt.viewer->role()) {
+    case User::Role::Student:
+        return "other student";
+    case User::Role::Grader:
+        return "student";
+    case User::Role::Admin:
+        return owner_string();
+    }
+}
+
 std::string Submission::grade_string() const
 {
     return percentage(grade());
