@@ -1,4 +1,5 @@
 #include "File_viewer.h"
+#include "Fancy_table.h"
 #include "../../../Session.h"
 #include "../../../model/File_data.h"
 #include "../../../model/File_meta.h"
@@ -10,7 +11,6 @@
 #include <Wt/WComboBox.h>
 #include <Wt/WContainerWidget.h>
 #include <Wt/WEnvironment.h>
-#include <Wt/WTable.h>
 #include <Wt/WText.h>
 
 #include <sstream>
@@ -41,7 +41,7 @@ Base_file_viewer::Base_file_viewer(
     file_type += "-single-file-viewer single-file-viewer";
     container->setStyleClass(file_type);
 
-    table_ = container->addNew<WTable>();
+    table_ = container->addNew<Fancy_table>();
     table_->setHeaderCount(1, Orientation::Horizontal);
     if (numbered) {
         table_->setHeaderCount(1, Orientation::Vertical);

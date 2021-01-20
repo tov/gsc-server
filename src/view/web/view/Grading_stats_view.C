@@ -1,11 +1,11 @@
 #include "Grading_stats_view.h"
 #include "../widget/Accelerator_button.h"
+#include "../widget/Fancy_table.h"
 #include "../../../Navigate.h"
 #include "../../../model/auth/User.h"
 #include "../../../Session.h"
 #include "../../../common/util.h"
 
-#include <Wt/WTable.h>
 #include <Wt/WText.h>
 
 #include <algorithm>
@@ -126,7 +126,7 @@ Grading_stats_view::Grading_stats_view(Session& session)
     auto impl = setNewImplementation<WContainerWidget>();
     setStyleClass("grading-stats-view");
 
-    auto table = impl->addNew<WTable>();
+    auto table = impl->addNew<Fancy_table>();
     table->setHeaderCount(1, Orientation::Horizontal);
     table->setHeaderCount(1, Orientation::Vertical);
 

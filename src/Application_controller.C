@@ -103,7 +103,7 @@ static date::time_zone const* find_time_zone(WEnvironment const& env)
         // chrono::minutes tz_offset = env.timeZoneOffset();
     }
 
-    if (auto tz = date::locate_zone(CONFIG.server_time_zone))
+    if (auto tz = date::locate_zone(CONFIG().server_time_zone()))
         return tz;
 
     return date::zoned_traits<date::time_zone const*>::default_zone();

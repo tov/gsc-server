@@ -1,4 +1,5 @@
 #include "Application_controller.h"
+#include "Config.h"
 #include "Session.h"
 #include "common/env_var.h"
 #include "view/api/Resource.h"
@@ -13,7 +14,7 @@ int main(int argc, char** argv)
     try {
         Wt::WString::setDefaultEncoding(Wt::CharEncoding::UTF8);
 
-        auto db_string  = get_env_var("POSTGRES_CONNINFO", "dbname=gsc");
+        auto db_string  = get_env_var(CONFIG().postgres_conninfo());
         auto pool       = Db_session::createConnectionPool(db_string);
         Db_session::configure_auth();
 

@@ -1,6 +1,7 @@
 #include "Assignments_view.h"
 #include "../Confirmation_dialog.h"
 #include "../widget/Date_time_edit.h"
+#include "../widget/Fancy_table.h"
 #include "../../../model/Assignment.h"
 #include "../../../Navigate.h"
 
@@ -11,7 +12,6 @@
 #include <Wt/WLocalDateTime.h>
 #include <Wt/WLineEdit.h>
 #include <Wt/WPushButton.h>
-#include <Wt/WTable.h>
 #include <Wt/WText.h>
 #include <Wt/WTime.h>
 
@@ -163,7 +163,7 @@ Assignments_view::Assignments_view(Session& session)
                                .orderBy("number")
                                .resultList();
 
-    table_ = addNew<Wt::WTable>();
+    table_ = addNew<Fancy_table>();
     table_->setHeaderCount(1, Wt::Orientation::Vertical);
     table_->setHeaderCount(1, Wt::Orientation::Horizontal);
     Assignments_view_row::add_headings(table_->rowAt(0));

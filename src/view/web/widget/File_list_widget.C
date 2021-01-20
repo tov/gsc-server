@@ -1,4 +1,5 @@
 #include "File_list_widget.h"
+#include "Fancy_table.h"
 #include "Glyph_button.h"
 #include "../../../Session.h"
 #include "../../../model/File_data.h"
@@ -12,7 +13,6 @@
 #include <Wt/WAnchor.h>
 #include <Wt/WContainerWidget.h>
 #include <Wt/WLink.h>
-#include <Wt/WTable.h>
 #include <Wt/WText.h>
 
 // A resource for downloading a source file.
@@ -50,7 +50,7 @@ File_list_widget::File_list_widget(const Wt::Dbo::ptr<Submission>& submission,
         , can_modify_(can_modify)
 {
     auto impl = setNewImplementation<Wt::WContainerWidget>();
-    inner_ = impl->addNew<Wt::WTable>();
+    inner_ = impl->addNew<Fancy_table>();
     inner_->setHeaderCount(1, Wt::Orientation::Horizontal);
     inner_->setHeaderCount(1, Wt::Orientation::Vertical);
     setStyleClass("file-list");

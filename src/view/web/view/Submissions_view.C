@@ -1,6 +1,7 @@
 #include "Submissions_view.h"
 #include "../Confirmation_dialog.h"
 #include "../widget/Date_time_edit.h"
+#include "../widget/Fancy_table.h"
 #include "../widget/Partner_notification_widget.h"
 #include "../../../model/auth/User.h"
 #include "../../../model/Assignment.h"
@@ -557,7 +558,7 @@ void Submissions_view::reload_()
     addNew<Partner_notification_widget>(
             model_.principal, dbo::ptr<Submission>{}, session_, changed_);
 
-    auto table = addNew<WTable>();
+    auto table = addNew<Fancy_table>();
     table->setHeaderCount(1, Orientation::Horizontal);
     table->setHeaderCount(1, Orientation::Vertical);
     Row_view::add_headings(table->rowAt(0));
@@ -571,6 +572,8 @@ void Submissions_view::reload_()
 
     auto exam_table = addNew<WTable>();
     exam_table->setStyleClass("exam-table");
+    exam_table->setHeaderCount(1, Orientation::Vertical);
+
     row = 0;
     for (const auto& each : model_.exams) {
         auto exam_row = exam_table->rowAt(row++);

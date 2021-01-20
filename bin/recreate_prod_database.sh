@@ -33,7 +33,8 @@ main () {
     # Start GSC to create tables and set password
     (
     cd server_root
-    POSTGRES_CONNINFO=dbname=$db_name ADMIN_PASSWORD=$admin_password \
+    GSCD_CONFIG_JSON=../etc/${dbname}-config.json \
+    ADMIN_PASSWORD=$admin_password \
         as_db_user ../build.debug/gsc-createdb $gsc_createdb_flags
     )
 

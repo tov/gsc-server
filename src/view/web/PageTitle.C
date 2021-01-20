@@ -1,6 +1,7 @@
 #include "PageTitle.h"
 
 #include "../../Navigate.h"
+#include "../../Config.h"
 #include "../../common/util.h"
 #include "../../model/auth/User.h"
 #include "../../model/Assignment.h"
@@ -13,7 +14,7 @@
 string PageTitle::get_text() const
 {
     ostringstream o;
-    o << "gsc: ";
+    o << CONFIG().instance_name() << ": ";
     for (auto const& chunk : chunks_) {
         o << chunk.text;
     }

@@ -3,6 +3,7 @@
 #include "../widget/Auth_widget.h"
 #include "../../game/HangmanWidget.h"
 #include "../../game/HighScoresWidget.h"
+#include "../../../Config.h"
 #include "../../../Navigate.h"
 
 #include <Wt/Auth/AuthWidget.h>
@@ -20,7 +21,9 @@ Main_view::Main_view(Session& session)
     head_ = addNew<WTemplate>("<h1>${home} <small>${title}</small></h1>");
     root_ = addNew<WContainerWidget>();
 
-    auto home = head_->bindNew<WText>("home", "gsc");
+    root_->setStyleClass(CONFIG().instance_class());
+
+    auto home = head_->bindNew<WText>("home", CONFIG().instance_name());
     home->clicked().connect(Navigate("/"));
     home->setToolTip("Go home");
     home->setStyleClass("home-link");

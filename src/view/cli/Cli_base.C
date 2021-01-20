@@ -1,5 +1,5 @@
 #include "Cli_base.h"
-#include "../../common/env_var.h"
+#include "../../Config.h"
 
 #include <Wt/Dbo/backend/Postgres.h>
 
@@ -24,15 +24,10 @@ dbo::ptr<Auth_info> Cli_base::find_user(std::string const& username)
     throw User_not_found(username);
 }
 
-const char* Cli_base::get_db_string_()
-{
-    return get_env_var("POSTGRES_CONNINFO", "dbname=gsc");
-}
-
 std::unique_ptr<dbo::SqlConnection>
 Cli_base::get_db_conn_(bool show_queries)
 {
-    std::string db_string = get_db_string_();
+    std::string db_string = CONFIG().postgres_conninfo();
 
     std::cout << "Connecting to " << db_string << "\n";
 

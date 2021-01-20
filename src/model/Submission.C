@@ -274,7 +274,7 @@ Submission::save_self_eval(const Wt::Dbo::ptr<Self_eval>& self_eval,
     auto grader_eval = submission->find_grader_eval_(sequence);
 
     if (score == 0.0 && eval_item->type() == Eval_item::Type::Boolean) {
-        set_grader_eval(self_eval, user, CONFIG.reward_for_no, "");
+        set_grader_eval(self_eval, user, CONFIG().reward_for_no(), "");
     } else if (grader_eval && !eval_item->is_informational()) {
         if (frozen_score)
             submission->hold_grader_eval(sequence);

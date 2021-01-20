@@ -69,17 +69,18 @@ $body-size:  16px;
     @return adjust-color($base, $alpha: $alpha);
 }
 
-@function lighten($base, $value: 50%) {
-    @return adjust-color($base, $lightness: $value);
+@function make-gray($base) {
+    @return adjust-color($base, $lightness: 30%, $saturation: -25%);
 }
 
-@function saturate($base, $value: 50%) {
-    @return adjust-color($base, $saturation: $value);
+@function make-tint($base) {
+    @return adjust-color($base, $lightness: 58%);
 }
 
 $nu-purple: #3B2F77;
-$purple-gray: saturate(lighten($nu-purple, 30%), -25%);
-$purple-tint: lighten($nu-purple, 58%);
+$gsc-green: #2F773B;
+$gsc-red:   #773B2F;
+
 $dark-gray: #555;
 $medium-gray: #999;
 
@@ -87,7 +88,7 @@ $primary-highlight: #FF0;
 $secondary-highlight: #FCF;
 
 $docked-highlight: #FEE;
-$explanation-border: 6px solid $purple-tint;
+$explanation-border: 6px solid;
 
 @mixin grep-color {
     color:            #333;
@@ -95,6 +96,59 @@ $explanation-border: 6px solid $purple-tint;
     strong {
         color: #C00;
         font-weight: inherit;
+    }
+}
+
+@mixin instance-color($special-background: $dark-gray,
+                      $special-gray: make-gray($special-background),
+                      $special-tint: make-tint($special-background)) {
+
+    table.fancy {
+        th, a {
+            color: white;
+        }
+
+        th {
+            background: $special-background;
+        }
+
+        a:hover {
+            color: lightyellow;
+        }
+    }
+
+    .list-eval-item.has-explanation {
+        border-color: $special-tint;
+    }
+
+    h1 {
+        .home-link {
+            color: $special-gray;
+        }
+
+        .home-link:hover,
+        .header-nav-link:hover {
+            color: $special-background;
+        }
+    }
+
+    .file-viewer-area {
+        background-color: $special-tint;
+    }
+
+    table.points-summary {
+        background-color: $special-tint;
+    }
+
+    code.io-lines {
+        ::selection {
+            color: white !important;
+            background-color: $special-background !important;
+        }
+    }
+
+    p.screenshot image {
+        border: 2px dotted $special-background;
     }
 }
 
@@ -140,12 +194,9 @@ $single-file-width: $file-viewer-width - $single-file-loss;
     }
 }
 
-@mixin fancify($special-bg:    $nu-purple,
-               $special-fg:    white,
-               $anchor-hover:  lightyellow,
-               $highlight-bg:  $purple-tint) {
-
+table.fancy {
     @include round-table;
+
     margin:          1em auto;
     border-collapse: collapse;
 
@@ -171,16 +222,12 @@ $single-file-width: $file-viewer-width - $single-file-loss;
     th {
         @include     h3-text;
         padding:     5px 10px;
-        color:       $special-fg;
-        background:  $special-bg;
 
         a {
-            color:           $special-fg;
             text-decoration: none;
         }
 
         a:hover {
-            color:           $anchor-hover;
             text-decoration: underline;
         }
     }
@@ -194,7 +241,6 @@ $single-file-width: $file-viewer-width - $single-file-loss;
         margin: 0 auto;
     }
 }
-
 
 ///
 /// Selectors
@@ -215,17 +261,11 @@ h1 {
 
     .home-link {
         cursor: pointer;
-        color: $purple-gray;
     }
 
     .header-nav-link {
         cursor: pointer;
         color: $medium-gray;
-    }
-
-    .home-link:hover,
-    .header-nav-link:hover {
-        color: $nu-purple;
     }
 
     .header-nav-current {
@@ -301,23 +341,6 @@ table.plain {
     td {
         text-align: left;
     }
-}
-
-// deprecate this; require .fancy
-.admin-view,
-.assignments-view,
-.file-list,
-.file-viewer,
-.grading-stats-view,
-.profile-view,
-.submissions-view {
-    table {
-        @include fancify;
-    }
-}
-
-table.fancy {
-    @include fancify;
 }
 
 .admin-view table {
@@ -474,98 +497,98 @@ table.fancy {
         @include body-text;
         font-size: 0.5 * $file-viewer-select-height;
     }
+}
 
-    .file-viewer-area {
-        position: absolute;
-        padding: 0;
-        top: $file-viewer-select-height;
-        bottom: 0;
-        border: $file-viewer-border-width solid lightgray;
-        border-radius: $file-viewer-border-radius;
-        background-color: $purple-tint;
-        overflow-y: auto;
-    }
+.file-viewer-area {
+    position: absolute;
+    padding: 0;
+    top: $file-viewer-select-height;
+    bottom: 0;
+    border: $file-viewer-border-width solid lightgray;
+    border-radius: $file-viewer-border-radius;
+    overflow-y: auto;
 
-    .single-file-viewer {
-        width: $single-file-width;
-        margin: $file-viewer-gutter;
-        background-color: white;
-        border-radius: $radius 0;
-        overflow-x: hidden;
-
-        .html-file-contents {
-            width: $single-file-width;
-        }
-
-        table {
-            margin: 0;
-        }
-
-        th {
-            margin: 0;
-            vertical-align: middle;
-        }
-
-        thead th {
-            @include inline-code;
-            padding: 6px 0;
-        }
-    }
-
-    .line-single-file-viewer {
-        > table {
-            width: $single-file-width;
-        }
+    tr.student-highlight,
+    tr.grader-highlight {
+        color: black;
+        border: 1px dotted;
 
         th.code-number {
-            width: $code-number-width;
-            padding: $code-number-padding;
+            color: inherit;
+            background-color: inherit;
+        }
+    }
+
+    tr.student-highlight {
+        background-color: $primary-highlight;
+        border-color: $primary-highlight;
+    }
+
+    tr.grader-highlight {
+        background-color: $secondary-highlight;
+        border-color: $secondary-highlight;
+    }
+}
+
+.single-file-viewer {
+    width: $single-file-width;
+    margin: $file-viewer-gutter;
+    background-color: white;
+    border-radius: $radius 0;
+    overflow-x: hidden;
+
+    .html-file-contents {
+        width: $single-file-width;
+    }
+
+    table {
+        margin: 0;
+    }
+
+    th {
+        margin: 0;
+        vertical-align: middle;
+    }
+
+    thead th {
+        @include inline-code;
+        padding: 6px 0;
+    }
+}
+
+.line-single-file-viewer {
+    > table {
+        width: $single-file-width;
+    }
+
+    th.code-number {
+        width: $code-number-width;
+        padding: $code-number-padding;
+        vertical-align: baseline;
+        text-align: center;
+        @include tiny-text;
+        color: white;
+        overflow-x: visible;
+    }
+
+    td.code-line {
+        @include listing-code;
+        padding: $code-line-padding;
+
+        span {
             vertical-align: baseline;
-            text-align: center;
-            @include tiny-text;
-            color: white;
-            overflow-x: visible;
+            display: block;
+            max-width: 80ch;
+            min-height: 1ex;
+            // XXX?:
+            // width: 80ch;
+            white-space: pre-wrap;
+            word-break: break-all;
+            color: #A00;
         }
 
-        td.code-line {
-            @include listing-code;
-            padding: $code-line-padding;
-
-            span {
-                vertical-align: baseline;
-                display: block;
-                max-width: 80ch;
-                min-height: 1ex;
-                // XXX?:
-                // width: 80ch;
-                white-space: pre-wrap;
-                word-break: break-all;
-                color: #A00;
-            }
-
-            span:first-line {
-                color: black;
-            }
-        }
-
-        tr.student-highlight, tr.grader-highlight {
+        span:first-line {
             color: black;
-            border: 1px dotted;
-
-            th.code-number {
-                color: inherit;
-                background-color: inherit;
-            }
-        }
-
-        tr.student-highlight {
-            background-color: $primary-highlight;
-            border-color: $primary-highlight;
-        }
-
-        tr.grader-highlight {
-            background-color: $secondary-highlight;
-            border-color: $secondary-highlight;
         }
     }
 }
@@ -649,10 +672,32 @@ table.fancy {
 
 .held-back {
     padding: 1em;
+
+    h3 {
+        text-align: center;
+    }
+
+    table {
+        margin: 1em auto;
+        @include small-text;
+
+        td {
+            padding-left: 1em;
+        }
+    }
 }
 
-.held-back table td {
-    padding-left: 1em;
+.exam-table {
+    margin: 1em auto;
+
+    th {
+        font-weight: bold;
+    }
+
+    th, td {
+        padding: 2pt 8pt;
+        border: none;
+    }
 }
 
 .question ul li {
@@ -925,7 +970,7 @@ $hlog-gap: 6px;
 $hlog-skip: 10px;
 $hlog-indent: 72px;
 
-.html-single-file-viewer .html-file-contents {
+.html-file-contents {
     @include small-text;
 
     .test-case {
@@ -1014,7 +1059,6 @@ $hlog-indent: 72px;
 
         border-radius: $radius 0;
         color: $dark-gray;
-        background-color: $purple-tint;
 
         thead th {
             font-weight: 300;
@@ -1060,11 +1104,6 @@ code.grep-output {
 code.io-lines {
     $io-bg-color: #345;
     $io-bg-step: 2px;
-
-    ::selection {
-        color: white !important;
-        background-color: $nu-purple !important;
-    }
 
     @mixin term-io-line($sel, $color, $redir) {
         #{$sel} {
@@ -1159,7 +1198,6 @@ p.screenshot {
 
     img {
         max-width: 0.8 * $single-file-width;
-        border:    2px dotted $nu-purple;
         padding:   2px;
     }
 
@@ -1197,3 +1235,16 @@ table.payoff {
     }
 }
 
+@include instance-color;
+
+.instance-dev {
+    @include instance-color($gsc-red);
+}
+
+.instance-cs211 {
+    @include instance-color($nu-purple);
+}
+
+.instance-cs214 {
+    @include instance-color($gsc-green);
+}

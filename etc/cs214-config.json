@@ -1,0 +1,9 @@
+{
+  "instance_name": "cs214",
+  "instance_class": "instance-cs214",
+  "postgres_conninfo": "dbname=cs214",
+  "daily_discount": 0.05,
+  "gsc_base_url": "https://cs214.cs.northwestern.edu/",
+  "websso_login_url": "",
+  "websso_logout_url": ""
+}

@@ -34,8 +34,6 @@ protected:
 private:
     Db_session session_;
 
-    static const char* get_db_string_();
-
     static std::unique_ptr<Wt::Dbo::SqlConnection>
     get_db_conn_(bool show_queries);
 };

@@ -2,6 +2,7 @@
 #include "Held_back_view.h"
 #include "../widget/Accelerator_button.h"
 #include "../widget/Accelerator_text.h"
+#include "../widget/Fancy_table.h"
 #include "../widget/User_selector.h"
 #include "../widget/User_suggester.h"
 #include "../../game/HangmanWidget.h"
@@ -18,7 +19,6 @@
 #include <Wt/WMenuItem.h>
 #include <Wt/WMessageBox.h>
 #include <Wt/WPushButton.h>
-#include <Wt/WTable.h>
 #include <Wt/WValidator.h>
 
 #include <vector>
@@ -318,7 +318,8 @@ Admin_view::Admin_view(Session& session)
 {
     setStyleClass("admin-view");
 
-    auto table = addNew<WTable>();
+    auto table = addNew<Fancy_table>();
+
     int row = 0;
 
     table->setHeaderCount(1, Orientation::Vertical);
