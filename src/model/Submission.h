@@ -73,8 +73,6 @@ public:
         std::optional<View>
         view_grader_eval(Viewing_context const& cxt,
                          std::string const& not_set = "[not set]") const;
-
-        bool is_ready() const;
     };
 
     using Items = std::vector<Item>;

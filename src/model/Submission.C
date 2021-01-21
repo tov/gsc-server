@@ -129,8 +129,7 @@ Submission::Status Submission::status() const
 
     if (now <= assignment()->open_date()) {
         return Status::future;
-    }
-    if (now <= assignment()->due_date()) {
+    } else if (now <= assignment()->due_date()) {
         return Status::open;
     } else if (now <= due_date_) {
         return Status::extended;
@@ -1044,11 +1043,6 @@ bool Submission::Item::fully_frozen() const
 bool Submission::Item::score_frozen() const
 {
     return self_eval && self_eval->score_frozen();
-}
-
-bool Submission::Item::is_ready() const
-{
-    return grader_eval && grader_eval->is_ready();
 }
 
 optional<Submission::Item::View>
