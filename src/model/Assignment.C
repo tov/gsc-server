@@ -17,11 +17,10 @@ DBO_INSTANTIATE_TEMPLATES(Assignment)
 
 Assignment::Assignment(int number,
                        const std::string& name,
-                       int points,
                        const Wt::WDateTime& open_date,
                        const Wt::WDateTime& due_date,
                        const Wt::WDateTime& eval_date)
-        : number_(number), name_(name), points_(points),
+        : number_(number), name_(name),
           open_date_(open_date), due_date_(due_date), eval_date_(eval_date)
 {
 

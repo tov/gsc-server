@@ -121,12 +121,11 @@ void Db_session::populate_test_data_()
 
     for (int i = 1; i <= 4; ++i) {
         std::string title  = "Homework " + std::to_string(i);
-        int points = 10;
         auto due   = now.addDays(-7 * i + 8),
              avail = due.addDays(-7),
              eval  = due.addDays(2);
 
-        auto asst = addNew<Assignment>(i, title, points, avail, due, eval);
+        auto asst = addNew<Assignment>(i, title, avail, due, eval);
         assts.push_back(asst);
     }
 

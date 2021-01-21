@@ -34,14 +34,12 @@ public:
 
     Assignment(int number,
                const std::string& name,
-               int points,
                const Wt::WDateTime& open_date,
                const Wt::WDateTime& due_date,
                const Wt::WDateTime& eval_date);
 
     int number() const { return number_; }
     const std::string& name() const { return name_; }
-    int points() const { return points_; }
     const Wt::WDateTime& open_date() const { return open_date_; }
     const Wt::WDateTime& due_date() const { return due_date_; }
     const Wt::WDateTime& eval_date() const { return eval_date_; }
@@ -52,7 +50,6 @@ public:
     Submissions submissions() const { return submissions_; }
 
     void set_name(const std::string& name) { name_ = name; }
-    void set_points(int points) { points_ = points; }
     void set_open_date(const Wt::WDateTime& date) { open_date_ = date; }
     void set_due_date(const Wt::WDateTime& date) { due_date_ = date; }
     void set_eval_date(const Wt::WDateTime& date) { eval_date_ = date; }
@@ -72,7 +69,6 @@ public:
 private:
     int           number_ = 0;
     std::string   name_;
-    int           points_ = 0;
     bool          partner_ = false;
     bool          web_allowed_ = false;
     Wt::WDateTime open_date_;
@@ -87,7 +83,6 @@ public:
     {
         dbo::id(a, number_, "number");
         dbo::field(a, name_, "name");
-        dbo::field(a, points_, "points");
         dbo::field(a, partner_, "partner");
         dbo::field(a, web_allowed_, "web_allowed");
         dbo::field(a, open_date_, "open_date");

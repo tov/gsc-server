@@ -182,7 +182,7 @@ void Assignments_view::more_()
 
     dbo::Transaction transaction(session_);
     auto assignment = session_.addNew<Assignment>(
-            number, name, 0, date, date, date);
+            number, name, date, date, date);
     transaction.commit();
 
     rows_.push_back(std::make_unique<Assignments_view_row>(
