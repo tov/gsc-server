@@ -38,17 +38,21 @@ void Eval_item::set_relative_value(const std::string& s)
 
 std::string Eval_item::format_score(double score, bool for_grader) const
 {
+    auto checkify = [=](bool check) {
+        return check ? std::string("✓") : percentage(score);
+    };
+
     switch (type()) {
     case Type::Boolean:
         if (score == 0) return "No";
         if (score == 1) return "Yes";
         else            return percentage(score);
 
-    default:
-        if (for_grader)
-            return "✓";
-        else
-            return percentage(score);
+    case Type::Scale:
+        return checkify(for_grader);
+
+    case Type::Informational:
+        return checkify(relative_value() == 0);
     }
 }
 

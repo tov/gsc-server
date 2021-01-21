@@ -54,12 +54,13 @@ public:
 
     Wt::Json::Object to_json() const;
 
+    virtual std::string plain_score_string() const;
+
     virtual ~Abstract_evaluation() = default;
 
 protected:
     virtual void touch_();
 
-    virtual std::string plain_score_string() const;
     static double normalize_score(double score);
 
     template<typename Action>

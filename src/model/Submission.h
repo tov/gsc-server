@@ -29,12 +29,14 @@ using Self_eval_vec   = std::vector<Wt::Dbo::ptr<Self_eval>>;
 using Source_files    = Wt::Dbo::collection<Wt::Dbo::ptr<File_meta>>;
 using Source_file_vec = std::vector<Wt::Dbo::ptr<File_meta>>;
 
+namespace dbo = Wt::Dbo;
+
 struct Viewing_context
 {
-    Wt::Dbo::ptr<User> viewer;
+    dbo::ptr<User> viewer;
 };
 
-class Submission : public Wt::Dbo::Dbo<Submission>
+class Submission : public dbo::Dbo<Submission>
 {
 public:
     enum class Status
@@ -51,19 +53,34 @@ public:
 
     struct Item
     {
-        Wt::Dbo::ptr<Eval_item> eval_item;
-        Wt::Dbo::ptr<Self_eval> self_eval;
-        Wt::Dbo::ptr<Grader_eval> grader_eval;
+        dbo::ptr<Submission> submission;
+        dbo::ptr<Eval_item> eval_item;
+        dbo::ptr<Self_eval> self_eval;
+        dbo::ptr<Grader_eval> grader_eval;
 
         bool fully_frozen() const;
         bool score_frozen() const;
+
+        struct View
+        {
+            std::string owner, score, explanation;
+        };
+
+        std::optional<Submission::Item::View>
+        view_self_eval(Viewing_context const& cxt,
+                       std::string const& not_set = "[not set]") const;
+
+        std::optional<View>
+        view_grader_eval(Viewing_context const& cxt,
+                         std::string const& not_set = "[not set]") const;
+
         bool is_ready() const;
     };
 
     using Items = std::vector<Item>;
 
     Submission() {};
-    Submission(const Wt::Dbo::ptr<User>&, const Wt::Dbo::ptr<Assignment>&);
+    Submission(const dbo::ptr<User>&, const Wt::Dbo::ptr<Assignment>&);
 
     Source_file_vec source_files_sorted() const;
     const Source_files& source_files() const { return source_files_; }

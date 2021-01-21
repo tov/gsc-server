@@ -616,8 +616,11 @@ void Submission::reload_cache() const
     for (const auto& eval_item : assignment()->eval_items()) {
         ++item_count_;
         point_value_ += eval_item->relative_value();
+
         auto sequence = eval_item->sequence();
         while (items_.size() <= sequence) items_.emplace_back();
+
+        items_[sequence].submission = self();
         items_[sequence].eval_item = eval_item;
     }
 
@@ -1047,3 +1050,61 @@ bool Submission::Item::is_ready() const
 {
     return grader_eval && grader_eval->is_ready();
 }
+
+optional<Submission::Item::View>
+Submission::Item::view_self_eval(Viewing_context const& cxt,
+                                 string const& not_set) const
+{
+    if (eval_item->is_informational()) {
+        return nullopt;
+    }
+
+    View result;
+
+    result.owner = submission->owner_string(cxt);
+
+    if (self_eval) {
+        if (cxt.viewer->role() == User::Role::Grader) {
+            result.score = "[***]";
+        } else {
+            result.score = self_eval->plain_score_string();
+            result.explanation = self_eval->explanation();
+        }
+    } else {
+        result.score = not_set;
+    }
+
+    return result;
+}
+
+optional<Submission::Item::View>
+Submission::Item::view_grader_eval(Viewing_context const& cxt,
+                                   string const& not_set) const
+{
+    if (eval_item->is_graded_automatically() || !self_eval) {
+        return nullopt;
+    }
+
+    View result;
+
+    if (grader_eval &&
+        (grader_eval->is_ready() ||
+         cxt.viewer->can_grade()))
+    {
+        auto& grader = grader_eval->grader();
+        if (! grader->can_grade()) {
+            result.owner = "auto";
+        } else if (cxt.viewer->can_grade() || grader->can_admin()) {
+            result.owner = grader->nice_name(false);
+        }
+
+        result.score = grader_eval->plain_score_string();
+        result.explanation = grader_eval->explanation();
+    } else {
+        result.owner = "grader";
+        result.score = not_set;
+    }
+
+    return {result};
+}
+

@@ -74,11 +74,12 @@ Self_eval_item_widget::Self_eval_item_widget(
         back_button_->hide();
     }
 
-    if (model.is_ready()) {
-        auto score = model_.eval_item->format_score(model_.grader_eval->score());
+    Viewing_context cxt{session_.user()};
+
+    if (auto view = model.view_grader_eval(cxt, "")) {
         add_evaluation_("Grader evaluation <small>(previous)</small>",
-                        score,
-                        model_.grader_eval->explanation());
+                        view->score,
+                        view->explanation);
     }
 
     validate_();

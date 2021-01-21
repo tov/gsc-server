@@ -61,7 +61,6 @@ public:
     static dbo::ptr<Grader_eval>
     get_for(const dbo::ptr<Self_eval>&, Session&);
 
-protected:
     std::string plain_score_string() const override;
 
 private:

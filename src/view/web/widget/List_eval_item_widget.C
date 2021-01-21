@@ -6,7 +6,8 @@
 #include "../../../common/util.h"
 
 #include <Wt/WPushButton.h>
-#include <Wt/WTemplate.h>
+#include <Wt/WTable.h>
+#include <Wt/WTableRow.h>
 
 List_eval_item_widget::List_eval_item_widget(const Submission::Item& model, Evaluation_view& main,
                                              Session& session)
@@ -74,39 +75,25 @@ void List_eval_item_widget::add_scores_()
 {
     Viewing_context cxt {session_.user()};
 
-    Score_owner self;
-    Score_owner grader;
-
-    if (!model_.self_eval) {
-        self.owner = "self evaluation";
-        self.score = "[not set]";
-    } else if (!model_.eval_item->is_graded_automatically()) {
-        self = model_.self_eval->score_owner(cxt);
-
-        if (!model_.grader_eval) {
-            grader.score = "[not set]";
-        } else {
-            grader = model_.grader_eval->score_owner(cxt);
-        }
-
-        if (grader.owner.empty()) {
-            grader.owner = "grader";
-        }
-    }
-
     setStyleClass(attention_class(model_));
 
-    auto table = addNew<WTemplate>(
-            "<table class='scores'>"
-              "<tr><th>${self}</th><td>${self-score}</td></tr>"
-              "<tr><th>${grader}</th><td>${grader-score}</td></tr>"
-            "</table>"
-    );
+    auto table = addNew<WTable>();
+    table->setStyleClass("scores");
+    table->setHeaderCount(1, Orientation::Vertical);
 
-    table->bindString("self", self.owner);
-    table->bindString("self-score", self.score);
-    table->bindString("grader", grader.owner);
-    table->bindString("grader-score", grader.score);
+    auto add_row = [table](string const& owner, string const& score) {
+        auto row = table->rowAt(table->rowCount());
+        row->elementAt(0)->addNew<WText>(owner);
+        row->elementAt(1)->addNew<WText>(score);
+    };
+
+    if (auto view = model_.view_self_eval(cxt)) {
+        add_row(view->owner, view->score);
+    }
+
+    if (auto view = model_.view_grader_eval(cxt)) {
+        add_row(view->owner, view->score);
+    }
 }
 
 void List_eval_item_widget::focus_action_()

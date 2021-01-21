@@ -1,31 +1,29 @@
 #include "Review_eval_item_widget.h"
+#include "../../../Session.h"
+#include "../../../common/util.h"
 #include "../../../model/Grader_eval.h"
 #include "../../../model/Self_eval.h"
+#include "../../../model/Submission.h"
 
-#include <Wt/WText.h>
-
-Review_eval_item_widget::Review_eval_item_widget(const Submission::Item& model,
-                                                 Evaluation_view& main, Session& session)
+Review_eval_item_widget::Review_eval_item_widget(
+        const Submission::Item& model,
+        Evaluation_view& main,
+        Session& session)
         : Single_eval_item_widget(model, main, session)
 {
-    auto& eval_item = model.eval_item;
-    auto& self_eval = model.self_eval;
-    auto& grader_eval = model.grader_eval;
+    Viewing_context cxt {session.user()};
 
-    if (self_eval) {
+    if (auto view = model.view_self_eval(cxt, "No self evaluation submitted")) {
         add_evaluation_("Self evaluation",
-                        eval_item->format_score(self_eval->score()),
-                        self_eval->explanation());
+                        view->score,
+                        view->explanation);
+    }
 
-        if (grader_eval && self_eval->submission()->is_ready())
-        {
-            add_evaluation_("Grader evaluation",
-                            eval_item->format_score(grader_eval->score()),
-                            grader_eval->explanation(),
-                            "grader-highlight");
-        }
-    } else {
-        addNew<Wt::WText>("<h5>No self evaluation submitted!</h5>");
+    if (auto view = model.view_grader_eval(cxt)) {
+        add_evaluation_("Grader evaluation",
+                        view->score,
+                        view->explanation,
+                        "grader-highlight");
     }
 
     add_navigation_();
