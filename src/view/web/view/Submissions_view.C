@@ -524,12 +524,12 @@ void Row_view::confirm_eval_() const
 {
 
     std::ostringstream oss;
-    oss << "Are you sure you want to begin self evaluation for "
+    oss << "<p>Are you sure you want to begin self evaluation for "
         << assignment()->name()
-        << "? <em>Caution</em>: Once you start self evaluation"
-           ", you will no longer be able to add files to your "
+        << "?</p><p><strong>Caution</strong>: Once you start self evaluation"
+           ", you will no longer be able to modify your "
         << assignment()->name()
-        << " submission.";
+        << " submission.</p>";
 
     Confirmation_dialog::create(oss.str())
         .accepted().connect([this] { force_eval_now_(); });
