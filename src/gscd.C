@@ -14,8 +14,8 @@ int main(int argc, char** argv)
     try {
         Wt::WString::setDefaultEncoding(Wt::CharEncoding::UTF8);
 
-        auto db_string  = get_env_var(CONFIG().postgres_conninfo());
-        auto pool       = Db_session::createConnectionPool(db_string);
+        auto& conninfo = CONFIG().postgres_conninfo();
+        auto pool = Db_session::createConnectionPool(conninfo);
         Db_session::configure_auth();
 
         Wt::WServer server(argc, argv);
