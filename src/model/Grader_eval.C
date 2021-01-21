@@ -69,7 +69,7 @@ Score_owner Grader_eval::score_owner(Viewing_context const& cxt) const
         score = plain_score_string();
 
         if (! grader()->can_grade())
-            owner = "Auto";
+            owner = "auto";
 
         else if (cxt.viewer->can_grade() || grader()->can_admin())
             owner = grader()->nice_name(false);
