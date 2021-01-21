@@ -39,6 +39,7 @@ public:
     FIELD(float,       reward_for_no,           0.5);
     FIELD(bool,        auto_create_accounts,    true);
     FIELD(bool,        show_queries,            false);
+    FIELD(bool,        display_file_quota,      true);
     FIELD(std::string, instance_class,          "instance-default");
     FIELD(std::string, instance_name,           "gsc");
     FIELD(std::string, gsc_base_url,            "http://localhost:9090/");

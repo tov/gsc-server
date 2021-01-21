@@ -3,6 +3,7 @@
 #include "../widget/File_viewer.h"
 #include "../Notification.h"
 #include "../widget/Submission_owner_widget.h"
+#include "../../../Config.h"
 #include "../../../Session.h"
 #include "../../../model/Assignment.h"
 #include "../../../model/File_data.h"
@@ -240,9 +241,9 @@ File_manager_view::File_manager_view(const Wt::Dbo::ptr<Submission>& submission,
                 "to modify this submission.");
 
     file_list_         = right_column_->addWidget(std::move(file_list));
-#ifdef GSC_SHOW_QUOTA
-    quota_display_     = right_column_->addNew<Quota_display>(context());
-#endif // GSC_SHOW_QUOTA
+    quota_display_     = CONFIG().display_file_quota()
+                         ? right_column_->addNew<Quota_display>(context())
+                         : nullptr;
     date_list_         = right_column_->addNew<Date_list>(context());
 
     on_change_();
@@ -256,9 +257,11 @@ void File_manager_view::on_change()
 void File_manager_view::on_change_()
 {
     dbo::Transaction transaction(session());
-#ifdef GSC_SHOW_QUOTA
-    quota_display_->reload();
-#endif // GSC_SHOW_QUOTA
+
+    if (quota_display_) {
+        quota_display_->reload();
+    }
+
     date_list_->reload();
 }
 

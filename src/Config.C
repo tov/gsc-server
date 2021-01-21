@@ -70,6 +70,7 @@ Config::Config() : json_(load_json())
     set_reward_for_no_();
     set_auto_create_accounts_();
     set_show_queries_();
+    set_display_file_quota_();
     set_instance_class_();
     set_instance_name_();
     set_gsc_base_url_();
