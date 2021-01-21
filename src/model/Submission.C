@@ -159,6 +159,11 @@ Submission::eval_status_given_counts_(Eval_counts counts) const
 bool
 Submission::is_ready_given_counts_(Eval_counts counts) const
 {
+    // It isn't ready if there are no evaluation items.
+    if (counts.item == 0) {
+        return false;
+    }
+
     switch (eval_status_given_counts_(counts)) {
     case Eval_status::complete:
     case Eval_status::overdue:
