@@ -86,7 +86,9 @@ void Submission_chooser::go()
             case Submission::Status::future:
             case Submission::Status::open:
             case Submission::Status::extended:
+            case Submission::Status::overtime:
                 Navigate::to(submission->files_url());
+                break;
 
             case Submission::Status::self_eval:
             case Submission::Status::extended_eval:

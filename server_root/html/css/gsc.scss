@@ -367,6 +367,14 @@ table.plain {
             background-color: lightyellow;
         }
 
+        .overtime {
+            background-color: #fee;
+
+            .past {
+                color: #600;
+            }
+        }
+
         button {
             display: block;
             margin: 0 auto;

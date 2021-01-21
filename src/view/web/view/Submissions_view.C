@@ -184,6 +184,12 @@ void Row_view::update_status_()
             status += now.time_to(assignment()->open_date());
             break;
 
+        case Status::overtime:
+            status += "Due ";
+            status += now.time_from(submission()->effective_due_date());
+            status += " ago";
+            break;
+
         case Status::open:
         case Status::extended:
             if (model_.file_count == 0) {
@@ -286,13 +292,14 @@ void Row_view::update_buttons_()
         case Status::future:
             break;
 
-        case Status::extended:
-            set_eval_button(eval_action, "btn btn-danger");
+    case Status::overtime:
+        set_eval_button(eval_action, "btn btn-danger");
 
-            //
-            // FALL THROUGH!
-            //
-        case Status::open:
+        //
+        // FALL THROUGH!
+        //
+    case Status::extended:
+    case Status::open:
             if (!assignment()->web_allowed()) {
                 set_files_button("View", "btn");
             } else if (model_.file_count == 0) {
@@ -343,6 +350,9 @@ WString Row_view::get_row_style_() const
         case Status::open:
         case Status::extended:
             return "open";
+
+        case Status::overtime:
+            return "open overtime";
 
         case Status::closed:
             return "";
@@ -504,7 +514,7 @@ void Row_view::on_files() const
 
 void Row_view::on_eval() const
 {
-    if (submission()->status() == Status::extended)
+    if (submission()->status() == Status::overtime)
         confirm_eval_();
     else
         go_eval();
@@ -528,7 +538,6 @@ void Row_view::confirm_eval_() const
 void Row_view::force_eval_now_() const
 {
     dbo::Transaction trans(session_);
-    submission().modify()->end_extension_now();
     go_eval();
 }
 

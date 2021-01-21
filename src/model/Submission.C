@@ -14,6 +14,7 @@
 
 #include <Wt/WDateTime.h>
 #include <Wt/Dbo/Impl.h>
+#include <Wt/Dbo/ptr.h>
 
 #include <algorithm>
 #include <functional>
@@ -70,22 +71,6 @@ int Submission::byte_count() const
     return byte_count_;
 }
 
-void Submission::end_extension_now()
-{
-    if (status() != Status::extended) return;
-
-    set_due_date(now_());
-    light_touch();
-}
-
-void Submission::end_eval_extension_now()
-{
-    if (status() != Status::extended_eval) return;
-
-    set_due_date(now_());
-    light_touch();
-}
-
 bool Submission::extended() const
 {
     return due_date_ > assignment_->due_date();
@@ -114,17 +99,27 @@ const Wt::WDateTime& Submission::effective_eval_date() const
 bool Submission::in_submit_period() const
 {
     auto stat = status();
-    return stat == Status::open || stat == Status::extended;
+    return stat == Status::open
+           || stat == Status::extended
+           || stat == Status::overtime;
 }
 
 bool Submission::in_eval_period() const
 {
     auto stat = status();
-    return stat == Status::self_eval || stat == Status::extended_eval;
+    return stat == Status::overtime
+           || stat == Status::self_eval
+           || stat == Status::extended_eval;
 }
 
 Submission::Status Submission::status() const
 {
+    auto overtime_or = [=](Status status) {
+        return has_started_self_eval()
+               ? status
+               : Status::overtime;
+    };
+
     auto now = now_();
 
     if (now <= assignment()->open_date()) {
@@ -134,9 +129,9 @@ Submission::Status Submission::status() const
     } else if (now <= due_date_) {
         return Status::extended;
     } else if (now <= assignment()->eval_date()) {
-        return Status::self_eval;
+        return overtime_or(Status::self_eval);
     } else if (now <= eval_date_) {
-        return Status::extended_eval;
+        return overtime_or(Status::extended_eval);
     } else {
         return Status::closed;
     }
@@ -149,7 +144,7 @@ Submission::eval_status_given_counts_(Eval_counts counts) const
         return Eval_status::complete;
     } else if (status() == Status::closed) {
         return Eval_status::overdue;
-    } else if (counts.real_self > 0) {
+    } else if (has_started_self_eval()) {
         return Eval_status::started;
     } else {
         return Eval_status::empty;
@@ -184,7 +179,6 @@ Submission::Eval_status Submission::eval_status() const
     Eval_counts counts {
         .item      = assignment()->eval_items().size(),
         .self      = self_evals_.size(),
-        .real_self = fetch_real_self_eval_count_(),
         .grader    = 0,
     };
     return eval_status_given_counts_(counts);
@@ -213,6 +207,28 @@ double Submission::grade() const
                                   .resultValue();
 
     return clean_grade(grade_value);
+}
+
+bool Submission::has_started_self_eval() const
+{
+    return has_self_eval_number(1);
+}
+
+bool Submission::has_self_eval_number(int sequence_number) const
+{
+    dbo::Transaction trans(*session());
+
+    const char* const sql_query =
+            "SELECT COUNT(*)"
+            "  FROM self_eval s"
+            " INNER JOIN eval_item e ON e.id = s.eval_item_id"
+            " WHERE s.submission_id = ?"
+            "   AND e.sequence = ?";
+
+    return 0 < session()->query<int>(sql_query)
+                        .bind(id())
+                        .bind(sequence_number)
+                        .resultValue();
 }
 
 dbo::ptr<Self_eval>
@@ -566,7 +582,6 @@ bool Submission::is_ready() const
     Eval_counts counts {
         .item      = assignment()->eval_items().size(),
         .self      = self_evals_.size(),
-        .real_self = fetch_real_self_eval_count_(),
         .grader    = fetch_grader_eval_count_(),
     };
 
@@ -633,7 +648,6 @@ void Submission::reload_cache() const
     Eval_counts counts {
         .item      = item_count_,
         .self      = 0,
-        .real_self = 0,
         .grader    = 0,
     };
 
@@ -641,10 +655,6 @@ void Submission::reload_cache() const
         auto const& eval_item = self_eval->eval_item();
 
         ++counts.self;
-
-        if (eval_item->type() != Eval_item::Type::Informational) {
-            ++counts.real_self;
-        }
 
         auto sequence = eval_item->sequence();
         items_[sequence].self_eval = self_eval;
@@ -1013,10 +1023,12 @@ char const* Enum<Submission::Status>::show(Submission::Status status)
             return "future";
         case S::open:
             return "open";
-        case S::self_eval:
-            return "self_eval";
         case S::extended:
             return "extended";
+        case S::overtime:
+            return "overtime";
+        case S::self_eval:
+            return "self_eval";
         case S::extended_eval:
             return "extended_eval";
         case S::closed:

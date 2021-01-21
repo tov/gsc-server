@@ -43,8 +43,9 @@ public:
     {
         future,
         open,
-        self_eval,
         extended,
+        overtime,
+        self_eval,
         extended_eval,
         closed,
     };
@@ -107,9 +108,6 @@ public:
     void clear_cache() const;
     void reload_cache() const;
 
-    void end_extension_now();
-    void end_eval_extension_now();
-
     bool extended() const;
     bool eval_extended() const;
     const Wt::WDateTime& open_date() const;
@@ -158,6 +156,9 @@ public:
 
     int remaining_space() const;
     bool has_sufficient_space(int bytes, const std::string& filename) const;
+
+    bool has_started_self_eval() const;
+    bool has_self_eval_number(int sequence) const;
 
     static Wt::Dbo::ptr<Self_eval>
     get_self_eval(const Wt::Dbo::ptr<Eval_item>&,
@@ -274,7 +275,7 @@ private:
 
     struct Eval_counts
     {
-        size_t item, self, real_self, grader;
+        size_t item, self, grader;
     };
 
     Eval_status eval_status_given_counts_(Eval_counts) const;
