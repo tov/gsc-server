@@ -33,11 +33,9 @@ Assignments_view_row::Assignments_view_row(
     open_date_   = row_->elementAt(OPEN_DATE)->addNew<Date_time_edit>();
     due_date_    = row_->elementAt(DUE_DATE)->addNew<Date_time_edit>();
     eval_date_   = row_->elementAt(EVAL_DATE)->addNew<Date_time_edit>();
-    points_      = row_->elementAt(POINTS)->addNew<Wt::WLineEdit>();
     auto edit    = row_->elementAt(ACTION) ->addNew<Wt::WPushButton>("Edit");
 
     name_->setStyleClass("name-edit");
-    points_->setStyleClass("points-edit");
 
     name_->changed().connect(std::bind([=] () {
         dbo::Transaction transaction(session_);
@@ -59,15 +57,6 @@ Assignments_view_row::Assignments_view_row(
         transaction.commit();
         update_();
     });
-
-    points_->changed().connect(std::bind([=] () {
-        std::string points_s = points_->text().toUTF8();
-        int points = atoi(points_s.data());
-        dbo::Transaction transaction(session_);
-        assignment_.modify()->set_points(points);
-        transaction.commit();
-        update_();
-    }));
 
     open_date_->set_date_format("MM/dd/yy");
     due_date_->set_date_format("MM/dd/yy");
@@ -133,7 +122,6 @@ void Assignments_view_row::add_headings(Wt::WTableRow* row)
     row->elementAt(OPEN_DATE)->addNew<Wt::WText>("Opens");
     row->elementAt(DUE_DATE)->addNew<Wt::WText>("Code Due");
     row->elementAt(EVAL_DATE)->addNew<Wt::WText>("Self-Eval Due");
-    row->elementAt(POINTS)->addNew<Wt::WText>("Pts");
     row->elementAt(ACTION)->addNew<Wt::WText>("Action");
 }
 
@@ -145,7 +133,6 @@ void Assignments_view_row::update_() const
     open_date_->set_date_time(assignment_->open_date());
     due_date_->set_date_time(assignment_->due_date());
     eval_date_->set_date_time(assignment_->eval_date());
-    points_->setText(std::to_string(assignment_->points()));
 
 //    open_date_->set_top(due_date_->date_time());
 //    due_date_->set_bottom(open_date_->date_time());

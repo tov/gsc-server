@@ -28,7 +28,6 @@ public:
         OPEN_DATE,
         DUE_DATE,
         EVAL_DATE,
-        POINTS,
         ACTION,
     };
 
@@ -44,7 +43,6 @@ private:
     Date_time_edit* open_date_;
     Date_time_edit* due_date_;
     Date_time_edit* eval_date_;
-    Wt::WLineEdit* points_;
 
     void update_() const;
 
