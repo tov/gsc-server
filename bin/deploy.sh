@@ -13,23 +13,33 @@ install_suid () {
 }
 
 install_to () {
+    local cfg="$1"
+    local dst="$2"
+
     rsync \
         --recursive \
         --links --copy-unsafe-links \
         server_root/ \
-        "$1"
-    chmod -R a+rX "$1"
+        "$dst"
 
-    install_suid $BUILD_DIR/gscd-fcgi "$1/gscd.fcgi"
-    install_suid $BUILD_DIR/gsc-auth "$1/gsc-auth"
+    if [ -e "$cfg" ]; then
+        cp "$cfg" "$dst/gscd-config.json"
+    fi
+
+    chmod -R a+rX "$dst"
+
+    install_suid $BUILD_DIR/gscd-fcgi "$dst/gscd.fcgi"
+    install_suid $BUILD_DIR/gsc-auth "$dst/gsc-auth"
 }
 
 stage () {
-    link=${1:-staging}
-    tree=${2:-deploy-$(date +%Y%m%d-%H%M%S)}
+    local link=${1:-staging}
+    local cfg=${2:-etc/${link}-config.json}
+    local tree=${3:-deploy-$(date +%Y%m%d-%H%M%S)}
+
     sudo true
     cmake --build $BUILD_DIR
-    install_to "$BASE/$tree"
+    install_to "$cfg" "$BASE/$tree"
     rm -f "$BASE/$link"
     ln -s "$tree" "$BASE/$link"
 }
