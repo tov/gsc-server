@@ -516,8 +516,8 @@ void Row_view::confirm_eval_() const
     std::ostringstream oss;
     oss << "Are you sure you want to begin self evaluation for "
         << assignment()->name()
-        << "? Caution: If you say yes, you will no longer be able to"
-        << " add files to your "
+        << "? <em>Caution</em>: Once you start self evaluation"
+           ", you will no longer be able to add files to your "
         << assignment()->name()
         << " submission.";
 

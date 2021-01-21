@@ -41,6 +41,23 @@ void Evaluation_view::go_to(unsigned int index)
 {
     dbo::Transaction transaction(session());
 
+    auto& items = submission()->items();
+
+    if (index < 1) {
+        index = 1;
+    } else if (index >= items.size()) {
+        index = items.size() - 1;
+    }
+
+    if (! session().user()->can_admin()) {
+        for (unsigned i = 1; i < index; ++i) {
+            if (! items.at(i).self_eval) {
+                index = i;
+                break;
+            }
+        }
+    }
+
     std::ostringstream eval_url;
     eval_url << submission()->eval_url_for_user(principal());
     eval_url << '/' << index;
