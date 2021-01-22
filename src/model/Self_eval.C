@@ -157,9 +157,9 @@ next_eligible_permalink(dbo::Session& dbo)
             "SELECT self_eval.permalink"
             ELIGIBLE_FROM_AND_WHERE_CLAUSE
             " ORDER BY"
-            "   self_eval.time_stamp,"
             "   assignment.number,"
-            "   eval_item.sequence"
+            "   eval_item.sequence,"
+            "   self_eval.time_stamp"
             " LIMIT 1")
               .resultValue();
 }
