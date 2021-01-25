@@ -4,7 +4,6 @@ set -e
 
 dir=gsc-backups
 localdir=$HOME/$dir
-file=cs211-$(date +%Y%m%d-%H%M%S).psql
 host=jesse@delta.eecs.northwestern.edu
 gpg_recipient=jesse.tov@gmail.com
 gpg_public_key=0xC5668BA5047AE6BD
@@ -17,6 +16,45 @@ else
     time_fmt=%.2fs
 fi
 
+PROGRESS="\r%s... $time_fmt "
+COMPLETE="\r%s... done ($time_fmt).\n"
+STEP_START=256
+STEP_MAX=1048576
+STEP_FACTOR=2
+
+main () {
+    if [ $# = 0 ]; then
+        echo >&2 "Usage: $0 DB ...+"
+        exit 2
+    fi
+
+    local arg
+    for arg; do
+        backup_one $arg
+    done
+}
+
+backup_one () {
+    local db=$1
+    local file=$db-$(date +%Y%m%d-%H%M%S).psql
+
+    mkdir -p $localdir
+    cd $localdir
+
+    if [ "${1-}" != -D ]; then
+        progress_output "Dumping database" $file \
+            pg_dump $db
+
+        progress_output "Encrypting" $file.gpg \
+            gpgz --sign --recipient "$gpg_recipient" --encrypt $file
+
+        rm $file
+    fi
+
+    progress_around "Synchronizing" \
+        rsync --times --human-readable --progress \
+            $localdir/*.gpg $host:$dir/
+}
 gpgz () {
     gpg --compress-level 7 --output - "$@"
 }
@@ -32,12 +70,6 @@ reset_timer () {
 elapsed_time () {
     echo "$(time_stamp) - $timer_base" | bc -l
 }
-
-PROGRESS="\r%s... $time_fmt "
-COMPLETE="\r%s... done ($time_fmt).\n"
-STEP_START=256
-STEP_MAX=1048576
-STEP_FACTOR=2
 
 progress_meter () (
     exec >&2
@@ -72,22 +104,6 @@ progress_around () {
     printf>&2 "$COMPLETE" "$descr" $(elapsed_time)
 }
 
-mkdir -p $localdir
-cd $localdir
-
-if [ "${1-}" != -D ]; then
-    progress_around "Authenticating" \
-        sudo -u gsc true
-
-    progress_output "Dumping database" $file \
-        sudo -u gsc pg_dump gsc
-
-    progress_output "Encrypting" $file.gpg \
-        gpgz --sign --recipient "$gpg_recipient" --encrypt $file
-
-    rm $file
-fi
-
-progress_around "Synchronizing" \
-    rsync --times --human-readable --progress \
-        $localdir/*.gpg $host:$dir/
+#########
+main "$@"
+#########
