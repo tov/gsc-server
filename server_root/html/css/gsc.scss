@@ -153,6 +153,29 @@ $explanation-border: 6px solid;
 }
 
 ///
+/// Code colors
+///
+
+.str-lit {
+    color: darkblue;
+}
+
+.char-lit {
+    color: darkcyan;
+}
+
+.str-lit, .char-lit {
+    u {
+        text-decoration: none;
+        border: 1px dashed #666;
+    }
+}
+
+.num-lit {
+    color: darkmagenta;
+}
+
+///
 /// Sizes
 ///
 
