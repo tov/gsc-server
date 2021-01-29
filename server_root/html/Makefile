@@ -4,12 +4,11 @@ DEST_DIR ?= ~gsc/$(COURSE)/html
 SCSS = $(wildcard css/*.scss)
 JS   = $(wildcard js/*.js)
 
-CSS  = $(SCSS:.scss=.css)
-HASH = $(CSS) $(JS)
+CSS     = $(SCSS:.scss=.css)
+ALL     = $(CSS) $(JS)
+INSTALL = $(ALL) $(ALL:%=%.hash)
 
-ALL = $(CSS) $(HASH:%=%.hash)
-
-all:  $(ALL)
+all: $(ALL)
 
 install: $(ALL)
 	@set -e; \
