@@ -215,10 +215,10 @@ void File_viewer::show_line(int line_number) const
     WApplication::instance()->doJavaScript(script.str());
 }
 
-void File_viewer::set_line_style(int line, const WString& style)
+void File_viewer::add_line_style(int line, const WString& style)
 {
     if (0 < line && line < (int) lines_.size())
-        lines_[line]->setStyleClass(style);
+        lines_[line]->addStyleClass(style);
 }
 
 File_viewer::Highlighter
@@ -242,7 +242,7 @@ File_viewer::Highlighter::~Highlighter()
 
 void File_viewer::Highlighter::highlight(int line)
 {
-    viewer_->set_line_style(line, style_);
+    viewer_->add_line_style(line, style_);
 
     if (!first_ || line < first_) first_ = line;
 }

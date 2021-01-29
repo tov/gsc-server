@@ -28,7 +28,7 @@ public:
 
     void show_line(int line_number) const;
 
-    void set_line_style(int line, const Wt::WString& style);
+    void add_line_style(int line, const Wt::WString& style);
 
     class Highlighter;
 
