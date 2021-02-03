@@ -58,6 +58,8 @@ std::string Grader_eval::plain_score_string() const
             return "[held back]";
         case Status::editing:
             return "[editing]";
+        case Status::regrade:
+            return "[regrade]";
     }
 }
 
@@ -124,13 +126,19 @@ namespace rc = std::regex_constants;
 static std::regex const editing_re("editing", rc::icase);
 static std::regex const held_back_re("held_back", rc::icase);
 static std::regex const ready_re("ready", rc::icase);
+static std::regex const regrade_re("regrade", rc::icase);
 
 char const* Enum<Grader_eval::Status>::show(Grader_eval::Status role)
 {
     switch (role) {
-        case Grader_eval::Status::editing: return "editing";
-        case Grader_eval::Status::held_back: return "held_back";
-        case Grader_eval::Status::ready: return "ready";
+    case Grader_eval::Status::editing:
+        return "editing";
+    case Grader_eval::Status::held_back:
+        return "held_back";
+    case Grader_eval::Status::ready:
+        return "ready";
+    case Grader_eval::Status::regrade:
+        return "regrade";
     }
 }
 
@@ -143,6 +151,7 @@ Grader_eval::Status Enum<Grader_eval::Status>::read(std::string_view role)
     if (match(editing_re))   return Grader_eval::Status::editing;
     if (match(held_back_re)) return Grader_eval::Status::held_back;
     if (match(ready_re))     return Grader_eval::Status::ready;
+    if (match(regrade_re))   return Grader_eval::Status::ready;
 
     throw std::invalid_argument{"Could not parse role"};
 }

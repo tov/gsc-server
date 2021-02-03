@@ -25,6 +25,7 @@ enum class Grader_eval_status : int
     editing,
     held_back,
     ready,
+    regrade,
 };
 
 class Grader_eval : public Abstract_evaluation

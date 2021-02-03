@@ -372,6 +372,17 @@ void Submission::hold_grader_eval(int sequence) const
     }
 }
 
+void Submission::regrade_grader_eval(int sequence) const
+{
+    load_cache();
+    auto& item = items_.at(sequence);
+
+    if (!item.eval_item->is_graded_automatically()) {
+        auto grader_eval_m = item.grader_eval.modify();
+        grader_eval_m->set_status(Grader_eval::Status::regrade);
+    }
+}
+
 void Submission::retract_grader_eval(int sequence) const
 {
     load_cache();
@@ -381,14 +392,6 @@ void Submission::retract_grader_eval(int sequence) const
         item.grader_eval.remove();
         item.grader_eval = {};
     }
-}
-
-void Submission::hold_grader_eval(const dbo::ptr<Grader_eval>& grader_eval)
-{
-    auto submission = grader_eval->submission();
-    auto sequence   = grader_eval->eval_item()->sequence();
-    submission->hold_grader_eval(sequence);
-    submission.modify()->touch();
 }
 
 void Submission::retract_grader_eval(const dbo::ptr<Grader_eval>& grader_eval)

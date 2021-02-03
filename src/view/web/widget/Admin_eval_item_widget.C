@@ -116,6 +116,7 @@ void Admin_eval_item_widget::grader_update_button_()
 
     switch (status) {
         case Grader_eval::Status::editing:
+        case Grader_eval::Status::regrade:
             grader_save_button_->setText("Save");
             grader_hold_button_->setText("Hold");
             break;

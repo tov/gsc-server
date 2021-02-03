@@ -270,6 +270,9 @@ Grading_view::Grading_view(dbo::ptr<Self_eval> const& self_eval,
             status += percentage(grader_eval->score());
             status += ")";
             break;
+        case Grader_eval::Status::regrade:
+            status += "regrade";
+            break;
     }
 
     widget->bindString("sequence", sequence);

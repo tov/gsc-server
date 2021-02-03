@@ -189,9 +189,9 @@ public:
                     const std::string& explanation = "");
 
     void hold_grader_eval(int sequence) const;
+    void regrade_grader_eval(int sequence) const;
     void retract_grader_eval(int sequence) const;
 
-    static void hold_grader_eval(const Wt::Dbo::ptr<Grader_eval>&);
     static void retract_grader_eval(const Wt::Dbo::ptr<Grader_eval>&);
 
     static bool join_together(Wt::Dbo::ptr<Submission> keep,
