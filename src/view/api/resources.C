@@ -36,6 +36,10 @@ namespace api {
 
 namespace resources {
 
+/* Why is Wt::Json::Exception lacking typeinfo? */
+//using TypeException = J::TypeException;
+using TypeException = Wt::WException;
+
 // Helper struct for consuming JSON in the order of our choice.
 struct Key_eater
 {
@@ -469,10 +473,10 @@ void Users_1::do_patch_(Request_body body, Context const& context)
                 result.failure() << "Unknown key in JSON: ‘" << pair.first << "’.";
             }
         }
-    } catch (J::TypeException const& e) {
-        throw Http_status{400, "PATCH /users/_1 could not understand request"};
     } catch (J::ParseError const& e) {
         throw Http_status{400, "PATCH /users/_1 could not parse user request as JSON"};
+    } catch (TypeException const& e) {
+        throw Http_status{400, "PATCH /users/_1 could not understand request"};
     } catch (std::invalid_argument const& e) {
         throw Http_status{400, e.what()};
     }
@@ -574,7 +578,7 @@ void Submissions_1::do_patch_(Request_body body, const Resource::Context &contex
         Http_error{400} << e.what();
     } catch (Wt::Json::ParseError const& e) {
         Http_error{400} << e.what();
-    } catch (Wt::Json::TypeException const& e) {
+    } catch (TypeException const& e) {
         Http_error{400} << e.what();
     }
 
@@ -722,10 +726,10 @@ void Submissions_1_files_2::do_patch_(Request_body body, Context const& context)
         else if (opt_name || opt_media_type)
             file_meta_m->reclassify();
 
-    } catch (J::TypeException const& e) {
-        throw Http_status{400, "PATCH /submissions/_1/files/_2 could not understand request"};
     } catch (J::ParseError const& e) {
         throw Http_status{400, "PATCH /submissions/_1/files/_2 could not parse user request as JSON"};
+    } catch (TypeException const& e) {
+        throw Http_status{400, "PATCH /submissions/_1/files/_2 could not understand request"};
     } catch (std::invalid_argument const& e) {
         throw Http_status{400, e.what()};
     }
@@ -882,10 +886,10 @@ void Submissions_1_evals_2_self::do_put_(Request_body body, Resource::Context co
         std::string explanation = object.get("explanation");
         Submission::save_self_eval(self_eval_, context.user, score, explanation);
 
-    } catch (J::TypeException const& e) {
-        throw Http_status{400, "PUT /submissions/_1/evals/_2/self could not understand request"};
     } catch (J::ParseError const& e) {
         throw Http_status{400, "PUT /submissions/_1/evals/_2/self could not parse user request as JSON"};
+    } catch (TypeException const& e) {
+        throw Http_status{400, "PUT /submissions/_1/evals/_2/self could not understand request"};
     }
 
     use_json(self_eval_->to_json({context.user}));
@@ -967,10 +971,10 @@ void Submissions_1_evals_2_grader::do_put_(Request_body body, Resource::Context 
         modifiable->set_score(score);
         modifiable->set_status(status);
 
-    } catch (J::TypeException const& e) {
-        throw Http_status{400, "PUT /submissions/_1/evals/_2/self could not understand request"};
     } catch (J::ParseError const& e) {
         throw Http_status{400, "PUT /submissions/_1/evals/_2/self could not parse user request as JSON"};
+    } catch (TypeException const& e) {
+        throw Http_status{400, "PUT /submissions/_1/evals/_2/self could not understand request"};
     } catch (std::invalid_argument const& e) {
         throw Http_status{400, e.what()};
     }
