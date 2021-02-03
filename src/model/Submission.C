@@ -297,7 +297,7 @@ Submission::save_self_eval(const Wt::Dbo::ptr<Self_eval>& self_eval,
         set_grader_eval(self_eval, user, CONFIG().reward_for_no(), "");
     } else if (grader_eval && !eval_item->is_informational()) {
         if (frozen_score)
-            submission->hold_grader_eval(sequence);
+            submission->regrade_grader_eval(sequence);
         else
             submission->retract_grader_eval(sequence);
     }
