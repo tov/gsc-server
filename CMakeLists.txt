@@ -68,7 +68,7 @@ set(WWW_SRC_FILES
         src/view/web/view/File_manager_view.C
         src/view/web/view/Grading_stats_view.C
         src/view/web/view/Grading_view.C
-        src/view/web/view/Held_back_view.C
+        src/view/web/view/Notable_self_evals_view.C
         src/view/web/view/Main_view.C
         src/view/web/view/Profile_view.C
         src/view/web/view/Submissions_view.C

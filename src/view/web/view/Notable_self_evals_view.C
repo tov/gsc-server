@@ -1,4 +1,4 @@
-#include "Held_back_view.h"
+#include "Notable_self_evals_view.h"
 #include "../../../Navigate.h"
 #include "../../../model/Assignment.h"
 #include "../../../model/Eval_item.h"
@@ -37,7 +37,7 @@ Self_eval_table::Self_eval_table(const dbo::collection<dbo::ptr<Self_eval>>& mod
     }
 }
 
-Held_back_view::Held_back_view(Session& session)
+Notable_self_evals_view::Notable_self_evals_view(Session& session)
         : session_(session)
 {
     auto container = setNewImplementation<Wt::WContainerWidget>();

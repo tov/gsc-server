@@ -1,5 +1,5 @@
 #include "Admin_view.h"
-#include "Held_back_view.h"
+#include "Notable_self_evals_view.h"
 #include "../widget/Accelerator_button.h"
 #include "../widget/Accelerator_text.h"
 #include "../widget/Fancy_table.h"
@@ -353,5 +353,5 @@ Admin_view::Admin_view(Session& session)
     auto play_game = table->elementAt(++row, 1)->addNew<Accelerator_button>("&Play game");
     play_game->clicked().connect(Navigate("/game"));
 
-    addNew<Held_back_view>(session_);
+    addNew<Notable_self_evals_view>(session_);
 }

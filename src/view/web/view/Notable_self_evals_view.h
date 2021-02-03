@@ -4,10 +4,10 @@
 
 class Session;
 
-class Held_back_view : public Wt::WCompositeWidget
+class Notable_self_evals_view : public Wt::WCompositeWidget
 {
 public:
-    explicit Held_back_view(Session&);
+    explicit Notable_self_evals_view(Session&);
 
 private:
     Session& session_;

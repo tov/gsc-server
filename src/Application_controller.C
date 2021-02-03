@@ -15,7 +15,7 @@
 #include "view/web/view/Evaluation_view.h"
 #include "view/web/view/Grading_stats_view.h"
 #include "view/web/view/Grading_view.h"
-#include "view/web/view/Held_back_view.h"
+#include "view/web/view/Notable_self_evals_view.h"
 #include "view/web/view/Main_view.h"
 #include "view/web/view/Profile_view.h"
 #include "view/web/view/Submissions_view.h"
@@ -408,7 +408,7 @@ void Application_controller::handle_internal_path(
             if (!current_user->can_admin()) permission_denied();
 
             set_page_title("Held-Back Evaluations");
-            set_new_widget<Held_back_view>(session_);
+            set_new_widget<Notable_self_evals_view>(session_);
 
             // /~:user
         } else if (std::regex_match(internal_path, sm, Path::user)) {
