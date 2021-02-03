@@ -7,6 +7,7 @@ class Bytes;
 class File_data;
 class File_meta;
 enum class File_purpose;
+enum class Grader_eval_status;
 class Time_stamp;
 class User;
 class User_stats;
@@ -72,6 +73,22 @@ struct sql_value_traits<File_purpose, void>
                      SqlStatement *statement, int column, int size);
 
     static bool read(File_purpose& v,
+                     SqlStatement *statement, int column, int size);
+};
+
+template<>
+struct sql_value_traits<Grader_eval_status, void>
+{
+    using repr_trait = sql_value_traits<int, void>;
+
+    static const bool specialized = true;
+
+    static const char *type(SqlConnection *conn, int size);
+
+    static void bind(const Grader_eval_status& v,
+                     SqlStatement *statement, int column, int size);
+
+    static bool read(Grader_eval_status& v,
                      SqlStatement *statement, int column, int size);
 };
 

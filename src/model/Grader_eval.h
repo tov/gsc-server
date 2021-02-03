@@ -20,6 +20,13 @@ class Self_eval;
 class Session;
 class Submission;
 
+enum class Grader_eval_status : int
+{
+    editing,
+    held_back,
+    ready,
+};
+
 class Grader_eval : public Abstract_evaluation
 {
 public:
@@ -33,14 +40,10 @@ public:
                 double score,
                 const std::string& explanation = "");
 
-    enum class Status : int {
-        editing,
-        held_back,
-        ready,
-    };
+    using Status = Grader_eval_status;
 
-    Status status() const { return static_cast<Status>(status_); }
-    void set_status(Status status) { status_ = static_cast<int>(status); }
+    Status status() const { return status_; }
+    void set_status(Status status) { status_ = status; }
     const dbo::ptr<Self_eval>& self_eval() const { return self_eval_; }
     const dbo::ptr<User>& grader() const { return grader_; }
     void set_grader(const dbo::ptr<User>& grader) { grader_ = grader; }
@@ -66,7 +69,7 @@ public:
 private:
     dbo::ptr<Self_eval> self_eval_;
     dbo::ptr<User>      grader_;
-    int                 status_;
+    Status              status_;
 
 public:
     template<typename Action>

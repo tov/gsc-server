@@ -24,7 +24,7 @@ Grader_eval::Grader_eval(const dbo::ptr<Self_eval>& self_eval,
         : Abstract_evaluation(0),
           self_eval_(self_eval),
           grader_(grader),
-          status_(static_cast<int>(Status::editing))
+          status_(Status::editing)
 { }
 
 Grader_eval::Grader_eval(const dbo::ptr<Self_eval>& self_eval,
@@ -34,7 +34,7 @@ Grader_eval::Grader_eval(const dbo::ptr<Self_eval>& self_eval,
         : Abstract_evaluation(score, explanation),
           self_eval_(self_eval),
           grader_(grader),
-          status_(static_cast<int>(Status::ready))
+          status_(Status::ready)
 { }
 
 dbo::ptr<Grader_eval> Grader_eval::get_for(
@@ -146,3 +146,39 @@ Grader_eval::Status Enum<Grader_eval::Status>::read(std::string_view role)
 
     throw std::invalid_argument{"Could not parse role"};
 }
+
+namespace Wt::Dbo {
+
+char const*
+sql_value_traits<Grader_eval_status, void>::type(
+        SqlConnection* conn, int size)
+{
+    return repr_trait::type(conn, size);
+}
+
+void
+sql_value_traits<Grader_eval_status, void>::bind(
+        const Grader_eval_status& v,
+        SqlStatement* statement,
+        int column,
+        int size)
+{
+    int value = static_cast<int>(v);
+    repr_trait::bind(value, statement, column, size);
+}
+
+bool
+sql_value_traits<Grader_eval_status, void>::read(
+        Grader_eval_status& v,
+        SqlStatement* statement,
+        int column,
+        int size)
+{
+    int value;
+    bool result = repr_trait::read(value, statement, column, size);
+    v = static_cast<Grader_eval_status>(value);
+    return result;
+}
+
+
+} // end namespace Wt::Dbo

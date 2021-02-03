@@ -45,21 +45,24 @@ Held_back_view::Held_back_view(Session& session)
 
     dbo::Transaction transaction(session_);
 
-    {
-        auto held_back = Self_eval::find_with_grade_status(
-                Grader_eval::Status::held_back, session_);
-        if (!held_back.empty()) {
-            container->addNew<Wt::WText>("<h3>Held back</h3>");
-            container->addNew<Self_eval_table>(held_back);
-        }
+    if (auto regrade = Self_eval::find_with_grade_status(
+                Grader_eval::Status::regrade, session_);
+            !regrade.empty()) {
+        container->addNew<Wt::WText>("<h3>Regrade</h3>");
+        container->addNew<Self_eval_table>(regrade);
     }
 
-    {
-        auto editing = Self_eval::find_with_grade_status(
+    if (auto held_back = Self_eval::find_with_grade_status(
+                Grader_eval::Status::held_back, session_);
+            !held_back.empty()) {
+        container->addNew<Wt::WText>("<h3>Held back</h3>");
+        container->addNew<Self_eval_table>(held_back);
+    }
+
+    if (auto editing = Self_eval::find_with_grade_status(
                 Grader_eval::Status::editing, session_);
-        if (!editing.empty()) {
-            container->addNew<Wt::WText>("<h3>Editing</h3>");
-            container->addNew<Self_eval_table>(editing);
-        }
+            !editing.empty()) {
+        container->addNew<Wt::WText>("<h3>Editing</h3>");
+        container->addNew<Self_eval_table>(editing);
     }
 }
