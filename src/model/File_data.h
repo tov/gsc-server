@@ -1,6 +1,7 @@
 #pragma once
 
 #include "specializations.h"
+#include "util/Bytes.h"
 
 #include <Wt/Dbo/Types.h>
 #include <Wt/Dbo/WtSqlTraits.h>
@@ -12,18 +13,6 @@
 namespace dbo = Wt::Dbo;
 
 class File_meta;
-
-class Bytes : public std::vector<unsigned char>
-{
-public:
-    Bytes() = default;
-    explicit Bytes(const std::string&);
-    Bytes(std::istream&, int size);
-
-    void write(std::ostream&) const;
-
-    explicit operator std::string() const;
-};
 
 class File_data
 {

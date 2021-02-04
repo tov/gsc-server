@@ -30,10 +30,13 @@ set(MODEL_SRC_FILES
         src/model/File_data.C
         src/model/File_meta.C
         src/model/Grader_eval.C
+        src/model/Log_file.C
         src/model/Partner_request.C
         src/model/Permalink.C
         src/model/Self_eval.C
         src/model/Submission.C
+        src/model/Test_run.C
+        src/model/util/Bytes.C
         src/model/util/Explanation_parser.C
         src/model/util/Time_stamp.C)
 

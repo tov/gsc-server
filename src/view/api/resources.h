@@ -4,6 +4,7 @@
 #include "../../common/paths.h"
 #include "../../Session.h"
 #include "../../model/File_data.h"
+#include "../../model/util/Bytes.h"
 
 #include <Wt/Dbo/Session.h>
 #include <Wt/Json/Serializer.h>
@@ -91,7 +92,7 @@ protected:
     static void not_supported [[noreturn]] ();
 
     std::string content_type;
-    std::vector<unsigned char> contents;
+    Bytes       contents;
 
 private:
     static std::unique_ptr<Resource> dispatch_(std::string path_info);

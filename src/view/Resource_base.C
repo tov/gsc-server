@@ -36,6 +36,6 @@ void Resource_response::send(Http::Response& response) const
         Http_status{500, "No content type"}.respond(response);
     } else {
         response.setMimeType(content_type);
-        response.out().write((const char *)contents.data(), contents.size());
+        response.out().write(contents.data(), contents.size());
     }
 }

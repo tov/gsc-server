@@ -1,17 +1,19 @@
 #pragma once
 
+#include "../model/util/Bytes.h"
+
 #include <Wt/Dbo/SqlConnectionPool.h>
 #include <Wt/Http/Response.h>
 #include <Wt/WResource.h>
 
-#include <memory>
+#include <string>
 
 class Session;
 
 struct Resource_response
 {
     std::string content_type;
-    std::vector<unsigned char> contents;
+    Bytes       contents;
 
     void send(Wt::Http::Response&) const;
 };
