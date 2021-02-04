@@ -1,6 +1,8 @@
 [submodule "client"]
 	path = client
 	url = https://github.com/tov/gsc-client.git
+	branch = main
+	update = rebase
 [submodule "3rdparty/wt"]
 	path = 3rdparty/wt
 	url = https://github.com/tov/wt.git
