@@ -12,6 +12,13 @@
 #include <memory>
 #include <string>
 
+#include <syslog.h>
+
+#define BAD_IDENTITY  1
+#define BAD_ROLE      2
+#define BAD_API_KEY   4
+#define BAD_PASSWORD  8
+
 namespace dbo = Wt::Dbo;
 
 using namespace std;
@@ -24,9 +31,9 @@ public:
 
 private:
     Gsc_auth_app();
-    bool check_user_(User::Role role,
-                     const string& identity,
-                     const string& secret);
+    int check_user_(User::Role role,
+                    const string& identity,
+                    const string& secret);
 };
 
 
@@ -67,32 +74,60 @@ int Gsc_auth_app::main(int argc, const char* argv[],
     getline(in, secret);
 
     Gsc_auth_app app;
-    return app.check_user_(role, username, secret)? 0 : 1;
+    return app.check_user_(role, username, secret);
 }
 
-bool Gsc_auth_app::check_user_(
+namespace {
+
+void log_auth_failure(std::string const& identity, char const* reason)
+{
+    openlog("gsc-auth", 0, LOG_AUTH);
+    syslog(LOG_NOTICE, "user %s: %s", identity.c_str(), reason);
+    closelog();
+}
+
+}  // anonymous namespace
+
+int Gsc_auth_app::check_user_(
         User::Role role, const string& identity, const string& secret)
 {
     dbo::Transaction transaction(session());
 
     auto auth_info = session().find_by_login<Auth_info>(identity, false);
+    if (!auth_info) {
+        log_auth_failure(identity, "does not exist");
+        return BAD_IDENTITY;
+    }
+
     auto auth_user = session().users().find(auth_info);
     auto user      = auth_info->user();
+    int result     = 0;
 
-    if (user->role() < role) return false;
+    if (user->role() < role) {
+        log_auth_failure(identity, "not authorized for role");
+        return BAD_ROLE;
+    }
 
 #ifdef GSC_AUTH_API_KEY
-    if (secret == session().get_api_key(user))
-        return true;
+    if (secret == session().get_api_key(user)) {
+        return 0;
+    } else {
+        log_auth_failure(identity, "API KEY mismatch");
+        result |= BAD_API_KEY;
+    }
 #endif
 
 #ifdef GSC_AUTH_PASSWORD
     if (auto verify_result = Db_session::passwordAuth().verifyPassword(auth_user, secret);
-            verify_result == Wt::Auth::PasswordResult::PasswordValid)
-        return true;
+            verify_result == Wt::Auth::PasswordResult::PasswordValid) {
+        return 0;
+    } else {
+        log_auth_failure(identity, "password mismatch");
+        result |= BAD_PASSWORD;
+    }
 #endif
 
-    return false;
+    return result;
 }
 
 
