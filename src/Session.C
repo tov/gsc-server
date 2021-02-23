@@ -270,13 +270,13 @@ const Auth::AbstractPasswordService& Db_session::passwordAuth()
 #endif // GSC_AUTH_PASSWORD
 
 std::unique_ptr<dbo::SqlConnectionPool>
-Db_session::createConnectionPool(const std::string& db)
+Db_session::createConnectionPool(const std::string& db, int count)
 {
     auto connection = std::make_unique<dbo::backend::Postgres>(db);
     if (CONFIG().show_queries())
         connection->setProperty("show-queries", "true");
     return std::make_unique<dbo::FixedSqlConnectionPool>(
-            std::move(connection), 10);
+            std::move(connection), count);
 }
 
 void Db_session::create_index_(const char* table, const char* field, bool unique) const

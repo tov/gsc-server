@@ -168,7 +168,7 @@ public:
     static void configure_auth();
 
     static std::unique_ptr<Wt::Dbo::SqlConnectionPool>
-    createConnectionPool(const std::string&);
+    createConnectionPool(const std::string&, int count = 5);
 
     static const Wt::Auth::AuthService& auth();
 #ifdef GSC_AUTH_PASSWORD
