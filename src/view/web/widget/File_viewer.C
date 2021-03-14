@@ -4,6 +4,7 @@
 #include "../../../model/File_data.h"
 #include "../../../model/File_meta.h"
 #include "../../../model/Submission.h"
+#include "../../../common/lines_iterator.h"
 #include "../../../common/util.h"
 
 #include <Wt/Dbo/Transaction.h>
@@ -12,8 +13,6 @@
 #include <Wt/WContainerWidget.h>
 #include <Wt/WEnvironment.h>
 #include <Wt/WText.h>
-
-#include <sstream>
 
 class Base_file_viewer : public WContainerWidget
 {
@@ -94,7 +93,7 @@ public:
     Line_file_viewer(
             const dbo::ptr<File_meta>& source_file,
             int& line_number,
-            vector<WTableRow*>& lines,
+            vector<WTableRow*>& rows,
             const File_viewer* viewer,
             Renderer = Renderer{});
 };
@@ -103,23 +102,22 @@ template <typename R>
 Line_file_viewer<R>::Line_file_viewer(
         const dbo::ptr<File_meta>& source_file,
         int& line_number,
-        vector<WTableRow*>& lines,
+        vector<WTableRow*>& rows,
         const File_viewer* viewer,
         Renderer renderer)
         : Base_file_viewer(source_file,
                            "line",
                            source_file->is_line_numbered())
 {
-    istringstream file_stream(contents_());
-    string        line;
+    string        contents(contents_());
     int           row_no = 1;
 
-    while (getline(file_stream, line)) {
+    for (auto line : lines(contents)) {
         auto tr = row_at(row_no++);
 
         if (source_file->is_line_numbered()) {
             tr->setStyleClass("numbered");
-            lines.push_back(tr);
+            rows.push_back(tr);
 
             auto th = tr->elementAt(0);
             th->template addNew<WText>(to_string(line_number++));
@@ -143,6 +141,11 @@ struct Plain_text_line_renderer
     {
         td->addNew<WText>(WString::fromUTF8(line), TextFormat::Plain);
         td->setStyleClass("code-line");
+    }
+
+    void operator()(WTableCell* td, string_view line) const
+    {
+        (*this)(td, string(line));
     }
 };
 

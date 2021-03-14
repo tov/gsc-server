@@ -3,6 +3,7 @@
 #include "Submission.h"
 #include "auth/User.h"
 #include "../common/Media_type_registry.h"
+#include "../common/lines_iterator.h"
 #include "../common/format.h"
 #include "../common/paths.h"
 #include "../common/util.h"
@@ -64,26 +65,8 @@ File_purpose Enum<File_purpose>::read(const char* purpose)
 
 static int count_lines(const Bytes& bytes)
 {
-    int result = 0;
-    bool after_cr = false;
-
-    for (unsigned char c : bytes) {
-        if (c == '\n') {
-            if (!after_cr)
-                ++result;
-        } else if (c == '\r') {
-            ++result;
-            after_cr = true;
-            continue;
-        }
-
-        after_cr = false;
-    }
-
-    if (!bytes.empty() && bytes.back() != '\n')
-        ++result;
-
-    return result;
+    lines temp(bytes);
+    return std::distance(temp.begin(), temp.end());
 }
 
 #define OR          "|"
