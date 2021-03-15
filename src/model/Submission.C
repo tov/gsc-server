@@ -1110,6 +1110,8 @@ Submission::Item::view_grader_eval(Viewing_context const& cxt,
             result.owner = "auto";
         } else if (cxt.viewer->can_grade() || grader->can_admin()) {
             result.owner = grader->nice_name(false);
+        } else {
+            result.owner = "grader";
         }
 
         result.score = grader_eval->plain_score_string();
