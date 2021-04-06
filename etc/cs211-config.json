@@ -2,6 +2,7 @@
   "instance_name": "cs211",
   "instance_class": "instance-cs211",
   "postgres_conninfo": "dbname=cs211",
+  "auto_create_accounts": false,
   "daily_discount": 0.01,
   "gsc_base_url": "https://cs211.cs.northwestern.edu/",
   "websso_login_url": "",
