@@ -45,16 +45,22 @@ struct Key_eater
 {
     J::Object& json;
 
-    template <class F>
-    void take(std::string const& key, F f) {
+    struct Do_nothing
+    {
+        void operator()() const noexcept { }
+    };
 
+    template <class F, class G = Do_nothing>
+    void take(std::string const& key, F f, G g = G())
+    {
         if (auto iter = json.find(key); iter != json.end()) {
             f(iter->second);
             json.erase(iter);
+        } else {
+            g();
         }
     }
 };
-
 
 template <class T>
 std::unique_ptr<T> match(std::string const& path_info)
@@ -188,26 +194,96 @@ public:
 
 protected:
     void do_get_(Context const&) override;
+    void do_post_(Request_body, Context const&) override;
 
 private:
-    dbo::collection<dbo::ptr<User>> users_;
+    struct Post_message_
+    {
+        std::string name;
+        User::Role role{};
+    };
+
+    Post_message_ parse_post_request_(Request_body&&);
 };
 
 void Users::load_(Context const& context)
 {
     context.user->check_can_admin();
-
-    users_ = context.session.find<User>();
 }
 
-void Users::do_get_(Context const&)
+void Users::do_get_(Context const& context)
 {
+    dbo::collection<dbo::ptr<User>> users = context.session.find<User>();
     J::Array result;
 
-    for (auto const& user : users_)
+    for (auto const& user : users)
         result.push_back(user->to_json(true));
 
     use_json(result);
+}
+
+void Users::do_post_(Request_body body, Context const& context)
+{
+    auto [name, role] = parse_post_request_(std::move(body));
+
+    if (User::find_by_name(context.session, name)) {
+        Http_error(400) << "User already exists: " << name;
+    }
+
+    auto user = context.session.create_user({name, role}).first;
+    use_json(user->to_json(true));
+}
+
+Users::Post_message_
+Users::parse_post_request_(Request_body&& body)
+try {
+    auto json = std::move(body).read_json();
+    J::Object& object = json;
+    Key_eater eater{object};
+
+    Post_message_ result;
+    std::ostringstream errors;
+
+    auto convert = [&](std::string const& key, auto kont) {
+        try {
+            eater.take(key, kont, [&]{
+                errors
+                    << "\n  - Missing required field: " << key;
+            });
+        } catch (TypeException const& e) {
+            errors
+                << "\n  - Could not convert field: " << key
+                << "\n    reason: " << e.what();
+        } catch (std::invalid_argument const& e) {
+            errors
+                << "\n  - Error in field: " << key
+                << "\n    reasons: " << e.what();
+        }
+    };
+
+    convert("name", [&](std::string val) {
+        result.name = std::move(val);
+    });
+
+    convert("role", [&](std::string const& val) {
+        result.role = destringify(val);
+    });
+
+    for (auto const& [key, _] : object) {
+        errors << "\n  - Unknown field: " << key;
+    }
+
+    if (errors.tellp()) {
+        Http_error(400)
+            << "POST /users could not parse request:"
+            << errors.str();
+    }
+
+    return result;
+} catch (TypeException const& e) {
+    throw Http_status{400, "POST /users could not understand request"};
+} catch (J::ParseError const& e) {
+    throw Http_status{400, "POST /users could not parse request as JSON"};
 }
 
 class Users_1 : public Resource
@@ -705,10 +781,12 @@ void Submissions_1_files_2::do_patch_(Request_body body, Context const& context)
         });
 
         if (! json.empty()) {
-            Result_array result;
-            for (auto const& pair : json)
-                result.failure() << "Unknown key in JSON: ‘" << pair.first << "’.";
-            return use_json(result);
+            auto key_s = json.size() == 1 ? "key" : "keys";
+
+            Http_error error(400);
+            error << "Unknown " << key_s << " in JSON:";
+            for (auto const& [key, _] : json)
+                error << "\n  - " << key;
         }
 
         auto file_meta_m = file_meta_.modify();
