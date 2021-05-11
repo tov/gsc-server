@@ -368,6 +368,11 @@ table.plain {
     td {
         text-align: left;
     }
+
+    td.numeric {
+        font-family: $tt-fam;
+        text-align: right;
+    }
 }
 
 .admin-view table {
