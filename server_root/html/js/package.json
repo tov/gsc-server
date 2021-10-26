@@ -5,7 +5,7 @@
   "author": "Jesse A. Tov",
   "dependencies": {
     "jquery": "^3.5.1",
-    "jquery-ui": "^1.12.1"
+    "jquery-ui": "^1.13.0"
   },
   "devDependencies": {
     "typescript": "^3.7.5",
